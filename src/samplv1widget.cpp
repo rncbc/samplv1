@@ -704,7 +704,7 @@ void samplv1widget::helpAbout (void)
 		sText += "</font></small><br />";
 	}
 	sText += "<br />\n";
-	sText += tr("URI") + ": <a href=\"" SAMPLV1_WEBSITE "\">" SAMPLV1_WEBSITE "</a><br />\n";
+	sText += tr("Website") + ": <a href=\"" SAMPLV1_WEBSITE "\">" SAMPLV1_WEBSITE "</a><br />\n";
 	sText += "<br />\n";
 	sText += "<small>";
 	sText += SAMPLV1_COPYRIGHT "<br />\n";
