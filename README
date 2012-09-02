@@ -9,20 +9,28 @@ features:
     and ALSA MIDI input support;
 
   - LV2 instrument plugin.
+    URI: http://samplv1.sourceforge.net/lv2
 
 license:
 
-  samplv1 is free, open-source software, distributed under the terms of
+  synthv1 is free, open-source software, distributed under the terms of
   the GNU General Public License (GPL) version 2 or later.
 
+website:
 
-source tarball:
+  http://samplv1.sourceforge.net
 
-  http://www.rncbc.org/snapshots/#samplv1
+project page:
 
-svn trunk (aka. LV2 URI):
+  http://sourceforge.net/projects/samplv1
 
-  https://www.rncbc.org/svn/test/samplv1
+svn trunk:
+
+  http://svn.code.sf.net/p/samplv1/code/trunk
+
+weblog:
+
+  http://www.rncbc.org
 
 
 installation:

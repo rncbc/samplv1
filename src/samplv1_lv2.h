@@ -28,7 +28,7 @@
 #include "lv2/lv2plug.in/ns/ext/urid/urid.h"
 #include "lv2/lv2plug.in/ns/ext/event/event.h"
 
-#define SAMPLV1_LV2_URI "https://www.rncbc.org/svn/test/samplv1"
+#define SAMPLV1_LV2_URI "http://samplv1.sourceforge.net/lv2"
 #define SAMPLV1_LV2_PREFIX SAMPLV1_LV2_URI "#"
 
 
