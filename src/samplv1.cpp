@@ -569,94 +569,14 @@ inline float note_freq ( float note )
 }
 
 
-// a forward decl.
-
-struct samplv1_voice;
-
-
-// polyphonic synth implementation
-
-class samplv1_impl
-{
-public:
-
-	samplv1_impl(uint16_t iChannels, uint32_t iSampleRate);
-
-	~samplv1_impl();
-
-	void setChannels(uint16_t iChannels);
-	uint16_t channels() const;
-
-	void setSampleRate(uint32_t iSampleRate);
-	uint32_t sampleRate() const;
-
-	void setSampleFile(const char *pszSampleFile);
-	const char *sampleFile() const;
-
-	void setParamPort(samplv1::ParamIndex index, float *pfParam = 0);
-	float *paramPort(samplv1::ParamIndex index);
-
-	void process_midi(uint8_t *data, uint32_t size);
-	void process(float **ins, float **outs, uint32_t nframes);
-
-	void reset();
-
-	samplv1_sample gen1_sample;
-	samplv1_wave   lfo1_wave;
-
-protected:
-
-	void allSoundOff();
-	void allControllersOff();
-	void allNotesOff();
-
-private:
-
-	uint16_t m_iChannels;
-	uint32_t m_iSampleRate;
-
-	samplv1_ctl m_ctl;
-
-	samplv1_gen m_gen1;
-	samplv1_dcf m_dcf1;
-	samplv1_lfo m_lfo1;
-	samplv1_dca m_dca1;
-	samplv1_def m_def1;
-	samplv1_out m_out1;
-
-	samplv1_cho m_cho;
-	samplv1_fla m_fla;
-	samplv1_pha m_pha;
-	samplv1_del m_del;
-	samplv1_dyn m_dyn;
-
-	samplv1_voice **m_voices;
-	samplv1_voice  *m_notes[MAX_NOTES];
-
-	samplv1_aux   m_aux1;
-
-	samplv1_ramp1 m_wid1;
-	samplv1_pan   m_pan1;
-	samplv1_ramp4 m_vol1;
-
-	samplv1_ramp2 m_pre1;
-
-	samplv1_fx_chorus   m_chorus;
-	samplv1_fx_flanger *m_flanger;
-	samplv1_fx_phaser  *m_phaser;
-	samplv1_fx_delay   *m_delay;
-	samplv1_fx_comp    *m_comp;
-};
-
+// forward decl.
+class samplv1_impl;
 
 // voice
 
 struct samplv1_voice
 {
-	samplv1_voice(const samplv1_impl& impl) :
-		gen1(impl.gen1_sample),
-		lfo1(impl.lfo1_wave),
-		gen1_glide(gen1_last) {}
+	samplv1_voice(samplv1_impl *pImpl);
 
 	samplv1_generator  gen1;
 	samplv1_oscillator lfo1;
@@ -675,8 +595,6 @@ struct samplv1_voice
 	samplv1_env::State lfo1_env;
 
 	samplv1_glide gen1_glide;					// glides (portamento)
-
-	static float gen1_last;
 
 	struct list_node
 	{
@@ -712,34 +630,113 @@ struct samplv1_voice
 		samplv1_voice *next;
 
 	} node;
+};
 
-	static
-	samplv1_voice *alloc ()
+
+// polyphonic synth implementation
+
+class samplv1_impl
+{
+public:
+
+	samplv1_impl(uint16_t iChannels, uint32_t iSampleRate);
+
+	~samplv1_impl();
+
+	void setChannels(uint16_t iChannels);
+	uint16_t channels() const;
+
+	void setSampleRate(uint32_t iSampleRate);
+	uint32_t sampleRate() const;
+
+	void setSampleFile(const char *pszSampleFile);
+	const char *sampleFile() const;
+
+	void setParamPort(samplv1::ParamIndex index, float *pfParam = 0);
+	float *paramPort(samplv1::ParamIndex index);
+
+	void process_midi(uint8_t *data, uint32_t size);
+	void process(float **ins, float **outs, uint32_t nframes);
+
+	void reset();
+
+	samplv1_sample gen1_sample;
+	samplv1_wave   lfo1_wave;
+
+	float gen1_last;
+
+protected:
+
+	void allSoundOff();
+	void allControllersOff();
+	void allNotesOff();
+
+	samplv1_voice *alloc_voice ()
 	{
-		samplv1_voice *pv = free_list.next;
+		samplv1_voice *pv = m_free_list.next;
 		if (pv) {
-			free_list.remove(pv);
-			play_list.append(pv);
+			m_free_list.remove(pv);
+			m_play_list.append(pv);
 		}
 		return pv;
 	}
 
-	static
-	void free ( samplv1_voice *pv )
+	void free_voice ( samplv1_voice *pv )
 	{
-		play_list.remove(pv);
-		free_list.append(pv);
+		m_play_list.remove(pv);
+		m_free_list.append(pv);
 	}
 
-	static list_node free_list;
-	static list_node play_list;
+private:
+
+	uint16_t m_iChannels;
+	uint32_t m_iSampleRate;
+
+	samplv1_ctl m_ctl;
+
+	samplv1_gen m_gen1;
+	samplv1_dcf m_dcf1;
+	samplv1_lfo m_lfo1;
+	samplv1_dca m_dca1;
+	samplv1_def m_def1;
+	samplv1_out m_out1;
+
+	samplv1_cho m_cho;
+	samplv1_fla m_fla;
+	samplv1_pha m_pha;
+	samplv1_del m_del;
+	samplv1_dyn m_dyn;
+
+	samplv1_voice **m_voices;
+	samplv1_voice  *m_notes[MAX_NOTES];
+
+	samplv1_voice::list_node m_free_list;
+	samplv1_voice::list_node m_play_list;
+
+	samplv1_aux   m_aux1;
+
+	samplv1_ramp1 m_wid1;
+	samplv1_pan   m_pan1;
+	samplv1_ramp4 m_vol1;
+
+	samplv1_ramp2 m_pre1;
+
+	samplv1_fx_chorus   m_chorus;
+	samplv1_fx_flanger *m_flanger;
+	samplv1_fx_phaser  *m_phaser;
+	samplv1_fx_delay   *m_delay;
+	samplv1_fx_comp    *m_comp;
 };
 
-samplv1_voice::list_node samplv1_voice::free_list;
-samplv1_voice::list_node samplv1_voice::play_list;
 
+// voice constructor
 
-float samplv1_voice::gen1_last = 0.0f;
+samplv1_voice::samplv1_voice ( samplv1_impl *pImpl ) :
+	gen1(pImpl->gen1_sample),
+	lfo1(pImpl->lfo1_wave),
+	gen1_glide(pImpl->gen1_last)
+{
+}
 
 
 // constructor
@@ -749,12 +746,15 @@ samplv1_impl::samplv1_impl ( uint16_t iChannels, uint32_t iSampleRate )
 	// null sample.
 	m_gen1.sample0 = 0.0f;
 
+	// glide note.
+	gen1_last = 0.0f;
+
 	// allocate voice pool.
 	m_voices = new samplv1_voice * [MAX_VOICES];
 
 	for (int i = 0; i < MAX_VOICES; ++i) {
-		m_voices[i] = new samplv1_voice(*this);
-		samplv1_voice::free_list.append(m_voices[i]);
+		m_voices[i] = new samplv1_voice(this);
+		m_free_list.append(m_voices[i]);
 	}
 
 	for (int note = 0; note < MAX_NOTES; ++note)
@@ -1069,7 +1069,7 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 			m_notes[key] = 0;
 		}
 		// find free voice
-		pv = samplv1_voice::alloc();
+		pv = alloc_voice();
 		if (pv) {
 			// waveform
 			pv->note = key;
@@ -1182,15 +1182,15 @@ void samplv1_impl::allSoundOff (void)
 
 void samplv1_impl::allNotesOff (void)
 {
-	samplv1_voice *pv = samplv1_voice::play_list.next;
+	samplv1_voice *pv = m_play_list.next;
 	while (pv) {
 		if (pv->note >= 0)
 			m_notes[pv->note] = 0;
-		samplv1_voice::free(pv);
-		pv = samplv1_voice::play_list.next;
+		free_voice(pv);
+		pv = m_play_list.next;
 	}
 
-	samplv1_voice::gen1_last = 0.0f;
+	gen1_last = 0.0f;
 
 	m_aux1.reset();
 }
@@ -1273,7 +1273,7 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 
 	// per voice
 
-	samplv1_voice *pv = samplv1_voice::play_list.next;
+	samplv1_voice *pv = m_play_list.next;
 
 	while (pv) {
 
@@ -1378,7 +1378,7 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 			if (pv->dca1_env.stage == samplv1_env::Done || pv->gen1.isOver()) {
 				if (pv->note >= 0)
 					m_notes[pv->note] = 0;
-				samplv1_voice::free(pv);
+				free_voice(pv);
 				nblock = 0;
 			} else {
 				if (pv->dcf1_env.running) {
