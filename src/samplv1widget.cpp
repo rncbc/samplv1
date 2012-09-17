@@ -27,8 +27,6 @@
 
 #include <QMessageBox>
 
-#include <QCloseEvent>
-
 
 //-------------------------------------------------------------------------
 // default state (params)
@@ -668,6 +666,13 @@ QString samplv1widget::noteName ( int note )
 }
 
 
+// Dirty close prompt,
+bool samplv1widget::queryClose (void)
+{
+	return m_ui.Preset->queryPreset();
+}
+
+
 // Menu actions.
 void samplv1widget::helpAbout (void)
 {
@@ -721,19 +726,6 @@ void samplv1widget::helpAboutQt (void)
 {
 	// About Qt...
 	QMessageBox::aboutQt(this);
-}
-
-
-// Application close.
-void samplv1widget::closeEvent ( QCloseEvent *pCloseEvent )
-{
-	// Let's be sure about that...
-	if (m_ui.Preset->queryPreset()) {
-		pCloseEvent->accept();
-	//	QApplication::quit();
-	} else {
-		pCloseEvent->ignore();
-	}
 }
 
 

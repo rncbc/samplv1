@@ -56,6 +56,9 @@ public:
 	// MIDI note/octave name helper.
 	static QString noteName(int note);
 
+	// Dirty close prompt,
+	bool queryClose();
+
 public slots:
 
 	// Preset file I/O.
@@ -81,9 +84,6 @@ protected slots:
 	void helpAboutQt();
 
 protected:
-
-	// Application close.
-	void closeEvent(QCloseEvent *pCloseEvent);
 
 	// Preset init.
 	void initPreset();

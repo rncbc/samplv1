@@ -78,6 +78,9 @@ protected:
 	// Sample filename retriever (crude experimental stuff III).
 	QString sampleFile() const;
 
+	// Application close.
+	void closeEvent(QCloseEvent *pCloseEvent);
+
 private:
 
 	// Instance variables.
