@@ -47,11 +47,10 @@ samplv1widget_lv2::samplv1widget_lv2 ( samplv1_lv2 *pSampl,
 		SLOT(updateNotify()));
 
 	// Initial update, always...
-#if 1//EXPERIMENTAL
-	if (!m_pSampl->sampleFile())
+	if (m_pSampl->sampleFile())
+		updateSample(m_pSampl->sample());
+	else
 		initPreset();
-#endif
-	updateSample(m_pSampl->sample());
 }
 
 
