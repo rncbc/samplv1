@@ -15,6 +15,7 @@ HEADERS = \
 	samplv1_sample.h \
 	samplv1_wave.h \
 	samplv1_ramp.h \
+	samplv1_list.h \
 	samplv1_fx.h \
 	samplv1widget.h \
 	samplv1widget_env.h \

@@ -26,6 +26,8 @@
 #include "samplv1_wave.h"
 #include "samplv1_ramp.h"
 
+#include "samplv1_list.h"
+
 #include "samplv1_fx.h"
 
 
@@ -574,7 +576,7 @@ class samplv1_impl;
 
 // voice
 
-struct samplv1_voice
+struct samplv1_voice : public samplv1_list<samplv1_voice>
 {
 	samplv1_voice(samplv1_impl *pImpl);
 
@@ -595,41 +597,6 @@ struct samplv1_voice
 	samplv1_env::State lfo1_env;
 
 	samplv1_glide gen1_glide;					// glides (portamento)
-
-	struct list_node
-	{
-		list_node() : prev(0), next(0) {}
-
-		void append(samplv1_voice *pv)
-		{
-			pv->node.prev = prev;
-			pv->node.next = 0;
-
-			if (prev)
-				prev->node.next = pv;
-			else
-				next = pv;
-
-			prev = pv;
-		}
-
-		void remove(samplv1_voice *pv)
-		{
-			if (pv->node.prev)
-				pv->node.prev->node.next = pv->node.next;
-			else
-				next = pv->node.next;
-
-			if (pv->node.next)
-				pv->node.next->node.prev = pv->node.prev;
-			else
-				prev = pv->node.prev;
-		}
-
-		samplv1_voice *prev;
-		samplv1_voice *next;
-
-	} node;
 };
 
 
@@ -673,7 +640,7 @@ protected:
 
 	samplv1_voice *alloc_voice ()
 	{
-		samplv1_voice *pv = m_free_list.next;
+		samplv1_voice *pv = m_free_list.next();
 		if (pv) {
 			m_free_list.remove(pv);
 			m_play_list.append(pv);
@@ -710,8 +677,8 @@ private:
 	samplv1_voice **m_voices;
 	samplv1_voice  *m_notes[MAX_NOTES];
 
-	samplv1_voice::list_node m_free_list;
-	samplv1_voice::list_node m_play_list;
+	samplv1_list<samplv1_voice> m_free_list;
+	samplv1_list<samplv1_voice> m_play_list;
 
 	samplv1_aux   m_aux1;
 
@@ -1182,12 +1149,12 @@ void samplv1_impl::allSoundOff (void)
 
 void samplv1_impl::allNotesOff (void)
 {
-	samplv1_voice *pv = m_play_list.next;
+	samplv1_voice *pv = m_play_list.next();
 	while (pv) {
 		if (pv->note >= 0)
 			m_notes[pv->note] = 0;
 		free_voice(pv);
-		pv = m_play_list.next;
+		pv = m_play_list.next();
 	}
 
 	gen1_last = 0.0f;
@@ -1273,11 +1240,11 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 
 	// per voice
 
-	samplv1_voice *pv = m_play_list.next;
+	samplv1_voice *pv = m_play_list.next();
 
 	while (pv) {
 
-		samplv1_voice *pv_next = pv->node.next;
+		samplv1_voice *pv_next = pv->next();
 
 		// output buffers
 
