@@ -74,16 +74,19 @@ protected slots:
 	void paramChanged(float fValue);
 
 	// Sample clear slot.
-	virtual void clearSample() = 0;
+	void clearSample();
 
 	// Sample loader slot.
-	virtual void loadSample(const QString& sFilename) = 0;
+	void loadSample(const QString& sFilename);
 
 	// Menu actions.
 	void helpAbout();
 	void helpAboutQt();
 
 protected:
+
+	// Synth engine accessor.
+	virtual samplv1 *instance() const = 0;
 
 	// Preset init.
 	void initPreset();
@@ -96,7 +99,7 @@ protected:
 	virtual void updateParam(samplv1::ParamIndex index, float fValue) const = 0;
 
 	// Sample filename retriever.
-	virtual QString sampleFile() const = 0;
+	QString sampleFile() const;
 
 	// Sample updater.
 	void updateSample(samplv1_sample *pSample, bool bDirty = false);

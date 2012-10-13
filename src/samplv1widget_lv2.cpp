@@ -73,37 +73,6 @@ void samplv1widget_lv2::port_event ( uint32_t port_index,
 }
 
 
-// Sample reset slot.
-void samplv1widget_lv2::clearSample (void)
-{
-#ifdef CONFIG_DEBUG
-	qDebug("samplv1widget_lv2::clearSample()");
-#endif
-	m_pSampl->setSampleFile(0);
-
-	updateSample(0);
-}
-
-
-// Sample loader slot.
-void samplv1widget_lv2::loadSample ( const QString& sFilename )
-{
-#ifdef CONFIG_DEBUG
-	qDebug("samplv1widget_lv2::loadSample(\"%s\")", sFilename.toUtf8().constData());
-#endif
-	m_pSampl->setSampleFile(sFilename.toUtf8().constData());
-
-	updateSample(m_pSampl->sample(), true);
-}
-
-
-// Sample filename retriever (crude experimental stuff III).
-QString samplv1widget_lv2::sampleFile (void) const
-{
-	return QString::fromUtf8(m_pSampl->sampleFile());
-}
-
-
 // Param method.
 void samplv1widget_lv2::updateParam (
 	samplv1::ParamIndex index, float fValue ) const

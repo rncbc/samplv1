@@ -60,22 +60,16 @@ public:
 
 protected slots:
 
-	// Sample clear slot.
-	void clearSample();
-
-	// Sample loader slot.
-	void loadSample(const QString& sFilename);
-
 	// Update notification slot.
 	void updateNotify();
 
 protected:
 
+	// Synth engine accessor.
+	samplv1 *instance() const;
+
 	// Param methods.
 	void updateParam(samplv1::ParamIndex index, float fValue) const;
-
-	// Sample filename retriever (crude experimental stuff III).
-	QString sampleFile() const;
 
 private:
 

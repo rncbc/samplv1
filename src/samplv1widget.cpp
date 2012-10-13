@@ -647,6 +647,47 @@ void samplv1widget::savePreset ( const QString& sFilename )
 }
 
 
+// Sample reset slot.
+void samplv1widget::clearSample (void)
+{
+#ifdef CONFIG_DEBUG
+	qDebug("samplv1widget::clearSample()");
+#endif
+
+	samplv1 *pSampl = instance();
+	if (pSampl)
+		pSampl->setSampleFile(0);
+
+	updateSample(0);
+}
+
+
+// Sample loader slot.
+void samplv1widget::loadSample ( const QString& sFilename )
+{
+#ifdef CONFIG_DEBUG
+	qDebug("samplv1widget::loadSample(\"%s\")", sFilename.toUtf8().constData());
+#endif
+
+	samplv1 *pSampl = instance();
+	if (pSampl) {
+		pSampl->setSampleFile(sFilename.toUtf8().constData());
+		updateSample(pSampl->sample());
+	}
+}
+
+
+// Sample filename retriever (crude experimental stuff III).
+QString samplv1widget::sampleFile (void) const
+{
+	samplv1 *pSampl = instance();
+	if (pSampl)
+		return QString::fromUtf8(pSampl->sampleFile());
+	else
+		return QString();
+}
+
+
 // Sample updater (crude experimental stuff II).
 void samplv1widget::updateSample ( samplv1_sample *pSample, bool bDirty )
 {

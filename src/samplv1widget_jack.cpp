@@ -132,34 +132,10 @@ void samplv1widget_jack::sessionEvent ( void *pvSessionArg )
 #endif	// CONFIG_JACK_SESSION
 
 
-// Sample reset slot.
-void samplv1widget_jack::clearSample (void)
+// Synth engine accessor.
+samplv1 *samplv1widget_jack::instance (void) const
 {
-#ifdef CONFIG_DEBUG
-	qDebug("samplv1widget_jack::clearSample()");
-#endif
-	m_pSampl->setSampleFile(0);
-
-	updateSample(0);
-}
-
-
-// Sample loader slot.
-void samplv1widget_jack::loadSample ( const QString& sFilename )
-{
-#ifdef CONFIG_DEBUG
-	qDebug("samplv1widget_jack::loadSample(\"%s\")", sFilename.toUtf8().constData());
-#endif
-	m_pSampl->setSampleFile(sFilename.toUtf8().constData());
-
-	updateSample(m_pSampl->sample());
-}
-
-
-// Sample filename retriever (crude experimental stuff III).
-QString samplv1widget_jack::sampleFile (void) const
-{
-	return QString::fromUtf8(m_pSampl->sampleFile());
+	return m_pSampl;
 }
 
 

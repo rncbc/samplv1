@@ -5,6 +5,8 @@ ChangeLog
 
 SVN TRUNK
 
+- Access to core engine instance has been slightly refactored.
+
 - Detached generic double-linked list class into its own header.
 
 
