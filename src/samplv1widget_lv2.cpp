@@ -61,6 +61,13 @@ samplv1widget_lv2::~samplv1widget_lv2 (void)
 }
 
 
+// Synth engine accessor.
+samplv1 *samplv1widget_lv2::instance (void) const
+{
+	return m_pSampl;
+}
+
+
 // Plugin port event notification.
 void samplv1widget_lv2::port_event ( uint32_t port_index,
 	uint32_t buffer_size, uint32_t format, const void *buffer )
