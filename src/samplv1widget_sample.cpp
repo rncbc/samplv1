@@ -112,13 +112,12 @@ void samplv1widget_sample::setSample ( samplv1_sample *pSample )
 	QString sToolTip;
 	const char *pszSampleFile = (m_pSample ? m_pSample->filename() : 0);
 	if (pszSampleFile) {
-		sToolTip += tr("%1\n%2 frames, %3 channels, %4 Hz\n")
+		sToolTip += tr("%1\n%2 frames, %3 channels, %4 Hz")
 			.arg(QFileInfo(pszSampleFile).completeBaseName())
 			.arg(m_pSample->length())
 			.arg(m_pSample->channels())
 			.arg(m_pSample->rate());
 	}
-	sToolTip += tr("(double-click to load new sample...)");
 	setToolTip(sToolTip);
 
 	update();
@@ -149,14 +148,16 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 {
 	QPainter painter(this);
 
-	const int h = height();
-	const int w = width();
+	const QRect& rect = QWidget::rect();
+	const int h = rect.height();
+	const int w = rect.width();
 
 	const QPalette& pal = palette();
 	const bool bDark = (pal.window().color().value() < 0x7f);
-	const QColor& rgbLite = (bDark ? Qt::darkYellow : Qt::yellow);
+	const QColor& rgbLite = (isEnabled()
+		? (bDark ? Qt::darkYellow : Qt::yellow) : pal.mid().color());
 
-	painter.fillRect(0, 0, w, h, pal.dark().color());
+	painter.fillRect(rect, pal.dark().color());
 
 	if (m_pSample && m_ppPolyg) {
 		painter.setRenderHint(QPainter::Antialiasing, true);
@@ -168,6 +169,10 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 		for (unsigned short k = 0; k < m_iChannels; ++k)
 			painter.drawPolygon(*m_ppPolyg[k]);
 		painter.setRenderHint(QPainter::Antialiasing, false);
+	} else {
+		painter.setPen(pal.midlight().color());
+		painter.drawText(rect, Qt::AlignCenter,
+			tr("(double-click to load new sample...)"));
 	}
 
 	painter.end();

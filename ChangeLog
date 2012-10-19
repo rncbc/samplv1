@@ -5,6 +5,9 @@ ChangeLog
 
 SVN TRUNK
 
+- Added some command line options to the stand-alone JACK client
+  program (--help and --version information).
+
 - Reimplemented mouse-wheel stepping on combo-dial knob widgets.
 
 - Access to core engine instance has been slightly refactored.
