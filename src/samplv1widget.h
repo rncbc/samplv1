@@ -31,7 +31,6 @@
 #include <QHash>
 
 
-
 //-------------------------------------------------------------------------
 // samplv1widget - decl.
 //
@@ -76,8 +75,14 @@ protected slots:
 	// Sample clear slot.
 	void clearSample();
 
+	// Sample openner.
+	void openSample();
+
 	// Sample loader slot.
 	void loadSample(const QString& sFilename);
+
+	// Common context menu.
+	void contextMenuRequest(const QPoint& pos);
 
 	// Menu actions.
 	void helpAbout();

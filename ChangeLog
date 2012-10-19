@@ -5,6 +5,8 @@ ChangeLog
 
 SVN TRUNK
 
+- Sample widget context menu's now a reality.
+
 - Added some command line options to the stand-alone JACK client
   program (--help and --version information).
 

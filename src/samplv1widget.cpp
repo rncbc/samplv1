@@ -422,6 +422,13 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 		SLOT(savePreset(const QString&)));
 
 
+	// Sample context menu...
+	m_ui.Gen1Sample->setContextMenuPolicy(Qt::CustomContextMenu);
+
+	QObject::connect(m_ui.Gen1Sample,
+		SIGNAL(customContextMenuRequested(const QPoint&)),
+		SLOT(contextMenuRequest(const QPoint&)));
+
 	// Menu actions
 	QObject::connect(m_ui.helpAboutAction,
 		SIGNAL(triggered(bool)),
@@ -662,6 +669,13 @@ void samplv1widget::clearSample (void)
 }
 
 
+// Sample openner.
+void samplv1widget::openSample (void)
+{
+	m_ui.Gen1Sample->openSample();
+}
+
+
 // Sample loader slot.
 void samplv1widget::loadSample ( const QString& sFilename )
 {
@@ -711,6 +725,30 @@ QString samplv1widget::noteName ( int note )
 bool samplv1widget::queryClose (void)
 {
 	return m_ui.Preset->queryPreset();
+}
+
+
+// Sample context menu.
+void samplv1widget::contextMenuRequest ( const QPoint& pos )
+{
+	QMenu menu(this);
+	QAction *pAction;
+
+	samplv1 *pSampl = instance();
+	const char *pszSampleFile = NULL;
+	if (pSampl)
+		pszSampleFile = pSampl->sampleFile();
+
+	pAction = menu.addAction(
+		QIcon(":/images/fileOpen.png"),
+		tr("Open Sample..."), this, SLOT(openSample()));
+	pAction->setEnabled(pSampl != NULL);
+	menu.addSeparator();
+	pAction = menu.addAction(
+		tr("Reset"), this, SLOT(clearSample()));
+	pAction->setEnabled(pszSampleFile != NULL);
+
+	menu.exec(static_cast<QWidget *> (sender())->mapToGlobal(pos));
 }
 
 
