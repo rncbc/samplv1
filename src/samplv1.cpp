@@ -176,10 +176,9 @@ struct samplv1_env
 	{
 		p->running = true;
 		p->stage = Release;
-		if (p->frames > min_frames) {
+		if (p->frames > min_frames)
 			p->frames = min_frames;
-			p->delta = -(p->level) / float(p->frames);
-		}
+		p->delta = -(p->level) / float(p->frames);
 	}
 
 	// parameters

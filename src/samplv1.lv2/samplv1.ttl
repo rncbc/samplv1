@@ -93,7 +93,7 @@
 		lv2:index 10 ;
 		lv2:symbol "DCF1_CUTOFF" ;
 		lv2:name "DCF1 Cutoff" ;
-		lv2:default 0.5 ;
+		lv2:default 1.0 ;
 		lv2:minimum 0.0 ;
 		lv2:maximum 1.0 ;
 	], [
