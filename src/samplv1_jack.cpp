@@ -211,7 +211,7 @@ int samplv1_jack::process ( jack_nframes_t nframes )
 }
 
 
-void samplv1_jack::open(void)
+void samplv1_jack::open (void)
 {
 	// open client
 	m_client = ::jack_client_open("samplv1", JackNullOption, NULL);
@@ -224,7 +224,7 @@ void samplv1_jack::open(void)
 
 	// set sample rate
 	samplv1::setSampleRate(jack_get_sample_rate(m_client));
-	samplv1::reset();
+//	samplv1::reset();
 
 	// register audio ports & buffers
 	uint16_t nchannels = channels();
@@ -282,6 +282,8 @@ void samplv1_jack::open(void)
 
 void samplv1_jack::activate (void)
 {
+	samplv1::reset();
+
 	if (m_client) ::jack_activate(m_client);
 }
 
