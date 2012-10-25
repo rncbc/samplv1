@@ -698,8 +698,8 @@ private:
 // voice constructor
 
 samplv1_voice::samplv1_voice ( samplv1_impl *pImpl ) :
-	gen1(pImpl->gen1_sample),
-	lfo1(pImpl->lfo1_wave),
+	gen1(&pImpl->gen1_sample),
+	lfo1(&pImpl->lfo1_wave),
 	gen1_glide(pImpl->gen1_last)
 {
 }
