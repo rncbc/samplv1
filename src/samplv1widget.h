@@ -84,6 +84,9 @@ protected slots:
 	// Common context menu.
 	void contextMenuRequest(const QPoint& pos);
 
+	// Reset param knobs to default value.
+	void resetParams();
+
 	// Menu actions.
 	void helpAbout();
 	void helpAboutQt();
@@ -102,6 +105,12 @@ protected:
 
 	// Param port methods.
 	virtual void updateParam(samplv1::ParamIndex index, float fValue) const = 0;
+
+	// Sample file clearance.
+	void clearSampleFile();
+
+	// Sample loader slot.
+	void loadSampleFile(const QString& sFilename);
 
 	// Sample filename retriever.
 	QString sampleFile() const;

@@ -420,7 +420,9 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	QObject::connect(m_ui.Preset,
 		SIGNAL(savePresetFile(const QString&)),
 		SLOT(savePreset(const QString&)));
-
+	QObject::connect(m_ui.Preset,
+		SIGNAL(resetPresetFile()),
+		SLOT(resetParams()));
 
 	// Sample context menu...
 	m_ui.Gen1Sample->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -493,6 +495,21 @@ void samplv1widget::paramChanged ( float fValue )
 }
 
 
+// Reset all param knobs to default values.
+void samplv1widget::resetParams (void)
+{
+	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
+		samplv1::ParamIndex index = samplv1::ParamIndex(i);
+		float fValue = samplv1_default_params[i].value;
+		samplv1widget_knob *pKnob = paramKnob(index);
+		if (pKnob)
+			fValue = pKnob->defaultValue();
+		setParamValue(index, fValue);
+		updateParam(index, fValue);
+	}
+}
+
+
 // Reset all param default values.
 void samplv1widget::resetParamValues (void)
 {
@@ -530,7 +547,7 @@ void samplv1widget::newPreset (void)
 	qDebug("samplv1widget::newPreset()");
 #endif
 
-	clearSample();
+	clearSampleFile();
 
 	resetParamKnobs();
 	resetParamValues();
@@ -556,7 +573,7 @@ void samplv1widget::loadPreset ( const QString& sFilename )
 			s_hash.insert(samplv1_default_params[i].name, samplv1::ParamIndex(i));
 	}
 
-	clearSample();
+	clearSampleFile();
 
 	resetParamValues();
 	resetParamKnobs();
@@ -582,7 +599,7 @@ void samplv1widget::loadPreset ( const QString& sFilename )
 							continue;
 						if (eSample.tagName() == "sample") {
 						//	int index = eSample.attribute("index").toInt();
-							loadSample(eSample.text());
+							loadSampleFile(eSample.text());
 						}
 					}
 				}
@@ -657,15 +674,18 @@ void samplv1widget::savePreset ( const QString& sFilename )
 // Sample reset slot.
 void samplv1widget::clearSample (void)
 {
-#ifdef CONFIG_DEBUG
-	qDebug("samplv1widget::clearSample()");
-#endif
+	clearSampleFile();
 
-	samplv1 *pSampl = instance();
-	if (pSampl)
-		pSampl->setSampleFile(0);
+	m_ui.Preset->dirtyPreset();
+}
 
-	updateSample(0);
+
+// Sample file loader slot.
+void samplv1widget::loadSample ( const QString& sFilename )
+{
+	loadSampleFile(sFilename);
+
+	m_ui.Preset->dirtyPreset();
 }
 
 
@@ -676,11 +696,26 @@ void samplv1widget::openSample (void)
 }
 
 
-// Sample loader slot.
-void samplv1widget::loadSample ( const QString& sFilename )
+// Sample file reset.
+void samplv1widget::clearSampleFile (void)
 {
 #ifdef CONFIG_DEBUG
-	qDebug("samplv1widget::loadSample(\"%s\")", sFilename.toUtf8().constData());
+	qDebug("samplv1widget::clearSampleFile()");
+#endif
+
+	samplv1 *pSampl = instance();
+	if (pSampl)
+		pSampl->setSampleFile(0);
+
+	updateSample(0);
+}
+
+
+// Sample file loader.
+void samplv1widget::loadSampleFile ( const QString& sFilename )
+{
+#ifdef CONFIG_DEBUG
+	qDebug("samplv1widget::loadSampleFile(\"%s\")", sFilename.toUtf8().constData());
 #endif
 
 	samplv1 *pSampl = instance();

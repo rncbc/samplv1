@@ -5,6 +5,8 @@ ChangeLog
 
 SVN TRUNK
 
+- Reset (all values to preset defaults) button has been added.
+
 - Slight minor fix on fast-release re-triggering.
 
 - Sample widget context menu's now a reality.
