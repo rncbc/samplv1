@@ -346,7 +346,7 @@
 		lv2:index 40 ;
 		lv2:symbol "DEF1_VELOCITY" ;
 		lv2:name "DEF1 Velocity" ;
-		lv2:default 0.5 ;
+		lv2:default 0.2 ;
 		lv2:minimum 0.0 ;
 		lv2:maximum 1.0 ;
 	], [

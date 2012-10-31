@@ -85,13 +85,9 @@ inline float samplv1_sigmoid1 ( const float x, const float t = 0.01f )
 
 // velocity hard-split curve
 
-inline float samplv1_velocity ( float x, float p )
+inline float samplv1_velocity ( float x, float p = 0.2f )
 {
-	const float q = 2.0f * p;
-	if (q > 1.0f)
-		return (2.0f - q) * x + q - 1.0f;
-	else
-		return q * x;
+	return ::powf(x, (1.0f - p));
 }
 
 
