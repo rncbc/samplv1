@@ -71,12 +71,14 @@ struct {
 	{ "DCA1_DECAY",     0.1f },
 	{ "DCA1_SUSTAIN",   1.0f },
 	{ "DCA1_RELEASE",   0.5f },	// 0.1f
-	{ "DEF1_PITCHBEND", 0.2f },
-	{ "DEF1_MODWHEEL",  0.2f },
-	{ "DEF1_PRESSURE",  0.2f },
 	{ "OUT1_WIDTH",     0.0f },
 	{ "OUT1_PANNING",   0.0f },
 	{ "OUT1_VOLUME",    0.5f },
+
+	{ "DEF1_PITCHBEND", 0.2f },
+	{ "DEF1_MODWHEEL",  0.2f },
+	{ "DEF1_PRESSURE",  0.2f },
+	{ "DEF1_VELOCITY",  0.5f },
 
 	{ "CHO1_WET",       0.0f },
 	{ "CHO1_DELAY",     0.5f },
@@ -370,6 +372,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	setParamKnob(samplv1::DEF1_PITCHBEND, m_ui.Def1PitchbendKnob);
 	setParamKnob(samplv1::DEF1_MODWHEEL,  m_ui.Def1ModwheelKnob);
 	setParamKnob(samplv1::DEF1_PRESSURE,  m_ui.Def1PressureKnob);
+	setParamKnob(samplv1::DEF1_VELOCITY,  m_ui.Def1VelocityKnob);
 
 	// OUT1
 	setParamKnob(samplv1::OUT1_WIDTH,   m_ui.Out1WidthKnob);

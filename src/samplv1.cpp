@@ -83,6 +83,18 @@ inline float samplv1_sigmoid1 ( const float x, const float t = 0.01f )
 }
 
 
+// velocity hard-split curve
+
+inline float samplv1_velocity ( float x, float p )
+{
+	const float q = 2.0f * p;
+	if (q > 1.0f)
+		return (2.0f - q) * x + q - 1.0f;
+	else
+		return q * x;
+}
+
+
 // envelope
 
 struct samplv1_env
@@ -295,6 +307,7 @@ struct samplv1_def
 	float *pitchbend;
 	float *modwheel;
 	float *pressure;
+	float *velocity;
 };
 
 
@@ -899,12 +912,13 @@ void samplv1_impl::setParamPort ( samplv1::ParamIndex index, float *pfParam )
 	case samplv1::DCA1_DECAY:     m_dca1.env.decay   = pfParam; break;
 	case samplv1::DCA1_SUSTAIN:   m_dca1.env.sustain = pfParam; break;
 	case samplv1::DCA1_RELEASE:   m_dca1.env.release = pfParam; break;
-	case samplv1::DEF1_PITCHBEND: m_def1.pitchbend   = pfParam; break;
-	case samplv1::DEF1_MODWHEEL:  m_def1.modwheel    = pfParam; break;
-	case samplv1::DEF1_PRESSURE:  m_def1.pressure    = pfParam; break;
 	case samplv1::OUT1_WIDTH:     m_out1.width       = pfParam; break;
 	case samplv1::OUT1_PANNING:   m_out1.panning     = pfParam; break;
 	case samplv1::OUT1_VOLUME:    m_out1.volume      = pfParam; break;
+	case samplv1::DEF1_PITCHBEND: m_def1.pitchbend   = pfParam; break;
+	case samplv1::DEF1_MODWHEEL:  m_def1.modwheel    = pfParam; break;
+	case samplv1::DEF1_PRESSURE:  m_def1.pressure    = pfParam; break;
+	case samplv1::DEF1_VELOCITY:  m_def1.velocity    = pfParam; break;
 	case samplv1::CHO1_WET:       m_cho.wet          = pfParam; break;
 	case samplv1::CHO1_DELAY:     m_cho.delay        = pfParam; break;
 	case samplv1::CHO1_FEEDB:     m_cho.feedb        = pfParam; break;
@@ -967,12 +981,13 @@ float *samplv1_impl::paramPort ( samplv1::ParamIndex index )
 	case samplv1::DCA1_DECAY:     pfParam = m_dca1.env.decay;   break;
 	case samplv1::DCA1_SUSTAIN:   pfParam = m_dca1.env.sustain; break;
 	case samplv1::DCA1_RELEASE:   pfParam = m_dca1.env.release; break;
-	case samplv1::DEF1_PITCHBEND: pfParam = m_def1.pitchbend;   break;
-	case samplv1::DEF1_MODWHEEL:  pfParam = m_def1.modwheel;    break;
-	case samplv1::DEF1_PRESSURE:  pfParam = m_def1.pressure;    break;
 	case samplv1::OUT1_WIDTH:     pfParam = m_out1.width;       break;
 	case samplv1::OUT1_PANNING:   pfParam = m_out1.panning;     break;
 	case samplv1::OUT1_VOLUME:    pfParam = m_out1.volume;      break;
+	case samplv1::DEF1_PITCHBEND: pfParam = m_def1.pitchbend;   break;
+	case samplv1::DEF1_MODWHEEL:  pfParam = m_def1.modwheel;    break;
+	case samplv1::DEF1_PRESSURE:  pfParam = m_def1.pressure;    break;
+	case samplv1::DEF1_VELOCITY:  pfParam = m_def1.velocity;    break;
 	case samplv1::CHO1_WET:       pfParam = m_cho.wet;          break;
 	case samplv1::CHO1_DELAY:     pfParam = m_cho.delay;        break;
 	case samplv1::CHO1_FEEDB:     pfParam = m_cho.feedb;        break;
@@ -1040,8 +1055,9 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 			// waveform
 			pv->note = key;
 			// velocity
-			pv->vel = float(value) / 127.0f;
-			pv->vel *= pv->vel; // quadratic velocity law
+			const float vel = float(value) / 127.0f;
+			pv->vel  = samplv1_velocity(vel, *m_def1.velocity);
+			pv->vel *= pv->vel;	// quadratic velocity law
 			// generate
 			pv->gen1.start();
 			// frequencies
