@@ -1056,8 +1056,8 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 			pv->note = key;
 			// velocity
 			const float vel = float(value) / 127.0f;
-			pv->vel  = samplv1_velocity(vel, *m_def1.velocity);
-			pv->vel *= pv->vel;	// quadratic velocity law
+			// quadratic velocity law
+			pv->vel = samplv1_velocity(vel * vel, *m_def1.velocity);
 			// generate
 			pv->gen1.start();
 			// frequencies
