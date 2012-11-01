@@ -5,6 +5,8 @@ ChangeLog
 
 SVN TRUNK
 
+- Prepared for relative paths from preset file references.
+
 - Audio files browser filter support for the old but everlasting
   8.3 filename formats.
 
