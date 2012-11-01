@@ -5,6 +5,9 @@ ChangeLog
 
 SVN TRUNK
 
+- Audio files browser filter support for the old but everlasting
+  8.3 filename formats.
+
 - Velocity sensitivity configuration control has been added.
 
 - Reset (all values to preset defaults) button has been added.
