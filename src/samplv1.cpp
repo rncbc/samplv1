@@ -48,7 +48,7 @@
 const uint16_t MAX_VOICES = 32;			// polyphony
 const uint8_t  MAX_NOTES  = 128;
 
-const float MIN_ENV_MSECS = 5.0f;		// min 5msec per stage
+const float MIN_ENV_MSECS = 2.0f;		// min 5msec per stage
 const float MAX_ENV_MSECS = 5000.0f;	// max 5 sec per stage
 
 const float DETUNE_SCALE  = 0.5f;
@@ -77,7 +77,7 @@ inline float samplv1_sigmoid0 ( const float x, const float t )
 	return (x < t0 ? t0 : (x > t1 ? t1 : x * (1.5f - 0.5f * x * x)));
 }
 
-inline float samplv1_sigmoid1 ( const float x, const float t = 0.01f )
+inline float samplv1_sigmoid1 ( const float x, const float t = 0.001f )
 {
 	return 0.5f * (1.0f + samplv1_sigmoid0(2.0f * x - 1.0f, t));
 }
