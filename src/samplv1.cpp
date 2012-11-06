@@ -438,7 +438,7 @@ private:
 };
 
 
-// (second kind of) filter
+// (Stilson/Smith Moog 24dB/oct) filter
 
 class samplv1_filter2
 {
@@ -465,17 +465,17 @@ public:
 		m_q = 1.0f - cutoff;
 		m_p = cutoff + 0.8f * cutoff * m_q;
 		m_f = m_p + m_p - 1.0f;
-		m_q = 0.89f * reso * (1.0f + 0.5f * m_q * (1.0f - m_q + 5.6f * m_q * m_q));
+		m_q = reso * (1.0f + 0.5f * m_q * (1.0f - m_q + 5.6f * m_q * m_q));
 
-		input -= m_q * m_b4;
+		input -= m_q * m_b4;	// feedback
 
-		m_t1 = m_b1;
-		m_b1 = (input + m_b0) * m_p - m_b1 * m_f;
-		m_t2 = m_b2;
-		m_b2 = (m_b1 + m_t1) * m_p - m_b2 * m_f;
-		m_t1 = m_b3;
-		m_b3 = (m_b2 + m_t2) * m_p - m_b3 * m_f;
+		m_t1 = m_b1; m_b1 = (input + m_b0) * m_p - m_b1 * m_f;
+		m_t2 = m_b2; m_b2 = (m_b1 + m_t1) * m_p - m_b2 * m_f;
+		m_t1 = m_b3; m_b3 = (m_b2 + m_t2) * m_p - m_b3 * m_f;
+
 		m_b4 = (m_b3 + m_t1) * m_p - m_b4 * m_f;
+		m_b4 = m_b4 - m_b4 * m_b4 * m_b4 * 0.166667f;	// clipping
+
 		m_b0 = input;
 
 		switch (m_type) {
@@ -594,7 +594,8 @@ struct samplv1_voice : public samplv1_list<samplv1_voice>
 
 	float lfo1_sample;
 
-	samplv1_filter1 dcf11, dcf12, dcf13, dcf14;	// filters
+	samplv1_filter1 dcf11, dcf12;				// filters
+	samplv1_filter2 dcf13, dcf14;
 
 	samplv1_env::State dca1_env;				// envelope states
 	samplv1_env::State dcf1_env;
@@ -1058,12 +1059,11 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 				+ *m_gen1.tuning * TUNING_SCALE;
 			pv->gen1_freq = note_freq(freq1);
 			// filters
-			const samplv1_filter1::Type type1
-				= samplv1_filter1::Type(int(*m_dcf1.type));
-			pv->dcf11.reset(type1);
-			pv->dcf12.reset(type1);
-			pv->dcf13.reset(type1);
-			pv->dcf14.reset(type1);
+			const int type1 = int(*m_dcf1.type);
+			pv->dcf11.reset(samplv1_filter1::Type(type1));
+			pv->dcf12.reset(samplv1_filter1::Type(type1));
+			pv->dcf13.reset(samplv1_filter2::Type(type1));
+			pv->dcf14.reset(samplv1_filter2::Type(type1));
 			// envelopes
 			m_dcf1.env.start(&pv->dcf1_env);
 			m_lfo1.env.start(&pv->lfo1_env);
@@ -1289,8 +1289,8 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 					* (pitchbend1 + modwheel1 * lfo1)
 					+ pv->gen1_glide.tick());
 
-				const float gen1 = pv->gen1.value(k11);
-				const float gen2 = pv->gen1.value(k12);
+				float gen1 = pv->gen1.value(k11);
+				float gen2 = pv->gen1.value(k12);
 
 				pv->lfo1_sample = pv->lfo1.sample(lfo1_freq
 					* (1.0f + SWEEP_SCALE * *m_lfo1.sweep * lfo1_env));
@@ -1304,18 +1304,19 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 				const float reso1 = samplv1_sigmoid1(*m_dcf1.reso
 					* env1 * (1.0f + *m_lfo1.reso * lfo1));
 
-				float dcf11 = pv->dcf11.output(gen1, cutoff1, reso1);
-				float dcf12 = pv->dcf12.output(gen2, cutoff1, reso1);
 				if (int(*m_dcf1.slope) > 0) { // 24db/octave
-					dcf11 = pv->dcf13.output(dcf11, cutoff1, reso1);
-					dcf12 = pv->dcf14.output(dcf12, cutoff1, reso1);
+					gen1 = pv->dcf13.output(gen1, cutoff1, reso1);
+					gen2 = pv->dcf14.output(gen2, cutoff1, reso1);
+				} else {
+					gen1 = pv->dcf11.output(gen1, cutoff1, reso1);
+					gen2 = pv->dcf12.output(gen2, cutoff1, reso1);
 				}
 
 				// volumes
 
 				const float wid1 = m_wid1.value(j);
-				const float mid1 = 0.5f * (dcf11 + dcf12);
-				const float sid1 = 0.5f * (dcf11 - dcf12);
+				const float mid1 = 0.5f * (gen1 + gen2);
+				const float sid1 = 0.5f * (gen1 - gen2);
 				const float vol1 = vel1 * m_vol1.value(j)
 					* pv->dca1_env.value2(j);
 
