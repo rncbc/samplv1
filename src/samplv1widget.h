@@ -106,9 +106,6 @@ protected:
 	void resetParamValues();
 	void resetParamKnobs();
 
-	// Reset swap params A/B button state.
-	void resetSwapParams();
-
 	// Param port methods.
 	virtual void updateParam(samplv1::ParamIndex index, float fValue) const = 0;
 
