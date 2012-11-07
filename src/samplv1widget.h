@@ -88,7 +88,7 @@ protected slots:
 	void resetParams();
 
 	// Swap params A/B.
-	void swapParams();
+	void swapParams(bool bOn);
 
 	// Menu actions.
 	void helpAbout();
