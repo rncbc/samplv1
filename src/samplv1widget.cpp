@@ -522,7 +522,7 @@ void samplv1widget::paramChanged ( float fValue )
 // Reset all param knobs to default values.
 void samplv1widget::resetParams (void)
 {
-	m_ui.SwapParamsAButton->setChecked(true);
+	resetSwapParams();
 
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
 		samplv1::ParamIndex index = samplv1::ParamIndex(i);
@@ -540,9 +540,12 @@ void samplv1widget::resetParams (void)
 // Swap params A/B.
 void samplv1widget::swapParams ( bool bOn )
 {
-	if (!bOn)
+	if (m_iUpdate > 0 || !bOn)
 		return;
 
+#ifdef CONFIG_DEBUG
+	qDebug("samplv1widget::swapParams(%d)", int(bOn));
+#endif
 //	resetParamKnobs();
 
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
@@ -561,10 +564,19 @@ void samplv1widget::swapParams ( bool bOn )
 }
 
 
+// Reset swap params A/B group.
+void samplv1widget::resetSwapParams (void)
+{
+	++m_iUpdate;
+	m_ui.SwapParamsAButton->setChecked(true);
+	--m_iUpdate;
+}
+
+
 // Reset all param default values.
 void samplv1widget::resetParamValues (void)
 {
-	m_ui.SwapParamsAButton->setChecked(true);
+	resetSwapParams();
 
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
 		samplv1::ParamIndex index = samplv1::ParamIndex(i);
