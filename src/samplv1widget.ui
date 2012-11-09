@@ -27,13 +27,13 @@
     <x>0</x>
     <y>0</y>
     <width>1024</width>
-	<height>560</height>
+    <height>560</height>
    </rect>
   </property>
   <property name="minimumSize" >
    <size>
     <width>1024</width>
-	<height>560</height>
+    <height>560</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -57,7 +57,7 @@
      <item>
       <widget class="QToolButton" name="SwapParamsAButton">
        <property name="toolTip">
-        <string>A</string>
+        <string>Swap A</string>
        </property>
        <property name="text">
         <string>A</string>
@@ -70,7 +70,7 @@
      <item>
       <widget class="QToolButton" name="SwapParamsBButton">
        <property name="toolTip">
-        <string>B</string>
+        <string>Swap B</string>
        </property>
        <property name="text">
         <string>B</string>
