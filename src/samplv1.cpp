@@ -595,7 +595,7 @@ struct samplv1_voice : public samplv1_list<samplv1_voice>
 	float lfo1_sample;
 
 	samplv1_filter1 dcf11, dcf12;				// filters
-	samplv1_filter2 dcf13, dcf14;
+	samplv1_filter1 dcf13, dcf14;
 
 	samplv1_env::State dca1_env;				// envelope states
 	samplv1_env::State dcf1_env;
@@ -1059,11 +1059,12 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 				+ *m_gen1.tuning * TUNING_SCALE;
 			pv->gen1_freq = note_freq(freq1);
 			// filters
-			const int type1 = int(*m_dcf1.type);
-			pv->dcf11.reset(samplv1_filter1::Type(type1));
-			pv->dcf12.reset(samplv1_filter1::Type(type1));
-			pv->dcf13.reset(samplv1_filter2::Type(type1));
-			pv->dcf14.reset(samplv1_filter2::Type(type1));
+			const samplv1_filter1::Type type1
+				= samplv1_filter1::Type(int(*m_dcf1.type));
+			pv->dcf11.reset(type1);
+			pv->dcf12.reset(type1);
+			pv->dcf13.reset(type1);
+			pv->dcf14.reset(type1);
 			// envelopes
 			m_dcf1.env.start(&pv->dcf1_env);
 			m_lfo1.env.start(&pv->lfo1_env);
@@ -1304,10 +1305,9 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 				const float reso1 = samplv1_sigmoid1(*m_dcf1.reso
 					* env1 * (1.0f + *m_lfo1.reso * lfo1));
 
+				gen1 = pv->dcf13.output(gen1, cutoff1, reso1);
+				gen2 = pv->dcf14.output(gen2, cutoff1, reso1);
 				if (int(*m_dcf1.slope) > 0) { // 24db/octave
-					gen1 = pv->dcf13.output(gen1, cutoff1, reso1);
-					gen2 = pv->dcf14.output(gen2, cutoff1, reso1);
-				} else {
 					gen1 = pv->dcf11.output(gen1, cutoff1, reso1);
 					gen2 = pv->dcf12.output(gen2, cutoff1, reso1);
 				}
