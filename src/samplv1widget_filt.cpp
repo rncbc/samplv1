@@ -46,7 +46,7 @@ samplv1widget_filt::samplv1widget_filt (
 		m_bDragging(false)
 {
 //	setMouseTracking(true);
-	setMinimumSize(QSize(120, 60));
+	setMinimumSize(QSize(180, 60));
 
 	QFrame::setFrameShape(QFrame::Panel);
 	QFrame::setFrameShadow(QFrame::Sunken);
