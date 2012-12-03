@@ -55,6 +55,9 @@ public:
 	// MIDI note/octave name helper.
 	static QString noteName(int note);
 
+	// Preset init.
+	void initPreset();
+
 	// Dirty close prompt,
 	bool queryClose();
 
@@ -98,9 +101,6 @@ protected:
 
 	// Synth engine accessor.
 	virtual samplv1 *instance() const = 0;
-
-	// Preset init.
-	void initPreset();
 
 	// Reset swap params A/B group.
 	void resetSwapParams();

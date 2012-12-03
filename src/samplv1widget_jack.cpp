@@ -70,7 +70,7 @@ samplv1widget_jack::samplv1widget_jack ( samplv1_jack *pSampl )
 #endif
 
 	// Initialize preset stuff...
-	initPreset();
+	// initPreset();
 
 	// Activate client...
 	m_pSampl->activate();
@@ -210,6 +210,8 @@ int main ( int argc, char *argv[] )
 	samplv1widget_jack w(&sampl);
 	if (argc > 1)
 		w.loadPreset(argv[1]);
+	else
+		w.initPreset();
 	w.show();
 
 	return app.exec();
