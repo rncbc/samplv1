@@ -26,7 +26,7 @@
 
 #include "lv2.h"
 #include "lv2/lv2plug.in/ns/ext/urid/urid.h"
-#include "lv2/lv2plug.in/ns/ext/event/event.h"
+#include "lv2/lv2plug.in/ns/ext/atom/atom.h"
 
 #define SAMPLV1_LV2_URI "http://samplv1.sourceforge.net/lv2"
 #define SAMPLV1_LV2_PREFIX SAMPLV1_LV2_URI "#"
@@ -72,9 +72,9 @@ private:
 
 	LV2_URID_Map *m_urid_map;
 
-	uint32_t m_event_id;
+	uint32_t m_midi_event_type;
 
-	LV2_Event_Buffer *m_event_buffer;
+	LV2_Atom_Sequence *m_atom_sequence;
 
 	float **m_ins;
 	float **m_outs;

@@ -23,11 +23,10 @@
 
 #include "samplv1widget_lv2.h"
 
+#include "lv2/lv2plug.in/ns/ext/atom/atom.h"
 #include "lv2/lv2plug.in/ns/ext/midi/midi.h"
-#include "lv2/lv2plug.in/ns/ext/event/event-helpers.h"
 #include "lv2/lv2plug.in/ns/ext/instance-access/instance-access.h"
 #include "lv2/lv2plug.in/ns/ext/state/state.h"
-#include "lv2/lv2plug.in/ns/ext/atom/atom.h"
 
 #include <unistd.h>
 
@@ -44,14 +43,14 @@ samplv1_lv2::samplv1_lv2 (
 	: samplv1(2, uint32_t(sample_rate))
 {
 	m_urid_map = NULL;
-	m_event_id = 0;
-	m_event_buffer = NULL;
+	m_midi_event_type = 0;
+	m_atom_sequence = NULL;
 
 	for (int i = 0; host_features && host_features[i]; ++i) {
 		if (::strcmp(host_features[i]->URI, LV2_URID_MAP_URI) == 0) {
 			m_urid_map = (LV2_URID_Map *) host_features[i]->data;
 			if (m_urid_map) {
-				m_event_id = m_urid_map->map(
+				m_midi_event_type = m_urid_map->map(
 					m_urid_map->handle, LV2_MIDI__MidiEvent);
 				break;
 			}
@@ -80,7 +79,7 @@ void samplv1_lv2::connect_port ( uint32_t port, void *data )
 {
 	switch(PortIndex(port)) {
 	case MidiIn:
-		m_event_buffer = (LV2_Event_Buffer *) data;
+		m_atom_sequence = (LV2_Atom_Sequence *) data;
 		break;
 	case AudioInL:
 		m_ins[0] = (float *) data;
@@ -112,14 +111,16 @@ void samplv1_lv2::run ( uint32_t nframes )
 
 	uint32_t ndelta = 0;
 
-	if (m_event_buffer) {
-		LV2_Event_Iterator iter;
-		lv2_event_begin(&iter, m_event_buffer);
-		while (lv2_event_is_valid(&iter)) {
-			uint8_t   *data;
-			LV2_Event *event = lv2_event_get(&iter, &data);
-			if (event && event->type == m_event_id) {
-				uint32_t nread = event->frames - ndelta;
+	if (m_atom_sequence) {
+		const uint32_t size
+			= m_atom_sequence->atom.size - sizeof(LV2_Atom_Sequence_Body);
+		uint32_t offset = 0;
+		while (offset < size) {
+			LV2_Atom_Event *event = (LV2_Atom_Event *) ((char *)
+				LV2_ATOM_CONTENTS(LV2_Atom_Sequence, m_atom_sequence) + offset);
+			uint8_t *data = (uint8_t *) LV2_ATOM_BODY(&event->body);
+			if (event && event->body.type == m_midi_event_type) {
+				uint32_t nread = event->time.frames - ndelta;
 				if (nread > 0) {
 					process(ins, outs, nread);
 					for (uint16_t k = 0; k < nchannels; ++k) {
@@ -127,12 +128,12 @@ void samplv1_lv2::run ( uint32_t nframes )
 						outs[k] += nread;
 					}
 				}
-				ndelta = event->frames;
-				process_midi(data, event->size);
+				ndelta = event->time.frames;
+				process_midi(data, event->body.size);
 			}
-			lv2_event_increment(&iter);
+			offset += (sizeof(LV2_Atom_Event) + event->body.size + 7) & (~7);
 		}
-	//	m_event_buffer = NULL;
+	//	m_atom_sequence = NULL;
 	}
 
 	process(ins, outs, nframes - ndelta);
