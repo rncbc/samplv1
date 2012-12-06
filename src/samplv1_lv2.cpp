@@ -25,6 +25,8 @@
 
 #include "lv2/lv2plug.in/ns/ext/atom/atom.h"
 #include "lv2/lv2plug.in/ns/ext/midi/midi.h"
+#include "lv2/lv2plug.in/ns/ext/atom/util.h"
+
 #include "lv2/lv2plug.in/ns/ext/instance-access/instance-access.h"
 #include "lv2/lv2plug.in/ns/ext/state/state.h"
 
@@ -112,14 +114,9 @@ void samplv1_lv2::run ( uint32_t nframes )
 	uint32_t ndelta = 0;
 
 	if (m_atom_sequence) {
-		const uint32_t size
-			= m_atom_sequence->atom.size - sizeof(LV2_Atom_Sequence_Body);
-		uint32_t offset = 0;
-		while (offset < size) {
-			LV2_Atom_Event *event = (LV2_Atom_Event *) ((char *)
-				LV2_ATOM_CONTENTS(LV2_Atom_Sequence, m_atom_sequence) + offset);
-			uint8_t *data = (uint8_t *) LV2_ATOM_BODY(&event->body);
+		LV2_ATOM_SEQUENCE_FOREACH(m_atom_sequence, event) {
 			if (event && event->body.type == m_midi_event_type) {
+				uint8_t *data = (uint8_t *) LV2_ATOM_BODY(&event->body);
 				uint32_t nread = event->time.frames - ndelta;
 				if (nread > 0) {
 					process(ins, outs, nread);
@@ -131,7 +128,6 @@ void samplv1_lv2::run ( uint32_t nframes )
 				ndelta = event->time.frames;
 				process_midi(data, event->body.size);
 			}
-			offset += (sizeof(LV2_Atom_Event) + event->body.size + 7) & (~7);
 		}
 	//	m_atom_sequence = NULL;
 	}
