@@ -466,7 +466,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 
 
 	// Epilog.
-	QWidget::adjustSize();
+	// QWidget::adjustSize();
 }
 
 
