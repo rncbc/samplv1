@@ -122,14 +122,14 @@
           <item>
            <widget class="samplv1widget_sample" name="Gen1Sample">
             <property name="toolTip">
-             <string>GEN1 Sample</string>
+             <string>GEN Sample</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="samplv1widget_combo" name="Gen1SampleKnob">
             <property name="toolTip">
-             <string>GEN1 Sample</string>
+             <string>GEN Sample</string>
             </property>
             <property name="text">
              <string>Sample</string>
@@ -139,7 +139,7 @@
           <item>
            <widget class="samplv1widget_combo" name="Gen1LoopKnob">
             <property name="toolTip">
-             <string>GEN1 Loop</string>
+             <string>GEN Loop</string>
             </property>
             <property name="text">
              <string>Loop</string>
@@ -162,7 +162,7 @@
           <item>
            <widget class="samplv1widget_spin" name="Gen1OctaveKnob">
             <property name="toolTip">
-             <string>GEN1 Octave</string>
+             <string>GEN Octave</string>
             </property>
             <property name="text">
              <string>Octave</string>
@@ -172,7 +172,7 @@
           <item>
            <widget class="samplv1widget_spin" name="Gen1TuningKnob">
             <property name="toolTip">
-             <string>GEN1 Tuning</string>
+             <string>GEN Tuning</string>
             </property>
             <property name="text">
              <string>Tuning</string>
@@ -195,7 +195,7 @@
           <item>
            <widget class="samplv1widget_spin" name="Gen1GlideKnob">
             <property name="toolTip">
-             <string>GEN1 Glide</string>
+             <string>GEN Glide</string>
             </property>
             <property name="text">
              <string>Glide</string>
@@ -216,14 +216,14 @@
             <item>
              <widget class="samplv1widget_filt" name="Dcf1Filt">
               <property name="toolTip">
-               <string>DCF1</string>
+               <string>DCF</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="samplv1widget_spin" name="Dcf1CutoffKnob">
               <property name="toolTip">
-               <string>DCF1 Cutoff</string>
+               <string>DCF Cutoff</string>
               </property>
               <property name="text">
                <string>Cutoff</string>
@@ -233,7 +233,7 @@
             <item>
              <widget class="samplv1widget_spin" name="Dcf1ResoKnob">
               <property name="toolTip">
-               <string>DCF1 Resonance</string>
+               <string>DCF Resonance</string>
               </property>
               <property name="text">
                <string>Reso</string>
@@ -243,7 +243,7 @@
             <item>
              <widget class="samplv1widget_combo" name="Dcf1TypeKnob">
               <property name="toolTip">
-               <string>DCF1 Type</string>
+               <string>DCF Type</string>
               </property>
               <property name="text">
                <string>Type</string>
@@ -253,7 +253,7 @@
             <item>
              <widget class="samplv1widget_combo" name="Dcf1SlopeKnob">
               <property name="toolTip">
-               <string>DCF1 Slope</string>
+               <string>DCF Slope</string>
               </property>
               <property name="text">
                <string>Slope</string>
@@ -267,7 +267,7 @@
             <item>
              <widget class="samplv1widget_spin" name="Dcf1EnvelopeKnob">
               <property name="toolTip">
-               <string>DCF1 Envelope</string>
+               <string>DCF Envelope</string>
               </property>
               <property name="text">
                <string>Envelope</string>
@@ -277,14 +277,14 @@
             <item>
              <widget class="samplv1widget_env" name="Dcf1Env">
               <property name="toolTip">
-               <string>DCF1 Envelope</string>
+               <string>DCF Envelope</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="samplv1widget_spin" name="Dcf1AttackKnob">
               <property name="toolTip">
-               <string>DCF1 Attack</string>
+               <string>DCF Attack</string>
               </property>
               <property name="text">
                <string>Attack</string>
@@ -294,7 +294,7 @@
             <item>
              <widget class="samplv1widget_spin" name="Dcf1DecayKnob">
               <property name="toolTip">
-               <string>DCF1 Decay</string>
+               <string>DCF Decay</string>
               </property>
               <property name="text">
                <string>Decay</string>
@@ -304,7 +304,7 @@
             <item>
              <widget class="samplv1widget_spin" name="Dcf1SustainKnob">
               <property name="toolTip">
-               <string>DCF1 Sustain</string>
+               <string>DCF Sustain</string>
               </property>
               <property name="text">
                <string>Sustain</string>
@@ -314,7 +314,7 @@
             <item>
              <widget class="samplv1widget_spin" name="Dcf1ReleaseKnob">
               <property name="toolTip">
-               <string>DCF1 Release</string>
+               <string>DCF Release</string>
               </property>
               <property name="text">
                <string>Release</string>
@@ -337,14 +337,14 @@
             <item>
              <widget class="samplv1widget_wave" name="Lfo1Wave">
               <property name="toolTip">
-               <string>LFO1 Wave</string>
+               <string>LFO Wave</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="samplv1widget_combo" name="Lfo1ShapeKnob">
               <property name="toolTip">
-               <string>LFO1 Wave Shape</string>
+               <string>LFO Wave Shape</string>
               </property>
               <property name="text">
                <string>Shape</string>
@@ -354,7 +354,7 @@
             <item>
              <widget class="samplv1widget_spin" name="Lfo1WidthKnob">
               <property name="toolTip">
-               <string>LFO1 Wave Width</string>
+               <string>LFO Wave Width</string>
               </property>
               <property name="text">
                <string>Width</string>
@@ -364,14 +364,14 @@
             <item>
              <widget class="samplv1widget_env" name="Lfo1Env">
               <property name="toolTip">
-               <string>LFO1 Envelope</string>
+               <string>LFO Envelope</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="samplv1widget_spin" name="Lfo1AttackKnob">
               <property name="toolTip">
-               <string>LFO1 Attack</string>
+               <string>LFO Attack</string>
               </property>
               <property name="text">
                <string>Attack</string>
@@ -381,7 +381,7 @@
             <item>
              <widget class="samplv1widget_spin" name="Lfo1DecayKnob">
               <property name="toolTip">
-               <string>LFO1 Decay</string>
+               <string>LFO Decay</string>
               </property>
               <property name="text">
                <string>Decay</string>
@@ -391,7 +391,7 @@
             <item>
              <widget class="samplv1widget_spin" name="Lfo1SustainKnob">
               <property name="toolTip">
-               <string>LFO1 Sustain</string>
+               <string>LFO Sustain</string>
               </property>
               <property name="text">
                <string>Sustain</string>
@@ -401,7 +401,7 @@
             <item>
              <widget class="samplv1widget_spin" name="Lfo1ReleaseKnob">
               <property name="toolTip">
-               <string>LFO1 Release</string>
+               <string>LFO Release</string>
               </property>
               <property name="text">
                <string>Release</string>
@@ -415,7 +415,7 @@
             <item>
              <widget class="samplv1widget_spin" name="Lfo1RateKnob">
               <property name="toolTip">
-               <string>LFO1 Rate</string>
+               <string>LFO Rate</string>
               </property>
               <property name="text">
                <string>Rate</string>
@@ -438,7 +438,7 @@
             <item>
              <widget class="samplv1widget_spin" name="Lfo1SweepKnob">
               <property name="toolTip">
-               <string>LFO1 Sweep</string>
+               <string>LFO Sweep</string>
               </property>
               <property name="text">
                <string>Sweep</string>
@@ -448,7 +448,7 @@
             <item>
              <widget class="samplv1widget_spin" name="Lfo1PitchKnob">
               <property name="toolTip">
-               <string>LFO1 Pitch</string>
+               <string>LFO Pitch</string>
               </property>
               <property name="text">
                <string>Pitch</string>
@@ -471,7 +471,7 @@
             <item>
              <widget class="samplv1widget_spin" name="Lfo1CutoffKnob">
               <property name="toolTip">
-               <string>LFO1 Cutoff</string>
+               <string>LFO Cutoff</string>
               </property>
               <property name="text">
                <string>Cutoff</string>
@@ -481,7 +481,7 @@
             <item>
              <widget class="samplv1widget_spin" name="Lfo1ResoKnob">
               <property name="toolTip">
-               <string>LFO1 Resonance</string>
+               <string>LFO Resonance</string>
               </property>
               <property name="text">
                <string>Reso</string>
@@ -504,7 +504,7 @@
             <item>
              <widget class="samplv1widget_spin" name="Lfo1PanningKnob">
               <property name="toolTip">
-               <string>LFO1 Panning</string>
+               <string>LFO Panning</string>
               </property>
               <property name="text">
                <string>Panning</string>
@@ -514,7 +514,7 @@
             <item>
              <widget class="samplv1widget_spin" name="Lfo1VolumeKnob">
               <property name="toolTip">
-               <string>LFO1 Volume</string>
+               <string>LFO Volume</string>
               </property>
               <property name="text">
                <string>Volume</string>
@@ -535,7 +535,7 @@
           <item>
            <widget class="samplv1widget_spin" name="Dca1VolumeKnob">
             <property name="toolTip">
-             <string>DCA1 Volume</string>
+             <string>DCA Volume</string>
             </property>
             <property name="text">
              <string>Volume</string>
@@ -545,14 +545,14 @@
           <item>
            <widget class="samplv1widget_env" name="Dca1Env">
             <property name="toolTip">
-             <string>DCA1 Envelope</string>
+             <string>DCA Envelope</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="samplv1widget_spin" name="Dca1AttackKnob">
             <property name="toolTip">
-             <string>DCA1 Attack</string>
+             <string>DCA Attack</string>
             </property>
             <property name="text">
              <string>Attack</string>
@@ -562,7 +562,7 @@
           <item>
            <widget class="samplv1widget_spin" name="Dca1DecayKnob">
             <property name="toolTip">
-             <string>DCA1 Decay</string>
+             <string>DCA Decay</string>
             </property>
             <property name="text">
              <string>Decay</string>
@@ -572,7 +572,7 @@
           <item>
            <widget class="samplv1widget_spin" name="Dca1SustainKnob">
             <property name="toolTip">
-             <string>DCA1 Sustain</string>
+             <string>DCA Sustain</string>
             </property>
             <property name="text">
              <string>Sustain</string>
@@ -582,7 +582,7 @@
           <item>
            <widget class="samplv1widget_spin" name="Dca1ReleaseKnob">
             <property name="toolTip">
-             <string>DCA1 Release</string>
+             <string>DCA Release</string>
             </property>
             <property name="text">
              <string>Release</string>
@@ -601,7 +601,7 @@
           <item>
            <widget class="samplv1widget_spin" name="Def1PitchbendKnob">
             <property name="toolTip">
-             <string>DEF1 Pitchbend</string>
+             <string>DEF Pitchbend</string>
             </property>
             <property name="text">
              <string>Pitchbend</string>
@@ -611,7 +611,7 @@
           <item>
            <widget class="samplv1widget_spin" name="Def1ModwheelKnob">
              <property name="toolTip">
-             <string>DEF1 Modwheel</string>
+             <string>DEF Modwheel</string>
             </property>
             <property name="text">
              <string>Modwheel</string>
@@ -621,7 +621,7 @@
           <item>
            <widget class="samplv1widget_spin" name="Def1PressureKnob">
             <property name="toolTip">
-             <string>DEF1 Pressure</string>
+             <string>DEF Pressure</string>
             </property>
             <property name="text">
              <string>Pressure</string>
@@ -631,7 +631,7 @@
           <item>
            <widget class="samplv1widget_spin" name="Def1VelocityKnob">
             <property name="toolTip">
-             <string>DEF1 Velocity</string>
+             <string>DEF Velocity</string>
             </property>
             <property name="text">
              <string>Velocity</string>
@@ -650,7 +650,7 @@
           <item>
            <widget class="samplv1widget_spin" name="Out1WidthKnob">
             <property name="toolTip">
-             <string>OUT1 Stereo Width</string>
+             <string>OUT Stereo Width</string>
             </property>
             <property name="text">
              <string>Width</string>
@@ -660,7 +660,7 @@
           <item>
            <widget class="samplv1widget_spin" name="Out1PanningKnob">
              <property name="toolTip">
-             <string>OUT1 Panning</string>
+             <string>OUT Panning</string>
             </property>
             <property name="text">
              <string>Panning</string>
@@ -683,7 +683,7 @@
           <item>
            <widget class="samplv1widget_spin" name="Out1VolumeKnob">
             <property name="toolTip">
-             <string>OUT1 Volume</string>
+             <string>OUT Volume</string>
             </property>
             <property name="text">
              <string>Volume</string>
