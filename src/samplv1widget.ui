@@ -1041,7 +1041,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QStatusBar" name="StatusBar" />
+    <widget class="samplv1widget_status" name="StatusBar" />
    </item>
   </layout>
   <action name="helpAboutAction" >
@@ -1079,6 +1079,11 @@
    <class>samplv1widget_preset</class>
    <extends>QComboBox</extends>
    <header>samplv1widget_preset.h</header>
+  </customwidget>
+  <customwidget>
+   <class>samplv1widget_status</class>
+   <extends>QStatusBar</extends>
+   <header>samplv1widget_status.h</header>
   </customwidget>
   <customwidget>
    <class>samplv1widget_spin</class>

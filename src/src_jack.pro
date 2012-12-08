@@ -23,6 +23,7 @@ HEADERS = \
 	samplv1widget_wave.h \
 	samplv1widget_knob.h \
 	samplv1widget_preset.h \
+	samplv1widget_status.h \
 	samplv1widget_config.h \
 	samplv1widget_jack.h
 
@@ -36,6 +37,7 @@ SOURCES = \
 	samplv1widget_wave.cpp \
 	samplv1widget_knob.cpp \
 	samplv1widget_preset.cpp \
+	samplv1widget_status.cpp \
 	samplv1widget_config.cpp \
 	samplv1widget_jack.cpp
 
