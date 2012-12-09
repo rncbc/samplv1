@@ -77,7 +77,7 @@ public:
 		{ m_loop = loop; setLoop(0, (m_loop ? m_nframes : 0)); }
 
 	bool isLoop() const
-		{ return (m_loop_start < m_loop_end); }
+		{ return m_loop && (m_loop_start < m_loop_end); }
 	uint32_t loopStart (void) const
 		{ return m_loop_start; }
 	uint32_t loopEnd (void) const
@@ -95,7 +95,7 @@ public:
 
 		SF_INFO info;
 		::memset(&info, 0, sizeof(info));
-		
+
 		SNDFILE *file = ::sf_open(m_filename, SFM_READ, &info);
 		if (!file)
 			return false;
@@ -119,7 +119,7 @@ public:
 					m_pframes[k][j] = buffer[i++];
 			}
 		}
-	
+
 		delete [] buffer;
 		::sf_close(file);
 
@@ -211,12 +211,35 @@ class samplv1_generator
 public:
 
 	// ctor.
-	samplv1_generator(samplv1_sample *sample)
-		: m_sample(sample) { start(); }
+	samplv1_generator(samplv1_sample *sample = 0) { reset(sample); }
 
-	// wave accessor.
+	// sample accessor.
 	samplv1_sample *sample() const
 		{ return m_sample; }
+
+	// reset.
+	void reset(samplv1_sample *sample)
+	{
+		m_sample = sample;
+
+		m_phase  = 1.0f;
+		m_phase1 = 0.0f;
+		m_phase2 = 0.0f;
+		m_index  = 1;
+		m_alpha  = 0.0f;
+		m_frame  = 0;
+	}
+
+	// reset loop.
+	void resetLoop(bool loop)
+	{
+		if (loop) {
+			m_phase1 = float(m_sample->loopEnd() - m_sample->loopStart());
+			m_phase2 = float(m_sample->loopEnd());
+		} else {
+			m_phase1 = m_phase2 = float(m_sample->length());
+		}
+	}
 
 	// begin.
 	void start(void)
@@ -226,18 +249,7 @@ public:
 		m_alpha = 0.0f;
 		m_frame = 0;
 
-		reset(m_sample->isLoop());
-	}
-
-	// reset loop.
-	void reset(bool loop)
-	{
-		if (loop) {
-			m_phase1 = float(m_sample->loopEnd() - m_sample->loopStart());
-			m_phase2 = float(m_sample->loopEnd());
-		} else {
-			m_phase1 = m_phase2 = float(m_sample->length());
-		}
+		resetLoop(m_sample->isLoop());
 	}
 
 	// iterate.
