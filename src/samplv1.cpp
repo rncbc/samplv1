@@ -1234,8 +1234,8 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 		gen1_sample.reset(note_freq(m_gen1.sample0));
 	}
 
-	if (bool(int(*m_gen1.loop)) != gen1_sample.loop())
-		gen1_sample.setLoop(int(*m_gen1.loop));
+	if (bool(int(*m_gen1.loop)) != gen1_sample.isLoop())
+		gen1_sample.setLoop(bool(*m_gen1.loop));
 
 	if (int(*m_lfo1.shape) != int(lfo1_wave.shape()) || *m_lfo1.width != lfo1_wave.width())
 		lfo1_wave.reset(samplv1_wave::Shape(*m_lfo1.shape), *m_lfo1.width);

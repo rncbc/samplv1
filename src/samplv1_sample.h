@@ -42,7 +42,8 @@ public:
 	samplv1_sample(float srate = 44100.0f)
 		: m_srate(srate), m_filename(0), m_nchannels(0),
 			m_rate0(0.0f), m_freq0(1.0f), m_ratio(0.0f),
-			m_nframes(0), m_pframes(0), m_loop(false) {}
+			m_nframes(0), m_pframes(0), m_loop(false),
+			m_loop_start(0), m_loop_end(0) {}
 
 	// dtor.
 	~samplv1_sample()
@@ -55,10 +56,32 @@ public:
 		{ return m_srate; }
 
 	// loop mode.
-	void setLoop(bool on)
-		{ m_loop = on; }
-	bool loop() const
-		{ return m_loop; }
+	void setLoop ( uint32_t start, uint32_t end )
+	{
+		if (start > m_nframes)
+			start = m_nframes;
+
+		if (end > m_nframes)
+			end = m_nframes;
+
+		if (start < end) {
+			m_loop_start = start;
+			m_loop_end   = end;
+		} else {
+			m_loop_start = 0;
+			m_loop_end   = 0;
+		}
+	}
+
+	void setLoop ( bool loop )
+		{ m_loop = loop; setLoop(0, (m_loop ? m_nframes : 0)); }
+
+	bool isLoop() const
+		{ return (m_loop_start < m_loop_end); }
+	uint32_t loopStart (void) const
+		{ return m_loop_start; }
+	uint32_t loopEnd (void) const
+		{ return m_loop_end; }
 
 	// init.
 	bool open(const char *filename, float freq0 = 1.0f)
@@ -102,6 +125,7 @@ public:
 
 		reset(freq0);
 
+		setLoop(m_loop);
 		return true;
 	}
 
@@ -124,6 +148,8 @@ public:
 			::free(m_filename);
 			m_filename = 0;
 		}
+
+		setLoop(0, 0);
 	}
 
 	// accessors.
@@ -138,6 +164,10 @@ public:
 	uint32_t length() const
 		{ return m_nframes; }
 
+	// resampler ratio
+	float ratio() const
+		{ return m_ratio; }
+
 	// reset.
 	void reset(float freq0)
 	{
@@ -148,20 +178,6 @@ public:
 	// begin.
 	void start(float& phase, uint32_t& index, float& alpha) const
 		{ phase = 1.0f; index = 1; alpha = 0.0f; }
-
-	// iterator.
-	void next(float& phase, uint32_t& index, float& alpha, float freq) const
-	{
-		index = int(phase);
-		alpha = phase - float(index);
-		phase += freq * m_ratio;
-		const float p0 = float(m_nframes);
-		if (phase >= p0) {
-			phase -= p0;
-			if (phase < 1.0f)
-				phase = 1.0f;
-		}
-	}
 
 	// frame value.
 	float *frames(uint16_t k) const
@@ -182,6 +198,8 @@ private:
 	uint32_t m_nframes;
 	float  **m_pframes;
 	bool     m_loop;
+	float    m_loop_start;
+	float    m_loop_end;
 };
 
 
@@ -193,43 +211,51 @@ class samplv1_generator
 public:
 
 	// ctor.
-	samplv1_generator(samplv1_sample *sample = 0) { reset(sample); }
-
-	// wave and phase accessor.
-	void reset(samplv1_sample *sample)
-	{
-		m_sample = sample;
-
-		m_phase = 0.0f;
-		m_index = 0;
-		m_alpha = 0.0f;
-		m_frame = 0;
-	}
+	samplv1_generator(samplv1_sample *sample)
+		: m_sample(sample) { start(); }
 
 	// wave accessor.
 	samplv1_sample *sample() const
 		{ return m_sample; }
 
 	// begin.
-	void start()
+	void start(void)
 	{
-		m_sample->start(m_phase, m_index, m_alpha);
-
+		m_phase = 1.0f;
+		m_index = 1;
+		m_alpha = 0.0f;
 		m_frame = 0;
+
+		reset(m_sample->isLoop());
+	}
+
+	// reset loop.
+	void reset(bool loop)
+	{
+		if (loop) {
+			m_phase1 = float(m_sample->loopEnd() - m_sample->loopStart());
+			m_phase2 = float(m_sample->loopEnd());
+		} else {
+			m_phase1 = m_phase2 = float(m_sample->length());
+		}
 	}
 
 	// iterate.
 	void next(float freq)
 	{
-		m_sample->next(m_phase, m_index, m_alpha, freq);
+		m_index  = int(m_phase);
+		m_alpha  = m_phase - float(m_index);
+		m_phase += freq * m_sample->ratio();
+
+		if (m_phase >= m_phase2) {
+			m_phase -= m_phase1;
+			if (m_phase < 1.0f)
+				m_phase = 1.0f;
+		}
 
 		if (m_frame < m_index)
 			m_frame = m_index;
 	}
-
-	// predicate.
-	bool isOver() const
-		{ return m_sample->isOver(m_frame); }
 
 	// sample.
 	float value(uint16_t k) const
@@ -253,11 +279,18 @@ public:
 		return (((c3 * m_alpha) - c2) * m_alpha + c1) * m_alpha + x1;
 	}
 
+	// predicate.
+	bool isOver() const
+		{ return m_sample->isOver(m_frame); }
+
 private:
 
+	// iterator variables.
 	samplv1_sample *m_sample;
 
 	float    m_phase;
+	float    m_phase1;
+	float    m_phase2;
 	uint32_t m_index;
 	float    m_alpha;
 	uint32_t m_frame;
