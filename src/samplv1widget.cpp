@@ -450,6 +450,9 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 		SIGNAL(customContextMenuRequested(const QPoint&)),
 		SLOT(contextMenuRequest(const QPoint&)));
 
+	QObject::connect(m_ui.Gen1Sample,
+		SIGNAL(loopChanged()),
+		SLOT(loopChanged()));
 
 	// Swap params A/B
 	QObject::connect(m_ui.SwapParamsAButton,
@@ -884,6 +887,23 @@ QString samplv1widget::noteName ( int note )
 bool samplv1widget::queryClose (void)
 {
 	return m_ui.Preset->queryPreset();
+}
+
+
+// Loop range change.
+void samplv1widget::loopChanged (void)
+{
+	samplv1 *pSampl = instance();
+	if (pSampl) {
+		pSampl->setLoop(
+			m_ui.Gen1Sample->loopStart(),
+			m_ui.Gen1Sample->loopEnd());
+		m_ui.Preset->dirtyPreset();
+		m_ui.StatusBar->showMessage(tr("Loop range: [%1, %2]")
+			.arg(pSampl->loopStart())
+			.arg(pSampl->loopEnd()), 5000);
+		m_ui.StatusBar->setModified(true);
+	}
 }
 
 

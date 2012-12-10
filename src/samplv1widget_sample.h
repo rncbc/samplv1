@@ -97,6 +97,9 @@ protected:
 	// Trap for escape key.
 	void keyPressEvent(QKeyEvent *pKeyEvent);
 
+	// Sanitizer helper;
+	int safeX(int x) const;
+
 	// Reset drag/select state.
 	void resetDragState();
 

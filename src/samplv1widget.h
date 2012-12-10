@@ -95,6 +95,9 @@ protected slots:
 	// Swap params A/B.
 	void swapParams(bool bOn);
 
+	// Loop range change.
+	void loopChanged();
+
 	// Menu actions.
 	void helpAbout();
 	void helpAboutQt();

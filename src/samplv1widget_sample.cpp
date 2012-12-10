@@ -188,6 +188,20 @@ void samplv1widget_sample::resizeEvent ( QResizeEvent * )
 }
 
 
+// Sanitizer helper;
+int samplv1widget_sample::safeX ( int x ) const
+{
+	if (x < 0)
+		return 0;
+
+	const int w = QFrame::width();
+	if (x > w)
+		return w;
+	else
+		return x;
+}
+
+
 // Mouse interaction.
 void samplv1widget_sample::mousePressEvent ( QMouseEvent *pMouseEvent )
 {
@@ -200,8 +214,8 @@ void samplv1widget_sample::mousePressEvent ( QMouseEvent *pMouseEvent )
 				const int w = QFrame::width();
 				const uint32_t nframes = m_pSample->length();
 				if (nframes > 0) {
-					m_iDragStartX = (m_iLoopStart * w) / nframes;
-					m_iDragEndX   = (m_iLoopEnd   * w) / nframes;
+					m_iDragStartX = safeX((m_iLoopStart * w) / nframes);
+					m_iDragEndX   = safeX((m_iLoopEnd   * w) / nframes);
 					m_dragState   = m_dragCursor;
 				}
 			}
@@ -244,14 +258,14 @@ void samplv1widget_sample::mouseMoveEvent ( QMouseEvent *pMouseEvent )
 	}
 	case DragLoopStart: {
 		if (m_iDragEndX > x) {
-			m_iDragStartX = x;
+			m_iDragStartX = safeX(x);
 			update();
 		}
 		break;
 	}
 	case DragLoopEnd: {
 		if (m_iDragStartX < x) {
-			m_iDragEndX = x;
+			m_iDragEndX = safeX(x);
 			update();
 		}
 		break;
@@ -259,8 +273,8 @@ void samplv1widget_sample::mouseMoveEvent ( QMouseEvent *pMouseEvent )
 	case DragSelect: {
 		// Rubber-band selection...
 		const QRect& rect = QRect(m_posDrag, pMouseEvent->pos()).normalized();
-		m_iDragStartX = rect.left();
-		m_iDragEndX   = rect.right();
+		m_iDragStartX = safeX(rect.left());
+		m_iDragEndX   = safeX(rect.right());
 		update();
 		break;
 	}
@@ -382,6 +396,7 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 	}
 
 	if (m_pSample && m_ppPolyg) {
+		const int w2 = (w << 1);
 		painter.setRenderHint(QPainter::Antialiasing, true);
 		if (m_bLoop && isEnabled()) {
 			int x1, x2;
@@ -395,17 +410,16 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 					x2 = (m_iLoopEnd   * w) / nframes;
 				}
 			}
-			const int w1 = (x2 - x1);
 			const QColor& rgbHigh = pal.highlight().color();
-			QLinearGradient grad1(0, 0, w1 << 1, h);
+			QLinearGradient grad1(0, 0, w2, h);
 			painter.setPen(rgbHigh);
 			grad1.setColorAt(0.0f, pal.dark().color());
 			grad1.setColorAt(1.0f, rgbHigh);
-			painter.fillRect(x1, 0, w1, h, grad1);
+			painter.fillRect(x1, 0, x2 - x1, h, grad1);
 			painter.drawLine(x1, 0, x1, h);
 			painter.drawLine(x2, 0, x2, h);
 		}
-		QLinearGradient grad(0, 0, w << 1, h << 1);
+		QLinearGradient grad(0, 0, w2, h);
 		painter.setPen(bDark ? Qt::gray : Qt::darkGray);
 		grad.setColorAt(0.0f, rgbLite);
 		grad.setColorAt(1.0f, Qt::black);

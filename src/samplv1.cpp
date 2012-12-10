@@ -1471,6 +1471,22 @@ samplv1_sample *samplv1::sample (void) const
 }
 
 
+void samplv1::setLoop ( uint32_t iLoopStart, uint32_t iLoopEnd )
+{
+	m_pImpl->gen1_sample.setLoop(iLoopStart, iLoopEnd);
+}
+
+uint32_t samplv1::loopStart (void) const
+{
+	return m_pImpl->gen1_sample.loopStart();
+}
+
+uint32_t samplv1::loopEnd (void) const
+{
+	return m_pImpl->gen1_sample.loopEnd();
+}
+
+
 void samplv1::setParamPort ( ParamIndex index, float *pfParam )
 {
 	m_pImpl->setParamPort(index, pfParam);
