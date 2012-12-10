@@ -762,13 +762,20 @@ void samplv1widget::savePreset ( const QString& sFilename )
 	ePreset.setAttribute("name", sPreset);
 	ePreset.setAttribute("version", SAMPLV1_VERSION);
 
-	QDomElement eSamples = doc.createElement("samples");
-	QDomElement eSample = doc.createElement("sample");
-	eSample.setAttribute("index", 0);
-	eSample.setAttribute("name", "GEN1_SAMPLE");
-	eSample.appendChild(doc.createTextNode(sampleFile()));
-	eSamples.appendChild(eSample);
-	ePreset.appendChild(eSamples);
+	samplv1 *pSampl = instance();
+	if (pSampl) {
+		QDomElement eSamples = doc.createElement("samples");
+		const char *pszSampleFile = pSampl->sampleFile();
+		if (pszSampleFile) {
+			QDomElement eSample = doc.createElement("sample");
+			eSample.setAttribute("index", 0);
+			eSample.setAttribute("name", "GEN1_SAMPLE");
+			eSample.appendChild(doc.createTextNode(
+				QString::fromUtf8(pszSampleFile)));
+			eSamples.appendChild(eSample);
+		}
+		ePreset.appendChild(eSamples);
+	}
 
 	QDomElement eParams = doc.createElement("params");
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
@@ -850,17 +857,6 @@ void samplv1widget::loadSampleFile ( const QString& sFilename )
 		pSampl->setSampleFile(sFilename.toUtf8().constData());
 		updateSample(pSampl->sample());
 	}
-}
-
-
-// Sample filename retriever (crude experimental stuff III).
-QString samplv1widget::sampleFile (void) const
-{
-	samplv1 *pSampl = instance();
-	if (pSampl)
-		return QString::fromUtf8(pSampl->sampleFile());
-	else
-		return QString();
 }
 
 

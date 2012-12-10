@@ -123,9 +123,6 @@ protected:
 	// Sample loader slot.
 	void loadSampleFile(const QString& sFilename);
 
-	// Sample filename retriever.
-	QString sampleFile() const;
-
 	// Sample updater.
 	void updateSample(samplv1_sample *pSample, bool bDirty = false);
 
