@@ -505,6 +505,9 @@ void samplv1widget::setParamValue ( samplv1::ParamIndex index, float fValue )
 	if (pKnob)
 		pKnob->setValue(fValue);
 
+	if (index == samplv1::GEN1_LOOP)
+		m_ui.Gen1Sample->setLoop(bool(fValue > 0.0f));
+
 	--m_iUpdate;
 }
 
@@ -523,7 +526,10 @@ void samplv1widget::paramChanged ( float fValue )
 
 	samplv1widget_knob *pKnob = qobject_cast<samplv1widget_knob *> (sender());
 	if (pKnob) {
-		updateParam(m_knobParams.value(pKnob), fValue);
+		samplv1::ParamIndex index = m_knobParams.value(pKnob);
+		updateParam(index, fValue);
+		if (index == samplv1::GEN1_LOOP)
+			m_ui.Gen1Sample->setLoop(bool(fValue > 0.0f));
 		m_ui.StatusBar->showMessage(QString("%1 / %2: %3")
 			.arg(m_ui.StackedWidget->currentWidget()->windowTitle())
 			.arg(pKnob->toolTip())

@@ -27,8 +27,11 @@
 
 #include <QPainter>
 
+#include <QApplication>
 #include <QFileDialog>
 #include <QUrl>
+
+#include <QMouseEvent>
 
 
 //----------------------------------------------------------------------------
@@ -39,11 +42,17 @@ samplv1widget_sample::samplv1widget_sample (
 	QWidget *pParent, Qt::WindowFlags wflags )
 	: QFrame(pParent, wflags), m_pSample(0), m_iChannels(0), m_ppPolyg(0)
 {
-//	setMouseTracking(true);
+	setMouseTracking(true);
+	setFocusPolicy(Qt::ClickFocus);
 	setMinimumSize(QSize(580, 80));
 
 	QFrame::setFrameShape(QFrame::Panel);
 	QFrame::setFrameShadow(QFrame::Sunken);
+
+	m_bLoop = false;
+	m_iLoopStart = m_iLoopEnd = 0;
+
+	resetDragState();
 }
 
 
@@ -66,6 +75,9 @@ void samplv1widget_sample::setSample ( samplv1_sample *pSample )
 	}
 
 	m_pSample = pSample;
+
+//	m_bLoop = false;
+	m_iLoopStart = m_iLoopEnd = 0;
 
 	if (m_pSample)
 		m_iChannels = m_pSample->channels();
@@ -109,23 +121,63 @@ void samplv1widget_sample::setSample ( samplv1_sample *pSample )
 		}
 	}
 
-	QString sToolTip;
-	const char *pszSampleFile = (m_pSample ? m_pSample->filename() : 0);
-	if (pszSampleFile) {
-		sToolTip += tr("%1\n%2 frames, %3 channels, %4 Hz")
-			.arg(QFileInfo(pszSampleFile).completeBaseName())
-			.arg(m_pSample->length())
-			.arg(m_pSample->channels())
-			.arg(m_pSample->rate());
-	}
-	setToolTip(sToolTip);
-
+	updateToolTip();
 	update();
 }
+
 
 samplv1_sample *samplv1widget_sample::sample (void) const
 {
 	return m_pSample;
+}
+
+
+void samplv1widget_sample::setSampleName ( const QString& sName )
+{
+	m_sName = sName;
+
+	updateToolTip();
+}
+
+const QString& samplv1widget_sample::sampleName (void) const
+{
+	return m_sName;
+}
+
+
+void samplv1widget_sample::setLoop ( bool bLoop )
+{
+	m_bLoop = bLoop;
+	update();
+}
+
+bool samplv1widget_sample::isLoop (void) const
+{
+	return m_bLoop;
+}
+
+
+void samplv1widget_sample::setLoopStart ( uint32_t iLoopStart )
+{
+	m_iLoopStart = iLoopStart;
+	update();
+}
+
+uint32_t samplv1widget_sample::loopStart (void) const
+{
+	return m_iLoopStart;
+}
+
+
+void samplv1widget_sample::setLoopEnd ( uint32_t iLoopEnd )
+{
+	m_iLoopEnd = iLoopEnd;
+	update();
+}
+
+uint32_t samplv1widget_sample::loopEnd (void) const
+{
+	return m_iLoopEnd;
 }
 
 
@@ -137,9 +189,174 @@ void samplv1widget_sample::resizeEvent ( QResizeEvent * )
 
 
 // Mouse interaction.
+void samplv1widget_sample::mousePressEvent ( QMouseEvent *pMouseEvent )
+{
+	if (m_bLoop) {
+		if (pMouseEvent->button() == Qt::LeftButton) {
+			if (m_dragCursor == DragNone) {
+				m_dragState = DragStart;
+				m_posDrag = pMouseEvent->pos();
+			} else {
+				const int w = QWidget::width();
+				const uint32_t nframes = m_pSample->length();
+				if (nframes > 0) {
+					m_iDragStartX = (m_iLoopStart * w) / nframes;
+					m_iDragEndX   = (m_iLoopEnd   * w) / nframes;
+					m_dragState   = m_dragCursor;
+				}
+			}
+		}
+	}
+
+	QFrame::mousePressEvent(pMouseEvent);
+}
+
+
+void samplv1widget_sample::mouseMoveEvent ( QMouseEvent *pMouseEvent )
+{
+	const int x = pMouseEvent->pos().x();
+
+	switch (m_dragState) {
+	case DragNone: {
+		if (m_bLoop && m_pSample) {
+			const int w = QWidget::width();
+			const uint32_t nframes = m_pSample->length();
+			if (nframes > 0) {
+				const int x1 = (m_iLoopStart * w) / nframes;
+				const int x2 = (m_iLoopEnd   * w) / nframes;
+				if (abs(x1 - x) < QApplication::startDragDistance()) {
+					m_dragCursor = DragLoopStart;
+					QFrame::setCursor(QCursor(Qt::SizeHorCursor));
+				}
+				else
+				if (abs(x2 - x) < QApplication::startDragDistance()) {
+					m_dragCursor = DragLoopEnd;
+					QFrame::setCursor(QCursor(Qt::SizeHorCursor));
+				}
+				else
+				if (m_dragCursor != DragNone) {
+					m_dragCursor =  DragNone;
+					QFrame::unsetCursor();
+				}
+			}
+		}
+		break;
+	}
+	case DragLoopStart: {
+		if (m_iDragEndX > x) {
+			m_iDragStartX = x;
+			update();
+		}
+		break;
+	}
+	case DragLoopEnd: {
+		if (m_iDragStartX < x) {
+			m_iDragEndX = x;
+			update();
+		}
+		break;
+	}
+	case DragSelect: {
+		// Rubber-band selection...
+		const QRect& rect = QRect(m_posDrag, pMouseEvent->pos()).normalized();
+		m_iDragStartX = rect.left();
+		m_iDragEndX   = rect.right();
+		update();
+		break;
+	}
+	case DragStart:
+		// Rubber-band starting...
+		if ((m_posDrag - pMouseEvent->pos()).manhattanLength()
+			> QApplication::startDragDistance()) {
+			// Start dragging alright...
+			m_dragState = m_dragCursor = DragSelect;
+			m_iDragStartX = m_iDragEndX = m_posDrag.x();
+			QFrame::setCursor(QCursor(Qt::SizeHorCursor));
+		}
+		// Fall thru...
+	default:
+		break;
+	}
+
+	QFrame::mouseMoveEvent(pMouseEvent);
+}
+
+
+void samplv1widget_sample::mouseReleaseEvent ( QMouseEvent *pMouseEvent )
+{
+	QFrame::mouseReleaseEvent(pMouseEvent);
+
+	switch (m_dragState) {
+	case DragSelect: {
+		const int w = QWidget::width();
+		if (m_pSample && w > 0) {
+			const uint32_t nframes = m_pSample->length();
+			m_iLoopStart = (m_iDragStartX * nframes) / w;
+			m_iLoopEnd   = (m_iDragEndX   * nframes) / w;
+			emit loopChanged();
+			update();
+		}
+		break;
+	}
+	case DragLoopStart: {
+		const int w = QWidget::width();
+		if (m_pSample && w > 0) {
+			const uint32_t nframes = m_pSample->length();
+			m_iLoopStart = (m_iDragStartX * nframes) / w;
+			emit loopChanged();
+			update();
+		}
+		break;
+	}
+	case DragLoopEnd: {
+		const int w = QWidget::width();
+		if (m_pSample && w > 0) {
+			const uint32_t nframes = m_pSample->length();
+			m_iLoopEnd = (m_iDragEndX * nframes) / w;
+			emit loopChanged();
+			update();
+		}
+		break;
+	}
+	default:
+		break;
+	}
+
+
+	resetDragState();
+}
+
+
 void samplv1widget_sample::mouseDoubleClickEvent ( QMouseEvent */*pMouseEvent*/ )
 {
 	openSample();
+}
+
+
+// Trap for escape key.
+void samplv1widget_sample::keyPressEvent ( QKeyEvent *pKeyEvent )
+{
+	switch (pKeyEvent->key()) {
+	case Qt::Key_Escape:
+		resetDragState();
+		update();
+		break;
+	default:
+		QFrame::keyPressEvent(pKeyEvent);
+		break;
+	}
+}
+
+
+// Reset drag/select state.
+void samplv1widget_sample::resetDragState (void)
+{
+	if (m_dragCursor != DragNone)
+		QFrame::unsetCursor();
+
+	m_iDragStartX = m_iDragEndX = 0;
+
+	m_dragState = m_dragCursor = DragNone;
 }
 
 
@@ -159,10 +376,37 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 
 	painter.fillRect(rect, pal.dark().color());
 
+	if (!m_sName.isEmpty()) {
+		painter.setPen(pal.midlight().color());
+		painter.drawText(rect.adjusted(2, 0, -2, -0), Qt::AlignLeft, m_sName);
+	}
+
 	if (m_pSample && m_ppPolyg) {
 		painter.setRenderHint(QPainter::Antialiasing, true);
-		painter.setPen(bDark ? Qt::gray : Qt::darkGray);
+		if (m_bLoop && isEnabled()) {
+			int x1, x2;
+			if (m_iDragStartX < m_iDragEndX) {
+				x1 = m_iDragStartX;
+				x2 = m_iDragEndX;
+			} else {
+				const uint32_t nframes = m_pSample->length();
+				if (nframes > 0) {
+					x1 = (m_iLoopStart * w) / nframes;
+					x2 = (m_iLoopEnd   * w) / nframes;
+				}
+			}
+			const int w1 = (x2 - x1);
+			const QColor& rgbHigh = pal.highlight().color();
+			QLinearGradient grad1(0, 0, w1 << 1, h);
+			painter.setPen(rgbHigh);
+			grad1.setColorAt(0.0f, pal.dark().color());
+			grad1.setColorAt(1.0f, rgbHigh);
+			painter.fillRect(x1, 0, w1, h, grad1);
+			painter.drawLine(x1, 0, x1, h);
+			painter.drawLine(x2, 0, x2, h);
+		}
 		QLinearGradient grad(0, 0, w << 1, h << 1);
+		painter.setPen(bDark ? Qt::gray : Qt::darkGray);
 		grad.setColorAt(0.0f, rgbLite);
 		grad.setColorAt(1.0f, Qt::black);
 		painter.setBrush(grad);
@@ -202,7 +446,7 @@ void samplv1widget_sample::openSample (void)
 		for (int i = 0 ; i < iCount; ++i) {
 			sffinfo.format = i;
 			::sf_command(NULL, SFC_GET_FORMAT_MAJOR, &sffinfo, sizeof(sffinfo));
-			const QString sName = QString(sffinfo.name)
+			const QString sFilterName = QString(sffinfo.name)
 				.replace('/', '-') // Replace some illegal characters.
 				.remove('(').remove(')');
 			const QString sExtension(sffinfo.extension);
@@ -214,7 +458,7 @@ void samplv1widget_sample::openSample (void)
 				sExts += ' ' + sExt;
 				exts.append(sExt);
 			}
-			s_filters.append(sFilterMask.arg(sName).arg(sExts));
+			s_filters.append(sFilterMask.arg(sFilterName).arg(sExts));
 		}
 		s_filters.prepend(sFilterMask.arg(tr("Audio files")).arg(exts.join(" ")));
 		s_filters.append(sFilterMask.arg(tr("All files")).arg("*.*"));
@@ -247,6 +491,25 @@ void samplv1widget_sample::openSample (void)
 void samplv1widget_sample::loadSample ( samplv1_sample *pSample )
 {
 	setSample(pSample);
+}
+
+
+// Update tool-tip.
+void samplv1widget_sample::updateToolTip (void)
+{
+	QString sToolTip;
+	if (!m_sName.isEmpty())
+		sToolTip += '[' + m_sName + ']';
+	const char *pszSampleFile = (m_pSample ? m_pSample->filename() : 0);
+	if (pszSampleFile) {
+		sToolTip += '\n';
+		sToolTip += tr("%1\n%2 frames, %3 channels, %4 Hz")
+			.arg(QFileInfo(pszSampleFile).completeBaseName())
+			.arg(m_pSample->length())
+			.arg(m_pSample->channels())
+			.arg(m_pSample->rate());
+	}
+	setToolTip(sToolTip);
 }
 
 
