@@ -74,7 +74,14 @@ public:
 	}
 
 	void setLoop ( bool loop )
-		{ m_loop = loop; setLoop(0, (m_loop ? m_nframes : 0)); }
+	{
+		m_loop = loop;
+
+		if (m_loop && m_loop_start >= m_loop_end) {
+			m_loop_start = 0;
+			m_loop_end = m_nframes;
+		}
+	}
 
 	bool isLoop() const
 		{ return m_loop && (m_loop_start < m_loop_end); }

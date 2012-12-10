@@ -711,6 +711,9 @@ void samplv1widget::loadPreset ( const QString& sFilename )
 						if (eSample.tagName() == "sample") {
 						//	int index = eSample.attribute("index").toInt();
 							loadSampleFile(eSample.text());
+							setSampleLoop(
+								eSample.attribute("loop-start").toULong(),
+								eSample.attribute("loop-end").toULong());
 						}
 					}
 				}
@@ -770,6 +773,12 @@ void samplv1widget::savePreset ( const QString& sFilename )
 			QDomElement eSample = doc.createElement("sample");
 			eSample.setAttribute("index", 0);
 			eSample.setAttribute("name", "GEN1_SAMPLE");
+			const uint32_t iLoopStart = pSampl->loopStart();
+			const uint32_t iLoopEnd   = pSampl->loopEnd();
+			if (iLoopStart < iLoopEnd) {
+				eSample.setAttribute("loop-start", QString::number(iLoopStart));
+				eSample.setAttribute("loop-end",   QString::number(iLoopEnd));
+			}
 			eSample.appendChild(doc.createTextNode(
 				QString::fromUtf8(pszSampleFile)));
 			eSamples.appendChild(eSample);
@@ -867,6 +876,20 @@ void samplv1widget::updateSample ( samplv1_sample *pSample, bool bDirty )
 
 	if (pSample && bDirty)
 		m_ui.Preset->dirtyPreset();
+}
+
+
+// Sample loop points.
+void samplv1widget::setSampleLoop ( uint32_t iLoopStart, uint32_t iLoopEnd )
+{
+	if (iLoopStart < iLoopEnd) {
+		samplv1 *pSampl = instance();
+		if (pSampl) {
+			pSampl->setLoop(iLoopStart, iLoopEnd);
+			m_ui.Gen1Sample->setLoopStart(iLoopStart);
+			m_ui.Gen1Sample->setLoopEnd(iLoopEnd);
+		}
+	}
 }
 
 

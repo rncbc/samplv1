@@ -126,6 +126,9 @@ protected:
 	// Sample updater.
 	void updateSample(samplv1_sample *pSample, bool bDirty = false);
 
+	// Sample loop points.
+	void setSampleLoop(uint32_t iLoopStart, uint32_t iLoopEnd);
+
 private:
 
 	// Instance variables.
