@@ -225,7 +225,7 @@ static LV2_State_Status samplv1_lv2_state_save ( LV2_Handle instance,
 
 	// Save extra loop points...
 	uint32_t loop_start = pPlugin->loopStart();
-	uint32_t loop_end   = pPlugin->loopEnd()
+	uint32_t loop_end   = pPlugin->loopEnd();
 
 	if (loop_start < loop_end) {
 		type = pPlugin->urid_map(LV2_ATOM__Int);
