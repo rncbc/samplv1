@@ -312,16 +312,16 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 			size = 0;
 			type = 0;
 			value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
-			if (size == sizeof(uint32_t) && type == int_type)
-				loop_start = (uint32_t) value;
+			if (value && size == sizeof(uint32_t) && type == int_type)
+				loop_start = *(uint32_t *) value;
 		}
 		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_END");
 		if (key) {
 			size = 0;
 			type = 0;
 			value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
-			if (size == sizeof(uint32_t) && type == int_type)
-				loop_end = (uint32_t) value;
+			if (value && size == sizeof(uint32_t) && type == int_type)
+				loop_end = *(uint32_t *) value;
 		}
 	}
 
