@@ -223,6 +223,25 @@ static LV2_State_Status samplv1_lv2_state_save ( LV2_Handle instance,
 	if (map_path)
 		::free((void *) value);
 
+	// Save extra loop points...
+	uint32_t loop_start = pPlugin->loopStart();
+	uint32_t loop_end   = pPlugin->loopEnd()
+
+	if (loop_start < loop_end) {
+		type = pPlugin->urid_map(LV2_ATOM__Int);
+		if (type) {
+			size = sizeof(uin32_t);
+			value = (const char *) &loop_start;
+			key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_START");
+			if (key)
+				(*store)(handle, key, value, size, type, flags);
+			value = (const char *) &loop_end;
+			key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_END");
+			if (key)
+				(*store)(handle, key, value, size, type, flags);
+		}
+	}
+
 	return result;
 }
 
@@ -278,10 +297,38 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 		return LV2_STATE_ERR_UNKNOWN;
 
 	pPlugin->setSampleFile((const char *) value);
-	pPlugin->update_notify();
 
 	if (map_path)
 		::free((void *) value);
+
+	// Restore extra loop points.
+	uint32_t loop_start = 0;
+	uint32_t loop_end   = 0;
+
+	uint32_t int_type = pPlugin->urid_map(LV2_ATOM__Int);
+	if (int_type) {
+		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_START");
+		if (key) {
+			size = 0;
+			type = 0;
+			value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
+			if (size == sizeof(uint32_t) && type == int_type)
+				loop_start = (uint32_t) value;
+		}
+		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_END");
+		if (key) {
+			size = 0;
+			type = 0;
+			value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
+			if (size == sizeof(uint32_t) && type == int_type)
+				loop_end = (uint32_t) value;
+		}
+	}
+
+	if (loop_start < loop_end)
+		pPlugin->setLoop(loop_start, loop_end);
+
+	pPlugin->update_notify();
 
 	return LV2_STATE_SUCCESS;
 }

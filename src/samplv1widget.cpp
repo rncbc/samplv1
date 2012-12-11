@@ -508,8 +508,7 @@ void samplv1widget::setParamValue ( samplv1::ParamIndex index, float fValue )
 	if (pKnob)
 		pKnob->setValue(fValue);
 
-	if (index == samplv1::GEN1_LOOP)
-		m_ui.Gen1Sample->setLoop(bool(fValue > 0.0f));
+	updateParamEx(index, fValue);
 
 	--m_iUpdate;
 }
@@ -531,8 +530,7 @@ void samplv1widget::paramChanged ( float fValue )
 	if (pKnob) {
 		samplv1::ParamIndex index = m_knobParams.value(pKnob);
 		updateParam(index, fValue);
-		if (index == samplv1::GEN1_LOOP)
-			m_ui.Gen1Sample->setLoop(bool(fValue > 0.0f));
+		updateParamEx(index, fValue);
 		m_ui.StatusBar->showMessage(QString("%1 / %2: %3")
 			.arg(m_ui.StackedWidget->currentWidget()->windowTitle())
 			.arg(pKnob->toolTip())
@@ -541,6 +539,25 @@ void samplv1widget::paramChanged ( float fValue )
 	}
 
 	m_ui.Preset->dirtyPreset();
+}
+
+
+// Update local tied widgets.
+void samplv1widget::updateParamEx ( samplv1::ParamIndex index, float fValue )
+{
+	samplv1 *pSampl = instance();
+	if (pSampl == NULL)
+		return;
+
+	switch (index) {
+	case samplv1::GEN1_LOOP:
+		m_ui.Gen1Sample->setLoop(bool(fValue > 0.0f));
+		m_ui.Gen1Sample->setLoopStart(pSampl->loopStart());
+		m_ui.Gen1Sample->setLoopEnd(pSampl->loopEnd());
+		// Fall thru...
+	default:
+		break;
+	}
 }
 
 
@@ -702,20 +719,7 @@ void samplv1widget::loadPreset ( const QString& sFilename )
 				if (eChild.isNull())
 					continue;
 				if (eChild.tagName() == "samples") {
-					for (QDomNode nSample = eChild.firstChild();
-							!nSample.isNull();
-								nSample = nSample.nextSibling()) {
-						QDomElement eSample = nSample.toElement();
-						if (eSample.isNull())
-							continue;
-						if (eSample.tagName() == "sample") {
-						//	int index = eSample.attribute("index").toInt();
-							loadSampleFile(eSample.text());
-							setSampleLoop(
-								eSample.attribute("loop-start").toULong(),
-								eSample.attribute("loop-end").toULong());
-						}
-					}
+					loadSamples(eChild);
 				}
 				else
 				if (eChild.tagName() == "params") {
@@ -765,26 +769,9 @@ void samplv1widget::savePreset ( const QString& sFilename )
 	ePreset.setAttribute("name", sPreset);
 	ePreset.setAttribute("version", SAMPLV1_VERSION);
 
-	samplv1 *pSampl = instance();
-	if (pSampl) {
-		QDomElement eSamples = doc.createElement("samples");
-		const char *pszSampleFile = pSampl->sampleFile();
-		if (pszSampleFile) {
-			QDomElement eSample = doc.createElement("sample");
-			eSample.setAttribute("index", 0);
-			eSample.setAttribute("name", "GEN1_SAMPLE");
-			const uint32_t iLoopStart = pSampl->loopStart();
-			const uint32_t iLoopEnd   = pSampl->loopEnd();
-			if (iLoopStart < iLoopEnd) {
-				eSample.setAttribute("loop-start", QString::number(iLoopStart));
-				eSample.setAttribute("loop-end",   QString::number(iLoopEnd));
-			}
-			eSample.appendChild(doc.createTextNode(
-				QString::fromUtf8(pszSampleFile)));
-			eSamples.appendChild(eSample);
-		}
-		ePreset.appendChild(eSamples);
-	}
+	QDomElement eSamples = doc.createElement("samples");
+	saveSamples(doc, eSamples);
+	ePreset.appendChild(eSamples);
 
 	QDomElement eParams = doc.createElement("params");
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
@@ -805,6 +792,93 @@ void samplv1widget::savePreset ( const QString& sFilename )
 	}
 
 	m_ui.StatusBar->showMessage(tr("Save preset: %1").arg(sPreset), 5000);
+}
+
+
+// Sample serialization methods.
+void samplv1widget::loadSamples ( const QDomElement& eSamples )
+{
+	samplv1 *pSampl = instance();
+	if (pSampl == NULL)
+		return;
+
+	for (QDomNode nSample = eSamples.firstChild();
+			!nSample.isNull();
+				nSample = nSample.nextSibling()) {
+		QDomElement eSample = nSample.toElement();
+		if (eSample.isNull())
+			continue;
+		if (eSample.tagName() == "sample") {
+		//	int index = eSample.attribute("index").toInt();
+			QString sFilename;
+			uint32_t iLoopStart = 0;
+			uint32_t iLoopEnd = 0;
+			for (QDomNode nChild = eSample.firstChild();
+					!nChild.isNull();
+						nChild = nChild.nextSibling()) {
+				QDomElement eChild = nChild.toElement();
+				if (eChild.isNull())
+					continue;
+				if (eChild.tagName() == "filename") {
+				//	int index = eSample.attribute("index").toInt();
+					sFilename = eChild.text();
+				}
+				else
+				if (eChild.tagName() == "loop-start") {
+					iLoopStart = eChild.text().toULong();
+				}
+				else
+				if (eChild.tagName() == "loop-end") {
+					iLoopEnd = eChild.text().toULong();
+				}
+			}
+			// Legacy loader...
+			if (sFilename.isEmpty())
+				sFilename = eSample.text();
+			// Done it.
+			loadSampleFile(sFilename);
+			setSampleLoop(iLoopStart, iLoopEnd);
+		}
+	}
+
+	pSampl->reset();
+}
+
+
+void samplv1widget::saveSamples (
+	QDomDocument& doc, QDomElement& eSamples )
+{
+	samplv1 *pSampl = instance();
+	if (pSampl == NULL)
+		return;
+
+	const char *pszSampleFile = pSampl->sampleFile();
+	if (pszSampleFile == NULL)
+		return;
+
+	QDomElement eSample = doc.createElement("sample");
+	eSample.setAttribute("index", 0);
+	eSample.setAttribute("name", "GEN1_SAMPLE");
+
+	QDomElement eFilename = doc.createElement("filename");
+	eFilename.appendChild(doc.createTextNode(
+		QString::fromUtf8(pszSampleFile)));
+	eSample.appendChild(eFilename);
+
+	uint32_t iLoopStart = pSampl->loopStart();
+	uint32_t iLoopEnd   = pSampl->loopEnd();
+	if (iLoopStart < iLoopEnd) {
+		QDomElement eLoopStart = doc.createElement("loop-start");
+		eLoopStart.appendChild(doc.createTextNode(
+			QString::number(iLoopStart)));
+		eSample.appendChild(eLoopStart);
+		QDomElement eLoopEnd = doc.createElement("loop-end");
+		eLoopEnd.appendChild(doc.createTextNode(
+			QString::number(iLoopEnd)));
+		eSample.appendChild(eLoopEnd);
+	}
+
+	eSamples.appendChild(eSample);
 }
 
 

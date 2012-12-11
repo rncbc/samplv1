@@ -31,6 +31,11 @@
 #include <QHash>
 
 
+// forward decl.
+class QDomElement;
+class QDomDocument;
+
+
 //-------------------------------------------------------------------------
 // samplv1widget - decl.
 //
@@ -117,6 +122,9 @@ protected:
 	// Param port methods.
 	virtual void updateParam(samplv1::ParamIndex index, float fValue) const = 0;
 
+	// Update local tied widgets.
+	void updateParamEx(samplv1::ParamIndex index, float fValue);
+
 	// Sample file clearance.
 	void clearSampleFile();
 
@@ -128,6 +136,10 @@ protected:
 
 	// Sample loop points.
 	void setSampleLoop(uint32_t iLoopStart, uint32_t iLoopEnd);
+
+	// Sample serialization methods.
+	void loadSamples(const QDomElement& eSamples);
+	void saveSamples(QDomDocument& doc, QDomElement& eSamples);
 
 private:
 
