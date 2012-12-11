@@ -1476,6 +1476,11 @@ void samplv1::setLoop ( uint32_t iLoopStart, uint32_t iLoopEnd )
 	m_pImpl->gen1_sample.setLoop(iLoopStart, iLoopEnd);
 }
 
+void samplv1::setLoopEx ( uint32_t iLoopStart, uint32_t iLoopEnd )
+{
+	m_pImpl->gen1_sample.setLoopEx(iLoopStart, iLoopEnd);
+}
+
 uint32_t samplv1::loopStart (void) const
 {
 	return m_pImpl->gen1_sample.loopStart();

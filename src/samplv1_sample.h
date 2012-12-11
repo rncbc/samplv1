@@ -90,6 +90,10 @@ public:
 	uint32_t loopEnd (void) const
 		{ return m_loop_end; }
 
+	// zero-crossing adjusted loop range.
+	void setLoopEx(uint32_t start, uint32_t end)
+		{ setLoop(zero_crossing(start), zero_crossing(end)); }
+
 	// init.
 	bool open(const char *filename, float freq0 = 1.0f)
 	{
@@ -193,6 +197,41 @@ public:
 	// predicate.
 	bool isOver(uint32_t frame) const
 		{ return !m_pframes || (!m_loop && frame >= m_nframes - 4); }
+
+protected:
+
+	// zero-crossing aliasing (channel).
+	uint32_t zero_crossing_k ( uint32_t i, uint16_t k ) const
+	{
+		const float *frames = m_pframes[k];
+		const float v0 = frames[i];
+
+		int dmax = m_nframes - i;
+		if (dmax < int(i))
+			dmax = i;
+
+		int d = 1;
+		while (d < dmax) {
+			const float v1 = frames[i + d];
+			if ((v0 >= 0.0f && v1 < 0.0f) ||
+				(v1 >= 0.0f && v0 < 0.0f))
+				return (i + d);
+			d = -d;
+			if (d > 0)
+				++d;
+		}
+
+		return (i + d < m_nframes ? 0 : m_nframes);
+	}
+
+	// zero-crossing aliasing (median).
+	uint32_t zero_crossing ( uint32_t i ) const
+	{
+		uint32_t sum = 0;
+		for (uint16_t k = 0; k < m_nchannels; ++k)
+			sum += zero_crossing_k(i, k);
+		return (sum / m_nchannels);
+	}
 
 private:
 

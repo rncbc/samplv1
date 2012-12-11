@@ -148,6 +148,8 @@ const QString& samplv1widget_sample::sampleName (void) const
 void samplv1widget_sample::setLoop ( bool bLoop )
 {
 	m_bLoop = bLoop;
+
+	updateToolTip();
 	update();
 }
 
@@ -160,6 +162,8 @@ bool samplv1widget_sample::isLoop (void) const
 void samplv1widget_sample::setLoopStart ( uint32_t iLoopStart )
 {
 	m_iLoopStart = iLoopStart;
+
+	updateToolTip();
 	update();
 }
 
@@ -172,6 +176,8 @@ uint32_t samplv1widget_sample::loopStart (void) const
 void samplv1widget_sample::setLoopEnd ( uint32_t iLoopEnd )
 {
 	m_iLoopEnd = iLoopEnd;
+
+	updateToolTip();
 	update();
 }
 
@@ -511,17 +517,27 @@ void samplv1widget_sample::loadSample ( samplv1_sample *pSample )
 void samplv1widget_sample::updateToolTip (void)
 {
 	QString sToolTip;
+
 	if (!m_sName.isEmpty())
 		sToolTip += '[' + m_sName + ']';
+
 	const char *pszSampleFile = (m_pSample ? m_pSample->filename() : 0);
 	if (pszSampleFile) {
-		sToolTip += '\n';
+		if (!sToolTip.isEmpty()) sToolTip += '\n';
 		sToolTip += tr("%1\n%2 frames, %3 channels, %4 Hz")
 			.arg(QFileInfo(pszSampleFile).completeBaseName())
 			.arg(m_pSample->length())
 			.arg(m_pSample->channels())
 			.arg(m_pSample->rate());
 	}
+
+	if (m_bLoop && m_iLoopStart < m_iLoopEnd) {
+		if (!sToolTip.isEmpty()) sToolTip += '\n';
+		sToolTip += tr("Loop start: %1, end: %2")
+			.arg(m_iLoopStart)
+			.arg(m_iLoopEnd);
+	}
+
 	setToolTip(sToolTip);
 }
 

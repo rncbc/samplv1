@@ -992,7 +992,7 @@ void samplv1widget::loopChanged (void)
 			m_ui.Gen1Sample->loopStart(),
 			m_ui.Gen1Sample->loopEnd());
 		m_ui.Preset->dirtyPreset();
-		m_ui.StatusBar->showMessage(tr("Loop range: [%1, %2]")
+		m_ui.StatusBar->showMessage(tr("Loop start: %1, end: %2")
 			.arg(pSampl->loopStart())
 			.arg(pSampl->loopEnd()), 5000);
 		m_ui.StatusBar->setModified(true);
