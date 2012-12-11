@@ -230,7 +230,7 @@ static LV2_State_Status samplv1_lv2_state_save ( LV2_Handle instance,
 	if (loop_start < loop_end) {
 		type = pPlugin->urid_map(LV2_ATOM__Int);
 		if (type) {
-			size = sizeof(uin32_t);
+			size = sizeof(uint32_t);
 			value = (const char *) &loop_start;
 			key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_START");
 			if (key)
