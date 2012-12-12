@@ -275,8 +275,7 @@ public:
 		m_index  = 1;
 		m_alpha  = 0.0f;
 		m_frame  = 0;
-
-		m_loop = m_sample->isLoop();
+		m_loop   = false;
 	}
 
 	// reset loop.
