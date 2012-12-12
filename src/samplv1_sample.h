@@ -197,7 +197,7 @@ public:
 
 	// predicate.
 	bool isOver(uint32_t frame) const
-		{ return !m_pframes || (!m_loop && frame >= m_nframes - 4); }
+		{ return !m_pframes || (frame >= m_nframes - 4); }
 
 protected:
 
@@ -275,12 +275,16 @@ public:
 		m_index  = 1;
 		m_alpha  = 0.0f;
 		m_frame  = 0;
+
+		m_loop = m_sample->isLoop();
 	}
 
 	// reset loop.
-	void resetLoop(bool loop)
+	void setLoop(bool loop)
 	{
-		if (loop && m_sample->isLoop()) {
+		m_loop = loop;
+
+		if (m_loop) {
 			m_phase1 = float(m_sample->loopEnd() - m_sample->loopStart());
 			m_phase2 = float(m_sample->loopEnd());
 		} else {
@@ -296,7 +300,7 @@ public:
 		m_alpha = 0.0f;
 		m_frame = 0;
 
-		resetLoop(m_sample->isLoop());
+		setLoop(m_sample->isLoop());
 	}
 
 	// iterate.
@@ -340,7 +344,7 @@ public:
 
 	// predicate.
 	bool isOver() const
-		{ return m_sample->isOver(m_frame); }
+		{ return !m_loop && m_sample->isOver(m_frame); }
 
 private:
 
@@ -353,6 +357,7 @@ private:
 	uint32_t m_index;
 	float    m_alpha;
 	uint32_t m_frame;
+	bool     m_loop;
 };
 
 
