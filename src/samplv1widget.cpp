@@ -959,7 +959,7 @@ void samplv1widget::setSampleLoop ( uint32_t iLoopStart, uint32_t iLoopEnd )
 	if (iLoopStart < iLoopEnd) {
 		samplv1 *pSampl = instance();
 		if (pSampl) {
-			pSampl->setLoop(iLoopStart, iLoopEnd);
+			pSampl->setLoopRange(iLoopStart, iLoopEnd);
 			m_ui.Gen1Sample->setLoopStart(iLoopStart);
 			m_ui.Gen1Sample->setLoopEnd(iLoopEnd);
 		}
@@ -988,7 +988,7 @@ void samplv1widget::loopChanged (void)
 {
 	samplv1 *pSampl = instance();
 	if (pSampl) {
-		pSampl->setLoop(
+		pSampl->setLoopRange(
 			m_ui.Gen1Sample->loopStart(),
 			m_ui.Gen1Sample->loopEnd());
 		m_ui.Preset->dirtyPreset();

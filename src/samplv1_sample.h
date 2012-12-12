@@ -56,7 +56,20 @@ public:
 		{ return m_srate; }
 
 	// loop mode.
-	void setLoop ( uint32_t start, uint32_t end )
+	void setLoop ( bool loop )
+	{
+		m_loop = loop;
+
+		if (m_loop && m_loop_start >= m_loop_end) {
+			m_loop_start = 0;
+			m_loop_end = m_nframes;
+		}
+	}
+	bool isLoop() const
+		{ return m_loop && (m_loop_start < m_loop_end); }
+
+	// loop range.
+	void setLoopRange ( uint32_t start, uint32_t end )
 	{
 		if (start > m_nframes)
 			start = m_nframes;
@@ -73,26 +86,14 @@ public:
 		}
 	}
 
-	void setLoop ( bool loop )
-	{
-		m_loop = loop;
-
-		if (m_loop && m_loop_start >= m_loop_end) {
-			m_loop_start = 0;
-			m_loop_end = m_nframes;
-		}
-	}
-
-	bool isLoop() const
-		{ return m_loop && (m_loop_start < m_loop_end); }
 	uint32_t loopStart (void) const
 		{ return m_loop_start; }
 	uint32_t loopEnd (void) const
 		{ return m_loop_end; }
 
 	// zero-crossing adjusted loop range.
-	void setLoopEx(uint32_t start, uint32_t end)
-		{ setLoop(zero_crossing(start), zero_crossing(end)); }
+	void setLoopRangeEx(uint32_t start, uint32_t end)
+		{ setLoopRange(zero_crossing(start), zero_crossing(end)); }
 
 	// init.
 	bool open(const char *filename, float freq0 = 1.0f)
@@ -160,7 +161,7 @@ public:
 			m_filename = 0;
 		}
 
-		setLoop(0, 0);
+		setLoopRange(0, 0);
 	}
 
 	// accessors.
@@ -279,7 +280,7 @@ public:
 	// reset loop.
 	void resetLoop(bool loop)
 	{
-		if (loop) {
+		if (loop && m_sample->isLoop()) {
 			m_phase1 = float(m_sample->loopEnd() - m_sample->loopStart());
 			m_phase2 = float(m_sample->loopEnd());
 		} else {

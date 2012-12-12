@@ -1087,6 +1087,7 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 				m_dca1.env.note_off(&pv->dca1_env);
 				m_dcf1.env.note_off(&pv->dcf1_env);
 				m_lfo1.env.note_off(&pv->lfo1_env);
+				pv->gen1.resetLoop(false);
 			}
 		}
 	}
@@ -1471,14 +1472,14 @@ samplv1_sample *samplv1::sample (void) const
 }
 
 
-void samplv1::setLoop ( uint32_t iLoopStart, uint32_t iLoopEnd )
+void samplv1::setLoopRange ( uint32_t iLoopStart, uint32_t iLoopEnd )
 {
-	m_pImpl->gen1_sample.setLoop(iLoopStart, iLoopEnd);
+	m_pImpl->gen1_sample.setLoopRange(iLoopStart, iLoopEnd);
 }
 
-void samplv1::setLoopEx ( uint32_t iLoopStart, uint32_t iLoopEnd )
+void samplv1::setLoopRangeEx ( uint32_t iLoopStart, uint32_t iLoopEnd )
 {
-	m_pImpl->gen1_sample.setLoopEx(iLoopStart, iLoopEnd);
+	m_pImpl->gen1_sample.setLoopRangeEx(iLoopStart, iLoopEnd);
 }
 
 uint32_t samplv1::loopStart (void) const

@@ -54,8 +54,9 @@ public:
 
 	samplv1_sample *sample() const;
 
-	void setLoop(uint32_t iLoopStart, uint32_t iLoopEnd);
-	void setLoopEx(uint32_t iLoopStart, uint32_t iLoopEnd);
+	void setLoopRange(uint32_t iLoopStart, uint32_t iLoopEnd);
+	void setLoopRangeEx(uint32_t iLoopStart, uint32_t iLoopEnd);
+
 	uint32_t loopStart() const;
 	uint32_t loopEnd() const;
 
