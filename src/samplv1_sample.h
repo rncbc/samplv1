@@ -187,10 +187,6 @@ public:
 		m_ratio = m_rate0 / (m_freq0 * m_srate);
 	}
 
-	// begin.
-	void start(float& phase, uint32_t& index, float& alpha) const
-		{ phase = 1.0f; index = 1; alpha = 0.0f; }
-
 	// frame value.
 	float *frames(uint16_t k) const
 		{ return m_pframes[k]; }
