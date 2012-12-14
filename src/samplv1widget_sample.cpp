@@ -418,8 +418,8 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 			}
 			QLinearGradient grad1(0, 0, w2, h);
 			painter.setPen(pal.highlight().color());
-			grad1.setColorAt(0.0f, pal.dark().color());
-			grad1.setColorAt(1.0f, rgbLite);
+			grad1.setColorAt(0.0f, rgbLite.darker());
+			grad1.setColorAt(0.5f, pal.dark().color());
 			painter.fillRect(x1, 0, x2 - x1, h, grad1);
 			painter.drawLine(x1, 0, x1, h);
 			painter.drawLine(x2, 0, x2, h);
