@@ -65,6 +65,7 @@ public:
 			m_loop_end = m_nframes;
 		}
 	}
+
 	bool isLoop() const
 		{ return m_loop && (m_loop_start < m_loop_end); }
 
@@ -93,7 +94,12 @@ public:
 
 	// zero-crossing adjusted loop range.
 	void setLoopRangeEx(uint32_t start, uint32_t end)
-		{ setLoopRange(zero_crossing(start), zero_crossing(end)); }
+	{
+		int slope = 0;
+		setLoopRange(
+			zero_crossing(start, &slope),
+			zero_crossing(end, &slope));
+	}
 
 	// init.
 	bool open(const char *filename, float freq0 = 1.0f)
@@ -197,36 +203,32 @@ public:
 
 protected:
 
-	// zero-crossing aliasing (channel).
-	uint32_t zero_crossing_k ( uint32_t i, uint16_t k ) const
+	// zero-crossing aliasing (single channel).
+	uint32_t zero_crossing_k ( uint32_t i, uint16_t k, int *slope ) const
 	{
 		const float *frames = m_pframes[k];
-		const float v0 = frames[i];
+		const int s0 = (slope ? *slope : 0);
 
-		int dmax = m_nframes - i;
-		if (dmax < int(i))
-			dmax = i;
-
-		int d = 1;
-		while (d < dmax) {
-			const float v1 = frames[i + d];
-			if ((v0 >= 0.0f && v1 < 0.0f) ||
-				(v1 >= 0.0f && v0 < 0.0f))
-				return (i + d);
-			d = -d;
-			if (d > 0)
-				++d;
+		float v0 = frames[i];
+		for (++i; i < m_nframes; ++i) {
+			const float v1 = frames[i];
+			if ((0 >= s0 && v0 >= 0.0f && v1 < 0.0f) ||
+				(s0 >= 0 && v1 >= 0.0f && v0 < 0.0f)) {
+				if (slope) *slope = (v1 < v0 ? -1 : +1);
+				return i;
+			}
+			v0 = v1;
 		}
 
-		return (i + d < m_nframes ? 0 : m_nframes);
+		return m_nframes;
 	}
 
 	// zero-crossing aliasing (median).
-	uint32_t zero_crossing ( uint32_t i ) const
+	uint32_t zero_crossing ( uint32_t i, int *slope = 0 ) const
 	{
 		uint32_t sum = 0;
 		for (uint16_t k = 0; k < m_nchannels; ++k)
-			sum += zero_crossing_k(i, k);
+			sum += zero_crossing_k(i, k, slope);
 		return (sum / m_nchannels);
 	}
 
@@ -272,6 +274,7 @@ public:
 		m_alpha  = 0.0f;
 		m_frame  = 0;
 		m_loop   = false;
+		m_gain   = 1.0f;
 	}
 
 	// reset loop.
@@ -294,6 +297,7 @@ public:
 		m_index = 1;
 		m_alpha = 0.0f;
 		m_frame = 0;
+		m_gain  = 1.0f;
 
 		setLoop(m_sample->isLoop());
 	}
@@ -301,14 +305,30 @@ public:
 	// iterate.
 	void next(float freq)
 	{
+		const float delta = freq * m_sample->ratio();
+
+		const float xtime = 32.0f; // frames.
+		const float xstep = 1.0f / xtime;
+		const float xfade = xtime * delta;
+
 		m_index  = int(m_phase);
 		m_alpha  = m_phase - float(m_index);
-		m_phase += freq * m_sample->ratio();
+		m_phase += delta;
+
+		if (m_phase >= m_phase2 - xfade)
+			m_gain -= xstep;
+		else
+		if (m_gain < 1.0f)
+			m_gain += xstep;
 
 		if (m_phase >= m_phase2) {
 			m_phase -= m_phase1;
-			if (m_phase < 1.0f)
+			if (m_phase < 1.0f) {
 				m_phase = 1.0f;
+				m_gain = xstep;
+			} else {
+				m_gain = 0.0f;
+			}
 		}
 
 		if (m_frame < m_index)
@@ -334,7 +354,7 @@ public:
 		const float c3 = (x3 - x1) * 0.5f + b2 + b1;
 		const float c2 = (c3 + b2);
 
-		return (((c3 * m_alpha) - c2) * m_alpha + c1) * m_alpha + x1;
+		return m_gain * ((((c3 * m_alpha) - c2) * m_alpha + c1) * m_alpha + x1);
 	}
 
 	// predicate.
@@ -353,6 +373,7 @@ private:
 	float    m_alpha;
 	uint32_t m_frame;
 	bool     m_loop;
+	float    m_gain;
 };
 
 
