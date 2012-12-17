@@ -975,13 +975,25 @@ void samplv1widget::updateSample ( samplv1_sample *pSample, bool bDirty )
 {
 	m_ui.Gen1Sample->setSample(pSample);
 
+	++m_iUpdate;
 	if (pSample) {
-		m_ui.Gen1LoopStartSpinBox->setMaximum(pSample->length());
-		m_ui.Gen1LoopEndSpinBox->setMaximum(pSample->length());
+		const bool bLoop = pSample->isLoop();
+		const uint32_t nframes = pSample->length();
+		m_ui.Gen1Sample->setLoop(bLoop);
+		m_ui.Gen1Sample->setLoopStart(0);
+		m_ui.Gen1Sample->setLoopEnd(nframes);
+		m_ui.Gen1LoopStartSpinBox->setMaximum(nframes);
+		m_ui.Gen1LoopStartSpinBox->setValue(0);
+		m_ui.Gen1LoopEndSpinBox->setMinimum(nframes);
+		m_ui.Gen1LoopEndSpinBox->setValue(nframes);
 	} else {
+		m_ui.Gen1Sample->setLoop(false);
 		m_ui.Gen1LoopStartSpinBox->setMaximum(0);
+		m_ui.Gen1LoopStartSpinBox->setValue(0);
 		m_ui.Gen1LoopEndSpinBox->setMaximum(0);
+		m_ui.Gen1LoopEndSpinBox->setValue(0);
 	}
+	--m_iUpdate;
 
 	if (pSample && bDirty)
 		m_ui.Preset->dirtyPreset();
