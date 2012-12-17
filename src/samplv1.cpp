@@ -1477,11 +1477,6 @@ void samplv1::setLoopRange ( uint32_t iLoopStart, uint32_t iLoopEnd )
 	m_pImpl->gen1_sample.setLoopRange(iLoopStart, iLoopEnd);
 }
 
-void samplv1::setLoopRangeEx ( uint32_t iLoopStart, uint32_t iLoopEnd )
-{
-	m_pImpl->gen1_sample.setLoopRangeEx(iLoopStart, iLoopEnd);
-}
-
 uint32_t samplv1::loopStart (void) const
 {
 	return m_pImpl->gen1_sample.loopStart();

@@ -92,15 +92,6 @@ public:
 	uint32_t loopEnd (void) const
 		{ return m_loop_end; }
 
-	// zero-crossing adjusted loop range.
-	void setLoopRangeEx(uint32_t start, uint32_t end)
-	{
-		int slope = 0;
-		setLoopRange(
-			zero_crossing(start, &slope),
-			zero_crossing(end, &slope));
-	}
-
 	// init.
 	bool open(const char *filename, float freq0 = 1.0f)
 	{
@@ -201,37 +192,6 @@ public:
 	bool isOver(uint32_t frame) const
 		{ return !m_pframes || (frame >= m_nframes - 4); }
 
-protected:
-
-	// zero-crossing aliasing (single channel).
-	uint32_t zero_crossing_k ( uint32_t i, uint16_t k, int *slope ) const
-	{
-		const float *frames = m_pframes[k];
-		const int s0 = (slope ? *slope : 0);
-
-		float v0 = frames[i];
-		for (++i; i < m_nframes; ++i) {
-			const float v1 = frames[i];
-			if ((0 >= s0 && v0 >= 0.0f && v1 < 0.0f) ||
-				(s0 >= 0 && v1 >= 0.0f && v0 < 0.0f)) {
-				if (slope) *slope = (v1 < v0 ? -1 : +1);
-				return i;
-			}
-			v0 = v1;
-		}
-
-		return m_nframes;
-	}
-
-	// zero-crossing aliasing (median).
-	uint32_t zero_crossing ( uint32_t i, int *slope = 0 ) const
-	{
-		uint32_t sum = 0;
-		for (uint16_t k = 0; k < m_nchannels; ++k)
-			sum += zero_crossing_k(i, k, slope);
-		return (sum / m_nchannels);
-	}
-
 private:
 
 	float    m_srate;
@@ -283,8 +243,15 @@ public:
 		m_loop = loop;
 
 		if (m_loop) {
-			m_phase1 = float(m_sample->loopEnd() - m_sample->loopStart());
-			m_phase2 = float(m_sample->loopEnd());
+			int slope = 0;
+			uint32_t end = zero_crossing(m_sample->loopEnd(), &slope);
+			uint32_t start = zero_crossing(m_sample->loopStart(), &slope);
+			if (start >= end) {
+				start = m_sample->loopStart();
+				end = m_sample->loopEnd();
+			}
+			m_phase1 = float(end - start);
+			m_phase2 = float(end);
 		} else {
 			m_phase1 = m_phase2 = float(m_sample->length());
 		}
@@ -360,6 +327,41 @@ public:
 	// predicate.
 	bool isOver() const
 		{ return !m_loop && m_sample->isOver(m_frame); }
+
+protected:
+
+	// zero-crossing aliasing (single channel).
+	uint32_t zero_crossing_k ( uint32_t i, uint16_t k, int *slope ) const
+	{
+		const uint32_t nframes = m_sample->length();
+		const float *frames = m_sample->frames(k);
+		const int s0 = (slope ? *slope : 0);
+
+		float v0 = frames[i];
+		for (++i; i < nframes; ++i) {
+			const float v1 = frames[i];
+			if ((0 >= s0 && v0 >= 0.0f && v1 < 0.0f) ||
+				(s0 >= 0 && v1 >= 0.0f && v0 < 0.0f)) {
+				if (slope) *slope = (v1 < v0 ? -1 : +1);
+				return i;
+			}
+			v0 = v1;
+		}
+
+		return nframes;
+	}
+
+	// zero-crossing aliasing (median).
+	uint32_t zero_crossing ( uint32_t i, int *slope = 0 ) const
+	{
+		const uint16_t nchannels = m_sample->channels();
+
+		uint32_t sum = 0;
+		for (uint16_t k = 0; k < nchannels; ++k)
+			sum += zero_crossing_k(i, k, slope);
+
+		return (sum / nchannels);
+	}
 
 private:
 

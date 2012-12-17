@@ -1031,11 +1031,9 @@ void samplv1widget::loopRangeChanged (void)
 	++m_iUpdate;
 	samplv1 *pSampl = instance();
 	if (pSampl) {
-		pSampl->setLoopRangeEx(
-			m_ui.Gen1Sample->loopStart(),
-			m_ui.Gen1Sample->loopEnd());
-		const uint32_t iLoopStart = pSampl->loopStart();
-		const uint32_t iLoopEnd = pSampl->loopEnd();
+		const uint32_t iLoopStart = m_ui.Gen1Sample->loopStart();
+		const uint32_t iLoopEnd = m_ui.Gen1Sample->loopEnd();
+		pSampl->setLoopRange(iLoopStart, iLoopEnd);
 		m_ui.Gen1LoopStartSpinBox->setMaximum(iLoopEnd);
 		m_ui.Gen1LoopStartSpinBox->setValue(iLoopStart);
 		m_ui.Gen1LoopEndSpinBox->setMinimum(iLoopStart);
@@ -1058,11 +1056,11 @@ void samplv1widget::loopStartChanged (void)
 	++m_iUpdate;
 	samplv1 *pSampl = instance();
 	if (pSampl) {
-		pSampl->setLoopRangeEx(
-			m_ui.Gen1LoopStartSpinBox->value(), pSampl->loopEnd());
-		const uint32_t iLoopStart = pSampl->loopStart();
+		const uint32_t iLoopStart = m_ui.Gen1LoopStartSpinBox->value();
+		const uint32_t iLoopEnd = pSampl->loopEnd();
+		pSampl->setLoopRange(iLoopStart, iLoopEnd);
 		m_ui.Gen1Sample->setLoopStart(iLoopStart);
-		m_ui.Gen1LoopStartSpinBox->setValue(iLoopStart);
+	//	m_ui.Gen1LoopStartSpinBox->setValue(iLoopStart);
 		m_ui.Gen1LoopEndSpinBox->setMinimum(iLoopStart);
 		m_ui.Preset->dirtyPreset();
 		m_ui.StatusBar->showMessage(tr("Loop start: %1")
@@ -1082,12 +1080,12 @@ void samplv1widget::loopEndChanged (void)
 	++m_iUpdate;
 	samplv1 *pSampl = instance();
 	if (pSampl) {
-		pSampl->setLoopRangeEx(
-			pSampl->loopStart(), m_ui.Gen1LoopEndSpinBox->value());
-		const uint32_t iLoopEnd = pSampl->loopEnd();
+		const uint32_t iLoopStart = pSampl->loopStart();
+		const uint32_t iLoopEnd = m_ui.Gen1LoopEndSpinBox->value();
+		pSampl->setLoopRange(iLoopStart, iLoopEnd);
 		m_ui.Gen1Sample->setLoopEnd(iLoopEnd);
-		m_ui.Gen1LoopEndSpinBox->setValue(iLoopEnd);
-		m_ui.Gen1LoopStartSpinBox->setMaximum(iLoopEnd - 1);
+	//	m_ui.Gen1LoopEndSpinBox->setValue(iLoopEnd);
+		m_ui.Gen1LoopStartSpinBox->setMaximum(iLoopEnd);
 		m_ui.Preset->dirtyPreset();
 		m_ui.StatusBar->showMessage(tr("Loop end: %1")
 			.arg(iLoopEnd), 5000);
