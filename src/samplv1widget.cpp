@@ -775,6 +775,7 @@ void samplv1widget::loadPreset ( const QString& sFilename )
 
 	const QString& sPreset = fi.completeBaseName();
 	m_ui.Preset->setPreset(sPreset);
+
 	m_ui.StatusBar->showMessage(tr("Load preset: %1").arg(sPreset), 5000);
 	m_ui.StatusBar->setModified(false);
 
@@ -817,6 +818,7 @@ void samplv1widget::savePreset ( const QString& sFilename )
 	}
 
 	m_ui.StatusBar->showMessage(tr("Save preset: %1").arg(sPreset), 5000);
+	m_ui.StatusBar->setModified(false);
 }
 
 

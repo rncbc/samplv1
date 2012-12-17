@@ -147,55 +147,40 @@
            </widget>
           </item>
           <item>
-
-  <widget class="QFrame" name="Gen1LoopRangeFrame">
-   <property name="minimumSize">
-    <size>
-     <width>100</width>
-     <height>0</height>
-    </size>
-   </property>
-   <property name="frameShape">
-    <enum>QFrame::NoFrame</enum>
-   </property>
-   <layout class="QVBoxLayout">
-	<item>
-	 <spacer>
-	  <property name="orientation">
-	   <enum>Qt::Vertical</enum>
-	  </property>
-	  <property name="sizeHint">
-	   <size>
-		<width>8</width>
-		<height>8</height>
-	   </size>
-	  </property>
-	 </spacer>
-	</item>
-	<item>
-	 <widget class="QLabel" name="Gen1LoopRangeLabel">
-      <property name="text">
-	   <string>Start / End:</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QSpinBox" name="Gen1LoopStartSpinBox">
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-     </widget>
-    </item>
-	<item>
-     <widget class="QSpinBox" name="Gen1LoopEndSpinBox">
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
-
+           <widget class="QFrame" name="Gen1LoopRangeFrame">
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <layout class="QVBoxLayout">
+             <item>
+              <widget class="QLabel" name="Gen1LoopRangeLabel">
+               <property name="text">
+                <string>Start / End:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="Gen1LoopStartSpinBox">
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="Gen1LoopEndSpinBox">
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
           </item>
           <item>
            <spacer>
