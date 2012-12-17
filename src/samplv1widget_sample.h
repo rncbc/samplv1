@@ -65,7 +65,7 @@ signals:
 	void loadSampleFile(const QString&);
 
 	// Loop range changed.
-	void loopChanged();
+	void loopRangeChanged();
 
 public slots:
 

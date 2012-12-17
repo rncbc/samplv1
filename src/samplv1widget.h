@@ -100,8 +100,10 @@ protected slots:
 	// Swap params A/B.
 	void swapParams(bool bOn);
 
-	// Loop range change.
-	void loopChanged();
+	// Loop range changes.
+	void loopRangeChanged();
+	void loopStartChanged();
+	void loopEndChanged();
 
 	// Menu actions.
 	void helpAbout();

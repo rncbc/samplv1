@@ -313,7 +313,7 @@ void samplv1widget_sample::mouseReleaseEvent ( QMouseEvent *pMouseEvent )
 			const uint32_t nframes = m_pSample->length();
 			m_iLoopStart = (m_iDragStartX * nframes) / w;
 			m_iLoopEnd   = (m_iDragEndX   * nframes) / w;
-			emit loopChanged();
+			emit loopRangeChanged();
 			update();
 		}
 		break;
@@ -323,7 +323,7 @@ void samplv1widget_sample::mouseReleaseEvent ( QMouseEvent *pMouseEvent )
 		if (m_pSample && w > 0) {
 			const uint32_t nframes = m_pSample->length();
 			m_iLoopStart = (m_iDragStartX * nframes) / w;
-			emit loopChanged();
+			emit loopRangeChanged();
 			update();
 		}
 		break;
@@ -333,7 +333,7 @@ void samplv1widget_sample::mouseReleaseEvent ( QMouseEvent *pMouseEvent )
 		if (m_pSample && w > 0) {
 			const uint32_t nframes = m_pSample->length();
 			m_iLoopEnd = (m_iDragEndX * nframes) / w;
-			emit loopChanged();
+			emit loopRangeChanged();
 			update();
 		}
 		break;

@@ -21,6 +21,8 @@
 
 #include "samplv1widget.h"
 
+#include "samplv1_sample.h"
+
 #include <QDomDocument>
 #include <QTextStream>
 #include <QFileInfo>
@@ -126,6 +128,11 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	// Replicate the stacked/pages
 	for (int iTab = 0; iTab < m_ui.StackedWidget->count(); ++iTab)
 		m_ui.TabBar->addTab(m_ui.StackedWidget->widget(iTab)->windowTitle());
+
+	// Loop range font.
+	m_ui.Gen1LoopRangeFrame->setFont(m_ui.Gen1LoopKnob->font());
+	m_ui.Gen1LoopStartSpinBox->setMinimum(0);
+	m_ui.Gen1LoopEndSpinBox->setMinimum(0);
 
 	// Note names.
 	QStringList notes;
@@ -451,8 +458,15 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 		SLOT(contextMenuRequest(const QPoint&)));
 
 	QObject::connect(m_ui.Gen1Sample,
-		SIGNAL(loopChanged()),
-		SLOT(loopChanged()));
+		SIGNAL(loopRangeChanged()),
+		SLOT(loopRangeChanged()));
+
+	QObject::connect(m_ui.Gen1LoopStartSpinBox,
+		SIGNAL(valueChanged(int)),
+		SLOT(loopStartChanged()));
+	QObject::connect(m_ui.Gen1LoopEndSpinBox,
+		SIGNAL(valueChanged(int)),
+		SLOT(loopEndChanged()));
 
 	// Swap params A/B
 	QObject::connect(m_ui.SwapParamsAButton,
@@ -549,15 +563,26 @@ void samplv1widget::updateParamEx ( samplv1::ParamIndex index, float fValue )
 	if (pSampl == NULL)
 		return;
 
+	++m_iUpdate;
 	switch (index) {
-	case samplv1::GEN1_LOOP:
-		m_ui.Gen1Sample->setLoop(bool(fValue > 0.0f));
-		m_ui.Gen1Sample->setLoopStart(pSampl->loopStart());
-		m_ui.Gen1Sample->setLoopEnd(pSampl->loopEnd());
+	case samplv1::GEN1_LOOP: {
+		const bool bLoop = bool(fValue > 0.0f);
+		const uint32_t iLoopStart = pSampl->loopStart();
+		const uint32_t iLoopEnd = pSampl->loopEnd();
+		m_ui.Gen1Sample->setLoop(bLoop);
+		m_ui.Gen1Sample->setLoopStart(iLoopStart);
+		m_ui.Gen1Sample->setLoopEnd(iLoopEnd);
+		m_ui.Gen1LoopRangeFrame->setEnabled(bLoop);
+		m_ui.Gen1LoopStartSpinBox->setMaximum(iLoopEnd);
+		m_ui.Gen1LoopStartSpinBox->setValue(iLoopStart);
+		m_ui.Gen1LoopEndSpinBox->setMinimum(iLoopStart);
+		m_ui.Gen1LoopEndSpinBox->setValue(iLoopEnd);
 		// Fall thru...
+	}
 	default:
 		break;
 	}
+	--m_iUpdate;
 }
 
 
@@ -948,6 +973,14 @@ void samplv1widget::updateSample ( samplv1_sample *pSample, bool bDirty )
 {
 	m_ui.Gen1Sample->setSample(pSample);
 
+	if (pSample) {
+		m_ui.Gen1LoopStartSpinBox->setMaximum(pSample->length());
+		m_ui.Gen1LoopEndSpinBox->setMaximum(pSample->length());
+	} else {
+		m_ui.Gen1LoopStartSpinBox->setMaximum(0);
+		m_ui.Gen1LoopEndSpinBox->setMaximum(0);
+	}
+
 	if (pSample && bDirty)
 		m_ui.Preset->dirtyPreset();
 }
@@ -957,12 +990,18 @@ void samplv1widget::updateSample ( samplv1_sample *pSample, bool bDirty )
 void samplv1widget::setSampleLoop ( uint32_t iLoopStart, uint32_t iLoopEnd )
 {
 	if (iLoopStart < iLoopEnd) {
+		++m_iUpdate;
 		samplv1 *pSampl = instance();
 		if (pSampl) {
 			pSampl->setLoopRange(iLoopStart, iLoopEnd);
 			m_ui.Gen1Sample->setLoopStart(iLoopStart);
 			m_ui.Gen1Sample->setLoopEnd(iLoopEnd);
+			m_ui.Gen1LoopStartSpinBox->setMaximum(iLoopEnd);
+			m_ui.Gen1LoopStartSpinBox->setValue(iLoopStart);
+			m_ui.Gen1LoopEndSpinBox->setMinimum(iLoopStart);
+			m_ui.Gen1LoopEndSpinBox->setValue(iLoopEnd);
 		}
+		--m_iUpdate;
 	}
 }
 
@@ -984,19 +1023,77 @@ bool samplv1widget::queryClose (void)
 
 
 // Loop range change.
-void samplv1widget::loopChanged (void)
+void samplv1widget::loopRangeChanged (void)
 {
+	if (m_iUpdate > 0)
+		return;
+
+	++m_iUpdate;
 	samplv1 *pSampl = instance();
 	if (pSampl) {
-		pSampl->setLoopRange(
+		pSampl->setLoopRangeEx(
 			m_ui.Gen1Sample->loopStart(),
 			m_ui.Gen1Sample->loopEnd());
+		const uint32_t iLoopStart = pSampl->loopStart();
+		const uint32_t iLoopEnd = pSampl->loopEnd();
+		m_ui.Gen1LoopStartSpinBox->setMaximum(iLoopEnd);
+		m_ui.Gen1LoopStartSpinBox->setValue(iLoopStart);
+		m_ui.Gen1LoopEndSpinBox->setMinimum(iLoopStart);
+		m_ui.Gen1LoopEndSpinBox->setValue(iLoopEnd);
 		m_ui.Preset->dirtyPreset();
 		m_ui.StatusBar->showMessage(tr("Loop start: %1, end: %2")
-			.arg(pSampl->loopStart())
-			.arg(pSampl->loopEnd()), 5000);
+			.arg(iLoopStart).arg(iLoopEnd), 5000);
 		m_ui.StatusBar->setModified(true);
 	}
+	--m_iUpdate;
+}
+
+
+// Loop start change.
+void samplv1widget::loopStartChanged (void)
+{
+	if (m_iUpdate > 0)
+		return;
+
+	++m_iUpdate;
+	samplv1 *pSampl = instance();
+	if (pSampl) {
+		pSampl->setLoopRangeEx(
+			m_ui.Gen1LoopStartSpinBox->value(), pSampl->loopEnd());
+		const uint32_t iLoopStart = pSampl->loopStart();
+		m_ui.Gen1Sample->setLoopStart(iLoopStart);
+		m_ui.Gen1LoopStartSpinBox->setValue(iLoopStart);
+		m_ui.Gen1LoopEndSpinBox->setMinimum(iLoopStart);
+		m_ui.Preset->dirtyPreset();
+		m_ui.StatusBar->showMessage(tr("Loop start: %1")
+			.arg(iLoopStart), 5000);
+		m_ui.StatusBar->setModified(true);
+	}
+	--m_iUpdate;
+}
+
+
+// Loop end change.
+void samplv1widget::loopEndChanged (void)
+{
+	if (m_iUpdate > 0)
+		return;
+
+	++m_iUpdate;
+	samplv1 *pSampl = instance();
+	if (pSampl) {
+		pSampl->setLoopRangeEx(
+			pSampl->loopStart(), m_ui.Gen1LoopEndSpinBox->value());
+		const uint32_t iLoopEnd = pSampl->loopEnd();
+		m_ui.Gen1Sample->setLoopEnd(iLoopEnd);
+		m_ui.Gen1LoopEndSpinBox->setValue(iLoopEnd);
+		m_ui.Gen1LoopStartSpinBox->setMaximum(iLoopEnd - 1);
+		m_ui.Preset->dirtyPreset();
+		m_ui.StatusBar->showMessage(tr("Loop end: %1")
+			.arg(iLoopEnd), 5000);
+		m_ui.StatusBar->setModified(true);
+	}
+	--m_iUpdate;
 }
 
 
