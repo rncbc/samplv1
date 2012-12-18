@@ -130,7 +130,13 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 		m_ui.TabBar->addTab(m_ui.StackedWidget->widget(iTab)->windowTitle());
 
 	// Loop range font.
-	m_ui.Gen1LoopRangeFrame->setFont(m_ui.Gen1LoopKnob->font());
+	const QFont& font = m_ui.Gen1LoopKnob->font();
+	m_ui.Gen1LoopRangeFrame->setFont(font);
+
+	const QFontMetrics fm(font);
+	m_ui.Gen1LoopStartSpinBox->setMaximumHeight(fm.height() + 6);
+	m_ui.Gen1LoopEndSpinBox->setMaximumHeight(fm.height() + 6);
+
 	m_ui.Gen1LoopStartSpinBox->setMinimum(0);
 	m_ui.Gen1LoopEndSpinBox->setMinimum(0);
 
@@ -559,30 +565,16 @@ void samplv1widget::paramChanged ( float fValue )
 // Update local tied widgets.
 void samplv1widget::updateParamEx ( samplv1::ParamIndex index, float fValue )
 {
-	samplv1 *pSampl = instance();
-	if (pSampl == NULL)
-		return;
-
-	++m_iUpdate;
 	switch (index) {
 	case samplv1::GEN1_LOOP: {
 		const bool bLoop = bool(fValue > 0.0f);
-		const uint32_t iLoopStart = pSampl->loopStart();
-		const uint32_t iLoopEnd = pSampl->loopEnd();
 		m_ui.Gen1Sample->setLoop(bLoop);
-		m_ui.Gen1Sample->setLoopStart(iLoopStart);
-		m_ui.Gen1Sample->setLoopEnd(iLoopEnd);
 		m_ui.Gen1LoopRangeFrame->setEnabled(bLoop);
-		m_ui.Gen1LoopStartSpinBox->setMaximum(iLoopEnd);
-		m_ui.Gen1LoopStartSpinBox->setValue(iLoopStart);
-		m_ui.Gen1LoopEndSpinBox->setMinimum(iLoopStart);
-		m_ui.Gen1LoopEndSpinBox->setValue(iLoopEnd);
 		// Fall thru...
 	}
 	default:
 		break;
 	}
-	--m_iUpdate;
 }
 
 
