@@ -139,6 +139,9 @@ protected:
 	// Sample loop points.
 	void setSampleLoop(uint32_t iLoopStart, uint32_t iLoopEnd);
 
+	// Update loop range change status.
+	void updateLoopRange(uint32_t iLoopStart, uint32_t iLoopEnd);
+
 	// Sample serialization methods.
 	void loadSamples(const QDomElement& eSamples);
 	void saveSamples(QDomDocument& doc, QDomElement& eSamples);

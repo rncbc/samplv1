@@ -33,6 +33,8 @@
 
 #include <QMouseEvent>
 
+#include <QToolTip>
+
 
 //----------------------------------------------------------------------------
 // samplv1widget_sample -- Custom widget
@@ -266,6 +268,16 @@ void samplv1widget_sample::mouseMoveEvent ( QMouseEvent *pMouseEvent )
 		if (m_iDragEndX > x) {
 			m_iDragStartX = safeX(x);
 			update();
+			if (m_pSample) {
+				const int w = QFrame::width();
+				if (w > 0) {
+					const uint32_t nframes = m_pSample->length();
+					QToolTip::showText(
+						QCursor::pos(),
+						tr("Loop start: %1")
+							.arg((m_iDragStartX * nframes) / w), this);
+				}
+			}
 		}
 		break;
 	}
@@ -273,6 +285,16 @@ void samplv1widget_sample::mouseMoveEvent ( QMouseEvent *pMouseEvent )
 		if (m_iDragStartX < x) {
 			m_iDragEndX = safeX(x);
 			update();
+			if (m_pSample) {
+				const int w = QFrame::width();
+				if (w > 0) {
+					const uint32_t nframes = m_pSample->length();
+					QToolTip::showText(
+						QCursor::pos(),
+						tr("Loop end: %1")
+							.arg((m_iDragEndX * nframes) / w), this);
+				}
+			}
 		}
 		break;
 	}
@@ -282,6 +304,17 @@ void samplv1widget_sample::mouseMoveEvent ( QMouseEvent *pMouseEvent )
 		m_iDragStartX = safeX(rect.left());
 		m_iDragEndX   = safeX(rect.right());
 		update();
+		if (m_pSample) {
+			const int w = QFrame::width();
+			if (w > 0) {
+				const uint32_t nframes = m_pSample->length();
+				QToolTip::showText(
+					QCursor::pos(),
+					tr("Loop start: %1, end: %2")
+						.arg((m_iDragStartX * nframes) / w)
+						.arg((m_iDragEndX   * nframes) / w), this);
+			}
+		}
 		break;
 	}
 	case DragStart:
