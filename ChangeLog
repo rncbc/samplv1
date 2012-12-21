@@ -3,7 +3,7 @@ samplv1 - an old-school polyphonic sampler
 
 ChangeLog
 
-SVN TRUNK
+0.3.0  2012-12-21  Third coming release.
 
 - Sample loop points (start, end) support added.
 - Dropped all SSE dummy build optimization flags as they were
