@@ -3,6 +3,11 @@ samplv1 - an old-school polyphonic sampler
 
 ChangeLog
 
+SVN TRUNK
+
+- Sample loop points were missing the LV2 UI state restoration.
+
+
 0.3.0  2012-12-21  Third coming release.
 
 - Sample loop points (start, end) support added.
