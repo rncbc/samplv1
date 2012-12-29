@@ -5,6 +5,7 @@ ChangeLog
 
 SVN TRUNK
 
+- Preparations for Qt5 migration. (TESTING)
 - Sample loop points were missing the LV2 UI state restoration.
 
 
