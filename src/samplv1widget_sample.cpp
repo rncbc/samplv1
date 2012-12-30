@@ -451,6 +451,7 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 					x1 = (m_iLoopStart * w) / nframes;
 					x2 = (m_iLoopEnd   * w) / nframes;
 				}
+				else x1 = x2 = 0;
 			}
 			QLinearGradient grad1(0, 0, w2, h);
 			painter.setPen(pal.highlight().color());
