@@ -1,7 +1,7 @@
 // samplv1widget.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2013, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -573,6 +573,11 @@ void samplv1widget::updateParamEx ( samplv1::ParamIndex index, float fValue )
 		const bool bLoop = bool(fValue > 0.0f);
 		m_ui.Gen1Sample->setLoop(bLoop);
 		m_ui.Gen1LoopRangeFrame->setEnabled(bLoop);
+		++m_iUpdate;
+		samplv1 *pSampl = instance();
+		if (pSampl)
+			updateSampleLoop(pSampl->sample());
+		--m_iUpdate;
 		// Fall thru...
 	}
 	default:
@@ -859,7 +864,13 @@ void samplv1widget::loadSamples ( const QDomElement& eSamples )
 				sFilename = eSample.text();
 			// Done it.
 			loadSampleFile(sFilename);
-			setSampleLoop(iLoopStart, iLoopEnd);
+			// Set actual sample loop points...
+			pSampl->setLoopRange(iLoopStart, iLoopEnd);
+			++m_iUpdate;
+			m_ui.Gen1Sample->setLoopStart(iLoopStart);
+			m_ui.Gen1Sample->setLoopEnd(iLoopEnd);
+			updateSampleLoop(pSampl->sample());
+			--m_iUpdate;
 		}
 	}
 
@@ -978,53 +989,17 @@ void samplv1widget::updateSample ( samplv1_sample *pSample, bool bDirty )
 		const uint32_t iLoopEnd = pSample->loopEnd();
 		m_ui.Gen1Sample->setLoopStart(iLoopStart);
 		m_ui.Gen1Sample->setLoopEnd(iLoopEnd);
-		const uint32_t nframes = pSample->length();
-		m_ui.Gen1LoopStartSpinBox->setMinimum(0);
-		m_ui.Gen1LoopStartSpinBox->setMaximum(
-			iLoopEnd > 0 ? iLoopEnd - 1 : 0);
-		m_ui.Gen1LoopEndSpinBox->setMinimum(
-			iLoopStart < nframes ? iLoopStart + 1 : nframes);
-		m_ui.Gen1LoopEndSpinBox->setMaximum(nframes);
-		m_ui.Gen1LoopStartSpinBox->setValue(iLoopStart);
-		m_ui.Gen1LoopEndSpinBox->setValue(iLoopEnd);
+		updateSampleLoop(pSample);
 	} else {
 		m_ui.Gen1Sample->setLoop(false);
-		m_ui.Gen1LoopStartSpinBox->setMinimum(0);
-		m_ui.Gen1LoopStartSpinBox->setMaximum(0);
-		m_ui.Gen1LoopStartSpinBox->setValue(0);
-		m_ui.Gen1LoopEndSpinBox->setMinimum(0);
-		m_ui.Gen1LoopEndSpinBox->setMaximum(0);
-		m_ui.Gen1LoopEndSpinBox->setValue(0);
+		m_ui.Gen1Sample->setLoopStart(0);
+		m_ui.Gen1Sample->setLoopEnd(0);
+		updateSampleLoop(NULL);
 	}
 	--m_iUpdate;
 
 	if (pSample && bDirty)
 		m_ui.Preset->dirtyPreset();
-}
-
-
-// Sample loop points.
-void samplv1widget::setSampleLoop ( uint32_t iLoopStart, uint32_t iLoopEnd )
-{
-	if (iLoopStart < iLoopEnd) {
-		++m_iUpdate;
-		samplv1 *pSampl = instance();
-		if (pSampl) {
-			pSampl->setLoopRange(iLoopStart, iLoopEnd);
-			m_ui.Gen1Sample->setLoopStart(iLoopStart);
-			m_ui.Gen1Sample->setLoopEnd(iLoopEnd);
-			const uint32_t nframes = pSampl->sample()->length();
-			m_ui.Gen1LoopStartSpinBox->setMinimum(0);
-			m_ui.Gen1LoopStartSpinBox->setMaximum(
-				iLoopEnd > 0 ? iLoopEnd - 1 : 0);
-			m_ui.Gen1LoopEndSpinBox->setMinimum(
-				iLoopStart < nframes ? iLoopStart + 1 : nframes);
-			m_ui.Gen1LoopEndSpinBox->setMaximum(nframes);
-			m_ui.Gen1LoopStartSpinBox->setValue(iLoopStart);
-			m_ui.Gen1LoopEndSpinBox->setValue(iLoopEnd);
-		}
-		--m_iUpdate;
-	}
 }
 
 
@@ -1056,16 +1031,7 @@ void samplv1widget::loopRangeChanged (void)
 		const uint32_t iLoopStart = m_ui.Gen1Sample->loopStart();
 		const uint32_t iLoopEnd = m_ui.Gen1Sample->loopEnd();
 		pSampl->setLoopRange(iLoopStart, iLoopEnd);
-		const uint32_t nframes = pSampl->sample()->length();
-		m_ui.Gen1LoopStartSpinBox->setMinimum(0);
-		m_ui.Gen1LoopStartSpinBox->setMaximum(
-			iLoopEnd > 0 ? iLoopEnd - 1 : 0);
-		m_ui.Gen1LoopEndSpinBox->setMinimum(
-			iLoopStart < nframes ? iLoopStart + 1 : nframes);
-		m_ui.Gen1LoopEndSpinBox->setMaximum(nframes);
-		m_ui.Gen1LoopStartSpinBox->setValue(iLoopStart);
-		m_ui.Gen1LoopEndSpinBox->setValue(iLoopEnd);
-		updateLoopRange(iLoopStart, iLoopEnd);
+		updateSampleLoop(pSampl->sample(), true);
 	}
 	--m_iUpdate;
 }
@@ -1084,11 +1050,7 @@ void samplv1widget::loopStartChanged (void)
 		const uint32_t iLoopEnd = pSampl->loopEnd();
 		pSampl->setLoopRange(iLoopStart, iLoopEnd);
 		m_ui.Gen1Sample->setLoopStart(iLoopStart);
-		const uint32_t nframes = pSampl->sample()->length();
-		m_ui.Gen1LoopEndSpinBox->setMinimum(
-			iLoopStart < nframes ? iLoopStart + 1 : nframes);
-		m_ui.Gen1LoopEndSpinBox->setMaximum(nframes);
-		updateLoopRange(iLoopStart, iLoopEnd);
+		updateSampleLoop(pSampl->sample(), true);
 	}
 	--m_iUpdate;
 }
@@ -1106,22 +1068,41 @@ void samplv1widget::loopEndChanged (void)
 		const uint32_t iLoopStart = pSampl->loopStart();
 		const uint32_t iLoopEnd = m_ui.Gen1LoopEndSpinBox->value();
 		pSampl->setLoopRange(iLoopStart, iLoopEnd);
-		m_ui.Gen1Sample->setLoopEnd(iLoopEnd);
-		m_ui.Gen1LoopStartSpinBox->setMinimum(0);
-		m_ui.Gen1LoopStartSpinBox->setMaximum(
-			iLoopEnd > 0 ? iLoopEnd - 1 : 0);
-		updateLoopRange(iLoopStart, iLoopEnd);
+		updateSampleLoop(pSampl->sample(), true);
 	}
 	--m_iUpdate;
 }
 
 
-void samplv1widget::updateLoopRange ( uint32_t iLoopStart, uint32_t iLoopEnd )
+void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
 {
-	m_ui.Preset->dirtyPreset();
-	m_ui.StatusBar->showMessage(tr("Loop start: %1, end: %2")
-		.arg(iLoopStart).arg(iLoopEnd), 5000);
-	m_ui.StatusBar->setModified(true);
+
+	if (pSample) {
+		const uint32_t iLoopStart = pSample->loopStart();
+		const uint32_t iLoopEnd = pSample->loopEnd();
+		const uint32_t nframes = pSample->length();
+		m_ui.Gen1LoopStartSpinBox->setMinimum(0);
+		m_ui.Gen1LoopStartSpinBox->setMaximum(
+			iLoopEnd > 0 ? iLoopEnd - 1 : 0);
+		m_ui.Gen1LoopEndSpinBox->setMinimum(
+			iLoopStart < nframes ? iLoopStart + 1 : nframes);
+		m_ui.Gen1LoopEndSpinBox->setMaximum(nframes);
+		m_ui.Gen1LoopStartSpinBox->setValue(iLoopStart);
+		m_ui.Gen1LoopEndSpinBox->setValue(iLoopEnd);
+		if (bDirty) {
+			m_ui.Preset->dirtyPreset();
+			m_ui.StatusBar->showMessage(tr("Loop start: %1, end: %2")
+				.arg(iLoopStart).arg(iLoopEnd), 5000);
+			m_ui.StatusBar->setModified(true);
+		}
+	} else {
+		m_ui.Gen1LoopStartSpinBox->setMinimum(0);
+		m_ui.Gen1LoopStartSpinBox->setMaximum(0);
+		m_ui.Gen1LoopStartSpinBox->setValue(0);
+		m_ui.Gen1LoopEndSpinBox->setMinimum(0);
+		m_ui.Gen1LoopEndSpinBox->setMaximum(0);
+		m_ui.Gen1LoopEndSpinBox->setValue(0);
+	}
 }
 
 

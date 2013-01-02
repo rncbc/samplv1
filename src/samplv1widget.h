@@ -1,7 +1,7 @@
 // samplv1widget.h
 //
 /****************************************************************************
-   Copyright (C) 2012, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2013, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -136,11 +136,8 @@ protected:
 	// Sample updater.
 	void updateSample(samplv1_sample *pSample, bool bDirty = false);
 
-	// Sample loop points.
-	void setSampleLoop(uint32_t iLoopStart, uint32_t iLoopEnd);
-
 	// Update loop range change status.
-	void updateLoopRange(uint32_t iLoopStart, uint32_t iLoopEnd);
+	void updateSampleLoop(samplv1_sample *pSample, bool bDirty = false);
 
 	// Sample serialization methods.
 	void loadSamples(const QDomElement& eSamples);
