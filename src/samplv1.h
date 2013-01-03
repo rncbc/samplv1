@@ -1,7 +1,7 @@
 // samplv1.h
 //
 /****************************************************************************
-   Copyright (C) 2012, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2013, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -53,6 +53,9 @@ public:
 	const char *sampleFile() const;
 
 	samplv1_sample *sample() const;
+
+	void setLoop(bool bLoop);
+	bool isLoop() const;
 
 	void setLoopRange(uint32_t iLoopStart, uint32_t iLoopEnd);
 	uint32_t loopStart() const;

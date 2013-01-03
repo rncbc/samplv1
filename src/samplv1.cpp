@@ -1,7 +1,7 @@
 // samplv1.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2013, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -1469,6 +1469,17 @@ const char *samplv1::sampleFile (void) const
 samplv1_sample *samplv1::sample (void) const
 {
 	return &(m_pImpl->gen1_sample);
+}
+
+
+void samplv1::setLoop ( bool bLoop )
+{
+	m_pImpl->gen1_sample.setLoop(bLoop);
+}
+
+bool samplv1::isLoop (void) const
+{
+	return m_pImpl->gen1_sample.isLoop();
 }
 
 

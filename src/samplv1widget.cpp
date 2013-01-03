@@ -568,21 +568,28 @@ void samplv1widget::paramChanged ( float fValue )
 // Update local tied widgets.
 void samplv1widget::updateParamEx ( samplv1::ParamIndex index, float fValue )
 {
+	samplv1 *pSampl = instance();
+	if (pSampl == NULL)
+		return;
+
+	++m_iUpdate;
+
 	switch (index) {
 	case samplv1::GEN1_LOOP: {
 		const bool bLoop = bool(fValue > 0.0f);
+		pSampl->setLoop(bLoop);
 		m_ui.Gen1Sample->setLoop(bLoop);
+		m_ui.Gen1Sample->setLoopStart(pSampl->loopStart());
+		m_ui.Gen1Sample->setLoopEnd(pSampl->loopEnd());
 		m_ui.Gen1LoopRangeFrame->setEnabled(bLoop);
-		++m_iUpdate;
-		samplv1 *pSampl = instance();
-		if (pSampl)
-			updateSampleLoop(pSampl->sample());
-		--m_iUpdate;
+		updateSampleLoop(pSampl->sample());
 		// Fall thru...
 	}
 	default:
 		break;
 	}
+
+	--m_iUpdate;
 }
 
 
@@ -1068,6 +1075,7 @@ void samplv1widget::loopEndChanged (void)
 		const uint32_t iLoopStart = pSampl->loopStart();
 		const uint32_t iLoopEnd = m_ui.Gen1LoopEndSpinBox->value();
 		pSampl->setLoopRange(iLoopStart, iLoopEnd);
+		m_ui.Gen1Sample->setLoopEnd(iLoopEnd);
 		updateSampleLoop(pSampl->sample(), true);
 	}
 	--m_iUpdate;
@@ -1076,7 +1084,6 @@ void samplv1widget::loopEndChanged (void)
 
 void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
 {
-
 	if (pSample) {
 		const uint32_t iLoopStart = pSample->loopStart();
 		const uint32_t iLoopEnd = pSample->loopEnd();
