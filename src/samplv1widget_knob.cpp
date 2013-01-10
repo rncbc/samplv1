@@ -1,7 +1,7 @@
 // samplv1widget_knob.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2013, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -51,6 +51,8 @@ samplv1widget_knob::samplv1widget_knob ( QWidget *pParent ) : QWidget(pParent)
 	m_pLabel = new QLabel();
 	m_pDial  = new QDial();
 
+	m_fScale = 100.0f;
+
 	resetDefaultValue();
 
 	m_pLabel->setAlignment(Qt::AlignCenter);
@@ -88,7 +90,7 @@ void samplv1widget_knob::setValue ( float fValue )
 {
 	bool bDialBlock = m_pDial->blockSignals(true);
 
-	m_pDial->setValue(iroundf(100.0f * fValue));
+	m_pDial->setValue(scaleFromValue(fValue));
 
 	QPalette pal;
 	if (m_iDefaultValue < 1) {
@@ -112,7 +114,7 @@ void samplv1widget_knob::setValue ( float fValue )
 
 float samplv1widget_knob::value (void) const
 {
-	return float(m_pDial->value()) / 100.0f;
+	return valueFromScale(m_pDial->value());
 }
 
 
@@ -124,23 +126,23 @@ QString samplv1widget_knob::valueText (void) const
 
 void samplv1widget_knob::setMaximum ( float fMaximum )
 {
-	m_pDial->setMaximum(iroundf(100.0f * fMaximum));
+	m_pDial->setMaximum(scaleFromValue(fMaximum));
 }
 
 float samplv1widget_knob::maximum (void) const
 {
-	return float(m_pDial->maximum()) / 100.0f;
+	return valueFromScale(m_pDial->maximum());
 }
 
 
 void samplv1widget_knob::setMinimum ( float fMinimum )
 {
-	m_pDial->setMinimum(iroundf(100.0f * fMinimum));
+	m_pDial->setMinimum(scaleFromValue(fMinimum));
 }
 
 float samplv1widget_knob::minimum (void) const
 {
-	return float(m_pDial->minimum()) / 100.0f;
+	return valueFromScale(m_pDial->minimum());
 }
 
 
@@ -164,12 +166,12 @@ float samplv1widget_knob::defaultValue (void) const
 
 void samplv1widget_knob::setSingleStep ( float fSingleStep )
 {
-	m_pDial->setSingleStep(iroundf(100.0f * fSingleStep));
+	m_pDial->setSingleStep(scaleFromValue(fSingleStep));
 }
 
 float samplv1widget_knob::singleStep (void) const
 {
-	return float(m_pDial->singleStep()) / 100.0f;
+	return valueFromScale(m_pDial->singleStep());
 }
 
 
@@ -191,7 +193,32 @@ void samplv1widget_knob::mousePressEvent ( QMouseEvent *pMouseEvent )
 // Internal widget slots.
 void samplv1widget_knob::dialValueChanged ( int iDialValue )
 {
-	setValue(float(iDialValue) / 100.0f);
+	setValue(valueFromScale(iDialValue));
+}
+
+
+
+// Scale multiplier (default=100).
+void samplv1widget_knob::setScale ( float fScale )
+{
+	m_fScale = fScale;
+}
+
+float samplv1widget_knob::scale (void) const
+{
+	return m_fScale;
+}
+
+
+// Scale/value converters.
+int samplv1widget_knob::scaleFromValue ( float fValue ) const
+{
+	return iroundf(m_fScale * fValue);
+}
+
+float samplv1widget_knob::valueFromScale ( int iScale ) const
+{
+	return float(iScale) / m_fScale;
 }
 
 
@@ -227,7 +254,7 @@ void samplv1widget_spin::setValue ( float fValue )
 {
 	bool bSpinBlock = m_pSpinBox->blockSignals(true);
 
-	m_pSpinBox->setValue(iroundf(100.0f * fValue));
+	m_pSpinBox->setValue(scaleFromValue(fValue));
 	samplv1widget_knob::setValue(fValue);
 
 	m_pSpinBox->blockSignals(bSpinBlock);
@@ -236,14 +263,14 @@ void samplv1widget_spin::setValue ( float fValue )
 
 void samplv1widget_spin::setMaximum ( float fMaximum )
 {
-	m_pSpinBox->setMaximum(iroundf(100.0f * fMaximum));
+	m_pSpinBox->setMaximum(scaleFromValue(fMaximum));
 	samplv1widget_knob::setMaximum(fMaximum);
 }
 
 
 void samplv1widget_spin::setMinimum ( float fMinimum )
 {
-	m_pSpinBox->setMinimum(iroundf(100.0f * fMinimum));
+	m_pSpinBox->setMinimum(scaleFromValue(fMinimum));
 	samplv1widget_knob::setMinimum(fMinimum);
 }
 
@@ -251,7 +278,7 @@ void samplv1widget_spin::setMinimum ( float fMinimum )
 // Internal widget slots.
 void samplv1widget_spin::spinBoxValueChanged ( int iSpinValue )
 {
-	setValue(float(iSpinValue) / 100.0f);
+	setValue(valueFromScale(iSpinValue));
 }
 
 

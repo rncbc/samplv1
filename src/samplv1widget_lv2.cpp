@@ -1,7 +1,7 @@
 // samplv1widget_lv2.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2013, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -73,9 +73,14 @@ void samplv1widget_lv2::port_event ( uint32_t port_index,
 	uint32_t buffer_size, uint32_t format, const void *buffer )
 {
 	if (format == 0 && buffer_size == sizeof(float)) {
+		samplv1::ParamIndex index
+			= samplv1::ParamIndex(port_index - samplv1_lv2::ParamBase);
 		float fValue = *(float *) buffer;
-		setParamValue(samplv1::ParamIndex(
-			port_index - samplv1_lv2::ParamBase), fValue);
+	//--legacy support < 0.3.0.4 -- begin
+		if (index == samplv1::DEL1_BPM && fValue < 3.6f)
+			fValue *= 100.0f;
+	//--legacy support < 0.3.0.4 -- end.
+		setParamValue(index, fValue);
 	}
 }
 

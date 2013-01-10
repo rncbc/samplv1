@@ -1176,6 +1176,11 @@ void samplv1_impl::allNotesOff (void)
 
 void samplv1_impl::reset (void)
 {
+//--legacy support < 0.3.0.4 -- begin
+	if (*m_del.bpm < 3.6f)
+		*m_del.bpm *= 100.0f;
+//--legacy support < 0.3.0.4 -- end.
+
 	m_vol1.reset(m_out1.volume, m_dca1.volume, &m_ctl.volume, &m_aux1.volume);
 	m_pan1.reset(m_out1.panning, &m_ctl.panning, &m_aux1.panning);
 	m_wid1.reset(m_out1.width);
@@ -1401,7 +1406,7 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 			*m_pha.rate, *m_pha.feedb, *m_pha.depth, *m_pha.daft * float(k));
 		// delay
 		m_delay[k].process(in, nframes, *m_del.wet,
-			*m_del.delay, *m_del.feedb, *m_del.bpm * 100.0f);
+			*m_del.delay, *m_del.feedb, *m_del.bpm);
 		// compressor
 		if (int(*m_dyn.compress) > 0)
 			m_comp[k].process(in, nframes);
