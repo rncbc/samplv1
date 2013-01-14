@@ -71,10 +71,14 @@ inline float samplv1_tanhf ( const float x )
 
 // sigmoids
 
-inline float samplv1_sigmoid0 ( const float x )
+inline float samplv1_sigmoid ( const float x )
 {
 //	return 2.0f / (1.0f + ::expf(-5.0f * x)) - 1.0f;
-//	return samplv1_tanhf(2.0f * x);
+	return samplv1_tanhf(2.0f * x);
+}
+
+inline float samplv1_sigmoid_0 ( const float x )
+{
 	if (x > +0.75f)
 		return +0.75f + 0.25f * samplv1_tanhf(+4.0f * (x - 0.75f));
 	else
@@ -84,9 +88,9 @@ inline float samplv1_sigmoid0 ( const float x )
 		return x;
 }
 
-inline float samplv1_sigmoid1 ( const float x )
+inline float samplv1_sigmoid_1 ( const float x )
 {
-	return 0.5f * (1.0f + samplv1_sigmoid0(2.0f * x - 1.0f));
+	return 0.5f * (1.0f + samplv1_sigmoid_0(2.0f * x - 1.0f));
 }
 
 
@@ -1313,9 +1317,9 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 
 				const float env1 = 0.5f * (1.0f + vel1
 					* *m_dcf1.envelope * pv->dcf1_env.value2(j));
-				const float cutoff1 = samplv1_sigmoid1(*m_dcf1.cutoff
+				const float cutoff1 = samplv1_sigmoid_1(*m_dcf1.cutoff
 					* env1 * (1.0f + *m_lfo1.cutoff * lfo1));
-				const float reso1 = samplv1_sigmoid1(*m_dcf1.reso
+				const float reso1 = samplv1_sigmoid_1(*m_dcf1.reso
 					* env1 * (1.0f + *m_lfo1.reso * lfo1));
 
 				gen1 = pv->dcf13.output(gen1, cutoff1, reso1);
@@ -1420,7 +1424,7 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 		// limiter
 		if (int(*m_dyn.limiter) > 0) {
 			for (uint32_t n = 0; n < nframes; ++n)
-				*out++ = samplv1_sigmoid0(*in++);
+				*out++ = samplv1_sigmoid(*in++);
 		}
 	}
 }
