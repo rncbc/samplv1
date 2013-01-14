@@ -61,25 +61,32 @@ const float LFO_FREQ_MIN  = 0.4f;
 const float LFO_FREQ_MAX  = 40.0f;
 
 
+// hyperbolic-tangent fast approximation
+inline float samplv1_tanhf ( const float x )
+{
+	const float x2 = x * x;
+	return x * (27.0f + x2) / (27.0f + 9.0f * x2);
+}
+
+
 // sigmoids
 
-inline float samplv1_sigmoid ( const float x )
+inline float samplv1_sigmoid0 ( const float x )
 {
 //	return 2.0f / (1.0f + ::expf(-5.0f * x)) - 1.0f;
-	return samplv1_fx_tanhf(2.0f * x);
+//	return samplv1_tanhf(2.0f * x);
+	if (x > +0.75f)
+		return +0.75f + 0.25f * samplv1_tanhf(+4.0f * (x - 0.75f));
+	else
+	if (x < -0.75f)
+		return -0.75f - 0.25f * samplv1_tanhf(-4.0f * (x + 0.75f));
+	else
+		return x;
 }
 
-inline float samplv1_sigmoid0 ( const float x, const float t )
+inline float samplv1_sigmoid1 ( const float x )
 {
-	const float t0 = t - 1.0f;
-	const float t1 = 1.0f - t;
-
-	return (x < t0 ? t0 : (x > t1 ? t1 : x * (1.5f - 0.5f * x * x)));
-}
-
-inline float samplv1_sigmoid1 ( const float x, const float t = 0.001f )
-{
-	return 0.5f * (1.0f + samplv1_sigmoid0(2.0f * x - 1.0f, t));
+	return 0.5f * (1.0f + samplv1_sigmoid0(2.0f * x - 1.0f));
 }
 
 
@@ -1229,7 +1236,7 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 
 	// controls
 
-	const float lfo1_rate  = *m_lfo1.rate  * *m_lfo1.rate;
+	const float lfo1_rate  = *m_lfo1.rate * *m_lfo1.rate;
 	const float lfo1_freq  = LFO_FREQ_MIN + lfo1_rate * (LFO_FREQ_MAX - LFO_FREQ_MIN);
 	const float lfo1_pitch = *m_lfo1.pitch * *m_lfo1.pitch;
 	const float modwheel1  = *m_def1.modwheel * (lfo1_pitch + m_ctl.modwheel);
@@ -1413,7 +1420,7 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 		// limiter
 		if (int(*m_dyn.limiter) > 0) {
 			for (uint32_t n = 0; n < nframes; ++n)
-				*out++ = samplv1_sigmoid(*in++);
+				*out++ = samplv1_sigmoid0(*in++);
 		}
 	}
 }
