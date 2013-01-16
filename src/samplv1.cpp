@@ -79,11 +79,11 @@ inline float samplv1_sigmoid ( const float x )
 
 inline float samplv1_sigmoid_0 ( const float x )
 {
-	if (x > +0.75f)
-		return +0.75f + 0.25f * samplv1_tanhf(+4.0f * (x - 0.75f));
+	if (x > +0.9f)
+		return +0.9f + 0.1f * samplv1_tanhf(+10.0f * (x - 0.9f));
 	else
-	if (x < -0.75f)
-		return -0.75f - 0.25f * samplv1_tanhf(-4.0f * (x + 0.75f));
+	if (x < -0.9f)
+		return -0.9f - 0.1f * samplv1_tanhf(-10.0f * (x + 0.9f));
 	else
 		return x;
 }
@@ -96,7 +96,7 @@ inline float samplv1_sigmoid_1 ( const float x )
 
 // velocity hard-split curve
 
-inline float samplv1_velocity ( float x, float p = 0.2f )
+inline float samplv1_velocity ( const float x, const float p = 0.2f )
 {
 	return ::powf(x, (1.0f - p));
 }
