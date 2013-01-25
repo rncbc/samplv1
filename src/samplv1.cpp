@@ -102,13 +102,6 @@ inline float samplv1_velocity ( const float x, const float p = 0.2f )
 }
 
 
-// quadratic easing
-inline float samplv1_quad ( const float x, const bool b = false )
-{
-	return x * (b ? (2.0f - x) : x);
-}
-
-
 // envelope
 
 struct samplv1_env
@@ -125,8 +118,8 @@ struct samplv1_env
 		float tick()
 		{
 			if (running && frames > 0) {
-				level += delta;
-				value = samplv1_quad(level/*, (stage == Attack)*/);
+				phase += delta;
+				value = c1 * phase * (2.0f - phase) + c0;
 				--frames;
 			}
 			return value;
@@ -135,9 +128,10 @@ struct samplv1_env
 		// state
 		bool running;
 		Stage stage;
-		float level;
+		float phase;
 		float delta;
 		float value;
+		float c1, c0;
 		uint32_t frames;
 	};
 
@@ -145,39 +139,49 @@ struct samplv1_env
 	{
 		p->running = true;
 		p->stage = Attack;
-		p->frames = uint32_t(samplv1_quad(*attack) * max_frames);
+		p->frames = uint32_t(*attack * *attack * max_frames);
+		p->phase = 0.0f;
 		if (p->frames > 0) {
-			p->level = 0.0f;
 			p->delta = 1.0f / float(p->frames);
+			p->value = 0.0f;
 		} else {
-			p->level = 1.0f;
 			p->delta = 0.0f;
+			p->value = 1.0f;
 		}
-		p->value = 0.0f;
+		p->c1 = 1.0f;
+		p->c0 = 0.0f;
 	}
 
 	void next(State *p)
 	{
 		if (p->stage == Attack) {
 			p->stage = Decay;
-			p->frames = uint32_t(samplv1_quad(*decay) * max_frames);
+			p->frames = uint32_t(*decay * *decay * max_frames);
 			if (p->frames < min_frames) // prevent click on too fast decay
 				p->frames = min_frames;
-			p->delta = (samplv1_quad(*sustain, true) - p->level) / float(p->frames);
+			p->phase = 0.0f;
+			p->delta = 1.0f / float(p->frames);
+			p->c1 = *sustain - 1.0f;
+			p->c0 = p->value;
 		}
 		else if (p->stage == Decay) {
 			p->running = false; // stay at this stage until note_off received
 			p->stage = Sustain;
 			p->frames = 0;
+			p->phase = 0.0f;
 			p->delta = 0.0f;
+			p->c1 = 0.0f;
+			p->c0 = p->value;
 		}
 		else if (p->stage == Release) {
 			p->running = false;
 			p->stage = Done;
-			p->level = 0.0f;
+			p->frames = 0;
+			p->phase = 0.0f;
 			p->delta = 0.0f;
 			p->value = 0.0f;
-			p->frames = 0;
+			p->c1 = 0.0f;
+			p->c0 = 0.0f;
 		}
 	}
 
@@ -185,20 +189,26 @@ struct samplv1_env
 	{
 		p->running = true;
 		p->stage = Attack;
-		p->frames = uint32_t(samplv1_quad(*attack) * max_frames);
+		p->frames = uint32_t(*attack * *attack * max_frames);
 		if (p->frames < min_frames) // prevent click on too fast attack
 			p->frames = min_frames;
+		p->phase = 0.0f;
 		p->delta = 1.0f / float(p->frames);
+		p->c1 = 1.0f - p->value;
+		p->c0 = p->value;
 	}
 
 	void note_off(State *p)
 	{
 		p->running = true;
 		p->stage = Release;
-		p->frames = uint32_t(samplv1_quad(*release) * max_frames);
+		p->frames = uint32_t(*release * *release * max_frames);
 		if (p->frames < min_frames) // prevent click on too fast release
 			p->frames = min_frames;
-		p->delta = -(p->level) / float(p->frames);
+		p->phase = 0.0f;
+		p->delta = 1.0f / float(p->frames);
+		p->c1 = -(p->value);
+		p->c0 = p->value;
 	}
 
 	void note_off_fast(State *p)
@@ -207,7 +217,10 @@ struct samplv1_env
 		p->stage = Release;
 		if (p->frames > min_frames)
 			p->frames = min_frames;
-		p->delta = -(p->level) / float(p->frames);
+		p->phase = 0.0f;
+		p->delta = 1.0f / float(p->frames);
+		p->c1 = -(p->value);
+		p->c0 = p->value;
 	}
 
 	// parameters
