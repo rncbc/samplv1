@@ -93,7 +93,7 @@ inline float samplv1_sigmoid_0 ( const float x, const float t0 )
 #endif
 }
 
-inline float samplv1_sigmoid_1 ( const float x, const float t0 = 0.001f )
+inline float samplv1_sigmoid_1 ( const float x, const float t0 = 0.01f )
 {
 	return 0.5f * (1.0f + samplv1_sigmoid_0(2.0f * x - 1.0f, t0));
 }
