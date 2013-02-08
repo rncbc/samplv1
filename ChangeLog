@@ -3,14 +3,14 @@ samplv1 - an old-school polyphonic sampler
 
 ChangeLog
 
-SVN TRUNK
+0.3.1  2012-02-08  One second bug-fix release.
 
 - Improved filters parameter sensitivity (cutoff, reso).
 - Envelope generators stage curves now gone a little more old-
   schooler and analog-like, hopefully improving on the punchy
-  and click-less sound front. (EXPERIMENTAL)
+  and click-less sound front.
 - Experimental LV2 Time designated port support (Delay BPM). 
-- Preparations for Qt5 migration. (TESTING)
+- Preparations for Qt5 migration.
 - Sample loop points were missing the LV2 UI state restoration.
 
 

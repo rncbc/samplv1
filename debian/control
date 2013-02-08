@@ -10,5 +10,5 @@ Package: samplv1
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: an old-school polyphonic sampler
-  an old-school polyphonic sampler synthesizer with stereo fx.
+  An old-school polyphonic sampler synthesizer with stereo fx.
 
