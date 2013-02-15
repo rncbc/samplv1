@@ -253,6 +253,7 @@ struct samplv1_ctl
 		modwheel = 0.0f;
 		panning = 0.0f;
 		volume = 1.0f;
+		sustain = false;
 	}
 
 	float pressure;
@@ -260,6 +261,7 @@ struct samplv1_ctl
 	float modwheel;
 	float panning;
 	float volume;
+	bool  sustain;
 };
 
 
@@ -685,6 +687,7 @@ protected:
 	void allSoundOff();
 	void allControllersOff();
 	void allNotesOff();
+	void allSustainOff();
 
 	samplv1_voice *alloc_voice ()
 	{
@@ -1077,7 +1080,7 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 	// note on
 	if (status == 0x90 && value > 0) {
 		samplv1_voice *pv = m_notes[key];
-		if (pv) {
+		if (pv && !m_ctl.sustain) {
 			// retrigger fast release
 			m_dcf1.env.note_off_fast(&pv->dcf1_env);
 			m_lfo1.env.note_off_fast(&pv->lfo1_env);
@@ -1124,13 +1127,15 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 	}
 	// note off
 	else if (status == 0x80 || (status == 0x90 && value == 0)) {
-		samplv1_voice *pv = m_notes[key];
-		if (pv && pv->note >= 0) {
-			if (pv->dca1_env.stage != samplv1_env::Release) {
-				m_dca1.env.note_off(&pv->dca1_env);
-				m_dcf1.env.note_off(&pv->dcf1_env);
-				m_lfo1.env.note_off(&pv->lfo1_env);
-				pv->gen1.setLoop(false);
+		if (!m_ctl.sustain) {
+			samplv1_voice *pv = m_notes[key];
+			if (pv && pv->note >= 0) {
+				if (pv->dca1_env.stage != samplv1_env::Release) {
+					m_dca1.env.note_off(&pv->dca1_env);
+					m_dcf1.env.note_off(&pv->dcf1_env);
+					m_lfo1.env.note_off(&pv->lfo1_env);
+					pv->gen1.setLoop(false);
+				}
 			}
 		}
 	}
@@ -1148,6 +1153,12 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 		case 0x0a:
 			// channel panning (cc#10)
 			m_ctl.panning = float(value - 64) / 64.0f;
+			break;
+		case 0x40:
+			// sustain/damper pedal (cc#64)
+			if (m_ctl.sustain && value <  64)
+				allSustainOff();
+			m_ctl.sustain = bool(value >= 64);
 			break;
 		case 0x78:
 			// all sound off (cc#120)
@@ -1212,6 +1223,25 @@ void samplv1_impl::allNotesOff (void)
 	gen1_last = 0.0f;
 
 	m_aux1.reset();
+}
+
+
+// all sustained notes off
+
+void samplv1_impl::allSustainOff (void)
+{
+	samplv1_voice *pv = m_play_list.next();
+	while (pv) {
+		if (pv->note >= 0) {
+			if (pv->dca1_env.stage != samplv1_env::Release) {
+				m_dca1.env.note_off(&pv->dca1_env);
+				m_dcf1.env.note_off(&pv->dcf1_env);
+				m_lfo1.env.note_off(&pv->lfo1_env);
+				pv->gen1.setLoop(false);
+			}
+		}
+		pv = pv->next();
+	}
 }
 
 
