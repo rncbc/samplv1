@@ -1080,7 +1080,7 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 	// note on
 	if (status == 0x90 && value > 0) {
 		samplv1_voice *pv = m_notes[key];
-		if (pv && !m_ctl.sustain) {
+		if (pv/* && !m_ctl.sustain*/) {
 			// retrigger fast release
 			m_dcf1.env.note_off_fast(&pv->dcf1_env);
 			m_lfo1.env.note_off_fast(&pv->lfo1_env);
