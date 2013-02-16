@@ -647,6 +647,8 @@ struct samplv1_voice : public samplv1_list<samplv1_voice>
 	samplv1_env::State lfo1_env;
 
 	samplv1_glide gen1_glide;					// glides (portamento)
+
+	bool sustain;
 };
 
 
@@ -1121,21 +1123,24 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 			const float srate = float(m_iSampleRate);
 			float frames = uint32_t(*m_gen1.glide * *m_gen1.glide * srate);
 			pv->gen1_glide.reset(frames, pv->gen1_freq);
+			// sustain
+			pv->sustain = false;
 			// allocated
 			m_notes[key] = pv;
 		}
 	}
 	// note off
 	else if (status == 0x80 || (status == 0x90 && value == 0)) {
-		if (!m_ctl.sustain) {
-			samplv1_voice *pv = m_notes[key];
-			if (pv && pv->note >= 0) {
-				if (pv->dca1_env.stage != samplv1_env::Release) {
-					m_dca1.env.note_off(&pv->dca1_env);
-					m_dcf1.env.note_off(&pv->dcf1_env);
-					m_lfo1.env.note_off(&pv->lfo1_env);
-					pv->gen1.setLoop(false);
-				}
+		samplv1_voice *pv = m_notes[key];
+		if (pv && pv->note >= 0) {
+			if (m_ctl.sustain)
+				pv->sustain = true;
+			else
+			if (pv->dca1_env.stage != samplv1_env::Release) {
+				m_dca1.env.note_off(&pv->dca1_env);
+				m_dcf1.env.note_off(&pv->dcf1_env);
+				m_lfo1.env.note_off(&pv->lfo1_env);
+				pv->gen1.setLoop(false);
 			}
 		}
 	}
@@ -1232,7 +1237,8 @@ void samplv1_impl::allSustainOff (void)
 {
 	samplv1_voice *pv = m_play_list.next();
 	while (pv) {
-		if (pv->note >= 0) {
+		if (pv->note >= 0 && pv->sustain) {
+			pv->sustain = false;
 			if (pv->dca1_env.stage != samplv1_env::Release) {
 				m_dca1.env.note_off(&pv->dca1_env);
 				m_dcf1.env.note_off(&pv->dcf1_env);
