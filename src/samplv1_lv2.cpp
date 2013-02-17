@@ -1,7 +1,7 @@
 // samplv1_lv2.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2013, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -204,10 +204,12 @@ static LV2_State_Status samplv1_lv2_state_save ( LV2_Handle instance,
 		map_path ? LV2_ATOM__Path : LV2_ATOM__String);
 	if (type == 0)
 		return LV2_STATE_ERR_BAD_TYPE;
-
+#if 0
 	if (!map_path && (flags & (LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE)) == 0)
 		return LV2_STATE_ERR_BAD_FLAGS;
-
+#else
+	flags |= (LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE);
+#endif
 	const char *value = pPlugin->sampleFile();
 
 	if (value && map_path)
