@@ -82,8 +82,6 @@ inline float samplv1_sigmoid_0 ( const float x, const float t0 )
 {
 	const float t1 = 1.0f - t0;
 #if 0
-	return (x < -1.0f ? -t1 : (x > +1.0f ? t1 : t1 * x * (1.5f - 0.5f * x * x)));
-#else
 	if (x > +t1)
 		return +t1 + t0 * samplv1_tanhf(+(x - t1) / t0);
 	else
@@ -91,6 +89,8 @@ inline float samplv1_sigmoid_0 ( const float x, const float t0 )
 		return -t1 - t0 * samplv1_tanhf(-(x + t1) / t0);
 	else
 		return x;
+#else
+	return (x < -1.0f ? -t1 : (x > +1.0f ? t1 : t1 * x * (1.5f - 0.5f * x * x)));
 #endif
 }
 
