@@ -5,6 +5,7 @@ ChangeLog
 
 SVN TRUNK
 
+- Pitch-bend, Modwheel and LFO Pitch range internal fixes.
 - LV2 State save flags now forced to be portable POD.
 - Sustain/damper pedal switch (MIDI CC#64) support added.
 - Color palette hack on Qt5 dark themes. (TESTING)

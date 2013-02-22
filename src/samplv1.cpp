@@ -56,6 +56,7 @@ const float PHASE_SCALE   = 0.5f;
 const float OCTAVE_SCALE  = 12.0f;
 const float TUNING_SCALE  = 1.0f;
 const float SWEEP_SCALE   = 0.5f;
+const float PITCH_SCALE   = 0.5f;
 
 const float LFO_FREQ_MIN  = 0.4f;
 const float LFO_FREQ_MAX  = 40.0f;
@@ -104,6 +105,15 @@ inline float samplv1_sigmoid_1 ( const float x, const float t0 = 0.01f )
 inline float samplv1_velocity ( const float x, const float p = 0.2f )
 {
 	return ::powf(x, (1.0f - p));
+}
+
+
+// simplest power-of-2 straight linearization
+// -- x argument valid in [-1, 1] interval
+inline float samplv1_pitchbend ( const float x )
+{
+//	return ::powf(2.0f, x);
+	return 1.0f + (x < 0.0f ? 0.5f : 1.0f) * x;
 }
 
 
@@ -249,7 +259,7 @@ struct samplv1_ctl
 	void reset()
 	{
 		pressure = 0.0f;
-		pitchbend = 0.0f;
+		pitchbend = 1.0f;
 		modwheel = 0.0f;
 		panning = 0.0f;
 		volume = 1.0f;
@@ -718,8 +728,9 @@ private:
 	samplv1_dcf m_dcf1;
 	samplv1_lfo m_lfo1;
 	samplv1_dca m_dca1;
-	samplv1_def m_def1;
 	samplv1_out m_out1;
+
+	samplv1_def m_def1;
 
 	samplv1_cho m_cho;
 	samplv1_fla m_fla;
@@ -1149,7 +1160,7 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 		switch (key) {
 		case 0x01:
 			// modulation wheel (cc#1)
-			m_ctl.modwheel = float(value) / 127.0f;
+			m_ctl.modwheel = *m_def1.modwheel * float(value) / 127.0f;
 			break;
 		case 0x07:
 			// channel volume (cc#7)
@@ -1181,7 +1192,8 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 	}
 	// pitch bend
 	else if (status == 0xe0) {
-		m_ctl.pitchbend = float(key + (value << 7) - 0x2000) / 8192.0f;
+		const float pitchbend = float(key + (value << 7) - 0x2000) / 8192.0f;
+		m_ctl.pitchbend = samplv1_pitchbend(*m_def1.pitchbend * pitchbend);
 	}
 }
 
@@ -1308,11 +1320,9 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 
 	// controls
 
-	const float lfo1_rate  = *m_lfo1.rate * *m_lfo1.rate;
-	const float lfo1_freq  = LFO_FREQ_MIN + lfo1_rate * (LFO_FREQ_MAX - LFO_FREQ_MIN);
-	const float lfo1_pitch = *m_lfo1.pitch * *m_lfo1.pitch;
-	const float modwheel1  = *m_def1.modwheel * (lfo1_pitch + m_ctl.modwheel);
-	const float pitchbend1 = (1.0f + *m_def1.pitchbend * m_ctl.pitchbend);
+	const float lfo1_rate = *m_lfo1.rate * *m_lfo1.rate;
+	const float lfo1_freq = LFO_FREQ_MIN + lfo1_rate * (LFO_FREQ_MAX - LFO_FREQ_MIN);
+	const float modwheel1 = m_ctl.modwheel + PITCH_SCALE * *m_lfo1.pitch;
 
 	if (m_gen1.sample0 != *m_gen1.sample) {
 		m_gen1.sample0  = *m_gen1.sample;
@@ -1372,7 +1382,7 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 				const float lfo1 = pv->lfo1_sample * lfo1_env;
 
 				pv->gen1.next(pv->gen1_freq
-					* (pitchbend1 + modwheel1 * lfo1)
+					* (m_ctl.pitchbend + modwheel1 * lfo1)
 					+ pv->gen1_glide.tick());
 
 				float gen1 = pv->gen1.value(k11);
