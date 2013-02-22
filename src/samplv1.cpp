@@ -108,12 +108,14 @@ inline float samplv1_velocity ( const float x, const float p = 0.2f )
 }
 
 
+// pitchbend curve
+
+inline float samplv1_pow2f ( const float x )
+{
 // simplest power-of-2 straight linearization
 // -- x argument valid in [-1, 1] interval
-inline float samplv1_pitchbend ( const float x )
-{
-//	return ::powf(2.0f, x);
-	return 1.0f + (x < 0.0f ? 0.5f : 1.0f) * x;
+//	return 1.0f + (x < 0.0f ? 0.5f : 1.0f) * x;
+	return ::powf(2.0f, x);
 }
 
 
@@ -1193,7 +1195,7 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 	// pitch bend
 	else if (status == 0xe0) {
 		const float pitchbend = float(key + (value << 7) - 0x2000) / 8192.0f;
-		m_ctl.pitchbend = samplv1_pitchbend(*m_def1.pitchbend * pitchbend);
+		m_ctl.pitchbend = samplv1_pow2f(*m_def1.pitchbend * pitchbend);
 	}
 }
 
