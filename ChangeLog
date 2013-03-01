@@ -3,7 +3,7 @@ samplv1 - an old-school polyphonic sampler
 
 ChangeLog
 
-SVN TRUNK
+0.3.2  2012-03-01  One third bug-fix release.
 
 - Pitch-bend, Modwheel and LFO Pitch range internal fixes.
 - LV2 State save flags now forced to be portable POD.
