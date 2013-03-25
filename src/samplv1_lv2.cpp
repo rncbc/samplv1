@@ -426,14 +426,12 @@ static LV2UI_Handle samplv1_lv2ui_instantiate (
 	return pWidget;
 }
 
-
 static void samplv1_lv2ui_cleanup ( LV2UI_Handle ui )
 {
 	samplv1widget_lv2 *pWidget = static_cast<samplv1widget_lv2 *> (ui);
 	if (pWidget)
 		delete pWidget;
 }
-
 
 static void samplv1_lv2ui_port_event (
 	LV2UI_Handle ui, uint32_t port_index,
@@ -444,11 +442,103 @@ static void samplv1_lv2ui_port_event (
 		pWidget->port_event(port_index, buffer_size, format, buffer);
 }
 
-
 static const void *samplv1_lv2ui_extension_data ( const char * )
 {
 	return NULL;
 }
+
+
+#ifdef CONFIG_LV2_EXTERNAL_UI
+
+struct samplv1_lv2ui_external_widget
+{
+	LV2_External_UI_Widget external;
+	samplv1widget_lv2     *widget;
+};
+
+static void samplv1_lv2ui_external_run ( LV2_External_UI_Widget *ui_external )
+{
+	samplv1_lv2ui_external_widget *pExtWidget
+		= (samplv1_lv2ui_external_widget *) (ui_external);
+	if (pExtWidget && pExtWidget->widget)
+		pExtWidget->widget->update();
+}
+
+static void samplv1_lv2ui_external_show ( LV2_External_UI_Widget *ui_external )
+{
+	samplv1_lv2ui_external_widget *pExtWidget
+		= (samplv1_lv2ui_external_widget *) (ui_external);
+	if (pExtWidget && pExtWidget->widget)
+		pExtWidget->widget->show();
+}
+
+static void samplv1_lv2ui_external_hide ( LV2_External_UI_Widget *ui_external )
+{
+	samplv1_lv2ui_external_widget *pExtWidget
+		= (samplv1_lv2ui_external_widget *) (ui_external);
+	if (pExtWidget && pExtWidget->widget)
+		pExtWidget->widget->hide();
+}
+
+static LV2UI_Handle samplv1_lv2ui_external_instantiate (
+	const LV2UI_Descriptor *, const char *, const char *,
+	LV2UI_Write_Function write_function,
+	LV2UI_Controller controller, LV2UI_Widget *widget,
+	const LV2_Feature *const *ui_features )
+{
+	samplv1_lv2 *pSampl = NULL;
+	LV2_External_UI_Host *external_host = NULL;
+
+	for (int i = 0; ui_features && ui_features[i]; ++i) {
+		if (::strcmp(ui_features[i]->URI, LV2_INSTANCE_ACCESS_URI) == 0)
+			pSampl = static_cast<samplv1_lv2 *> (ui_features[i]->data);
+		else
+		if (::strcmp(ui_features[i]->URI, LV2_EXTERNAL_UI__Host) == 0 ||
+			::strcmp(ui_features[i]->URI, LV2_EXTERNAL_UI_DEPRECATED_URI) == 0)
+			external_host = (LV2_External_UI_Host *) ui_features[i]->data;
+	}
+
+	if (pSampl == NULL)
+		return NULL;
+
+	samplv1_lv2ui_external_widget *pExtWidget = new samplv1_lv2ui_external_widget;
+	pExtWidget->external.run  = samplv1_lv2ui_external_run;
+	pExtWidget->external.show = samplv1_lv2ui_external_show;
+	pExtWidget->external.hide = samplv1_lv2ui_external_hide;
+	pExtWidget->widget = new samplv1widget_lv2(pSampl, controller, write_function);
+	if (external_host)
+		pExtWidget->widget->setExternalHost(external_host);
+	*widget = pExtWidget;
+	return pExtWidget;
+}
+
+static void samplv1_lv2ui_external_cleanup ( LV2UI_Handle ui )
+{
+	samplv1_lv2ui_external_widget *pExtWidget
+		= static_cast<samplv1_lv2ui_external_widget *> (ui);
+	if (pExtWidget) {
+		if (pExtWidget->widget)
+			delete pExtWidget->widget;
+		delete pExtWidget;
+	}
+}
+
+static void samplv1_lv2ui_external_port_event (
+	LV2UI_Handle ui, uint32_t port_index,
+	uint32_t buffer_size, uint32_t format, const void *buffer )
+{
+	samplv1_lv2ui_external_widget *pExtWidget
+		= static_cast<samplv1_lv2ui_external_widget *> (ui);
+	if (pExtWidget && pExtWidget->widget)
+		pExtWidget->widget->port_event(port_index, buffer_size, format, buffer);
+}
+
+static const void *samplv1_lv2ui_external_extension_data ( const char * )
+{
+	return NULL;
+}
+
+#endif	// CONFIG_LV2_EXTERNAL_UI
 
 
 static const LV2_Descriptor samplv1_lv2_descriptor =
@@ -472,6 +562,17 @@ static const LV2UI_Descriptor samplv1_lv2ui_descriptor =
 	samplv1_lv2ui_extension_data
 };
 
+#ifdef CONFIG_LV2_EXTERNAL_UI
+static const LV2UI_Descriptor samplv1_lv2ui_external_descriptor =
+{
+	SAMPLV1_LV2UI_EXTERNAL_URI,
+	samplv1_lv2ui_external_instantiate,
+	samplv1_lv2ui_external_cleanup,
+	samplv1_lv2ui_external_port_event,
+	samplv1_lv2ui_external_extension_data
+};
+#endif	// CONFIG_LV2_EXTERNAL_UI
+
 
 LV2_SYMBOL_EXPORT const LV2_Descriptor *lv2_descriptor ( uint32_t index )
 {
@@ -481,7 +582,15 @@ LV2_SYMBOL_EXPORT const LV2_Descriptor *lv2_descriptor ( uint32_t index )
 
 LV2_SYMBOL_EXPORT const LV2UI_Descriptor *lv2ui_descriptor ( uint32_t index )
 {
-	return (index == 0 ? &samplv1_lv2ui_descriptor : NULL);
+	if (index == 0)
+		return &samplv1_lv2ui_descriptor;
+	else
+#ifdef CONFIG_LV2_EXTERNAL_UI
+	if (index == 1)
+		return &samplv1_lv2ui_external_descriptor;
+	else
+#endif
+	return NULL;
 }
 
 

@@ -26,6 +26,11 @@
 #include <QSocketNotifier>
 
 
+#ifdef CONFIG_LV2_EXTERNAL_UI
+#include <QCloseEvent>
+#endif
+
+
 //-------------------------------------------------------------------------
 // samplv1widget_lv2 - impl.
 //
@@ -42,6 +47,10 @@ samplv1widget_lv2::samplv1widget_lv2 ( samplv1_lv2 *pSampl,
 	m_pUpdateNotifier = new QSocketNotifier(
 		m_pSampl->update_fds(1), QSocketNotifier::Read, this);
 
+#ifdef CONFIG_LV2_EXTERNAL_UI
+	m_external_host = NULL;
+#endif
+	
 	QObject::connect(m_pUpdateNotifier,
 		SIGNAL(activated(int)),
 		SLOT(updateNotify()));
@@ -66,6 +75,34 @@ samplv1 *samplv1widget_lv2::instance (void) const
 {
 	return m_pSampl;
 }
+
+
+#ifdef CONFIG_LV2_EXTERNAL_UI
+
+void samplv1widget_lv2::setExternalHost ( LV2_External_UI_Host *external_host )
+{
+	m_external_host = external_host;
+
+	if (m_external_host && m_external_host->plugin_human_id)
+		samplv1widget::setWindowTitle(m_external_host->plugin_human_id);
+}
+
+const LV2_External_UI_Host *samplv1widget_lv2::externalHost (void) const
+{
+	return m_external_host;
+}
+
+void samplv1widget_lv2::closeEvent ( QCloseEvent *pCloseEvent )
+{
+	samplv1widget::closeEvent(pCloseEvent);
+
+	if (m_external_host && m_external_host->ui_closed) {
+		if (pCloseEvent->isAccepted())
+			m_external_host->ui_closed(m_controller);
+	}
+}
+
+#endif	// CONFIG_LV2_EXTERNAL_UI
 
 
 // Plugin port event notification.

@@ -37,6 +37,12 @@ class samplv1_lv2;
 class QSocketNotifier;
 
 
+#ifdef CONFIG_LV2_EXTERNAL_UI
+#include "lv2_external_ui.h"
+#define SAMPLV1_LV2UI_EXTERNAL_URI SAMPLV1_LV2_PREFIX "ui_external"
+#endif
+
+
 //-------------------------------------------------------------------------
 // samplv1widget_lv2 - decl.
 //
@@ -58,6 +64,11 @@ public:
 	void port_event(uint32_t port_index,
 		uint32_t buffer_size, uint32_t format, const void *buffer);
 
+#ifdef CONFIG_LV2_EXTERNAL_UI
+	void setExternalHost(LV2_External_UI_Host *external_host);
+	const LV2_External_UI_Host *externalHost() const;
+#endif
+
 protected slots:
 
 	// Update notification slot.
@@ -71,6 +82,10 @@ protected:
 	// Param methods.
 	void updateParam(samplv1::ParamIndex index, float fValue) const;
 
+#ifdef CONFIG_LV2_EXTERNAL_UI
+	void closeEvent(QCloseEvent *pCloseEvent);
+#endif
+
 private:
 
 	// Instance variables.
@@ -81,6 +96,10 @@ private:
 
 	// Update notifier.
 	QSocketNotifier *m_pUpdateNotifier;
+
+#ifdef CONFIG_LV2_EXTERNAL_UI
+	LV2_External_UI_Host *m_external_host;
+#endif
 };
 
 
