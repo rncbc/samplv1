@@ -35,6 +35,10 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
+#ifdef CONFIG_LV2_EXTERNAL_UI
+#include <QApplication>
+#endif
+
 
 //-------------------------------------------------------------------------
 // samplv1_lv2 - impl.
@@ -453,15 +457,21 @@ static const void *samplv1_lv2ui_extension_data ( const char * )
 struct samplv1_lv2ui_external_widget
 {
 	LV2_External_UI_Widget external;
+	static QApplication   *app_instance;
+	static unsigned int    app_refcount;
 	samplv1widget_lv2     *widget;
 };
+
+QApplication *samplv1_lv2ui_external_widget::app_instance = NULL;
+unsigned int  samplv1_lv2ui_external_widget::app_refcount = 0;
+
 
 static void samplv1_lv2ui_external_run ( LV2_External_UI_Widget *ui_external )
 {
 	samplv1_lv2ui_external_widget *pExtWidget
 		= (samplv1_lv2ui_external_widget *) (ui_external);
-	if (pExtWidget && pExtWidget->widget)
-		pExtWidget->widget->update();
+	if (pExtWidget && pExtWidget->app_instance)
+		pExtWidget->app_instance->processEvents();
 }
 
 static void samplv1_lv2ui_external_show ( LV2_External_UI_Widget *ui_external )
@@ -502,6 +512,13 @@ static LV2UI_Handle samplv1_lv2ui_external_instantiate (
 		return NULL;
 
 	samplv1_lv2ui_external_widget *pExtWidget = new samplv1_lv2ui_external_widget;
+	if (qApp == NULL && pExtWidget->app_instance == NULL) {
+		static int s_argc = 1;
+		static const char *s_argv[] = { __func__, NULL };
+		pExtWidget->app_instance = new QApplication(s_argc, (char **) s_argv);
+	}
+	pExtWidget->app_refcount++;
+
 	pExtWidget->external.run  = samplv1_lv2ui_external_run;
 	pExtWidget->external.show = samplv1_lv2ui_external_show;
 	pExtWidget->external.hide = samplv1_lv2ui_external_hide;
@@ -519,6 +536,10 @@ static void samplv1_lv2ui_external_cleanup ( LV2UI_Handle ui )
 	if (pExtWidget) {
 		if (pExtWidget->widget)
 			delete pExtWidget->widget;
+		if (--pExtWidget->app_refcount == 0 && pExtWidget->app_instance) {
+			delete pExtWidget->app_instance;
+			pExtWidget->app_instance = NULL;
+		}
 		delete pExtWidget;
 	}
 }
