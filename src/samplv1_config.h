@@ -1,4 +1,4 @@
-// samplv1widget_config.h
+// samplv1_config.h
 //
 /****************************************************************************
    Copyright (C) 2012-2013, rncbc aka Rui Nuno Capela. All rights reserved.
@@ -19,50 +19,20 @@
 
 *****************************************************************************/
 
-#ifndef __samplv1widget_config_h
-#define __samplv1widget_config_h
+#ifndef __samplv1_config_h
+#define __samplv1_config_h
 
-#include "samplv1_config.h"
+#include "config.h"
 
-#include <QSettings>
-#include <QStringList>
+#define SAMPLV1_TITLE	PACKAGE_NAME
+#define SAMPLV1_VERSION	PACKAGE_VERSION
 
+#define SAMPLV1_SUBTITLE     "an old-school polyphonic sampler."
+#define SAMPLV1_WEBSITE      "http://samplv1.sourceforge.net"
+#define SAMPLV1_COPYRIGHT    "Copyright (C) 2012-2013, rncbc aka Rui Nuno Capela. All rights reserved."
 
-//-------------------------------------------------------------------------
-// samplv1widget_config - Prototype settings class (singleton).
-//
+#define SAMPLV1_DOMAIN	"rncbc.org"
 
-class samplv1widget_config : public QSettings
-{
-public:
+#endif	// __samplv1_config_h
 
-	// Constructor.
-	samplv1widget_config();
-
-	// Default destructor.
-	~samplv1widget_config();
-
-	// Default options...
-	QString sPreset;
-	QString sPresetDir;
-	QString sSampleDir;
-
-	// Singleton instance accessor.
-	static samplv1widget_config *getInstance();
-
-protected:
-
-	// Explicit I/O methods.
-	void load();
-	void save();
-
-private:
-
-	// The singleton instance.
-	static samplv1widget_config *g_pSettings;
-};
-
-
-#endif	// __samplv1widget_config_h
-
-// end of samplv1widget_config.h
+// end of samplv1_config.h

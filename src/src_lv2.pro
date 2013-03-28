@@ -12,6 +12,7 @@ HEADERS = \
 	config.h \
 	samplv1.h \
 	samplv1_lv2.h \
+	samplv1_config.h \
 	samplv1_sample.h \
 	samplv1_wave.h \
 	samplv1_ramp.h \
