@@ -192,7 +192,7 @@ bool samplv1widget_preset::queryPreset (void)
 // Preset management slots...
 void samplv1widget_preset::activatePreset ( const QString& sPreset )
 {
-	if (!sPreset.isEmpty() && !queryPreset())
+	if (!sPreset.isEmpty() && queryPreset())
 		loadPreset(sPreset);
 }
 
