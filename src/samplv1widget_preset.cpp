@@ -430,11 +430,22 @@ void samplv1widget_preset::initPreset (void)
 }
 
 
-void samplv1widget_preset::dirtyPreset (void)
+// Dirty flag accessors.
+void samplv1widget_preset::setDirtyPreset ( bool bDirtyPreset )
 {
-	++m_iDirtyPreset;
+	if (bDirtyPreset) {
+		++m_iDirtyPreset;
+	} else {
+		m_iDirtyPreset = 0;
+	}
 
 	stabilizePreset();
+}
+
+
+bool samplv1widget_preset::isDirtyPreset (void) const
+{
+	return (m_iDirtyPreset > 0);
 }
 
 

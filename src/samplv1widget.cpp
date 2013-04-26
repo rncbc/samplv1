@@ -522,6 +522,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 
 	m_ui.StatusBar->showMessage(tr("Ready"), 5000);
 	m_ui.StatusBar->setModified(false);
+	m_ui.Preset->setDirtyPreset(false);
 }
 
 
@@ -579,9 +580,8 @@ void samplv1widget::paramChanged ( float fValue )
 			.arg(pKnob->toolTip())
 			.arg(pKnob->valueText()), 5000);
 		m_ui.StatusBar->setModified(true);
+		m_ui.Preset->setDirtyPreset(true);
 	}
-
-	m_ui.Preset->dirtyPreset();
 }
 
 
@@ -631,6 +631,7 @@ void samplv1widget::resetParams (void)
 
 	m_ui.StatusBar->showMessage(tr("Reset preset"), 5000);
 	m_ui.StatusBar->setModified(false);
+	m_ui.Preset->setDirtyPreset(false);
 }
 
 
@@ -657,11 +658,10 @@ void samplv1widget::swapParams ( bool bOn )
 		}
 	}
 
-	m_ui.Preset->dirtyPreset();
-
 	const bool bSwapA = m_ui.SwapParamsAButton->isChecked();
 	m_ui.StatusBar->showMessage(tr("Swap %1").arg(bSwapA ? 'A' : 'B'), 5000);
 	m_ui.StatusBar->setModified(true);
+	m_ui.Preset->setDirtyPreset(true);
 }
 
 
@@ -728,6 +728,7 @@ void samplv1widget::newPreset (void)
 
 	m_ui.StatusBar->showMessage(tr("New preset"), 5000);
 	m_ui.StatusBar->setModified(false);
+	m_ui.Preset->setDirtyPreset(false);
 
 	m_ui.Gen1Sample->openSample();
 }
@@ -809,6 +810,7 @@ void samplv1widget::loadPreset ( const QString& sFilename )
 
 	m_ui.StatusBar->showMessage(tr("Load preset: %1").arg(sPreset), 5000);
 	m_ui.StatusBar->setModified(false);
+	m_ui.Preset->setDirtyPreset(false);
 
 	QDir::setCurrent(currentDir.absolutePath());
 }
@@ -850,6 +852,7 @@ void samplv1widget::savePreset ( const QString& sFilename )
 
 	m_ui.StatusBar->showMessage(tr("Save preset: %1").arg(sPreset), 5000);
 	m_ui.StatusBar->setModified(false);
+	m_ui.Preset->setDirtyPreset(false);
 }
 
 
@@ -953,8 +956,7 @@ void samplv1widget::clearSample (void)
 
 	m_ui.StatusBar->showMessage(tr("Clear sample"), 5000);
 	m_ui.StatusBar->setModified(true);
-
-	m_ui.Preset->dirtyPreset();
+	m_ui.Preset->setDirtyPreset(true);
 }
 
 
@@ -965,8 +967,7 @@ void samplv1widget::loadSample ( const QString& sFilename )
 
 	m_ui.StatusBar->showMessage(tr("Load sample: %1").arg(sFilename), 5000);
 	m_ui.StatusBar->setModified(true);
-
-	m_ui.Preset->dirtyPreset();
+	m_ui.Preset->setDirtyPreset(true);
 }
 
 
@@ -1029,8 +1030,10 @@ void samplv1widget::updateSample ( samplv1_sample *pSample, bool bDirty )
 	}
 	--m_iUpdate;
 
-	if (pSample && bDirty)
-		m_ui.Preset->dirtyPreset();
+	if (pSample && bDirty) {
+		m_ui.StatusBar->setModified(true);
+		m_ui.Preset->setDirtyPreset(true);
+	}
 }
 
 
@@ -1121,10 +1124,10 @@ void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1LoopStartSpinBox->setValue(iLoopStart);
 		m_ui.Gen1LoopEndSpinBox->setValue(iLoopEnd);
 		if (bDirty) {
-			m_ui.Preset->dirtyPreset();
 			m_ui.StatusBar->showMessage(tr("Loop start: %1, end: %2")
 				.arg(iLoopStart).arg(iLoopEnd), 5000);
 			m_ui.StatusBar->setModified(true);
+			m_ui.Preset->setDirtyPreset(true);
 		}
 	} else {
 		m_ui.Gen1LoopStartSpinBox->setMinimum(0);
