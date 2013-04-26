@@ -17,6 +17,7 @@ HEADERS = \
 	samplv1_ramp.h \
 	samplv1_list.h \
 	samplv1_fx.h \
+	samplv1_nsm.h \
 	samplv1widget.h \
 	samplv1widget_env.h \
 	samplv1widget_filt.h \
@@ -31,6 +32,7 @@ HEADERS = \
 SOURCES = \
 	samplv1.cpp \
 	samplv1_jack.cpp \
+	samplv1_nsm.cpp \
 	samplv1widget.cpp \
 	samplv1widget_env.cpp \
 	samplv1widget_filt.cpp \

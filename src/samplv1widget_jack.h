@@ -28,6 +28,10 @@
 // Forward decls.
 class samplv1_jack;
 
+#ifdef CONFIG_NSM
+class samplv1_nsm;
+#endif
+
 
 //-------------------------------------------------------------------------
 // samplv1widget_jack - decl.
@@ -62,6 +66,16 @@ protected slots:
 
 #endif	// CONFIG_JACK_SESSION
 
+#ifdef CONFIG_NSM
+
+protected slots:
+
+	// NSM callback slots.
+	void openSession();
+	void saveSession();
+	
+#endif	// CONFIG_NSM
+
 protected:
 
 	// Synth engine accessor.
@@ -77,6 +91,10 @@ private:
 
 	// Instance variables.
 	samplv1_jack *m_pSampl;
+
+#ifdef CONFIG_NSM
+	samplv1_nsm *m_nsm;
+#endif
 };
 
 

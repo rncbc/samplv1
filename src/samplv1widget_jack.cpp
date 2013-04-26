@@ -23,6 +23,10 @@
 
 #include "samplv1_jack.h"
 
+#ifdef CONFIG_NSM
+#include "samplv1_nsm.h"
+#endif
+
 #include <QApplication>
 #include <QFileInfo>
 #include <QDir>
@@ -57,8 +61,28 @@ static void samplv1widget_jack_session_event (
 // Constructor.
 samplv1widget_jack::samplv1widget_jack ( samplv1_jack *pSampl )
 	: samplv1widget(), m_pSampl(pSampl)
+	#ifdef CONFIG_NSM
+		, m_nsm(NULL)
+	#endif
 {
-	m_pSampl->open("samplv1");
+#ifdef CONFIG_NSM
+	// Check whether to participate into a NSM session...
+	const QString& nsm_url
+		= QString::fromLatin1(::getenv("NSM_URL"));
+	if (!nsm_url.isEmpty()) {
+		m_nsm = new samplv1_nsm(nsm_url);
+		QObject::connect(m_nsm,
+			SIGNAL(open()),
+			SLOT(openSession()));
+		QObject::connect(m_nsm,
+			SIGNAL(save()),
+			SLOT(saveSession()));
+		m_nsm->announce(SAMPLV1_TITLE, ":switch:");
+		return;
+	}
+#endif	// CONFIG_NSM
+
+	m_pSampl->open(SAMPLV1_TITLE);
 
 #ifdef CONFIG_JACK_SESSION
 	// JACK session event callback...
@@ -140,6 +164,66 @@ samplv1 *samplv1widget_jack::instance (void) const
 {
 	return m_pSampl;
 }
+
+
+#ifdef CONFIG_NSM
+
+void samplv1widget_jack::openSession (void)
+{
+	if (m_nsm == NULL)
+		return;
+
+	if (!m_nsm->is_active())
+		return;
+
+#ifdef CONFIG_DEBUG
+	qDebug("samplv1widget_jack::openSession()");
+#endif
+
+	m_pSampl->deactivate();
+	m_pSampl->close();
+
+	const QString& path_name = m_nsm->path_name();
+	const QString& display_name = m_nsm->display_name();
+	const QString& client_id = m_nsm->client_id();
+
+	const QDir dir(path_name);
+	if (!dir.exists())
+		dir.mkpath(path_name);
+
+	const QFileInfo fi(path_name, display_name + '.' + SAMPLV1_TITLE);
+	if (fi.exists())
+		loadPreset(fi.absoluteFilePath());
+
+	m_pSampl->open(client_id.toUtf8().constData());
+	m_pSampl->activate();
+
+	m_nsm->open_reply();
+}
+
+void samplv1widget_jack::saveSession (void)
+{
+	if (m_nsm == NULL)
+		return;
+
+	if (!m_nsm->is_active())
+		return;
+
+#ifdef CONFIG_DEBUG
+	qDebug("samplv1widget_jack::saveSession()");
+#endif
+
+	const QString& path_name = m_nsm->path_name();
+	const QString& display_name = m_nsm->display_name();
+//	const QString& client_id = m_nsm->client_id();
+
+	const QFileInfo fi(path_name, display_name + '.' + SAMPLV1_TITLE);
+	savePreset(fi.absoluteFilePath());
+
+	m_nsm->save_reply();
+}
+
+#endif	// CONFIG_NSM
 
 
 // Param method.
