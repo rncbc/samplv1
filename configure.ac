@@ -1,9 +1,9 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT(samplv1, 0.3.2.9, rncbc@rncbc.org)
+AC_INIT(samplv1, 0.3.2.10, rncbc@rncbc.org)
 
 AC_CONFIG_SRCDIR(src/samplv1.cpp)
 AC_CONFIG_HEADERS(src/config.h)
-AC_CONFIG_FILES(Makefile samplv1.spec src/src.pri src/samplv1.desktop)
+AC_CONFIG_FILES(Makefile samplv1.spec src/src_jack.pri src/src_lv2.pri src/samplv1.desktop)
 
 # Set default installation prefix.
 AC_PREFIX_DEFAULT(/usr/local)
@@ -216,6 +216,9 @@ AC_CHECK_LIB(m, main)
 AC_CHECK_LIB(X11, main)
 AC_CHECK_LIB(Xext, main)
 
+ac_jack_libs="$ac_libs"
+ac_lv2_libs="$ac_libs"
+
 # Check for JACK libraries.
 if test "x$ac_jack" = "xyes"; then
    AC_CHECK_LIB(jack, main, [ac_jack="yes"], [ac_jack="no"])
@@ -223,7 +226,7 @@ if test "x$ac_jack" = "xyes"; then
       AC_MSG_WARN([*** JACK library not found.])
       AC_MSG_WARN([*** JACK stand-alone build will be disabled.])
    else
-      ac_libs="$ac_libs -ljack"
+      ac_jack_libs="$ac_jack_libs -ljack"
    fi
 else
   ac_jack_session="no"
@@ -248,7 +251,7 @@ if test "x$ac_jack" = "xyes"; then
          AC_MSG_WARN([*** ALSA library not found.])
          AC_MSG_WARN([*** ALSA MIDI support will be disabled.])
       else
-         ac_libs="$ac_libs -lasound -lpthread"
+         ac_jack_libs="$ac_jack_libs -lasound -lpthread"
       fi
    fi
 fi
@@ -258,7 +261,8 @@ AC_CHECK_LIB(sndfile, main, [ac_sndfile="yes"], [ac_sndfile="no"])
 if test "x$ac_sndfile" = "xno"; then
    AC_MSG_ERROR([*** sndfile library not found.])
 else
-   ac_libs="$ac_libs -lsndfile"
+   ac_jack_libs="$ac_jack_libs -lsndfile"
+   ac_lv2_libs="$ac_lv2_libs -lsndfile"
 fi
 
 # Check for optional liblo library.
@@ -266,7 +270,7 @@ if test "x$ac_liblo" = "xyes"; then
    AC_CHECK_LIB(lo, main, [ac_liblo="yes"], [ac_liblo="no"])
    if test "x$ac_liblo" = "xyes"; then
       AC_DEFINE(CONFIG_LIBLO, 1, [Define if liblo is available.])
-      ac_libs="$ac_libs -llo"
+      ac_jack_libs="$ac_jack_libs -llo"
    else
       AC_MSG_WARN([*** liblo library not found.])
       AC_MSG_WARN([*** OSC service support will be disabled.])
@@ -276,13 +280,17 @@ else
    ac_nsm="no"
 fi
 
-AC_SUBST(ac_libs)
+AC_SUBST(ac_jack_libs)
+AC_SUBST(ac_lv2_libs)
 
 
 # Checks for header files.
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS(fcntl.h sys/ioctl.h sys/stat.h unistd.h signal.h)
+
+ac_jack_incpath="$ac_incpath"
+ac_lv2_incpath="$ac_incpath"
 
 # Check for JACK headers.
 if test "x$ac_jack" = "xyes"; then
@@ -348,7 +356,7 @@ if test "x$ac_lv2_external_ui" = "xyes"; then
    AC_CHECK_HEADER(lv2_external_ui.h, [ac_lv2_external_ui="yes"], [ac_lv2_external_ui="no"])
    if test "x$ac_lv2_external_ui" = "xyes"; then
       AC_DEFINE(CONFIG_LV2_EXTERNAL_UI, 1, [Define if LV2 External UI extension is available.])
-      ac_incpath="lv2 $ac_incpath"
+      ac_lv2_incpath="lv2 $ac_lv2_incpath"
    else
       AC_MSG_WARN([*** LV2 External UI extension will be disabled.])
    fi
@@ -363,7 +371,8 @@ if test "x$ac_liblo" = "xyes"; then
    fi
 fi
 
-AC_SUBST(ac_incpath)
+AC_SUBST(ac_jack_incpath)
+AC_SUBST(ac_lv2_incpath)
 
 
 # Check for NSM support.

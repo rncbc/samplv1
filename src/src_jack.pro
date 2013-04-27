@@ -5,7 +5,7 @@ NAME = samplv1
 TARGET = $${NAME}_jack
 TEMPLATE = app
 
-include(src.pri)
+include(src_jack.pri)
 
 HEADERS = \
 	config.h \
