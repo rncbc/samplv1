@@ -81,8 +81,11 @@ protected:
 	// Synth engine accessor.
 	samplv1 *instance() const;
 
-	// Param methods.
+	// Param port method.
 	void updateParam(samplv1::ParamIndex index, float fValue) const;
+
+	// Dirty flag method.
+	void updateDirtyPreset(bool bDirtyPreset);
 
 	// Application close.
 	void closeEvent(QCloseEvent *pCloseEvent);
@@ -93,7 +96,8 @@ private:
 	samplv1_jack *m_pSampl;
 
 #ifdef CONFIG_NSM
-	samplv1_nsm *m_nsm;
+	samplv1_nsm *m_pNsmClient;
+	bool m_bNsmDirty;
 #endif
 };
 

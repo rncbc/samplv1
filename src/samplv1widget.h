@@ -143,6 +143,9 @@ protected:
 	void loadSamples(const QDomElement& eSamples);
 	void saveSamples(QDomDocument& doc, QDomElement& eSamples);
 
+	// Dirty flag (overridable virtual) methods.
+	virtual void updateDirtyPreset(bool bDirtyPreset);
+
 private:
 
 	// Instance variables.
