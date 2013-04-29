@@ -1336,12 +1336,6 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 	if (int(*m_lfo1.shape) != int(lfo1_wave.shape()) || *m_lfo1.width != lfo1_wave.width())
 		lfo1_wave.reset(samplv1_wave::Shape(*m_lfo1.shape), *m_lfo1.width);
 
-	m_wid1.process(nframes);
-	m_pan1.process(nframes);
-	m_vol1.process(nframes);
-
-	m_pre1.process(nframes);
-
 	// per voice
 
 	samplv1_voice *pv = m_play_list.next();
@@ -1486,6 +1480,14 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 				*out++ = samplv1_sigmoid(*in++);
 		}
 	}
+
+	// post-processing
+
+	m_wid1.process(nframes);
+	m_pan1.process(nframes);
+	m_vol1.process(nframes);
+
+	m_pre1.process(nframes);
 }
 
 
