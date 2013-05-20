@@ -62,7 +62,16 @@ const float LFO_FREQ_MIN  = 0.4f;
 const float LFO_FREQ_MAX  = 40.0f;
 
 
+// maximum helper
+
+inline float samplv1_max ( float a, float b )
+{
+	return (a > b ? a : b);
+}
+
+
 // hyperbolic-tangent fast approximation
+
 inline float samplv1_tanhf ( const float x )
 {
 	const float x2 = x * x;
@@ -116,6 +125,14 @@ inline float samplv1_pow2f ( const float x )
 // -- x argument valid in [-1, 1] interval
 //	return 1.0f + (x < 0.0f ? 0.5f : 1.0f) * x;
 	return ::powf(2.0f, x);
+}
+
+
+// convert note to frequency (hertz)
+
+inline float samplv1_freq ( float note )
+{
+	return (440.0f / 32.0f) * ::powf(2.0f, (note - 9.0f) / 12.0f);
 }
 
 
@@ -623,17 +640,29 @@ protected:
 };
 
 
+// pressure smoother (3 parameters)
 
-// convert note to frequency (hertz)
-
-inline float note_freq ( float note )
+class samplv1_pre : public samplv1_ramp3
 {
-	return (440.0f / 32.0f) * ::powf(2.0f, (note - 9.0f) / 12.0f);
-}
+public:
+
+	samplv1_pre() : samplv1_ramp3() {}
+
+protected:
+
+	virtual float evaluate(uint16_t i)
+	{
+		samplv1_ramp3::evaluate(i);
+
+		return m_param1_v * samplv1_max(m_param2_v, m_param3_v);
+	}
+};
 
 
 // forward decl.
+
 class samplv1_impl;
+
 
 // voice
 
@@ -661,7 +690,7 @@ struct samplv1_voice : public samplv1_list<samplv1_voice>
 
 	samplv1_glide gen1_glide;					// glides (portamento)
 
-	samplv1_ramp2 dca1_pre;
+	samplv1_pre dca1_pre;
 
 	bool sustain;
 };
@@ -916,7 +945,7 @@ void samplv1_impl::setSampleFile ( const char *pszSampleFile )
 
 	if (pszSampleFile) {
 		m_gen1.sample0 = *m_gen1.sample;
-		gen1_sample.open(pszSampleFile, note_freq(m_gen1.sample0));
+		gen1_sample.open(pszSampleFile, samplv1_freq(m_gen1.sample0));
 	}
 }
 
@@ -1114,15 +1143,15 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 			// quadratic velocity law
 			pv->vel = samplv1_velocity(vel * vel, *m_def1.velocity);
 			// pressure/aftertouch
-			pv->pre = *m_def1.pressure;
-			pv->dca1_pre.reset(&m_ctl.pressure, &pv->pre);
+			pv->pre = 0.0f;
+			pv->dca1_pre.reset(m_def1.pressure, &m_ctl.pressure, &pv->pre);
 			// generate
 			pv->gen1.start();
 			// frequencies
 			const float freq1 = float(key)
 				+ *m_gen1.octave * OCTAVE_SCALE
 				+ *m_gen1.tuning * TUNING_SCALE;
-			pv->gen1_freq = note_freq(freq1);
+			pv->gen1_freq = samplv1_freq(freq1);
 			// filters
 			const int type1 = int(*m_dcf1.type);
 			pv->dcf11.reset(samplv1_filter1::Type(type1));
@@ -1335,7 +1364,7 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 
 	if (m_gen1.sample0 != *m_gen1.sample) {
 		m_gen1.sample0  = *m_gen1.sample;
-		gen1_sample.reset(note_freq(m_gen1.sample0));
+		gen1_sample.reset(samplv1_freq(m_gen1.sample0));
 	}
 
 	if (bool(int(*m_gen1.loop)) != gen1_sample.isLoop())
