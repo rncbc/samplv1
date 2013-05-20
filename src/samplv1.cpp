@@ -646,6 +646,7 @@ struct samplv1_voice : public samplv1_list<samplv1_voice>
 
 	int note;									// voice note
 	float vel;									// velocity to vol
+	float pre;									// key pressure/aftertouch
 
 	float gen1_freq;							// frequency and phase
 
@@ -659,6 +660,8 @@ struct samplv1_voice : public samplv1_list<samplv1_voice>
 	samplv1_env::State lfo1_env;
 
 	samplv1_glide gen1_glide;					// glides (portamento)
+
+	samplv1_ramp2 dca1_pre;
 
 	bool sustain;
 };
@@ -751,8 +754,6 @@ private:
 	samplv1_ramp1 m_wid1;
 	samplv1_pan   m_pan1;
 	samplv1_ramp4 m_vol1;
-
-	samplv1_ramp2 m_pre1;
 
 	samplv1_fx_chorus   m_chorus;
 	samplv1_fx_flanger *m_flanger;
@@ -1112,6 +1113,9 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 			const float vel = float(value) / 127.0f;
 			// quadratic velocity law
 			pv->vel = samplv1_velocity(vel * vel, *m_def1.velocity);
+			// pressure/aftertouch
+			pv->pre = *m_def1.pressure;
+			pv->dca1_pre.reset(&m_ctl.pressure, &pv->pre);
 			// generate
 			pv->gen1.start();
 			// frequencies
@@ -1155,6 +1159,12 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 				pv->gen1.setLoop(false);
 			}
 		}
+	}
+	// key pressure/poly.aftertouch
+	else if (status == 0xa0) {
+		samplv1_voice *pv = m_notes[key];
+		if (pv && pv->note >= 0)
+			pv->pre = *m_def1.pressure * float(value) / 127.0f;
 	}
 	// control change
 	else if (status == 0xb0) {
@@ -1277,8 +1287,6 @@ void samplv1_impl::reset (void)
 	m_pan1.reset(m_out1.panning, &m_ctl.panning, &m_aux1.panning);
 	m_wid1.reset(m_out1.width);
 
-	m_pre1.reset(m_def1.pressure, &m_ctl.pressure);
-
 	// flangers
 	if (m_flanger == 0)
 		m_flanger = new samplv1_fx_flanger [m_iChannels];
@@ -1369,7 +1377,7 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 				// velocities
 
 				const float vel1
-					= (pv->vel + (1.0f - pv->vel) * m_pre1.value(j));
+					= (pv->vel + (1.0f - pv->vel) * pv->dca1_pre.value(j));
 
 				// generators
 
@@ -1429,6 +1437,10 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 
 			nblock -= ngen;
 
+			// voice ramps countdown
+
+			pv->dca1_pre.process(ngen);
+
 			// envelope countdowns
 
 			if (pv->dca1_env.running && pv->dca1_env.frames == 0)
@@ -1486,8 +1498,6 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 	m_wid1.process(nframes);
 	m_pan1.process(nframes);
 	m_vol1.process(nframes);
-
-	m_pre1.process(nframes);
 }
 
 
