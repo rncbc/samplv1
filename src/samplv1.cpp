@@ -626,9 +626,9 @@ public:
 
 protected:
 
-	virtual float evaluate(uint16_t i)
+	float evaluate(uint16_t i)
 	{
-		samplv1_ramp3::evaluate(i);
+		samplv1_ramp3::update();
 
 		const float wpan = 0.25f * M_PI
 			* (1.0f + m_param1_v)
@@ -650,9 +650,9 @@ public:
 
 protected:
 
-	virtual float evaluate(uint16_t i)
+	float evaluate(uint16_t)
 	{
-		samplv1_ramp3::evaluate(i);
+		samplv1_ramp3::update();
 
 		return m_param1_v * samplv1_max(m_param2_v, m_param3_v);
 	}
