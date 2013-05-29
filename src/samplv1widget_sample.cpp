@@ -1,7 +1,7 @@
 // samplv1widget_sample.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2013, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -429,8 +429,9 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 	const bool bDark = (pal.window().color().value() < 0x7f);
 	const QColor& rgbLite = (isEnabled()
 		? (bDark ? Qt::darkYellow : Qt::yellow) : pal.mid().color());
+    const QColor& rgbDark = pal.window().color().darker(180);
 
-	painter.fillRect(rect, pal.dark().color());
+    painter.fillRect(rect, rgbDark);
 
 	if (!m_sName.isEmpty()) {
 		painter.setPen(pal.midlight().color());
