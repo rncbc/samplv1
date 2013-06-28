@@ -6,5 +6,6 @@
 		<file>images/presetDelete.png</file>
 		<file>images/fileOpen.png</file>
 		<file>images/samplv1.png</file>
+		<file>images/samplv1_preset.png</file>
 	</qresource>
 </RCC>
