@@ -80,6 +80,11 @@ installation:
     make -f Makefile.svn
 
 
+acknowledgements:
+
+  samplv1 logo/icon is an original fine work of Jarle Richard Akselsen.
+
+
 cheers && enjoy.
 --
 rncbc aka. Rui Nuno Capela
