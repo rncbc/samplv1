@@ -3,7 +3,7 @@ samplv1 - an old-school polyphonic sampler
 
 ChangeLog
 
-SVN TRUNK
+0.3.4  2013-07-16  Brand new icon ready.
 
 - Preset file icon and mimetype now introduced.
 
@@ -11,7 +11,7 @@ SVN TRUNK
   master lesson taught by Jarle Richard Akselsen, thanks.
 
 
-0.3.3  2013-05-31  Late spring blossoming
+0.3.3  2013-05-31  Late spring blossoming.
 
 - Some sympathy to extreme dark color (read black) schemes is
   now being indulged; some discrete changes on the icon front
