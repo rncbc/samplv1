@@ -249,8 +249,7 @@ struct samplv1_env
 	{
 		p->running = true;
 		p->stage = Release;
-		if (p->frames > min_frames)
-			p->frames = min_frames;
+		p->frames = min_frames;
 		p->phase = 0.0f;
 		p->delta = 1.0f / float(p->frames);
 		p->c1 = -(p->value);
@@ -374,6 +373,8 @@ struct samplv1_def
 	float *modwheel;
 	float *pressure;
 	float *velocity;
+
+	float *mono;
 };
 
 
@@ -1003,6 +1004,7 @@ void samplv1_impl::setParamPort ( samplv1::ParamIndex index, float *pfParam )
 	case samplv1::DEF1_MODWHEEL:  m_def1.modwheel    = pfParam; break;
 	case samplv1::DEF1_PRESSURE:  m_def1.pressure    = pfParam; break;
 	case samplv1::DEF1_VELOCITY:  m_def1.velocity    = pfParam; break;
+	case samplv1::DEF1_MONO:      m_def1.mono        = pfParam; break;
 	case samplv1::CHO1_WET:       m_cho.wet          = pfParam; break;
 	case samplv1::CHO1_DELAY:     m_cho.delay        = pfParam; break;
 	case samplv1::CHO1_FEEDB:     m_cho.feedb        = pfParam; break;
@@ -1072,6 +1074,7 @@ float *samplv1_impl::paramPort ( samplv1::ParamIndex index )
 	case samplv1::DEF1_MODWHEEL:  pfParam = m_def1.modwheel;    break;
 	case samplv1::DEF1_PRESSURE:  pfParam = m_def1.pressure;    break;
 	case samplv1::DEF1_VELOCITY:  pfParam = m_def1.velocity;    break;
+	case samplv1::DEF1_MONO:      pfParam = m_def1.mono;        break;
 	case samplv1::CHO1_WET:       pfParam = m_cho.wet;          break;
 	case samplv1::CHO1_DELAY:     pfParam = m_cho.delay;        break;
 	case samplv1::CHO1_FEEDB:     pfParam = m_cho.feedb;        break;
@@ -1124,7 +1127,18 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 
 	// note on
 	if (status == 0x90 && value > 0) {
-		samplv1_voice *pv = m_notes[key];
+		samplv1_voice *pv;
+		// mono voice modes
+		if (*m_def1.mono > 0.0f) {
+			for (pv = m_play_list.next(); pv; pv = pv->next()) {
+				if (pv->dca1_env.stage != samplv1_env::Release) {
+					m_dcf1.env.note_off_fast(&pv->dcf1_env);
+					m_lfo1.env.note_off_fast(&pv->lfo1_env);
+					m_dca1.env.note_off_fast(&pv->dca1_env);
+				}
+			}
+		}
+		pv = m_notes[key];
 		if (pv/* && !m_ctl.sustain*/) {
 			// retrigger fast release
 			m_dcf1.env.note_off_fast(&pv->dcf1_env);
