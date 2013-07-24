@@ -152,7 +152,7 @@ uint32_t samplv1_lv2::urid_map ( const char *uri ) const
 }
 
 
-int samplv1_lv2::update_fds ( int mode )
+int samplv1_lv2::update_fds ( int mode ) const
 {
 	return m_update_fds[mode];
 }

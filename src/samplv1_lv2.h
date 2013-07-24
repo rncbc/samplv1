@@ -63,7 +63,7 @@ public:
 
 	uint32_t urid_map(const char *uri) const;
 
-	int update_fds(int mode);
+	int update_fds(int mode) const;
 
 	void update_notify();
 	void update_reset();

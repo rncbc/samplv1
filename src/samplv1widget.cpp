@@ -20,7 +20,6 @@
 *****************************************************************************/
 
 #include "samplv1widget.h"
-#include "samplv1_preset.h"
 
 #include "samplv1_sample.h"
 
@@ -30,6 +29,82 @@
 
 #include <QMessageBox>
 #include <QDir>
+
+
+//-------------------------------------------------------------------------
+// default state (params)
+
+static
+struct {
+
+	const char *name;
+	float value;
+
+} samplv1_default_params[samplv1::NUM_PARAMS] = {
+
+	{ "GEN1_SAMPLE",   60.0f }, // middle-C aka. C4 (60)
+	{ "GEN1_LOOP",      0.0f },
+	{ "GEN1_OCTAVE",    0.0f },
+	{ "GEN1_TUNING",    0.0f },
+	{ "GEN1_GLIDE",     0.0f },
+	{ "DCF1_CUTOFF",    1.0f }, // 0.5f
+	{ "DCF1_RESO",      0.0f },
+	{ "DCF1_TYPE",      0.0f },
+	{ "DCF1_SLOPE",     0.0f },
+	{ "DCF1_ENVELOPE",  1.0f },
+	{ "DCF1_ATTACK",    0.0f },
+	{ "DCF1_DECAY",     0.2f },
+	{ "DCF1_SUSTAIN",   0.5f },
+	{ "DCF1_RELEASE",   0.5f },
+	{ "LFO1_SHAPE",     1.0f },
+	{ "LFO1_WIDTH",     1.0f },
+	{ "LFO1_RATE",      0.5f },
+	{ "LFO1_SWEEP",     0.0f },
+	{ "LFO1_PITCH",     0.0f },
+	{ "LFO1_CUTOFF",    0.0f },
+	{ "LFO1_RESO",      0.0f },
+	{ "LFO1_PANNING",   0.0f },
+	{ "LFO1_VOLUME",    0.0f },
+	{ "LFO1_ATTACK",    0.0f },
+	{ "LFO1_DECAY",     0.1f },
+	{ "LFO1_SUSTAIN",   1.0f },
+	{ "LFO1_RELEASE",   0.5f },
+	{ "DCA1_VOLUME",    0.5f },
+	{ "DCA1_ATTACK",    0.0f },
+	{ "DCA1_DECAY",     0.1f },
+	{ "DCA1_SUSTAIN",   1.0f },
+	{ "DCA1_RELEASE",   0.5f },	// 0.1f
+	{ "OUT1_WIDTH",     0.0f },
+	{ "OUT1_PANNING",   0.0f },
+	{ "OUT1_VOLUME",    0.5f },
+
+	{ "DEF1_PITCHBEND", 0.2f },
+	{ "DEF1_MODWHEEL",  0.2f },
+	{ "DEF1_PRESSURE",  0.2f },
+	{ "DEF1_VELOCITY",  0.2f },
+	{ "DEF1_MONO",      0.0f },
+
+	{ "CHO1_WET",       0.0f },
+	{ "CHO1_DELAY",     0.5f },
+	{ "CHO1_FEEDB",     0.5f },
+	{ "CHO1_RATE",      0.5f },
+	{ "CHO1_MOD",       0.5f },
+	{ "FLA1_WET",       0.0f },
+	{ "FLA1_DELAY",     0.5f },
+	{ "FLA1_FEEDB",     0.5f },
+	{ "FLA1_DAFT",      0.0f },
+	{ "PHA1_WET",       0.0f },
+	{ "PHA1_RATE",      0.5f },
+	{ "PHA1_FEEDB",     0.5f },
+	{ "PHA1_DEPTH",     0.5f },
+	{ "PHA1_DAFT",      0.0f },
+	{ "DEL1_WET",       0.0f },
+	{ "DEL1_DELAY",     0.5f },
+	{ "DEL1_FEEDB",     0.5f },
+	{ "DEL1_BPM",     180.0f },
+	{ "DYN1_COMPRESS",  0.0f },
+	{ "DYN1_LIMIT",     1.0f }
+};
 
 
 //-------------------------------------------------------------------------
@@ -65,7 +140,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 
 	// Init swapable params A/B to default.
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i)
-		m_params_ab[i] = samplv1_preset::paramDefaultValue(samplv1::ParamIndex(i));
+		m_params_ab[i] = samplv1_default_params[i].value;
 
 	// Start clean.
 	m_iUpdate = 0;
@@ -549,7 +624,7 @@ void samplv1widget::resetParams (void)
 
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
 		samplv1::ParamIndex index = samplv1::ParamIndex(i);
-		float fValue = samplv1_preset::paramDefaultValue(index);
+		float fValue = samplv1_default_params[i].value;
 		samplv1widget_knob *pKnob = paramKnob(index);
 		if (pKnob)
 			fValue = pKnob->defaultValue();
@@ -608,7 +683,7 @@ void samplv1widget::resetParamValues (void)
 
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
 		samplv1::ParamIndex index = samplv1::ParamIndex(i);
-		float fValue = samplv1_preset::paramDefaultValue(index);
+		float fValue = samplv1_default_params[i].value;
 		setParamValue(index, fValue);
 		updateParam(index, fValue);
 		m_params_ab[index] = fValue;
@@ -673,10 +748,8 @@ void samplv1widget::loadPreset ( const QString& sFilename )
 
 	static QHash<QString, samplv1::ParamIndex> s_hash;
 	if (s_hash.isEmpty()) {
-		for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
-			samplv1::ParamIndex index = samplv1::ParamIndex(i);
-			s_hash.insert(samplv1_preset::paramName(index), index);
-		}
+		for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i)
+			s_hash.insert(samplv1_default_params[i].name, samplv1::ParamIndex(i));
 	}
 
 	clearSampleFile();
@@ -762,11 +835,10 @@ void samplv1widget::savePreset ( const QString& sFilename )
 	QDomElement eParams = doc.createElement("params");
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
 		QDomElement eParam = doc.createElement("param");
-		samplv1::ParamIndex index = samplv1::ParamIndex(i);
 		eParam.setAttribute("index", QString::number(i));
-		eParam.setAttribute("name", samplv1_preset::paramName(index));
-		eParam.appendChild(
-			doc.createTextNode(QString::number(paramValue(index))));
+		eParam.setAttribute("name", samplv1_default_params[i].name);
+		eParam.appendChild(doc.createTextNode(QString::number(
+			paramValue(samplv1::ParamIndex(i)))));
 		eParams.appendChild(eParam);
 	}
 	ePreset.appendChild(eParams);
