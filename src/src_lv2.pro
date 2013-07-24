@@ -2,7 +2,7 @@
 #
 NAME = samplv1
 
-TARGET = $${NAME}_lv2
+TARGET = $${NAME}
 TEMPLATE = lib
 CONFIG += shared plugin
 
@@ -18,35 +18,12 @@ HEADERS = \
 	samplv1_ramp.h \
 	samplv1_list.h \
 	samplv1_fx.h \
-	samplv1widget.h \
-	samplv1widget_env.h \
-	samplv1widget_filt.h \
-	samplv1widget_sample.h \
-	samplv1widget_wave.h \
-	samplv1widget_knob.h \
-	samplv1widget_preset.h \
-	samplv1widget_status.h \
-	samplv1widget_config.h \
-	samplv1widget_lv2.h
+	samplv1_preset.h
 
 SOURCES = \
 	samplv1.cpp \
 	samplv1_lv2.cpp \
-	samplv1widget.cpp \
-	samplv1widget_env.cpp \
-	samplv1widget_filt.cpp \
-	samplv1widget_sample.cpp \
-	samplv1widget_wave.cpp \
-	samplv1widget_knob.cpp \
-	samplv1widget_preset.cpp \
-	samplv1widget_status.cpp \
-	samplv1widget_config.cpp \
-	samplv1widget_lv2.cpp
-
-FORMS = \
-	samplv1widget.ui
-
-RESOURCES += samplv1.qrc
+	samplv1_preset.cpp
 
 
 unix {
@@ -74,7 +51,7 @@ unix {
 		QMAKE_EXTENSION_SHLIB = so
 	}
 
-	TARGET_LV2 = $${NAME}.lv2/$${NAME}.$${QMAKE_EXTENSION_SHLIB}
+	TARGET_LV2 = $${NAME}.lv2/$${TARGET}.$${QMAKE_EXTENSION_SHLIB}
 
 	!exists($${TARGET_LV2}) {
 		system(touch $${TARGET_LV2})
@@ -92,10 +69,5 @@ unix {
 	QMAKE_CLEAN += $${TARGET_LV2}
 }
 
+QT -= gui
 QT += xml
-
-
-# QT5 support
-!lessThan(QT_MAJOR_VERSION, 5) {
-	QT += widgets
-}
