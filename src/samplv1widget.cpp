@@ -82,6 +82,7 @@ struct {
 	{ "DEF1_MODWHEEL",  0.2f },
 	{ "DEF1_PRESSURE",  0.2f },
 	{ "DEF1_VELOCITY",  0.2f },
+	{ "DEF1_CHANNEL",   0.0f },
 	{ "DEF1_MONO",      0.0f },
 
 	{ "CHO1_WET",       0.0f },
@@ -248,6 +249,14 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	m_ui.Lfo1PanningKnob->setMaximum(+1.0f);
 	m_ui.Lfo1VolumeKnob->setMinimum(-1.0f);
 	m_ui.Lfo1VolumeKnob->setMaximum(+1.0f);
+
+	// Channel filters
+	QStringList channels;
+	channels << tr("Omni");
+	for (int iChannel = 0; iChannel < 16; ++iChannel)
+		channels << QString::number(iChannel + 1);
+
+	m_ui.Def1ChannelKnob->insertItems(0, channels);
 
 	// Mono switches
 	m_ui.Def1MonoKnob->insertItems(0, states);
@@ -429,6 +438,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	setParamKnob(samplv1::DEF1_MODWHEEL,  m_ui.Def1ModwheelKnob);
 	setParamKnob(samplv1::DEF1_PRESSURE,  m_ui.Def1PressureKnob);
 	setParamKnob(samplv1::DEF1_VELOCITY,  m_ui.Def1VelocityKnob);
+	setParamKnob(samplv1::DEF1_CHANNEL,   m_ui.Def1ChannelKnob);
 	setParamKnob(samplv1::DEF1_MONO,      m_ui.Def1MonoKnob);
 
 	// OUT1

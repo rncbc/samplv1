@@ -142,12 +142,17 @@ struct samplv1_env
 {
 	// envelope stages
 
-	enum Stage { Attack = 0, Decay, Sustain, Release, Done };
+	enum Stage { Done = 0, Attack, Decay, Sustain, Release };
 
 	// per voice
 
 	struct State
 	{
+		// ctor.
+		State() : running(false), stage(Done),
+			phase(0.0f), delta(0.0f), value(0.0f),
+			c1(1.0f), c0(0.0f), frames(0) {}
+
 		// process
 		float tick()
 		{
@@ -373,7 +378,7 @@ struct samplv1_def
 	float *modwheel;
 	float *pressure;
 	float *velocity;
-
+	float *channel;
 	float *mono;
 };
 
@@ -671,12 +676,13 @@ struct samplv1_voice : public samplv1_list<samplv1_voice>
 {
 	samplv1_voice(samplv1_impl *pImpl);
 
-	samplv1_generator  gen1;
-	samplv1_oscillator lfo1;
-
 	int note;									// voice note
-	float vel;									// velocity to vol
-	float pre;									// key pressure/aftertouch
+
+	float vel;									// key velocity
+	float pre;									// key pressure/after-touch
+
+	samplv1_generator  gen1;					// generator
+	samplv1_oscillator lfo1;					// low frequency oscilattor
 
 	float gen1_freq;							// frequency and phase
 
@@ -765,7 +771,7 @@ private:
 	samplv1_dca m_dca1;
 	samplv1_out m_out1;
 
-	samplv1_def m_def1;
+	samplv1_def m_def;
 
 	samplv1_cho m_cho;
 	samplv1_fla m_fla;
@@ -796,9 +802,15 @@ private:
 // voice constructor
 
 samplv1_voice::samplv1_voice ( samplv1_impl *pImpl ) :
+	note(-1),
+	vel(0.0f),
+	pre(0.0f),
 	gen1(&pImpl->gen1_sample),
 	lfo1(&pImpl->lfo1_wave),
-	gen1_glide(pImpl->gen1_last)
+	gen1_freq(0.0f),
+	lfo1_sample(0.0f),
+	gen1_glide(pImpl->gen1_last),
+	sustain(false)
 {
 }
 
@@ -1000,11 +1012,12 @@ void samplv1_impl::setParamPort ( samplv1::ParamIndex index, float *pfParam )
 	case samplv1::OUT1_WIDTH:     m_out1.width       = pfParam; break;
 	case samplv1::OUT1_PANNING:   m_out1.panning     = pfParam; break;
 	case samplv1::OUT1_VOLUME:    m_out1.volume      = pfParam; break;
-	case samplv1::DEF1_PITCHBEND: m_def1.pitchbend   = pfParam; break;
-	case samplv1::DEF1_MODWHEEL:  m_def1.modwheel    = pfParam; break;
-	case samplv1::DEF1_PRESSURE:  m_def1.pressure    = pfParam; break;
-	case samplv1::DEF1_VELOCITY:  m_def1.velocity    = pfParam; break;
-	case samplv1::DEF1_MONO:      m_def1.mono        = pfParam; break;
+	case samplv1::DEF1_PITCHBEND: m_def.pitchbend    = pfParam; break;
+	case samplv1::DEF1_MODWHEEL:  m_def.modwheel     = pfParam; break;
+	case samplv1::DEF1_PRESSURE:  m_def.pressure     = pfParam; break;
+	case samplv1::DEF1_VELOCITY:  m_def.velocity     = pfParam; break;
+	case samplv1::DEF1_CHANNEL:   m_def.channel      = pfParam; break;
+	case samplv1::DEF1_MONO:      m_def.mono         = pfParam; break;
 	case samplv1::CHO1_WET:       m_cho.wet          = pfParam; break;
 	case samplv1::CHO1_DELAY:     m_cho.delay        = pfParam; break;
 	case samplv1::CHO1_FEEDB:     m_cho.feedb        = pfParam; break;
@@ -1070,11 +1083,12 @@ float *samplv1_impl::paramPort ( samplv1::ParamIndex index )
 	case samplv1::OUT1_WIDTH:     pfParam = m_out1.width;       break;
 	case samplv1::OUT1_PANNING:   pfParam = m_out1.panning;     break;
 	case samplv1::OUT1_VOLUME:    pfParam = m_out1.volume;      break;
-	case samplv1::DEF1_PITCHBEND: pfParam = m_def1.pitchbend;   break;
-	case samplv1::DEF1_MODWHEEL:  pfParam = m_def1.modwheel;    break;
-	case samplv1::DEF1_PRESSURE:  pfParam = m_def1.pressure;    break;
-	case samplv1::DEF1_VELOCITY:  pfParam = m_def1.velocity;    break;
-	case samplv1::DEF1_MONO:      pfParam = m_def1.mono;        break;
+	case samplv1::DEF1_PITCHBEND: pfParam = m_def.pitchbend;    break;
+	case samplv1::DEF1_MODWHEEL:  pfParam = m_def.modwheel;     break;
+	case samplv1::DEF1_PRESSURE:  pfParam = m_def.pressure;     break;
+	case samplv1::DEF1_VELOCITY:  pfParam = m_def.velocity;     break;
+	case samplv1::DEF1_CHANNEL:   pfParam = m_def.channel;      break;
+	case samplv1::DEF1_MONO:      pfParam = m_def.mono;         break;
 	case samplv1::CHO1_WET:       pfParam = m_cho.wet;          break;
 	case samplv1::CHO1_DELAY:     pfParam = m_cho.delay;        break;
 	case samplv1::CHO1_FEEDB:     pfParam = m_cho.feedb;        break;
@@ -1110,6 +1124,15 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 	if (size < 2)
 		return;
 
+	// channel filter
+	const int channel = (data[0] & 0x0f) + 1;
+
+	const int ch = int(*m_def.channel);
+	const int on = (ch == 0 || ch == channel);
+
+	if (!on)
+		return;
+
 	// note on
 	const int status = (data[0] & 0xf0);
 	const int key    = (data[1] & 0x7f);
@@ -1129,23 +1152,26 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 	if (status == 0x90 && value > 0) {
 		samplv1_voice *pv;
 		// mono voice modes
-		if (*m_def1.mono > 0.0f) {
+		if (*m_def.mono > 0.0f) {
 			for (pv = m_play_list.next(); pv; pv = pv->next()) {
-				if (pv->dca1_env.stage != samplv1_env::Release) {
+				if (pv->note >= 0
+					&& pv->dca1_env.stage != samplv1_env::Release) {
 					m_dcf1.env.note_off_fast(&pv->dcf1_env);
 					m_lfo1.env.note_off_fast(&pv->lfo1_env);
 					m_dca1.env.note_off_fast(&pv->dca1_env);
+					m_notes[pv->note] = 0;
+					pv->note = -1;
 				}
 			}
 		}
 		pv = m_notes[key];
-		if (pv/* && !m_ctl.sustain*/) {
+		if (pv && pv->note >= 0/* && !m_ctl.sustain*/) {
 			// retrigger fast release
 			m_dcf1.env.note_off_fast(&pv->dcf1_env);
 			m_lfo1.env.note_off_fast(&pv->lfo1_env);
 			m_dca1.env.note_off_fast(&pv->dca1_env);
+			m_notes[pv->note] = 0;
 			pv->note = -1;
-			m_notes[key] = 0;
 		}
 		// find free voice
 		pv = alloc_voice();
@@ -1155,10 +1181,10 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 			// velocity
 			const float vel = float(value) / 127.0f;
 			// quadratic velocity law
-			pv->vel = samplv1_velocity(vel * vel, *m_def1.velocity);
-			// pressure/aftertouch
+			pv->vel = samplv1_velocity(vel * vel, *m_def.velocity);
+			// pressure/after-touch
 			pv->pre = 0.0f;
-			pv->dca1_pre.reset(m_def1.pressure, &m_ctl.pressure, &pv->pre);
+			pv->dca1_pre.reset(m_def.pressure, &m_ctl.pressure, &pv->pre);
 			// generate
 			pv->gen1.start();
 			// frequencies
@@ -1207,14 +1233,14 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 	else if (status == 0xa0) {
 		samplv1_voice *pv = m_notes[key];
 		if (pv && pv->note >= 0)
-			pv->pre = *m_def1.pressure * float(value) / 127.0f;
+			pv->pre = *m_def.pressure * float(value) / 127.0f;
 	}
 	// control change
 	else if (status == 0xb0) {
 		switch (key) {
 		case 0x01:
 			// modulation wheel (cc#1)
-			m_ctl.modwheel = *m_def1.modwheel * float(value) / 127.0f;
+			m_ctl.modwheel = *m_def.modwheel * float(value) / 127.0f;
 			break;
 		case 0x07:
 			// channel volume (cc#7)
@@ -1247,7 +1273,7 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 	// pitch bend
 	else if (status == 0xe0) {
 		const float pitchbend = float(key + (value << 7) - 0x2000) / 8192.0f;
-		m_ctl.pitchbend = samplv1_pow2f(*m_def1.pitchbend * pitchbend);
+		m_ctl.pitchbend = samplv1_pow2f(*m_def.pitchbend * pitchbend);
 	}
 }
 
