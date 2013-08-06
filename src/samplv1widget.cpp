@@ -630,6 +630,12 @@ void samplv1widget::updateParamEx ( samplv1::ParamIndex index, float fValue )
 // Reset all param knobs to default values.
 void samplv1widget::resetParams (void)
 {
+	samplv1 *pSampl = instance();
+	if (pSampl == NULL)
+		return;
+
+	pSampl->reset();
+
 	resetSwapParams();
 
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {

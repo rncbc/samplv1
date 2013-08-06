@@ -142,14 +142,14 @@ struct samplv1_env
 {
 	// envelope stages
 
-	enum Stage { Done = 0, Attack, Decay, Sustain, Release };
+	enum Stage { Idle = 0, Attack, Decay, Sustain, Release };
 
 	// per voice
 
 	struct State
 	{
 		// ctor.
-		State() : running(false), stage(Done),
+		State() : running(false), stage(Idle),
 			phase(0.0f), delta(0.0f), value(0.0f),
 			c1(1.0f), c0(0.0f), frames(0) {}
 
@@ -214,7 +214,7 @@ struct samplv1_env
 		}
 		else if (p->stage == Release) {
 			p->running = false;
-			p->stage = Done;
+			p->stage = Idle;
 			p->frames = 0;
 			p->phase = 0.0f;
 			p->delta = 0.0f;
@@ -222,19 +222,6 @@ struct samplv1_env
 			p->c1 = 0.0f;
 			p->c0 = 0.0f;
 		}
-	}
-
-	void note_on(State *p)
-	{
-		p->running = true;
-		p->stage = Attack;
-		p->frames = uint32_t(*attack * *attack * max_frames);
-		if (p->frames < min_frames) // prevent click on too fast attack
-			p->frames = min_frames;
-		p->phase = 0.0f;
-		p->delta = 1.0f / float(p->frames);
-		p->c1 = 1.0f - p->value;
-		p->c0 = p->value;
 	}
 
 	void note_off(State *p)
@@ -1515,7 +1502,7 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 			if (pv->dca1_env.running && pv->dca1_env.frames == 0)
 				m_dca1.env.next(&pv->dca1_env);
 
-			if (pv->dca1_env.stage == samplv1_env::Done || pv->gen1.isOver()) {
+			if (pv->dca1_env.stage == samplv1_env::Idle || pv->gen1.isOver()) {
 				if (pv->note >= 0)
 					m_notes[pv->note] = 0;
 				free_voice(pv);
