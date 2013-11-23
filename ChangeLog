@@ -5,6 +5,7 @@ ChangeLog
 
 SVN TRUNK
 
+- Fixed for relative paths on preset file references.
 - More preparations for Qt5 configure build.
 
 

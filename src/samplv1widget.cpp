@@ -765,6 +765,10 @@ void samplv1widget::savePreset ( const QString& sFilename )
 #endif
 	const QString& sPreset = QFileInfo(sFilename).completeBaseName();
 
+	const QFileInfo fi(sFilename);
+	const QDir currentDir(QDir::current());
+	QDir::setCurrent(fi.absolutePath());
+
 	QDomDocument doc(SAMPLV1_TITLE);
 	QDomElement ePreset = doc.createElement("preset");
 	ePreset.setAttribute("name", sPreset);
@@ -795,6 +799,8 @@ void samplv1widget::savePreset ( const QString& sFilename )
 
 	m_ui.StatusBar->showMessage(tr("Save preset: %1").arg(sPreset), 5000);
 	updateDirtyPreset(false);
+
+	QDir::setCurrent(currentDir.absolutePath());
 }
 
 
@@ -871,7 +877,8 @@ void samplv1widget::saveSamples (
 
 	QDomElement eFilename = doc.createElement("filename");
 	eFilename.appendChild(doc.createTextNode(
-		QString::fromUtf8(pszSampleFile)));
+		QDir::current().relativeFilePath(
+			QString::fromUtf8(pszSampleFile))));
 	eSample.appendChild(eFilename);
 
 	uint32_t iLoopStart = pSampl->loopStart();
