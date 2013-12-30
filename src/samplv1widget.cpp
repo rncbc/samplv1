@@ -504,8 +504,21 @@ void samplv1widget::setParamValue ( samplv1::ParamIndex index, float fValue )
 
 float samplv1widget::paramValue ( samplv1::ParamIndex index ) const
 {
+	float fParamValue = 0.0f;
+
 	samplv1widget_knob *pKnob = paramKnob(index);
-	return (pKnob ? pKnob->value() : 0.0f);
+	if (pKnob) {
+		fParamValue = pKnob->value();
+	} else {
+		samplv1 *pSampl = instance();
+		if (pSampl) {
+			const float *pParamPort = pSampl->paramPort(index);
+			if (pParamPort)
+				fParamValue = *pParamPort;
+		}
+	}
+
+	return fParamValue;
 }
 
 
