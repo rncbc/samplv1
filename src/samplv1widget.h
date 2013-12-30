@@ -105,6 +105,9 @@ protected slots:
 	void loopStartChanged();
 	void loopEndChanged();
 
+	// Delay BPM change.
+	void bpmSyncChanged();
+
 	// Menu actions.
 	void helpAbout();
 	void helpAboutQt();

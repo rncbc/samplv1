@@ -144,6 +144,8 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	m_ui.Pha1WetKnob->setSpecialValueText(sOff);
 	m_ui.Del1WetKnob->setSpecialValueText(sOff);
 
+	m_ui.Del1BpmKnob->setSpecialValueText(tr("Auto"));
+
 	// GEN note limits.
 	m_ui.Gen1SampleKnob->setMinimum(0.0f);
 	m_ui.Gen1SampleKnob->setMaximum(127.0f);
@@ -394,6 +396,10 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	setParamKnob(samplv1::DEL1_FEEDB, m_ui.Del1FeedbKnob);
 	setParamKnob(samplv1::DEL1_BPM,   m_ui.Del1BpmKnob);
 
+	QObject::connect(m_ui.Del1BpmKnob,
+		SIGNAL(valueChanged(float)),
+		SLOT(bpmSyncChanged()));
+
 	// Dynamics
 	setParamKnob(samplv1::DYN1_COMPRESS, m_ui.Dyn1CompressKnob);
 	setParamKnob(samplv1::DYN1_LIMITER,  m_ui.Dyn1LimiterKnob);
@@ -541,8 +547,12 @@ void samplv1widget::updateParamEx ( samplv1::ParamIndex index, float fValue )
 		m_ui.Gen1Sample->setLoopEnd(pSampl->loopEnd());
 		m_ui.Gen1LoopRangeFrame->setEnabled(bLoop);
 		updateSampleLoop(pSampl->sample());
-		// Fall thru...
+		break;
 	}
+	case samplv1::DEL1_BPMSYNC:
+		if (fValue > 0.0f)
+			m_ui.Del1BpmKnob->setValue(0.0f);
+		// Fall thru...
 	default:
 		break;
 	}
@@ -1081,6 +1091,29 @@ void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1LoopEndSpinBox->setMaximum(0);
 		m_ui.Gen1LoopEndSpinBox->setValue(0);
 	}
+}
+
+
+// Delay BPM change.
+void samplv1widget::bpmSyncChanged (void)
+{
+	if (m_iUpdate > 0)
+		return;
+
+	++m_iUpdate;
+	samplv1 *pSampl = instance();
+	if (pSampl) {
+		float *pBpmSync = pSampl->paramPort(samplv1::DEL1_BPMSYNC);
+		if (pBpmSync) {
+			const bool bBpmSync0
+				= (*pBpmSync > 0.0f);
+			const bool bBpmSync1
+				= (m_ui.Del1BpmKnob->minimum() >= m_ui.Del1BpmKnob->value());
+			if ((bBpmSync1 && !bBpmSync0) || (!bBpmSync1 && bBpmSync0))
+				*pBpmSync = (bBpmSync1 ? 1.0f : 0.0f);
+		}
+	}
+	--m_iUpdate;
 }
 
 

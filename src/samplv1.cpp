@@ -423,6 +423,8 @@ struct samplv1_del
 	float *delay;
 	float *feedb;
 	float *bpm;
+	float *bpmsync, bpmsync0;
+	float *bpmhost;
 };
 
 
@@ -802,7 +804,7 @@ samplv1_voice::samplv1_voice ( samplv1_impl *pImpl ) :
 }
 
 
-// constructor
+// engine constructor
 
 samplv1_impl::samplv1_impl ( uint16_t iChannels, uint32_t iSampleRate )
 {
@@ -834,6 +836,9 @@ samplv1_impl::samplv1_impl ( uint16_t iChannels, uint32_t iSampleRate )
 
 	// compressors none yet
 	m_comp = 0;
+
+	// no delay sync yet
+	m_del.bpmsync0 = 0.0f;
 
 	// number of channels
 	setChannels(iChannels);
@@ -1023,6 +1028,8 @@ void samplv1_impl::setParamPort ( samplv1::ParamIndex index, float *pfParam )
 	case samplv1::DEL1_DELAY:     m_del.delay        = pfParam; break;
 	case samplv1::DEL1_FEEDB:     m_del.feedb        = pfParam; break;
 	case samplv1::DEL1_BPM:       m_del.bpm          = pfParam; break;
+	case samplv1::DEL1_BPMSYNC:   m_del.bpmsync      = pfParam; break;
+	case samplv1::DEL1_BPMHOST:   m_del.bpmhost      = pfParam; break;
 	case samplv1::DYN1_COMPRESS:  m_dyn.compress     = pfParam; break;
 	case samplv1::DYN1_LIMITER:   m_dyn.limiter      = pfParam; break;
 	default: break;
@@ -1094,6 +1101,8 @@ float *samplv1_impl::paramPort ( samplv1::ParamIndex index )
 	case samplv1::DEL1_DELAY:     pfParam = m_del.delay;        break;
 	case samplv1::DEL1_FEEDB:     pfParam = m_del.feedb;        break;
 	case samplv1::DEL1_BPM:       pfParam = m_del.bpm;          break;
+	case samplv1::DEL1_BPMSYNC:   pfParam = m_del.bpmsync;      break;
+	case samplv1::DEL1_BPMHOST:   pfParam = m_del.bpmhost;      break;
 	case samplv1::DYN1_COMPRESS:  pfParam = m_dyn.compress;     break;
 	case samplv1::DYN1_LIMITER:   pfParam = m_dyn.limiter;      break;
 	default: break;
@@ -1518,6 +1527,15 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 		// next playing voice
 
 		pv = pv_next;
+	}
+
+	// delay sync toggle
+	if (int(*m_del.bpmsync) != int(m_del.bpmsync0)) {
+		float *del_bpm = m_del.bpm; 
+		float *del_bpmhost = m_del.bpmhost;
+		m_del.bpmsync0 = *m_del.bpmsync;
+		m_del.bpmhost = del_bpm;
+		m_del.bpm = del_bpmhost;
 	}
 
 	// effects
