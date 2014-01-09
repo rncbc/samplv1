@@ -1,7 +1,7 @@
 // samplv1_sample.h
 //
 /****************************************************************************
-   Copyright (C) 2012, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2014, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -228,12 +228,13 @@ public:
 		m_sample = sample;
 
 		m_phase  = 1.0f;
-		m_phase1 = 0.0f;
-		m_phase2 = 0.0f;
 		m_index  = 1;
 		m_alpha  = 0.0f;
 		m_frame  = 0;
+
 		m_loop   = false;
+		m_phase1 = 0.0f;
+		m_phase2 = 0.0f;
 		m_gain   = 1.0f;
 	}
 
@@ -252,9 +253,9 @@ public:
 			}
 			m_phase1 = float(end - start);
 			m_phase2 = float(end);
-		} else {
-			m_phase1 = m_phase2 = float(m_sample->length());
 		}
+
+		m_gain = 1.0f;
 	}
 
 	// begin.
@@ -264,7 +265,6 @@ public:
 		m_index = 1;
 		m_alpha = 0.0f;
 		m_frame = 0;
-		m_gain  = 1.0f;
 
 		setLoop(m_sample->isLoop());
 	}
@@ -274,27 +274,27 @@ public:
 	{
 		const float delta = freq * m_sample->ratio();
 
-		const float xtime = 32.0f; // frames.
-		const float xstep = 1.0f / xtime;
-		const float xfade = xtime * delta;
-
 		m_index  = int(m_phase);
 		m_alpha  = m_phase - float(m_index);
 		m_phase += delta;
 
-		if (m_phase >= m_phase2 - xfade)
-			m_gain -= xstep;
-		else
-		if (m_gain < 1.0f)
-			m_gain += xstep;
-
-		if (m_phase >= m_phase2) {
-			m_phase -= m_phase1;
-			if (m_phase < 1.0f) {
-				m_phase = 1.0f;
-				m_gain = xstep;
-			} else {
-				m_gain = 0.0f;
+		if (m_loop) {
+			const float xtime = 32.0f; // frames.
+			const float xstep = 1.0f / xtime;
+			const float xfade = xtime * delta;
+			if (m_phase >= m_phase2 - xfade)
+				m_gain -= xstep;
+			else
+			if (m_gain < 1.0f)
+				m_gain += xstep;
+			if (m_phase >= m_phase2) {
+				m_phase -= m_phase1;
+				if (m_phase < 1.0f) {
+					m_phase = 1.0f;
+					m_gain = xstep;
+				} else {
+					m_gain = 0.0f;
+				}
 			}
 		}
 
@@ -369,12 +369,13 @@ private:
 	samplv1_sample *m_sample;
 
 	float    m_phase;
-	float    m_phase1;
-	float    m_phase2;
 	uint32_t m_index;
 	float    m_alpha;
 	uint32_t m_frame;
+
 	bool     m_loop;
+	float    m_phase1;
+	float    m_phase2;
 	float    m_gain;
 };
 

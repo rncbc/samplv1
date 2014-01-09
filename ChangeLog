@@ -3,6 +3,11 @@ samplv1 - an old-school polyphonic sampler
 
 ChangeLog
 
+SVN TRUNK
+
+- Purging out some dead code (eg. non-looping, zero-crossing).
+
+
 0.3.6  2013-12-31  A fifth of a Jubilee.
 
 - Effects/Delay BPM sync option to current transport (Auto).
@@ -123,7 +128,7 @@ ChangeLog
 
 0.0.8  2012-07-15  Second coming consolidation.
 
-- Proto-Icon, Desktop file and Help About menus added.
+- Proto-icon, Desktop file and Help About menus added.
 - LV2 State Files support added.
 
 
