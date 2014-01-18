@@ -1,7 +1,7 @@
 // samplv1.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2013, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2014, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -48,8 +48,8 @@
 const uint16_t MAX_VOICES = 32;			// polyphony
 const uint8_t  MAX_NOTES  = 128;
 
-const float MIN_ENV_MSECS = 2.0f;		// min 5msec per stage
-const float MAX_ENV_MSECS = 5000.0f;	// max 5 sec per stage
+const float MIN_ENV_MSECS = 2.0f;		// min 2msec per stage
+const float MAX_ENV_MSECS = 5000.0f;	// max 5 sec per stage (default)
 
 const float DETUNE_SCALE  = 0.5f;
 const float PHASE_SCALE   = 0.5f;
@@ -311,6 +311,7 @@ struct samplv1_gen
 	float *octave;
 	float *tuning;
 	float *glide;
+	float *envtime, envtime0;
 };
 
 
@@ -726,6 +727,8 @@ public:
 
 protected:
 
+	void updateEnvTimes();
+
 	void allSoundOff();
 	void allControllersOff();
 	void allNotesOff();
@@ -810,6 +813,9 @@ samplv1_impl::samplv1_impl ( uint16_t iChannels, uint32_t iSampleRate )
 {
 	// null sample.
 	m_gen1.sample0 = 0.0f;
+
+	// max env. stage length (default)
+	m_gen1.envtime0 = 0.0001f * MAX_ENV_MSECS;
 
 	// glide note.
 	gen1_last = 0.0f;
@@ -919,11 +925,23 @@ void samplv1_impl::setSampleRate ( uint32_t iSampleRate )
 	gen1_sample.setSampleRate(m_iSampleRate);
 	lfo1_wave.setSampleRate(m_iSampleRate);
 
+	updateEnvTimes();
+}
+
+
+uint32_t samplv1_impl::sampleRate (void) const
+{
+	return m_iSampleRate;
+}
+
+
+void samplv1_impl::updateEnvTimes (void)
+{
 	// update envelope range times in frames
 	const float srate_ms = 0.001f * float(m_iSampleRate);
 
 	const uint32_t min_frames = uint32_t(srate_ms * MIN_ENV_MSECS);
-	const uint32_t max_frames = uint32_t(srate_ms * MAX_ENV_MSECS);
+	const uint32_t max_frames = uint32_t(srate_ms * m_gen1.envtime0 * 10000.0f);
 
 	m_dcf1.env.min_frames = min_frames;
 	m_dcf1.env.max_frames = max_frames;
@@ -933,12 +951,6 @@ void samplv1_impl::setSampleRate ( uint32_t iSampleRate )
 
 	m_dca1.env.min_frames = min_frames;
 	m_dca1.env.max_frames = max_frames;
-}
-
-
-uint32_t samplv1_impl::sampleRate (void) const
-{
-	return m_iSampleRate;
 }
 
 
@@ -974,6 +986,7 @@ void samplv1_impl::setParamPort ( samplv1::ParamIndex index, float *pfParam )
 	case samplv1::GEN1_OCTAVE:    m_gen1.octave      = pfParam; break;
 	case samplv1::GEN1_TUNING:    m_gen1.tuning      = pfParam; break;
 	case samplv1::GEN1_GLIDE:     m_gen1.glide       = pfParam; break;
+	case samplv1::GEN1_ENVTIME:   m_gen1.envtime     = pfParam; break;
 	case samplv1::DCF1_CUTOFF:    m_dcf1.cutoff      = pfParam; break;
 	case samplv1::DCF1_RESO:      m_dcf1.reso        = pfParam; break;
 	case samplv1::DCF1_TYPE:      m_dcf1.type        = pfParam; break;
@@ -1047,6 +1060,7 @@ float *samplv1_impl::paramPort ( samplv1::ParamIndex index )
 	case samplv1::GEN1_OCTAVE:    pfParam = m_gen1.octave;      break;
 	case samplv1::GEN1_TUNING:    pfParam = m_gen1.tuning;      break;
 	case samplv1::GEN1_GLIDE:     pfParam = m_gen1.glide;       break;
+	case samplv1::GEN1_ENVTIME:   pfParam = m_gen1.envtime;     break;
 	case samplv1::DCF1_CUTOFF:    pfParam = m_dcf1.cutoff;      break;
 	case samplv1::DCF1_RESO:      pfParam = m_dcf1.reso;        break;
 	case samplv1::DCF1_TYPE:      pfParam = m_dcf1.type;        break;
@@ -1408,6 +1422,11 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 
 	if (int(*m_lfo1.shape) != int(lfo1_wave.shape()) || *m_lfo1.width != lfo1_wave.width())
 		lfo1_wave.reset(samplv1_wave::Shape(*m_lfo1.shape), *m_lfo1.width);
+
+	if (m_gen1.envtime0 != *m_gen1.envtime) {
+		m_gen1.envtime0  = *m_gen1.envtime;
+		updateEnvTimes();
+	}
 
 	// per voice
 
