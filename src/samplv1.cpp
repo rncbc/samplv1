@@ -1417,12 +1417,10 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 		gen1_sample.reset(samplv1_freq(m_gen1.sample0));
 	}
 
-#if 0
 	if (m_gen1.envtime0 != *m_gen1.envtime) {
 		m_gen1.envtime0  = *m_gen1.envtime;
 		updateEnvTimes();
 	}
-#endif
 
 	if (bool(int(*m_gen1.loop)) != gen1_sample.isLoop())
 		gen1_sample.setLoop(bool(*m_gen1.loop));
