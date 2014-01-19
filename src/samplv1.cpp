@@ -940,8 +940,10 @@ void samplv1_impl::updateEnvTimes (void)
 	// update envelope range times in frames
 	const float srate_ms = 0.001f * float(m_iSampleRate);
 
+	const float envtime_msecs = 10000.0f * samplv1_max(m_gen1.envtime0, 0.1f);
+
 	const uint32_t min_frames = uint32_t(srate_ms * MIN_ENV_MSECS);
-	const uint32_t max_frames = uint32_t(srate_ms * m_gen1.envtime0 * 10000.0f);
+	const uint32_t max_frames = uint32_t(srate_ms * envtime_msecs);
 
 	m_dcf1.env.min_frames = min_frames;
 	m_dcf1.env.max_frames = max_frames;
