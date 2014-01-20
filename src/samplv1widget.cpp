@@ -475,6 +475,8 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 // Param kbob (widget) map accesors.
 void samplv1widget::setParamKnob ( samplv1::ParamIndex index, samplv1widget_knob *pKnob )
 {
+	pKnob->setDefaultValue(samplv1_param::paramDefaultValue(index));
+
 	m_paramKnobs.insert(index, pKnob);
 	m_knobParams.insert(pKnob, index);
 
