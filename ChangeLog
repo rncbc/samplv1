@@ -5,7 +5,6 @@ ChangeLog
 
 SVN TRUNK
 
-- Fixed initial knobs default/center value.
 - Introducing a variable env.stage time parameter. (EXPERIMENTAL)
 - Purging out some dead code (eg. non-looping, zero-crossing).
 
