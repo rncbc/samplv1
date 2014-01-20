@@ -1,7 +1,7 @@
 // samplv1widget.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2013, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2014, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -202,11 +202,12 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 
 
 	// GEN1
-	setParamKnob(samplv1::GEN1_SAMPLE, m_ui.Gen1SampleKnob);
-	setParamKnob(samplv1::GEN1_LOOP,   m_ui.Gen1LoopKnob);
-	setParamKnob(samplv1::GEN1_OCTAVE, m_ui.Gen1OctaveKnob);
-	setParamKnob(samplv1::GEN1_TUNING, m_ui.Gen1TuningKnob);
-	setParamKnob(samplv1::GEN1_GLIDE,  m_ui.Gen1GlideKnob);
+	setParamKnob(samplv1::GEN1_SAMPLE,  m_ui.Gen1SampleKnob);
+	setParamKnob(samplv1::GEN1_LOOP,    m_ui.Gen1LoopKnob);
+	setParamKnob(samplv1::GEN1_OCTAVE,  m_ui.Gen1OctaveKnob);
+	setParamKnob(samplv1::GEN1_TUNING,  m_ui.Gen1TuningKnob);
+	setParamKnob(samplv1::GEN1_GLIDE,   m_ui.Gen1GlideKnob);
+	setParamKnob(samplv1::GEN1_ENVTIME, m_ui.Gen1EnvTimeKnob);
 
 	// DCF1
 	setParamKnob(samplv1::DCF1_CUTOFF,   m_ui.Dcf1CutoffKnob);

@@ -5,7 +5,7 @@ ChangeLog
 
 SVN TRUNK
 
-- Preparations for variable env.stage time parameter. (TESTING)
+- Introducing a variable env.stage time parameter. (EXPERIMENTAL)
 - Purging out some dead code (eg. non-looping, zero-crossing).
 
 
