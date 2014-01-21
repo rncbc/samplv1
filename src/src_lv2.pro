@@ -18,6 +18,7 @@ HEADERS = \
 	samplv1_ramp.h \
 	samplv1_list.h \
 	samplv1_fx.h \
+	samplv1_reverb.h \
 	samplv1_param.h
 
 SOURCES = \

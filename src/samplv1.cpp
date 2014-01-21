@@ -30,6 +30,8 @@
 
 #include "samplv1_fx.h"
 
+#include "samplv1_reverb.h"
+
 
 #ifdef CONFIG_DEBUG_0
 #include <stdio.h>
@@ -438,6 +440,17 @@ struct samplv1_dyn
 };
 
 
+// reverb
+
+struct samplv1_rev
+{
+	float *wet;
+	float *room;
+	float *damp;
+	float *width;
+};
+
+
 // (Hal Chamberlin's state variable) filter
 
 class samplv1_filter1
@@ -770,6 +783,7 @@ private:
 	samplv1_pha m_pha;
 	samplv1_del m_del;
 	samplv1_dyn m_dyn;
+	samplv1_rev m_rev;
 
 	samplv1_voice **m_voices;
 	samplv1_voice  *m_notes[MAX_NOTES];
@@ -788,6 +802,8 @@ private:
 	samplv1_fx_phaser  *m_phaser;
 	samplv1_fx_delay   *m_delay;
 	samplv1_fx_comp    *m_comp;
+
+	samplv1_reverb m_reverb;
 };
 
 
@@ -1047,6 +1063,10 @@ void samplv1_impl::setParamPort ( samplv1::ParamIndex index, float *pfParam )
 	case samplv1::DEL1_BPMHOST:   m_del.bpmhost      = pfParam; break;
 	case samplv1::DYN1_COMPRESS:  m_dyn.compress     = pfParam; break;
 	case samplv1::DYN1_LIMITER:   m_dyn.limiter      = pfParam; break;
+	case samplv1::REV1_WET:       m_rev.wet          = pfParam; break;
+	case samplv1::REV1_ROOM:      m_rev.room         = pfParam; break;
+	case samplv1::REV1_DAMP:      m_rev.damp         = pfParam; break;
+	case samplv1::REV1_WIDTH:     m_rev.width        = pfParam; break;
 	default: break;
 	}
 }
@@ -1121,6 +1141,10 @@ float *samplv1_impl::paramPort ( samplv1::ParamIndex index )
 	case samplv1::DEL1_BPMHOST:   pfParam = m_del.bpmhost;      break;
 	case samplv1::DYN1_COMPRESS:  pfParam = m_dyn.compress;     break;
 	case samplv1::DYN1_LIMITER:   pfParam = m_dyn.limiter;      break;
+	case samplv1::REV1_WET:       pfParam = m_rev.wet;          break;
+	case samplv1::REV1_ROOM:      pfParam = m_rev.room;         break;
+	case samplv1::REV1_DAMP:      pfParam = m_rev.damp;         break;
+	case samplv1::REV1_WIDTH:     pfParam = m_rev.width;        break;
 	default: break;
 	}
 
@@ -1314,6 +1338,8 @@ void samplv1_impl::allSoundOff (void)
 		m_delay[k].reset();
 		m_comp[k].reset();
 	}
+
+	m_reverb.setSampleRate(m_iSampleRate);
 }
 
 
@@ -1383,6 +1409,9 @@ void samplv1_impl::reset (void)
 	// compressors
 	if (m_comp == 0)
 		m_comp = new samplv1_fx_comp [m_iChannels];
+
+	// reverbs
+	m_reverb.reset(true);
 
 	allSoundOff();
 //	allControllersOff();
@@ -1585,6 +1614,11 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 		if (int(*m_dyn.limiter) > 0) {
 			for (uint32_t n = 0; n < nframes; ++n)
 				*out++ = samplv1_sigmoid(*in++);
+		}
+		// reverb
+		if (k > 0) {
+			m_reverb.process(outs[k - 1], outs[k], nframes, *m_rev.wet,
+				*m_rev.room, *m_rev.damp, *m_rev.width);
 		}
 	}
 

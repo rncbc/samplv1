@@ -200,6 +200,9 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	m_ui.Del1BpmKnob->setMinimum(3.6f);
 	m_ui.Del1BpmKnob->setMaximum(360.0f);
 
+	// Reverb (stereo-)width limits.
+	m_ui.Rev1WidthKnob->setMinimum(-1.0f);
+	m_ui.Rev1WidthKnob->setMaximum(+1.0f);
 
 	// GEN1
 	setParamKnob(samplv1::GEN1_SAMPLE,  m_ui.Gen1SampleKnob);
@@ -410,6 +413,13 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	QObject::connect(m_ui.Gen1Sample,
 		SIGNAL(loadSampleFile(const QString&)),
 		SLOT(loadSample(const QString&)));
+
+	// Reverb
+	setParamKnob(samplv1::REV1_WET,   m_ui.Rev1WetKnob);
+	setParamKnob(samplv1::REV1_ROOM,  m_ui.Rev1RoomKnob);
+	setParamKnob(samplv1::REV1_DAMP,  m_ui.Rev1DampKnob);
+	setParamKnob(samplv1::REV1_WIDTH, m_ui.Rev1WidthKnob);
+
 
 	// Preset management
 	QObject::connect(m_ui.Preset,

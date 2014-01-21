@@ -5,6 +5,8 @@ ChangeLog
 
 SVN TRUNK
 
+- Reverb is being added as final effects stage (based on FreeVerb).
+  (HIGHLY EXPERIMENTAL)
 - Introducing a variable env.stage time parameter. (EXPERIMENTAL)
 - Purging out some dead code (eg. non-looping, zero-crossing).
 

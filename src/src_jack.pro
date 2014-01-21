@@ -19,6 +19,7 @@ HEADERS = \
 	samplv1_fx.h \
 	samplv1_nsm.h \
 	samplv1_param.h \
+	samplv1_reverb.h \
 	samplv1widget.h \
 	samplv1widget_env.h \
 	samplv1widget_filt.h \
