@@ -21,6 +21,7 @@ BuildRequires:	libjack-devel >= 0.109.2
 BuildRequires:	libsndfile-devel >= 1.0.11
 BuildRequires:	alsa-devel
 BuildRequires:	lv2-devel
+BuildRequires:	liblo-devel
 
 %description
   An old-school all-digital polyphonic sampler synthesizer with stereo fx.
