@@ -431,15 +431,6 @@ struct samplv1_del
 };
 
 
-// dynamic(compressor/limiter)
-
-struct samplv1_dyn
-{
-	float *compress;
-	float *limiter;
-};
-
-
 // reverb
 
 struct samplv1_rev
@@ -449,6 +440,15 @@ struct samplv1_rev
 	float *room;
 	float *damp;
 	float *width;
+};
+
+
+// dynamic(compressor/limiter)
+
+struct samplv1_dyn
+{
+	float *compress;
+	float *limiter;
 };
 
 
@@ -783,8 +783,8 @@ private:
 	samplv1_fla m_fla;
 	samplv1_pha m_pha;
 	samplv1_del m_del;
-	samplv1_dyn m_dyn;
 	samplv1_rev m_rev;
+	samplv1_dyn m_dyn;
 
 	samplv1_voice **m_voices;
 	samplv1_voice  *m_notes[MAX_NOTES];
@@ -1062,13 +1062,13 @@ void samplv1_impl::setParamPort ( samplv1::ParamIndex index, float *pfParam )
 	case samplv1::DEL1_BPM:       m_del.bpm          = pfParam; break;
 	case samplv1::DEL1_BPMSYNC:   m_del.bpmsync      = pfParam; break;
 	case samplv1::DEL1_BPMHOST:   m_del.bpmhost      = pfParam; break;
-	case samplv1::DYN1_COMPRESS:  m_dyn.compress     = pfParam; break;
-	case samplv1::DYN1_LIMITER:   m_dyn.limiter      = pfParam; break;
 	case samplv1::REV1_WET:       m_rev.wet          = pfParam; break;
 	case samplv1::REV1_FEEDB:     m_rev.feedb        = pfParam; break;
 	case samplv1::REV1_ROOM:      m_rev.room         = pfParam; break;
 	case samplv1::REV1_DAMP:      m_rev.damp         = pfParam; break;
 	case samplv1::REV1_WIDTH:     m_rev.width        = pfParam; break;
+	case samplv1::DYN1_COMPRESS:  m_dyn.compress     = pfParam; break;
+	case samplv1::DYN1_LIMITER:   m_dyn.limiter      = pfParam; break;
 	default: break;
 	}
 }
@@ -1141,13 +1141,13 @@ float *samplv1_impl::paramPort ( samplv1::ParamIndex index )
 	case samplv1::DEL1_BPM:       pfParam = m_del.bpm;          break;
 	case samplv1::DEL1_BPMSYNC:   pfParam = m_del.bpmsync;      break;
 	case samplv1::DEL1_BPMHOST:   pfParam = m_del.bpmhost;      break;
-	case samplv1::DYN1_COMPRESS:  pfParam = m_dyn.compress;     break;
-	case samplv1::DYN1_LIMITER:   pfParam = m_dyn.limiter;      break;
 	case samplv1::REV1_WET:       pfParam = m_rev.wet;          break;
 	case samplv1::REV1_FEEDB:     pfParam = m_rev.feedb;        break;
 	case samplv1::REV1_ROOM:      pfParam = m_rev.room;         break;
 	case samplv1::REV1_DAMP:      pfParam = m_rev.damp;         break;
 	case samplv1::REV1_WIDTH:     pfParam = m_rev.width;        break;
+	case samplv1::DYN1_COMPRESS:  pfParam = m_dyn.compress;     break;
+	case samplv1::DYN1_LIMITER:   pfParam = m_dyn.limiter;      break;
 	default: break;
 	}
 

@@ -404,6 +404,13 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 		SIGNAL(valueChanged(float)),
 		SLOT(bpmSyncChanged()));
 
+	// Reverb
+	setParamKnob(samplv1::REV1_WET,   m_ui.Rev1WetKnob);
+	setParamKnob(samplv1::REV1_FEEDB, m_ui.Rev1FeedbKnob);
+	setParamKnob(samplv1::REV1_ROOM,  m_ui.Rev1RoomKnob);
+	setParamKnob(samplv1::REV1_DAMP,  m_ui.Rev1DampKnob);
+	setParamKnob(samplv1::REV1_WIDTH, m_ui.Rev1WidthKnob);
+
 	// Dynamics
 	setParamKnob(samplv1::DYN1_COMPRESS, m_ui.Dyn1CompressKnob);
 	setParamKnob(samplv1::DYN1_LIMITER,  m_ui.Dyn1LimiterKnob);
@@ -413,14 +420,6 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	QObject::connect(m_ui.Gen1Sample,
 		SIGNAL(loadSampleFile(const QString&)),
 		SLOT(loadSample(const QString&)));
-
-	// Reverb
-	setParamKnob(samplv1::REV1_WET,   m_ui.Rev1WetKnob);
-	setParamKnob(samplv1::REV1_FEEDB, m_ui.Rev1FeedbKnob);
-	setParamKnob(samplv1::REV1_ROOM,  m_ui.Rev1RoomKnob);
-	setParamKnob(samplv1::REV1_DAMP,  m_ui.Rev1DampKnob);
-	setParamKnob(samplv1::REV1_WIDTH, m_ui.Rev1WidthKnob);
-
 
 	// Preset management
 	QObject::connect(m_ui.Preset,
