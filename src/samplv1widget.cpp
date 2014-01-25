@@ -406,9 +406,9 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 
 	// Reverb
 	setParamKnob(samplv1::REV1_WET,   m_ui.Rev1WetKnob);
-	setParamKnob(samplv1::REV1_FEEDB, m_ui.Rev1FeedbKnob);
 	setParamKnob(samplv1::REV1_ROOM,  m_ui.Rev1RoomKnob);
 	setParamKnob(samplv1::REV1_DAMP,  m_ui.Rev1DampKnob);
+	setParamKnob(samplv1::REV1_FEEDB, m_ui.Rev1FeedbKnob);
 	setParamKnob(samplv1::REV1_WIDTH, m_ui.Rev1WidthKnob);
 
 	// Dynamics

@@ -1174,16 +1174,6 @@
            </spacer>
           </item>
           <item>
-           <widget class="samplv1widget_spin" name="Rev1FeedbKnob">
-             <property name="toolTip">
-             <string>Reverb Feedback</string>
-            </property>
-            <property name="text">
-             <string>Feedback</string>
-            </property>
-           </widget>
-          </item>
-          <item>
            <widget class="samplv1widget_spin" name="Rev1RoomKnob">
              <property name="toolTip">
              <string>Reverb Room</string>
@@ -1200,6 +1190,16 @@
             </property>
             <property name="text">
              <string>Damp</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="samplv1widget_spin" name="Rev1FeedbKnob">
+             <property name="toolTip">
+             <string>Reverb Feedback</string>
+            </property>
+            <property name="text">
+             <string>Feedback</string>
             </property>
            </widget>
           </item>

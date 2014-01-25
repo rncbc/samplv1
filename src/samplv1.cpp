@@ -436,9 +436,9 @@ struct samplv1_del
 struct samplv1_rev
 {
 	float *wet;
-	float *feedb;
 	float *room;
 	float *damp;
+	float *feedb;
 	float *width;
 };
 
@@ -1063,9 +1063,9 @@ void samplv1_impl::setParamPort ( samplv1::ParamIndex index, float *pfParam )
 	case samplv1::DEL1_BPMSYNC:   m_del.bpmsync      = pfParam; break;
 	case samplv1::DEL1_BPMHOST:   m_del.bpmhost      = pfParam; break;
 	case samplv1::REV1_WET:       m_rev.wet          = pfParam; break;
-	case samplv1::REV1_FEEDB:     m_rev.feedb        = pfParam; break;
 	case samplv1::REV1_ROOM:      m_rev.room         = pfParam; break;
 	case samplv1::REV1_DAMP:      m_rev.damp         = pfParam; break;
+	case samplv1::REV1_FEEDB:     m_rev.feedb        = pfParam; break;
 	case samplv1::REV1_WIDTH:     m_rev.width        = pfParam; break;
 	case samplv1::DYN1_COMPRESS:  m_dyn.compress     = pfParam; break;
 	case samplv1::DYN1_LIMITER:   m_dyn.limiter      = pfParam; break;
@@ -1142,9 +1142,9 @@ float *samplv1_impl::paramPort ( samplv1::ParamIndex index )
 	case samplv1::DEL1_BPMSYNC:   pfParam = m_del.bpmsync;      break;
 	case samplv1::DEL1_BPMHOST:   pfParam = m_del.bpmhost;      break;
 	case samplv1::REV1_WET:       pfParam = m_rev.wet;          break;
-	case samplv1::REV1_FEEDB:     pfParam = m_rev.feedb;        break;
 	case samplv1::REV1_ROOM:      pfParam = m_rev.room;         break;
 	case samplv1::REV1_DAMP:      pfParam = m_rev.damp;         break;
+	case samplv1::REV1_FEEDB:     pfParam = m_rev.feedb;        break;
 	case samplv1::REV1_WIDTH:     pfParam = m_rev.width;        break;
 	case samplv1::DYN1_COMPRESS:  pfParam = m_dyn.compress;     break;
 	case samplv1::DYN1_LIMITER:   pfParam = m_dyn.limiter;      break;
