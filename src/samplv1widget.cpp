@@ -143,6 +143,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	m_ui.Fla1WetKnob->setSpecialValueText(sOff);
 	m_ui.Pha1WetKnob->setSpecialValueText(sOff);
 	m_ui.Del1WetKnob->setSpecialValueText(sOff);
+	m_ui.Rev1WetKnob->setSpecialValueText(sOff);
 
 	m_ui.Del1BpmKnob->setSpecialValueText(tr("Auto"));
 
