@@ -22,6 +22,9 @@
 #ifndef __samplv1_fx_h
 #define __samplv1_fx_h
 
+#include <stdint.h>
+#include <math.h>
+
 
 //-------------------------------------------------------------------------
 // samplv1_fx
