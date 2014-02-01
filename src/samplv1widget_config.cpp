@@ -1,7 +1,7 @@
 // samplv1widget_config.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2013, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2014, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -62,6 +62,9 @@ void samplv1widget_config::load (void)
 	sPresetDir = QSettings::value("/PresetDir").toString();
 	sSampleDir = QSettings::value("/SampleDir").toString();
 	QSettings::endGroup();
+
+	// Run-time special non-persistent options.
+	bDontUseNativeDialog = false;
 }
 
 

@@ -1,7 +1,7 @@
 // samplv1widget_config.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2013, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2014, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -46,6 +46,9 @@ public:
 	QString sPreset;
 	QString sPresetDir;
 	QString sSampleDir;
+
+	// Run-time special non-persistent options.
+	bool bDontUseNativeDialog;
 
 	// Singleton instance accessor.
 	static samplv1widget_config *getInstance();
