@@ -192,9 +192,12 @@ void samplv1widget_jack::openSession (void)
 	m_pSampl->deactivate();
 	m_pSampl->close();
 
+	const QString& client_id = m_pNsmClient->client_id();
 	const QString& path_name = m_pNsmClient->path_name();
 	const QString& display_name = m_pNsmClient->display_name();
-	const QString& client_id = m_pNsmClient->client_id();
+
+	m_pSampl->open(client_id.toUtf8().constData());
+	m_pSampl->activate();
 
 	const QDir dir(path_name);
 	if (!dir.exists())
@@ -203,9 +206,6 @@ void samplv1widget_jack::openSession (void)
 	const QFileInfo fi(path_name, display_name + '.' + SAMPLV1_TITLE);
 	if (fi.exists())
 		loadPreset(fi.absoluteFilePath());
-
-	m_pSampl->open(client_id.toUtf8().constData());
-	m_pSampl->activate();
 
 	m_bNsmDirty = false;
 
