@@ -503,13 +503,14 @@ samplv1widget_knob *samplv1widget::paramKnob ( samplv1::ParamIndex index ) const
 
 
 // Param port accessors.
-void samplv1widget::setParamValue ( samplv1::ParamIndex index, float fValue )
+void samplv1widget::setParamValue (
+	samplv1::ParamIndex index, float fValue, bool bDefault )
 {
 	++m_iUpdate;
 
 	samplv1widget_knob *pKnob = paramKnob(index);
 	if (pKnob)
-		pKnob->setValue(fValue);
+		pKnob->setValue(fValue, bDefault);
 
 	updateParamEx(index, fValue);
 
@@ -660,8 +661,8 @@ void samplv1widget::resetParamValues (void)
 
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
 		samplv1::ParamIndex index = samplv1::ParamIndex(i);
-		float fValue = samplv1_param::paramDefaultValue(index);
-		setParamValue(index, fValue);
+		const float fValue = samplv1_param::paramDefaultValue(index);
+		setParamValue(index, fValue, true);
 		updateParam(index, fValue);
 		m_params_ab[index] = fValue;
 	}
@@ -733,8 +734,8 @@ void samplv1widget::loadPreset ( const QString& sFilename )
 
 	clearSampleFile();
 
-	resetParamValues();
 	resetParamKnobs();
+	resetParamValues();
 
 	const QFileInfo fi(sFilename);
 	const QDir currentDir(QDir::current());
@@ -776,7 +777,7 @@ void samplv1widget::loadPreset ( const QString& sFilename )
 							if (index == samplv1::DEL1_BPM && fValue < 3.6f)
 								fValue *= 100.0f;
 						//--legacy support < 0.3.0.4 -- end.
-							setParamValue(index, fValue);
+							setParamValue(index, fValue, true);
 							updateParam(index, fValue);
 							m_params_ab[index] = fValue;
 						}

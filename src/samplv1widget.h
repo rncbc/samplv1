@@ -50,7 +50,8 @@ public:
 	samplv1widget(QWidget *pParent = 0, Qt::WindowFlags wflags = 0);
 
 	// Param port accessors.
-	void setParamValue(samplv1::ParamIndex index, float fValue);
+	void setParamValue(
+		samplv1::ParamIndex index, float fValue, bool bDefault = false);
 	float paramValue(samplv1::ParamIndex index) const;
 
 	// Param kbob (widget) mapper.
