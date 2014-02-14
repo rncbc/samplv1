@@ -1,7 +1,7 @@
 // samplv1widget_lv2.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2013, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2014, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -81,6 +81,8 @@ protected:
 
 	// Param methods.
 	void updateParam(samplv1::ParamIndex index, float fValue) const;
+
+	bool m_params_def[samplv1::NUM_PARAMS];
 
 #ifdef CONFIG_LV2_EXTERNAL_UI
 	void closeEvent(QCloseEvent *pCloseEvent);
