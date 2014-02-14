@@ -1444,8 +1444,12 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 	// controls
 
 	const float lfo1_rate = *m_lfo1.rate * *m_lfo1.rate;
-	const float lfo1_freq = LFO_FREQ_MIN + lfo1_rate * (LFO_FREQ_MAX - LFO_FREQ_MIN);
-	const float modwheel1 = m_ctl.modwheel + PITCH_SCALE * *m_lfo1.pitch;
+
+	const float lfo1_freq
+		= LFO_FREQ_MIN + lfo1_rate * (LFO_FREQ_MAX - LFO_FREQ_MIN);
+
+	const float modwheel1
+		= m_ctl.modwheel + PITCH_SCALE * *m_lfo1.pitch;
 
 	if (m_gen1.sample0 != *m_gen1.sample) {
 		m_gen1.sample0  = *m_gen1.sample;
@@ -1460,7 +1464,8 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 	if (bool(int(*m_gen1.loop)) != gen1_sample.isLoop())
 		gen1_sample.setLoop(bool(*m_gen1.loop));
 
-	if (int(*m_lfo1.shape) != int(lfo1_wave.shape()) || *m_lfo1.width != lfo1_wave.width())
+	if (int(*m_lfo1.shape) != int(lfo1_wave.shape())
+		|| *m_lfo1.width != lfo1_wave.width())
 		lfo1_wave.reset(samplv1_wave::Shape(*m_lfo1.shape), *m_lfo1.width);
 
 	// per voice
