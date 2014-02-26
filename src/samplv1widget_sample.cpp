@@ -525,7 +525,7 @@ void samplv1widget_sample::openSample (void)
 	const QString& sFilter = s_filters.join(";;");
 #if 1//QT_VERSION < 0x040400
 	QFileDialog::Options options = 0;
-	if (pConfig->bDontUseNativeDialog)
+	if (pConfig->bDontUseNativeDialogs)
 		options |= QFileDialog::DontUseNativeDialog;
 	sFilename = QFileDialog::getOpenFileName(parentWidget(),
 		sTitle, pConfig->sSampleDir, sFilter, NULL, options);
@@ -537,7 +537,7 @@ void samplv1widget_sample::openSample (void)
 	QList<QUrl> urls(fileDialog.sidebarUrls());
 	urls.append(QUrl::fromLocalFile(pConfig->sSampleDir));
 	fileDialog.setSidebarUrls(urls);
-	if (pConfig->bDontUseNativeDialog)
+	if (pConfig->bDontUseNativeDialogs)
 		fileDialog.setOptions(QFileDialog::DontUseNativeDialog);
 	if (fileDialog.exec())
 		sFilename = fileDialog.selectedFiles().first();

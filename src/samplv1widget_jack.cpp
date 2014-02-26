@@ -86,7 +86,7 @@ samplv1widget_jack::samplv1widget_jack ( samplv1_jack *pSampl )
 		m_pNsmClient->announce(SAMPLV1_TITLE, ":switch:dirty:optional-gui:");
 		samplv1widget_config *pConfig = samplv1widget_config::getInstance();
 		if (pConfig)
-			pConfig->bDontUseNativeDialog = true;
+			pConfig->bDontUseNativeDialogs = true;
 		return;
 	}
 #endif	// CONFIG_NSM

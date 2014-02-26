@@ -63,8 +63,11 @@ void samplv1widget_config::load (void)
 	sSampleDir = QSettings::value("/SampleDir").toString();
 	QSettings::endGroup();
 
+	QSettings::beginGroup("/Dialogs");
+	bUseNativeDialogs = QSettings::value("/UseNativeDialogs", true).toBool();
 	// Run-time special non-persistent options.
-	bDontUseNativeDialog = false;
+	bDontUseNativeDialogs = !bUseNativeDialogs;
+	QSettings::endGroup();
 }
 
 
@@ -78,6 +81,10 @@ void samplv1widget_config::save (void)
 	QSettings::setValue("/Preset", sPreset);
 	QSettings::setValue("/PresetDir", sPresetDir);
 	QSettings::setValue("/SampleDir", sSampleDir);
+	QSettings::endGroup();
+
+	QSettings::beginGroup("/Dialogs");
+	QSettings::setValue("/UseNativeDialogs", bUseNativeDialogs);
 	QSettings::endGroup();
 
 	QSettings::sync();

@@ -47,8 +47,11 @@ public:
 	QString sPresetDir;
 	QString sSampleDir;
 
+	// Special persistent options.
+	bool bUseNativeDialogs;
+
 	// Run-time special non-persistent options.
-	bool bDontUseNativeDialog;
+	bool bDontUseNativeDialogs;
 
 	// Singleton instance accessor.
 	static samplv1widget_config *getInstance();

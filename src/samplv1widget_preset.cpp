@@ -1,4 +1,4 @@
-// samplv1widget_preset.cpp
+/// samplv1widget_preset.cpp
 //
 /****************************************************************************
    Copyright (C) 2012-2014, rncbc aka Rui Nuno Capela. All rights reserved.
@@ -242,7 +242,7 @@ void samplv1widget_preset::openPreset (void)
 	const QString& sFilter = tr("Preset files (*.%1)").arg(sExt);
 #if 1//QT_VERSION < 0x040400
 	QFileDialog::Options options = 0;
-	if (pConfig->bDontUseNativeDialog)
+	if (pConfig->bDontUseNativeDialogs)
 		options |= QFileDialog::DontUseNativeDialog;
 	sFilename = QFileDialog::getOpenFileName(parentWidget(),
 		sTitle, pConfig->sPresetDir, sFilter, NULL, options);
@@ -255,7 +255,7 @@ void samplv1widget_preset::openPreset (void)
 	QList<QUrl> urls(fileDialog.sidebarUrls());
 	urls.append(QUrl::fromLocalFile(pConfig->sPresetDir));
 	fileDialog.setSidebarUrls(urls);
-	if (pConfig->bDontUseNativeDialog)
+	if (pConfig->bDontUseNativeDialogs)
 		fileDialog.setOptions(QFileDialog::DontUseNativeDialog);
 	if (fileDialog.exec())
 		sFilename = fileDialog.selectedFiles().first();
@@ -302,7 +302,7 @@ void samplv1widget_preset::savePreset ( const QString& sPreset )
 		const QString& sFilter = tr("Preset files (*.%1)").arg(sExt);
 	#if 1//QT_VERSION < 0x040400
 		QFileDialog::Options options = 0;
-		if (pConfig->bDontUseNativeDialog)
+		if (pConfig->bDontUseNativeDialogs)
 			options |= QFileDialog::DontUseNativeDialog;
 		sFilename = QFileDialog::getSaveFileName(parentWidget(),
 			sTitle, sFilename, sFilter, NULL, options);
@@ -315,7 +315,7 @@ void samplv1widget_preset::savePreset ( const QString& sPreset )
 		QList<QUrl> urls(fileDialog.sidebarUrls());
 		urls.append(QUrl::fromLocalFile(pConfig->sPresetDir));
 		fileDialog.setSidebarUrls(urls);
-		if (pConfig->bDontUseNativeDialog)
+		if (pConfig->bDontUseNativeDialogs)
 			fileDialog.setOptions(QFileDialog::DontUseNativeDialog);
 		if (fileDialog.exec())
 			sFilename = fileDialog.selectedFiles().first();
