@@ -113,13 +113,17 @@ public:
 		m_rate0     = float(info.samplerate);
 		m_nframes   = info.frames;
 
+		const uint32_t nsize = m_nframes + 4;
+
 		m_pframes = new float * [m_nchannels];
-		for (uint16_t k = 0; k < m_nchannels; ++k)
-			m_pframes[k] = new float [m_nframes];
+		for (uint16_t k = 0; k < m_nchannels; ++k) {
+			m_pframes[k] = new float [nsize];
+			::memset(m_pframes[k], 0, nsize + sizeof(float));
+		}
 
 		float *buffer = new float [m_nchannels * m_nframes];
 
-		int nread = ::sf_readf_float(file, buffer, m_nframes);
+		const int nread = ::sf_readf_float(file, buffer, m_nframes);
 		if (nread > 0) {
 			const uint32_t n = uint32_t(nread);
 			uint32_t i = 0;
@@ -190,7 +194,7 @@ public:
 
 	// predicate.
 	bool isOver(uint32_t frame) const
-		{ return !m_pframes || (frame >= m_nframes - 4); }
+		{ return !m_pframes || (frame >= m_nframes); }
 
 private:
 

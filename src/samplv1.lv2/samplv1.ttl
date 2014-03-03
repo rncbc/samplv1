@@ -66,6 +66,7 @@
 		lv2:index 6 ;
 		lv2:symbol "GEN1_LOOP" ;
 		lv2:name "GEN1 Loop" ;
+		lv2:portProperty lv2:toggled ;
 		lv2:default 0.0 ;
 		lv2:minimum 0.0 ;
 		lv2:maximum 1.0 ;
