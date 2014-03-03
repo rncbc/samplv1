@@ -63,8 +63,8 @@ samplv1widget_lv2::samplv1widget_lv2 ( samplv1_lv2 *pSampl,
 	// Initial update, always...
 	if (m_pSampl->sampleFile())
 		updateSample(m_pSampl->sample());
-	else
-		initPreset();
+//	else
+//		initPreset();
 }
 
 
