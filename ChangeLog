@@ -3,7 +3,7 @@ samplv1 - an old-school polyphonic sampler
 
 ChangeLog
 
-SVN TRUNK
+0.4.0  2014-03-06  A proto-beta party.
 
 - All knobs default value setting slightly improved.
 - A run-time circumention have been hacked in, strictly related
