@@ -734,8 +734,8 @@ public:
 
 	void reset();
 
-	samplv1_sample gen1_sample;
-	samplv1_wave   lfo1_wave;
+	samplv1_sample  gen1_sample;
+	samplv1_wave_lf lfo1_wave;
 
 	float gen1_last;
 
