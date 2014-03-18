@@ -23,6 +23,7 @@
 #define __samplv1_fx_h
 
 #include <stdint.h>
+#include <stdlib.h>
 #include <math.h>
 
 

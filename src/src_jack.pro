@@ -34,6 +34,7 @@ HEADERS = \
 SOURCES = \
 	samplv1.cpp \
 	samplv1_jack.cpp \
+	samplv1_wave.cpp \
 	samplv1_nsm.cpp \
 	samplv1_param.cpp \
 	samplv1widget.cpp \
