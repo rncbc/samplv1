@@ -83,7 +83,7 @@ public:
 		// cubic interpolation...
 		const float x0 = m_table[i];
 		const float x1 = m_table[i + 1];
-	#if 0	// cubic interp.
+#if 0	// cubic interp.
 		const float x2 = m_table[i + 2];
 		const float x3 = m_table[i + 3];
 
@@ -94,9 +94,9 @@ public:
 		const float c2 = (c3 + b2);
 
 		return (((c3 * alpha) - c2) * alpha + c1) * alpha + x1;
-	#else	// linear interp.
+#else	// linear interp.
 		return x0 + alpha * (x1 - x0);
-	#endif
+#endif
 	}
 
 	// absolute value.
