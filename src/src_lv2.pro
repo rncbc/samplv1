@@ -19,13 +19,15 @@ HEADERS = \
 	samplv1_list.h \
 	samplv1_fx.h \
 	samplv1_reverb.h \
-	samplv1_param.h
+	samplv1_param.h \
+	samplv1_sched.h
 
 SOURCES = \
 	samplv1.cpp \
 	samplv1_lv2.cpp \
 	samplv1_wave.cpp \
-	samplv1_param.cpp
+	samplv1_param.cpp \
+	samplv1_sched.cpp
 
 
 unix {

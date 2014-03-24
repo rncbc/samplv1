@@ -19,6 +19,7 @@ HEADERS = \
 	samplv1_fx.h \
 	samplv1_nsm.h \
 	samplv1_param.h \
+	samplv1_sched.h \
 	samplv1_reverb.h \
 	samplv1widget.h \
 	samplv1widget_env.h \
@@ -37,6 +38,7 @@ SOURCES = \
 	samplv1_wave.cpp \
 	samplv1_nsm.cpp \
 	samplv1_param.cpp \
+	samplv1_sched.cpp \
 	samplv1widget.cpp \
 	samplv1widget_env.cpp \
 	samplv1widget_filt.cpp \
