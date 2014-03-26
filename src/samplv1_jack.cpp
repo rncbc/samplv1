@@ -34,27 +34,26 @@
 //-------------------------------------------------------------------------
 // alsa input thread.
 
-#include <pthread.h>
+#include <QThread>
 
 
-class samplv1_alsa_thread
+class samplv1_alsa_thread : public QThread
 {
 public:
 
 	samplv1_alsa_thread(samplv1_jack *sampl)
-		: m_sampl(sampl), m_running(false) {}
+		: QThread(), m_sampl(sampl), m_running(false) {}
 
 	~samplv1_alsa_thread()
 		{ m_running = false; wait(); }
 
-	void start()
-		{ pthread_create(&m_pthread, NULL, samplv1_alsa_thread::run, this); }
+protected:
 
-	void *run()
+	void run()
 	{
 		snd_seq_t *seq = m_sampl->alsa_seq();
 		if (seq == NULL)
-			return NULL;
+			return;
 
 		m_running = true;
 
@@ -79,31 +78,13 @@ public:
 		}
 
 		m_running = false;
-		return NULL;
-	}
-
-	void wait()
-		{ pthread_join(m_pthread, NULL); }
-
-	void setRunning(bool running)
-		{ m_running = running; }
-	bool isRunning() const
-		{ return m_running; }
-
-protected:
-
-	static void *run ( void *arg )
-	{
-		return static_cast<samplv1_alsa_thread *> (arg)->run();
 	}
 
 private:
 
 	samplv1_jack *m_sampl;
 
-	bool m_running;
-
-	pthread_t m_pthread;
+	volatile bool m_running;
 };
 
 #endif	// CONFIG_ALSA_MIDI
@@ -308,7 +289,7 @@ void samplv1_jack::open ( const char *client_id )
 		m_alsa_buffer = ::jack_ringbuffer_create(
 			1024 * (sizeof(jack_midi_event_t) + 4));
 		m_alsa_thread = new samplv1_alsa_thread(this);
-		m_alsa_thread->start();
+		m_alsa_thread->start(QThread::TimeCriticalPriority);
 	}
 #endif	// CONFIG_ALSA_MIDI
 
