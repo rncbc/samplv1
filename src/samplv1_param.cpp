@@ -107,7 +107,7 @@ struct {
 };
 
 
-QString samplv1_param::paramName ( samplv1::ParamIndex index )
+const char *samplv1_param::paramName ( samplv1::ParamIndex index )
 {
 	return samplv1_default_params[index].name;
 }

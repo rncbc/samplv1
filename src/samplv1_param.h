@@ -24,8 +24,6 @@
 
 #include "samplv1.h"
 
-#include <QString>
-
 
 //-------------------------------------------------------------------------
 // samplv1_param - decl.
@@ -34,7 +32,7 @@
 namespace samplv1_param
 {
 	// Default parameter name/value helpers.
-	QString paramName(samplv1::ParamIndex index);
+	const char *paramName(samplv1::ParamIndex index);
 	float paramDefaultValue(samplv1::ParamIndex index);
 };
 
