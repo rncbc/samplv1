@@ -131,6 +131,12 @@ protected:
 	void reset_normalize();
 	void reset_interp();
 
+	// Hal Chamberlain's pseudo-random linear congruential method.
+	uint32_t pseudo_srand ()
+		{ return (m_srand = (m_srand * 196314165) + 907633515); }
+	float pseudo_randf ()
+		{ return pseudo_srand() / float(1 << 16) - 1.0f; }
+
 private:
 
 	uint32_t m_nsize;
@@ -142,6 +148,8 @@ private:
 	float    m_srate;
 	float   *m_table;
 	float    m_phase0;
+
+	uint32_t m_srand;
 };
 
 

@@ -32,7 +32,7 @@
 // ctor.
 samplv1_wave::samplv1_wave ( uint32_t nsize, uint16_t nover )
 	: m_nsize(nsize), m_nover(nover),
-		m_shape(Pulse), m_width(1.0f), m_srate(44100.0f)
+		m_shape(Pulse), m_width(1.0f), m_srate(44100.0f), m_srand(0)
 {
 	m_table = new float [m_nsize + 4];
 
@@ -141,13 +141,13 @@ void samplv1_wave::reset_noise (void)
 	const float w0 = p0 * m_width;
 	const uint32_t ihold = (uint32_t(p0 - w0) >> 3) + 1;
 
-	::srand(long(this));
+	m_srand = uint32_t(w0);
 
 	float p = 0.0f;
 
 	for (uint32_t i = 0; i < m_nsize; ++i) {
 		if ((i % ihold) == 0)
-			p = (2.0f * float(::rand()) / float(RAND_MAX)) - 1.0f;
+			p = pseudo_randf();
 		m_table[i] = p;
 	}
 
