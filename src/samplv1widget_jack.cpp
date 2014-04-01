@@ -116,7 +116,7 @@ samplv1widget_jack::samplv1widget_jack ( samplv1_jack *pSampl )
 samplv1widget_jack::~samplv1widget_jack (void)
 {
 	m_pSampl->deactivate();
-	m_pSampl->close();
+//	m_pSampl->close();
 }
 
 
