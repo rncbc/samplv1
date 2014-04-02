@@ -1468,9 +1468,8 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 	if (bool(int(*m_gen1.loop)) != gen1_sample.isLoop())
 		gen1_sample.setLoop(bool(*m_gen1.loop));
 
-	if (int(*m_lfo1.shape) != int(lfo1_wave.shape())
-		|| *m_lfo1.width != lfo1_wave.width())
-		lfo1_wave.reset(samplv1_wave::Shape(*m_lfo1.shape), *m_lfo1.width);
+	lfo1_wave.reset_test(
+		samplv1_wave::Shape(*m_lfo1.shape), *m_lfo1.width);
 
 	// per voice
 

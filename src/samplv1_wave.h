@@ -55,7 +55,14 @@ public:
 		{ return uint32_t(m_srate); }
 
 	// init.
-	void reset(Shape shape = Pulse, float width = 1.0f);
+	void reset(Shape shape, float width);
+
+	// init.test
+	void reset_test(Shape shape, float width)
+	{
+		if (shape != m_shape || width != m_width)
+			reset(shape, width);
+	}
 
 	// begin.
 	float start(float& phase, float pshift = 0.0f, float freq = 0.0f) const
