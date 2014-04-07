@@ -3,7 +3,8 @@ samplv1 - an old-school polyphonic sampler
 
 ChangeLog
 
-SVN TRUNK
+
+0.4.1  2014-04-07  A proto-beta bis.
 
 - Once so called 'Noise' wave-shapes are now being made a lot
   more deterministic, read idempotent ;).
