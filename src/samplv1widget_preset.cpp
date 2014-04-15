@@ -1,4 +1,4 @@
-/// samplv1widget_preset.cpp
+// samplv1widget_preset.cpp
 //
 /****************************************************************************
    Copyright (C) 2012-2014, rncbc aka Rui Nuno Capela. All rights reserved.

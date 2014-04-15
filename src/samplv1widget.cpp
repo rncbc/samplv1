@@ -24,6 +24,8 @@
 
 #include "samplv1_sample.h"
 
+#include "samplv1widget_config.h"
+
 #include <QDomDocument>
 #include <QTextStream>
 #include <QFileInfo>
@@ -468,7 +470,14 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	QObject::connect(m_ui.TabBar, SIGNAL(currentChanged(int)),
 		m_ui.StackedWidget, SLOT(setCurrentIndex(int)));
 
+	samplv1widget_config *pConfig = samplv1widget_config::getInstance();
+	if (pConfig)
+		m_ui.helpUseNativeDialogsAction->setChecked(pConfig->bUseNativeDialogs);
+
 	// Menu actions
+	QObject::connect(m_ui.helpUseNativeDialogsAction,
+		SIGNAL(triggered(bool)),
+		SLOT(helpUseNativeDialogs(bool)));
 	QObject::connect(m_ui.helpAboutAction,
 		SIGNAL(triggered(bool)),
 		SLOT(helpAbout()));
@@ -1175,6 +1184,16 @@ void samplv1widget::contextMenuRequest ( const QPoint& pos )
 
 
 // Menu actions.
+void samplv1widget::helpUseNativeDialogs ( bool bOn )
+{
+	samplv1widget_config *pConfig = samplv1widget_config::getInstance();
+	if (pConfig) {
+		pConfig->bUseNativeDialogs = bOn;
+		pConfig->bDontUseNativeDialogs = !pConfig->bUseNativeDialogs;
+	}
+}
+
+
 void samplv1widget::helpAbout (void)
 {
 	// About...
@@ -1222,6 +1241,7 @@ void samplv1widget::helpAbout (void)
 
 	QMessageBox::about(this, tr("About") + " " SAMPLV1_TITLE, sText);
 }
+
 
 void samplv1widget::helpAboutQt (void)
 {
