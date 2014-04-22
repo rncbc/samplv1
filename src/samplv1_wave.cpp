@@ -63,8 +63,11 @@ void samplv1_wave::reset ( Shape shape, float width )
 	case Sine:
 		reset_sine();
 		break;
-	case Random:
+	case Rand:
 		reset_rand();
+		break;
+	case Noise:
+		reset_noise();
 		// thru...
 	default:
 		break;
@@ -153,6 +156,23 @@ void samplv1_wave::reset_rand (void)
 
 	reset_filter();
 	reset_normalize();
+	reset_interp();
+}
+
+
+// init noise table.
+void samplv1_wave::reset_noise (void)
+{
+	const float p0 = float(m_nsize);
+	const float w0 = p0 * m_width;
+
+	m_srand = uint32_t(w0);
+
+	for (uint32_t i = 0; i < m_nsize; ++i)
+		m_table[i] = pseudo_randf();
+
+//	reset_filter();
+//	reset_normalize();
 	reset_interp();
 }
 

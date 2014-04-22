@@ -68,9 +68,9 @@ void samplv1widget_wave::setWaveShape ( float fWaveShape )
 	int iWaveShape = int(fWaveShape);
 	if (iWaveShape != int(m_pWave->shape())) {
 		if (iWaveShape < int(samplv1_wave::Pulse))
-			iWaveShape = int(samplv1_wave::Random);
+			iWaveShape = int(samplv1_wave::Noise);
 		else
-		if (iWaveShape > int(samplv1_wave::Random))
+		if (iWaveShape > int(samplv1_wave::Noise))
 			iWaveShape = int(samplv1_wave::Pulse);
 		m_pWave->reset(samplv1_wave::Shape(iWaveShape), m_pWave->width());
 		update();

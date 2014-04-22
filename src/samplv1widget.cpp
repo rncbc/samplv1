@@ -109,7 +109,8 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	shapes << tr("Pulse");
 	shapes << tr("Saw");
 	shapes << tr("Sine");
-	shapes << tr("Random");
+	shapes << tr("Rand");
+	shapes << tr("Noise");
 
 	m_ui.Lfo1ShapeKnob->insertItems(0, shapes);
 

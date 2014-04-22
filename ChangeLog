@@ -6,7 +6,9 @@ ChangeLog
 
 SVN TRUNK
 
-- Badly named 'Noise' wave-shapes re-labeled as 'Random'.
+- Badly named 'Noise' wave-shapes re-labeled as 'Rand'; also
+  a brand new wave-shape 'Noise' is then introduced (now for
+  real :)). (EXPERIMENTAL)
 - New user preference option, cf. Help/Use native dialogs.
 - An anti-denormal regression applied to the Phaser fx stage
   (affecting early proto-beta >= 0.4.0).
