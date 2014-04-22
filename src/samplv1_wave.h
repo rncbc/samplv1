@@ -34,7 +34,7 @@ class samplv1_wave
 public:
 
 	// shape.
-	enum Shape { Pulse = 0, Saw, Sine, Noise };
+	enum Shape { Pulse = 0, Saw, Sine, Random };
 
 	// ctor.
 	samplv1_wave(uint32_t nsize = 1024, uint16_t nover = 24);
@@ -131,7 +131,7 @@ protected:
 	void reset_sine();
 
 	// init noise table.
-	void reset_noise();
+	void reset_rand();
 
 	// post-processors
 	void reset_filter();

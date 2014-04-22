@@ -63,8 +63,8 @@ void samplv1_wave::reset ( Shape shape, float width )
 	case Sine:
 		reset_sine();
 		break;
-	case Noise:
-		reset_noise();
+	case Random:
+		reset_rand();
 		// thru...
 	default:
 		break;
@@ -134,8 +134,8 @@ void samplv1_wave::reset_sine (void)
 }
 
 
-// init noise table.
-void samplv1_wave::reset_noise (void)
+// init random table.
+void samplv1_wave::reset_rand (void)
 {
 	const float p0 = float(m_nsize);
 	const float w0 = p0 * m_width;
