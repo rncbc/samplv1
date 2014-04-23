@@ -166,7 +166,7 @@ void samplv1_wave::reset_noise (void)
 	const float p0 = float(m_nsize);
 	const float w0 = p0 * m_width;
 
-	m_srand = uint32_t(w0);
+	m_srand = uint32_t(w0) ^ m_nsize;
 
 	for (uint32_t i = 0; i < m_nsize; ++i)
 		m_table[i] = pseudo_randf();
