@@ -4,7 +4,7 @@ samplv1 - an old-school polyphonic sampler
 ChangeLog
 
 
-0.4.2  2014-04-29  A pre-LAC frenzy beta 
+0.4.2  2014-04-29  A pre-LAC frenzy beta.
 
 - Badly named 'Noise' wave-shapes re-labeled as 'Rand'; also
   a brand new wave-shape 'Noise' is then introduced (now for
