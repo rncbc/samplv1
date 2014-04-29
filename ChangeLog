@@ -4,11 +4,11 @@ samplv1 - an old-school polyphonic sampler
 ChangeLog
 
 
-SVN TRUNK
+0.4.2  2014-04-29  A pre-LAC frenzy beta 
 
 - Badly named 'Noise' wave-shapes re-labeled as 'Rand'; also
   a brand new wave-shape 'Noise' is then introduced (now for
-  real :)). (EXPERIMENTAL)
+  real :)).
 - New user preference option, cf. Help/Use native dialogs.
 - An anti-denormal regression applied to the Phaser fx stage
   (affecting early proto-beta >= 0.4.0).
