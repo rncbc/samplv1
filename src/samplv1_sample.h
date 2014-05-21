@@ -27,6 +27,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+// forward decls.
+class samplv1_reverse_sched;
+
 
 //-------------------------------------------------------------------------
 // samplv1_sample - sampler wave table.
@@ -60,6 +63,9 @@ public:
 
 	bool isReverse() const
 		{ return m_reverse; }
+
+	// schedule sample reverse.
+	void sched_reverse(bool reverse);
 
 	// loop mode.
 	void setLoop ( bool loop )
@@ -152,6 +158,8 @@ private:
 	bool     m_loop;
 	float    m_loop_start;
 	float    m_loop_end;
+
+	samplv1_reverse_sched *m_reverse_sched;
 };
 
 

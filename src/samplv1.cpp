@@ -1469,7 +1469,7 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 	}
 
 	if (bool(int(*m_gen1.reverse)) != gen1_sample.isReverse())
-		gen1_sample.setReverse(bool(*m_gen1.reverse));
+		gen1_sample.sched_reverse(bool(*m_gen1.reverse));
 	if (bool(int(*m_gen1.loop)) != gen1_sample.isLoop())
 		gen1_sample.setLoop(bool(*m_gen1.loop));
 
