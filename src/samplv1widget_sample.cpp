@@ -46,7 +46,7 @@ samplv1widget_sample::samplv1widget_sample (
 {
 	QFrame::setMouseTracking(true);
 	QFrame::setFocusPolicy(Qt::ClickFocus);
-	QFrame::setMinimumSize(QSize(520, 80));
+	QFrame::setMinimumSize(QSize(480, 80));
 
 	QFrame::setFrameShape(QFrame::Panel);
 	QFrame::setFrameShadow(QFrame::Sunken);
