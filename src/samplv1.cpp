@@ -309,6 +309,7 @@ struct samplv1_aux
 struct samplv1_gen
 {
 	float *sample, sample0;
+	float *reverse;
 	float *loop;
 	float *octave;
 	float *tuning;
@@ -1005,6 +1006,7 @@ void samplv1_impl::setParamPort ( samplv1::ParamIndex index, float *pfParam )
 
 	switch (index) {
 	case samplv1::GEN1_SAMPLE:    m_gen1.sample      = pfParam; break;
+	case samplv1::GEN1_REVERSE:   m_gen1.reverse     = pfParam; break;
 	case samplv1::GEN1_LOOP:      m_gen1.loop        = pfParam; break;
 	case samplv1::GEN1_OCTAVE:    m_gen1.octave      = pfParam; break;
 	case samplv1::GEN1_TUNING:    m_gen1.tuning      = pfParam; break;
@@ -1084,6 +1086,7 @@ float *samplv1_impl::paramPort ( samplv1::ParamIndex index )
 
 	switch (index) {
 	case samplv1::GEN1_SAMPLE:    pfParam = m_gen1.sample;      break;
+	case samplv1::GEN1_REVERSE:   pfParam = m_gen1.reverse;     break;
 	case samplv1::GEN1_LOOP:      pfParam = m_gen1.loop;        break;
 	case samplv1::GEN1_OCTAVE:    pfParam = m_gen1.octave;      break;
 	case samplv1::GEN1_TUNING:    pfParam = m_gen1.tuning;      break;
@@ -1465,6 +1468,8 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 		updateEnvTimes();
 	}
 
+	if (bool(int(*m_gen1.reverse)) != gen1_sample.isReverse())
+		gen1_sample.setReverse(bool(*m_gen1.reverse));
 	if (bool(int(*m_gen1.loop)) != gen1_sample.isLoop())
 		gen1_sample.setLoop(bool(*m_gen1.loop));
 
@@ -1704,6 +1709,17 @@ const char *samplv1::sampleFile (void) const
 samplv1_sample *samplv1::sample (void) const
 {
 	return &(m_pImpl->gen1_sample);
+}
+
+
+void samplv1::setReverse ( bool bReverse )
+{
+	m_pImpl->gen1_sample.setReverse(bReverse);
+}
+
+bool samplv1::isReverse (void) const
+{
+	return m_pImpl->gen1_sample.isReverse();
 }
 
 

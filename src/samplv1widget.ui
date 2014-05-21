@@ -139,6 +139,16 @@
            </widget>
           </item>
           <item>
+           <widget class="samplv1widget_combo" name="Gen1ReverseKnob">
+            <property name="toolTip">
+             <string>GEN Reverse</string>
+            </property>
+            <property name="text">
+             <string>Reverse</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="samplv1widget_combo" name="Gen1LoopKnob">
             <property name="toolTip">
              <string>GEN Loop</string>

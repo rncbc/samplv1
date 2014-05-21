@@ -135,6 +135,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	states << tr("Off");
 	states << tr("On");
 
+	m_ui.Gen1ReverseKnob->insertItems(0, states);
 	m_ui.Gen1LoopKnob->insertItems(0, states);
 
 	m_ui.Dyn1CompressKnob->insertItems(0, states);
@@ -212,6 +213,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 
 	// GEN1
 	setParamKnob(samplv1::GEN1_SAMPLE,  m_ui.Gen1SampleKnob);
+	setParamKnob(samplv1::GEN1_REVERSE, m_ui.Gen1ReverseKnob);
 	setParamKnob(samplv1::GEN1_LOOP,    m_ui.Gen1LoopKnob);
 	setParamKnob(samplv1::GEN1_OCTAVE,  m_ui.Gen1OctaveKnob);
 	setParamKnob(samplv1::GEN1_TUNING,  m_ui.Gen1TuningKnob);
@@ -579,6 +581,12 @@ void samplv1widget::updateParamEx ( samplv1::ParamIndex index, float fValue )
 	++m_iUpdate;
 
 	switch (index) {
+	case samplv1::GEN1_REVERSE: {
+		const bool bReverse = bool(fValue > 0.0f);
+		pSampl->setReverse(bReverse);
+		updateSample(pSampl->sample());
+		break;
+	}
 	case samplv1::GEN1_LOOP: {
 		const bool bLoop = bool(fValue > 0.0f);
 		pSampl->setLoop(bLoop);
@@ -934,8 +942,8 @@ void samplv1widget::saveSamples (
 			QString::fromUtf8(pszSampleFile))));
 	eSample.appendChild(eFilename);
 
-	uint32_t iLoopStart = pSampl->loopStart();
-	uint32_t iLoopEnd   = pSampl->loopEnd();
+	const uint32_t iLoopStart = pSampl->loopStart();
+	const uint32_t iLoopEnd   = pSampl->loopEnd();
 	if (iLoopStart < iLoopEnd) {
 		QDomElement eLoopStart = doc.createElement("loop-start");
 		eLoopStart.appendChild(doc.createTextNode(

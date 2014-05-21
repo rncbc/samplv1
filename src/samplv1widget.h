@@ -136,7 +136,7 @@ protected:
 	// Sample file clearance.
 	void clearSampleFile();
 
-	// Sample loader slot.
+	// Sample loader.
 	void loadSampleFile(const QString& sFilename);
 
 	// Sample updater.

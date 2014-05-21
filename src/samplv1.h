@@ -54,6 +54,9 @@ public:
 
 	samplv1_sample *sample() const;
 
+	void setReverse(bool bReverse);
+	bool isReverse() const;
+
 	void setLoop(bool bLoop);
 	bool isLoop() const;
 
@@ -64,6 +67,7 @@ public:
 	enum ParamIndex	 {
 
 		GEN1_SAMPLE = 0,
+		GEN1_REVERSE,
 		GEN1_LOOP,
 		GEN1_OCTAVE,
 		GEN1_TUNING,

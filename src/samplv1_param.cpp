@@ -34,6 +34,7 @@ struct {
 } samplv1_default_params[samplv1::NUM_PARAMS] = {
 
 	{ "GEN1_SAMPLE",   60.0f }, // middle-C aka. C4 (60)
+	{ "GEN1_REVERSE",   0.0f },
 	{ "GEN1_LOOP",      0.0f },
 	{ "GEN1_OCTAVE",    0.0f },
 	{ "GEN1_TUNING",    0.0f },
