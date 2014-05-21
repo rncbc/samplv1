@@ -20,10 +20,11 @@
 *****************************************************************************/
 
 #include "samplv1widget_sample.h"
-
 #include "samplv1widget_config.h"
 
 #include "samplv1_sample.h"
+
+#include <sndfile.h>
 
 #include <QPainter>
 

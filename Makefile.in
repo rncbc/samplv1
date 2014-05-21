@@ -21,6 +21,7 @@ headers = \
 
 sources = \
 	src/$(name).cpp \
+	src/$(name)_sample.cpp \
 	src/$(name)_wave.cpp \
 	src/$(name)_param.cpp \
 	src/$(name)_sched.cpp
