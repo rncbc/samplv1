@@ -5,7 +5,7 @@ ChangeLog
 
 SVN TRUNK
 
-- Sample reverse parameter options added. (EXPERIMENTAL)
+- Reverse sample option and parameter knob added. (EXPERIMENTAL)
 - Allow the build system to include an user specified LDFLAGS.
 
 

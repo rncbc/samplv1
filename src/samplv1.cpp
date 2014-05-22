@@ -1468,10 +1468,8 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 		updateEnvTimes();
 	}
 
-	if (bool(int(*m_gen1.reverse)) != gen1_sample.isReverse())
-		gen1_sample.sched_reverse(bool(*m_gen1.reverse));
-	if (bool(int(*m_gen1.loop)) != gen1_sample.isLoop())
-		gen1_sample.setLoop(bool(*m_gen1.loop));
+	gen1_sample.reverse_test(*m_gen1.reverse > 0.0f);
+	gen1_sample.loop_test(*m_gen1.loop > 0.0f);
 
 	lfo1_wave.reset_test(
 		samplv1_wave::Shape(*m_lfo1.shape), *m_lfo1.width);

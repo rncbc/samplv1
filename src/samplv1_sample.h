@@ -52,7 +52,7 @@ public:
 		{ return m_srate; }
 
 	// reverse mode.
-	void setReverse ( bool reverse )
+	void setReverse(bool reverse)
 	{
 		if (( m_reverse && !reverse) ||
 			(!m_reverse &&  reverse)) {
@@ -65,10 +65,18 @@ public:
 		{ return m_reverse; }
 
 	// schedule sample reverse.
-	void sched_reverse(bool reverse);
+	void reverse_test(bool reverse)
+	{
+		if (( m_reverse && !reverse) ||
+			(!m_reverse &&  reverse)) {
+			reverse_sched(reverse);
+		}
+	}
+
+	void reverse_sched(bool reverse);
 
 	// loop mode.
-	void setLoop ( bool loop )
+	void setLoop(bool loop)
 	{
 		m_loop = loop;
 
@@ -81,8 +89,17 @@ public:
 	bool isLoop() const
 		{ return m_loop && (m_loop_start < m_loop_end); }
 
+	// loop change.
+	void loop_test(bool loop)
+	{
+		if (( m_loop && !loop) ||
+			(!m_loop &&  loop)) {
+			setLoop(loop);
+		}
+	}
+
 	// loop range.
-	void setLoopRange ( uint32_t start, uint32_t end )
+	void setLoopRange(uint32_t start, uint32_t end)
 	{
 		if (start > m_nframes)
 			start = m_nframes;

@@ -40,7 +40,7 @@ public:
 		m_sample(sample), m_reverse(false) {}
 
 	// schedule reverse.
-	void sched_reverse(bool reverse)
+	void reverse_sched(bool reverse)
 	{
 		m_reverse = reverse;
 
@@ -165,9 +165,9 @@ void samplv1_sample::close (void)
 
 
 // schedule sample reverse.
-void samplv1_sample::sched_reverse ( bool reverse )
+void samplv1_sample::reverse_sched ( bool reverse )
 {
-	m_reverse_sched->sched_reverse(reverse);
+	m_reverse_sched->reverse_sched(reverse);
 }
 
 
