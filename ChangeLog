@@ -5,6 +5,7 @@ ChangeLog
 
 SVN TRUNK
 
+- A man page has beed added (re. stand-alone JACK client).
 - Reverse sample option and parameter knob added. (EXPERIMENTAL)
 - Allow the build system to include an user specified LDFLAGS.
 

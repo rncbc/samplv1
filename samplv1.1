@@ -1,0 +1,33 @@
+.TH SAMPLV1 "1" "June 17, 2014"
+.SH NAME
+samplv1 \- an old-school polyphonic sampler synthesizer
+.SH SYNOPSIS
+.B samplv1_jack
+[\fIoptions\fR] [\fIpreset-file\fR]
+.SH DESCRIPTION
+This manual page documents briefly the
+.B samplv1_jack
+command.
+.PP
+\fBsamplv1\fP an old-school polyphonic sampler synthesizer with stereo fx.
+.PP
+features:
+.IP
+a pure stand-alone JACK client with JACK-session,
+NSM and both JACK MIDI and ALSA MIDI input support;
+.IP
+a LV2 instrument plugin.
+URI: http://samplv1.sourceforge.net/lv2
+.SH OPTIONS
+.HP
+\fB\-h\fR, \fB\-\-help\fR
+.IP
+Show help about command line options
+.HP
+\fB\-v\fR, \fB\-\-version\fR
+.IP
+Show version information
+.SH FILES
+Configuration settings are stored in ~/.config/rncbc.org/samplv1.conf
+.SH AUTHOR
+samplv1 was written by Rui Nuno Capela.
