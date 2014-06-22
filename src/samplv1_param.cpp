@@ -20,6 +20,11 @@
 *****************************************************************************/
 
 #include "samplv1_param.h"
+#include "samplv1_config.h"
+
+#include <QDomDocument>
+#include <QTextStream>
+#include <QDir>
 
 
 //-------------------------------------------------------------------------
@@ -117,6 +122,215 @@ const char *samplv1_param::paramName ( samplv1::ParamIndex index )
 float samplv1_param::paramDefaultValue ( samplv1::ParamIndex index )
 {
 	return samplv1_default_params[index].value;
+}
+
+
+// Sample serialization methods.
+void samplv1_param::loadSamples (
+	samplv1 *pSampl, const QDomElement& eSamples )
+{
+	if (pSampl == NULL)
+		return;
+
+	for (QDomNode nSample = eSamples.firstChild();
+			!nSample.isNull();
+				nSample = nSample.nextSibling()) {
+		QDomElement eSample = nSample.toElement();
+		if (eSample.isNull())
+			continue;
+		if (eSample.tagName() == "sample") {
+		//	int index = eSample.attribute("index").toInt();
+			QString sFilename;
+			uint32_t iLoopStart = 0;
+			uint32_t iLoopEnd = 0;
+			for (QDomNode nChild = eSample.firstChild();
+					!nChild.isNull();
+						nChild = nChild.nextSibling()) {
+				QDomElement eChild = nChild.toElement();
+				if (eChild.isNull())
+					continue;
+				if (eChild.tagName() == "filename") {
+				//	int index = eSample.attribute("index").toInt();
+					sFilename = eChild.text();
+				}
+				else
+				if (eChild.tagName() == "loop-start") {
+					iLoopStart = eChild.text().toULong();
+				}
+				else
+				if (eChild.tagName() == "loop-end") {
+					iLoopEnd = eChild.text().toULong();
+				}
+			}
+			// Legacy loader...
+			if (sFilename.isEmpty())
+				sFilename = eSample.text();
+			// Done it.
+			pSampl->setSampleFile(sFilename.toUtf8().constData());
+			// Set actual sample loop points...
+			pSampl->setLoopRange(iLoopStart, iLoopEnd);
+		}
+	}
+
+	pSampl->reset();
+}
+
+
+void samplv1_param::saveSamples (
+	samplv1 *pSampl, QDomDocument& doc, QDomElement& eSamples )
+{
+	if (pSampl == NULL)
+		return;
+
+	const char *pszSampleFile = pSampl->sampleFile();
+	if (pszSampleFile == NULL)
+		return;
+
+	QDomElement eSample = doc.createElement("sample");
+	eSample.setAttribute("index", 0);
+	eSample.setAttribute("name", "GEN1_SAMPLE");
+
+	QDomElement eFilename = doc.createElement("filename");
+	eFilename.appendChild(doc.createTextNode(
+		QDir::current().relativeFilePath(
+			QString::fromUtf8(pszSampleFile))));
+	eSample.appendChild(eFilename);
+
+	const uint32_t iLoopStart = pSampl->loopStart();
+	const uint32_t iLoopEnd   = pSampl->loopEnd();
+	if (iLoopStart < iLoopEnd) {
+		QDomElement eLoopStart = doc.createElement("loop-start");
+		eLoopStart.appendChild(doc.createTextNode(
+			QString::number(iLoopStart)));
+		eSample.appendChild(eLoopStart);
+		QDomElement eLoopEnd = doc.createElement("loop-end");
+		eLoopEnd.appendChild(doc.createTextNode(
+			QString::number(iLoopEnd)));
+		eSample.appendChild(eLoopEnd);
+	}
+
+	eSamples.appendChild(eSample);
+}
+
+
+// Preset serialization methods.
+void samplv1_param::loadPreset ( samplv1 *pSampl, const QString& sFilename )
+{
+	if (pSampl == NULL)
+		return;
+
+	QFile file(sFilename);
+	if (!file.open(QIODevice::ReadOnly))
+		return;
+
+	static QHash<QString, samplv1::ParamIndex> s_hash;
+	if (s_hash.isEmpty()) {
+		for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
+			samplv1::ParamIndex index = samplv1::ParamIndex(i);
+			s_hash.insert(samplv1_param::paramName(index), index);
+		}
+	}
+
+	const QFileInfo fi(sFilename);
+	const QDir currentDir(QDir::current());
+	QDir::setCurrent(fi.absolutePath());
+
+	QDomDocument doc(SAMPLV1_TITLE);
+	if (doc.setContent(&file)) {
+		QDomElement ePreset = doc.documentElement();
+		if (ePreset.tagName() == "preset"
+			&& ePreset.attribute("name") == fi.completeBaseName()) {
+			for (QDomNode nChild = ePreset.firstChild();
+					!nChild.isNull();
+						nChild = nChild.nextSibling()) {
+				QDomElement eChild = nChild.toElement();
+				if (eChild.isNull())
+					continue;
+				if (eChild.tagName() == "samples") {
+					samplv1_param::loadSamples(pSampl, eChild);
+				}
+				else
+				if (eChild.tagName() == "params") {
+					for (QDomNode nParam = eChild.firstChild();
+							!nParam.isNull();
+								nParam = nParam.nextSibling()) {
+						QDomElement eParam = nParam.toElement();
+						if (eParam.isNull())
+							continue;
+						if (eParam.tagName() == "param") {
+							samplv1::ParamIndex index = samplv1::ParamIndex(
+								eParam.attribute("index").toULong());
+							const QString& sName = eParam.attribute("name");
+							if (!sName.isEmpty()) {
+								if (!s_hash.contains(sName))
+									continue;
+								index = s_hash.value(sName);
+							}
+							float fParamValue = eParam.text().toFloat();
+						//--legacy support < 0.3.0.4 -- begin
+							if (index == samplv1::DEL1_BPM && fParamValue < 3.6f)
+								fParamValue *= 100.0f;
+						//--legacy support < 0.3.0.4 -- end.
+							float *pfParamPort = pSampl->paramPort(index);
+							if (pfParamPort)
+								*pfParamPort = fParamValue;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	file.close();
+
+	QDir::setCurrent(currentDir.absolutePath());
+}
+
+
+void samplv1_param::savePreset ( samplv1 *pSampl, const QString& sFilename )
+{
+	if (pSampl == NULL)
+		return;
+
+	const QString& sPreset = QFileInfo(sFilename).completeBaseName();
+
+	const QFileInfo fi(sFilename);
+	const QDir currentDir(QDir::current());
+	QDir::setCurrent(fi.absolutePath());
+
+	QDomDocument doc(SAMPLV1_TITLE);
+	QDomElement ePreset = doc.createElement("preset");
+	ePreset.setAttribute("name", sPreset);
+	ePreset.setAttribute("version", SAMPLV1_VERSION);
+
+	QDomElement eSamples = doc.createElement("samples");
+	samplv1_param::saveSamples(pSampl, doc, eSamples);
+	ePreset.appendChild(eSamples);
+
+	QDomElement eParams = doc.createElement("params");
+	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
+		QDomElement eParam = doc.createElement("param");
+		samplv1::ParamIndex index = samplv1::ParamIndex(i);
+		eParam.setAttribute("index", QString::number(i));
+		eParam.setAttribute("name", samplv1_param::paramName(index));
+		const float *pfParamPort = pSampl->paramPort(index);
+		float fParamValue = 0.0f;
+		if (pfParamPort)
+			fParamValue = *pfParamPort;
+		eParam.appendChild(
+			doc.createTextNode(QString::number(fParamValue)));
+		eParams.appendChild(eParam);
+	}
+	ePreset.appendChild(eParams);
+	doc.appendChild(ePreset);
+
+	QFile file(sFilename);
+	if (file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+		QTextStream(&file) << doc.toString();
+		file.close();
+	}
+
+	QDir::setCurrent(currentDir.absolutePath());
 }
 
 

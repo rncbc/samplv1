@@ -24,6 +24,12 @@
 
 #include "samplv1.h"
 
+#include <QString>
+
+// forward decl.
+class QDomElement;
+class QDomDocument;
+
 
 //-------------------------------------------------------------------------
 // samplv1_param - decl.
@@ -31,6 +37,18 @@
 
 namespace samplv1_param
 {
+	// Sample serialization methods.
+	void loadSamples(samplv1 *pSampl,
+		const QDomElement& eSamples);
+	void saveSamples(samplv1 *pSampl,
+		QDomDocument& doc, QDomElement& eSamples);
+
+	// Preset serialization methods.
+	void loadPreset(samplv1 *pSampl,
+		const QString& sFilename);
+	void savePreset(samplv1 *pSampl,
+		const QString& sFilename);
+
 	// Default parameter name/value helpers.
 	const char *paramName(samplv1::ParamIndex index);
 	float paramDefaultValue(samplv1::ParamIndex index);

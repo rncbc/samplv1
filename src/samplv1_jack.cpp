@@ -20,6 +20,7 @@
 *****************************************************************************/
 
 #include "samplv1_jack.h"
+#include "samplv1_config.h"
 
 #include <jack/midiport.h>
 
@@ -507,6 +508,78 @@ void samplv1_jack::alsa_capture ( snd_seq_event_t *ev )
 }
 
 #endif	// CONFIG_ALSA_MIDI
+
+
+//-------------------------------------------------------------------------
+// main
+
+#include "samplv1_config.h"
+#include "samplv1_param.h"
+
+#include "samplv1widget_jack.h"
+
+#include <QApplication>
+
+#include <QStringList>
+#include <QTextStream>
+
+
+static bool parse_args ( const QStringList& args )
+{
+	QTextStream out(stderr);
+
+	QStringListIterator iter(args);
+	while (iter.hasNext()) {
+		const QString& sArg = iter.next();
+		if (sArg == "-h" || sArg == "--help") {
+			out << QObject::tr(
+				"Usage: %1 [options] [preset-file]\n\n"
+				SAMPLV1_TITLE " - " SAMPLV1_SUBTITLE "\n\n"
+				"Options:\n\n"
+				"  -h, --help\n\tShow help about command line options\n\n"
+				"  -v, --version\n\tShow version information\n\n")
+				.arg(args.at(0));
+			return false;
+		}
+		else
+		if (sArg == "-v" || sArg == "-V" || sArg == "--version") {
+			out << QObject::tr("Qt: %1\n").arg(qVersion());
+			out << QObject::tr(SAMPLV1_TITLE ": %1\n").arg(SAMPLV1_VERSION);
+			return false;
+		}
+	}
+
+	return true;
+}
+
+
+int main ( int argc, char *argv[] )
+{
+	Q_INIT_RESOURCE(samplv1);
+
+	QApplication app(argc, argv);
+	if (!parse_args(app.arguments())) {
+		app.quit();
+		return 1;
+	}
+
+	samplv1_jack sampl;
+#if 0//NO_GUI
+	sampl.open(SAMPLV1_TITLE);
+	if (argc > 1)
+		samplv1_param::loadPreset(&sampl, argv[1]);
+	sampl.activate();
+#else
+	samplv1widget_jack w(&sampl);
+	if (argc > 1)
+		w.loadPreset(argv[1]);
+	else
+		w.initPreset();
+	w.show();
+#endif
+
+	return app.exec();
+}
 
 
 // end of samplv1_jack.cpp

@@ -28,13 +28,6 @@
 
 #include "samplv1.h"
 
-#include <QHash>
-
-
-// forward decl.
-class QDomElement;
-class QDomDocument;
-
 
 //-------------------------------------------------------------------------
 // samplv1widget - decl.
@@ -123,6 +116,9 @@ protected:
 	// Reset swap params A/B group.
 	void resetSwapParams();
 
+	// Initialize all param/knob values.
+	void initParamValues();
+
 	// Reset all param/knob default values.
 	void resetParamValues();
 	void resetParamKnobs();
@@ -144,10 +140,6 @@ protected:
 
 	// Update loop range change status.
 	void updateSampleLoop(samplv1_sample *pSample, bool bDirty = false);
-
-	// Sample serialization methods.
-	void loadSamples(const QDomElement& eSamples);
-	void saveSamples(QDomDocument& doc, QDomElement& eSamples);
 
 	// Dirty flag (overridable virtual) methods.
 	virtual void updateDirtyPreset(bool bDirtyPreset);

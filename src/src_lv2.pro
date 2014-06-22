@@ -77,5 +77,5 @@ unix {
 }
 
 QT -= gui
-#QT += xml
+QT += xml
 
