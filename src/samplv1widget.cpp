@@ -671,7 +671,7 @@ void samplv1widget::resetSwapParams (void)
 
 
 // Initialize param values.
-void samplv1widget::initParamValues (void)
+void samplv1widget::updateParamValues (void)
 {
 	resetSwapParams();
 
@@ -770,18 +770,7 @@ void samplv1widget::loadPreset ( const QString& sFilename )
 	samplv1_param::loadPreset(pSampl, sFilename);
 
 	updateSample(pSampl->sample());
-
-	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
-		samplv1::ParamIndex index = samplv1::ParamIndex(i);
-		const float *pfParamPort = pSampl->paramPort(index);
-		if (pfParamPort) {
-			const float fValue = *pfParamPort;
-			setParamValue(index, fValue, true);
-			updateParam(index, fValue);
-			updateParamEx(index, fValue);
-			m_params_ab[i] = fValue;
-		}
-	}
+	updateParamValues();
 
 	const QString& sPreset
 		= QFileInfo(sFilename).completeBaseName();

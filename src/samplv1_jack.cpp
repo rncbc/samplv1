@@ -19,8 +19,10 @@
 
 *****************************************************************************/
 
-#include "samplv1_jack.h"
 #include "samplv1_config.h"
+
+#include "samplv1_jack.h"
+#include "samplv1_param.h"
 
 #include <jack/midiport.h>
 
@@ -28,6 +30,9 @@
 #include <string.h>
 
 #include <math.h>
+
+#include <QCoreApplication>
+#include <QDir>
 
 
 #ifdef CONFIG_ALSA_MIDI
@@ -106,6 +111,27 @@ int samplv1_jack_process ( jack_nframes_t nframes, void *arg )
 }
 
 
+#ifdef CONFIG_JACK_SESSION
+
+#include <jack/session.h>
+
+#include <QDir>
+
+//----------------------------------------------------------------------
+// samplv1_jack_session_event -- JACK session event callabck
+//
+
+static void samplv1_jack_session_event (
+	jack_session_event_t *pSessionEvent, void *pvArg )
+{
+	samplv1_jack *pSampl = static_cast<samplv1_jack *> (pvArg);
+
+	if (pSampl)
+		pSampl->sessionEvent(pSessionEvent);
+}
+
+#endif	// CONFIG_JACK_SESSION
+
 
 //-------------------------------------------------------------------------
 // samplv1_jack - impl.
@@ -138,8 +164,8 @@ samplv1_jack::samplv1_jack (void) : samplv1(2)
 
 	m_bpm = 0.0f;
 
-//	open(SAMPLV1_TITLE);
-//	activate();
+	open(SAMPLV1_TITLE);
+	activate();
 }
 
 
@@ -246,8 +272,11 @@ int samplv1_jack::process ( jack_nframes_t nframes )
 void samplv1_jack::open ( const char *client_id )
 {
 	// init param ports
-	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i)
-		samplv1::setParamPort(samplv1::ParamIndex(i), &m_params[i]);
+	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
+		samplv1::ParamIndex index = samplv1::ParamIndex(i);
+		m_params[i] = samplv1_param::paramDefaultValue(index);
+		samplv1::setParamPort(index, &m_params[i]);
+	}
 
 	// open client
 	m_client = ::jack_client_open(client_id, JackNullOption, NULL);
@@ -309,6 +338,14 @@ void samplv1_jack::open ( const char *client_id )
 	// set process callbacks...
 	::jack_set_process_callback(m_client,
 		samplv1_jack_process, this);
+
+#ifdef CONFIG_JACK_SESSION
+	// JACK session event callback...
+	if (::jack_set_session_callback) {
+		::jack_set_session_callback(m_client,
+			samplv1_jack_session_event, this);
+	}
+#endif
 }
 
 
@@ -510,18 +547,119 @@ void samplv1_jack::alsa_capture ( snd_seq_event_t *ev )
 #endif	// CONFIG_ALSA_MIDI
 
 
+#ifdef CONFIG_JACK_SESSION
+
+// JACK session event handler.
+void samplv1_jack::sessionEvent ( void *pvSessionArg )
+{
+	jack_session_event_t *pJackSessionEvent
+		= (jack_session_event_t *) pvSessionArg;
+
+#ifdef CONFIG_DEBUG
+	qDebug("samplv1_jack::sessionEvent()"
+		" type=%d client_uuid=\"%s\" session_dir=\"%s\"",
+		int(pJackSessionEvent->type),
+		pJackSessionEvent->client_uuid,
+		pJackSessionEvent->session_dir);
+#endif
+
+	const bool bQuit = (pJackSessionEvent->type == JackSessionSaveAndQuit);
+
+	const QString sSessionDir
+		= QString::fromUtf8(pJackSessionEvent->session_dir);
+	const QString sSessionName
+		= QFileInfo(QFileInfo(sSessionDir).canonicalPath()).completeBaseName();
+	const QString sSessionFile = sSessionName + '.' + SAMPLV1_TITLE;
+
+	QStringList args;
+	args << QCoreApplication::applicationFilePath();
+	args << QString("\"${SESSION_DIR}%1\"").arg(sSessionFile);
+
+	samplv1_param::savePreset(this,
+		QFileInfo(sSessionDir, sSessionFile).absoluteFilePath());
+
+	const QByteArray aCmdLine = args.join(" ").toUtf8();
+	pJackSessionEvent->command_line = ::strdup(aCmdLine.constData());
+
+	jack_session_reply(m_client, pJackSessionEvent);
+	jack_session_event_free(pJackSessionEvent);
+
+	if (bQuit)
+		QCoreApplication::quit();
+}
+
+#endif	// CONFIG_JACK_SESSION
+
+
 //-------------------------------------------------------------------------
-// main
-
-#include "samplv1_config.h"
-#include "samplv1_param.h"
-
-#include "samplv1widget_jack.h"
+// samplv1_application -- Singleton application instance.
+//
 
 #include <QApplication>
 
-#include <QStringList>
+
+class samplv1_application : public QObject
+{
+public:
+
+	// Constructor.
+	samplv1_application(int& argc, char **argv)
+		: QObject(NULL), m_bGui(true), m_pApp(NULL)
+	{
+	#ifdef Q_WS_X11
+		m_bGui = (::getenv("DISPLAY") != 0);
+	#endif
+		for (int i = 1; i < argc; ++i) {
+			const QString& sArg = QString::fromLocal8Bit(argv[i]);
+			if (sArg[0] != '-')
+				m_presets.append(sArg);
+			else
+			if (sArg == "-g" || sArg == "--no-gui")
+				m_bGui = false;
+		}
+
+		if (m_bGui)
+			m_pApp = new QApplication(argc, argv);
+		else
+			m_pApp = new QCoreApplication(argc, argv);
+	}
+
+	// Destructor.
+	~samplv1_application()
+		{ if (m_pApp) delete m_pApp; }
+
+	// Specific accessors.
+	QCoreApplication *app() const
+		{ return m_pApp; }
+	bool isGui() const
+		{ return m_bGui; }
+	const QStringList& presets() const
+		{ return m_presets; }
+
+	// Facade methods.
+	QStringList arguments() const
+		{ return (m_pApp ? m_pApp->arguments() : QStringList()); }
+	void quit()
+		{ if (m_pApp) m_pApp->quit(); }
+	int exec()
+		{ return (m_pApp ? m_pApp->exec() : -1); }
+
+private:
+
+	// Instance variables.
+	bool m_bGui;
+	QCoreApplication *m_pApp;
+	QStringList m_presets;
+};
+
+
+//-------------------------------------------------------------------------
+// main
+
+#include "samplv1widget_jack.h"
+
 #include <QTextStream>
+
 
 
 static bool parse_args ( const QStringList& args )
@@ -536,6 +674,7 @@ static bool parse_args ( const QStringList& args )
 				"Usage: %1 [options] [preset-file]\n\n"
 				SAMPLV1_TITLE " - " SAMPLV1_SUBTITLE "\n\n"
 				"Options:\n\n"
+				"  -g, --no-gui\n\tDisable the graphical user interface (GUI)\n\n"
 				"  -h, --help\n\tShow help about command line options\n\n"
 				"  -v, --version\n\tShow version information\n\n")
 				.arg(args.at(0));
@@ -557,26 +696,31 @@ int main ( int argc, char *argv[] )
 {
 	Q_INIT_RESOURCE(samplv1);
 
-	QApplication app(argc, argv);
+	samplv1_application app(argc, argv);
+
 	if (!parse_args(app.arguments())) {
 		app.quit();
 		return 1;
 	}
 
 	samplv1_jack sampl;
-#if 0//NO_GUI
-	sampl.open(SAMPLV1_TITLE);
-	if (argc > 1)
-		samplv1_param::loadPreset(&sampl, argv[1]);
-	sampl.activate();
-#else
+
+	const QStringList& presets
+		= app.presets();
+
+	if (!app.isGui()) {
+		if (!presets.isEmpty())
+			samplv1_param::loadPreset(&sampl, presets.first());
+		sampl.reset();
+		return app.exec();
+	}
+
 	samplv1widget_jack w(&sampl);
-	if (argc > 1)
-		w.loadPreset(argv[1]);
-	else
+	if (presets.isEmpty())
 		w.initPreset();
+	else
+		w.loadPreset(presets.first());
 	w.show();
-#endif
 
 	return app.exec();
 }
