@@ -100,6 +100,46 @@ private:
 };
 
 
+//-------------------------------------------------------------------------
+// samplv1_application -- Singleton application instance.
+//
+
+#include <QObject>
+#include <QStringList>
+
+
+// forward decls.
+class QCoreApplication;
+
+class samplv1_application : public QObject
+{
+	Q_OBJECT
+
+public:
+
+	// Constructor.
+	samplv1_application(int& argc, char **argv);
+
+	// Destructor.
+	~samplv1_application();
+
+	// Facade method.
+	int exec();
+
+protected:
+
+	// Argument parser method.
+	bool parse_args();
+
+private:
+
+	// Instance variables.
+	QCoreApplication *m_pApp;
+	bool m_bGui;
+	QStringList m_presets;
+};
+
+
 #endif// __samplv1_jack_h
 
 // end of samplv1_jack.h

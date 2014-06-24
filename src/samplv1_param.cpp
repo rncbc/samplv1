@@ -19,8 +19,10 @@
 
 *****************************************************************************/
 
-#include "samplv1_param.h"
 #include "samplv1_config.h"
+#include "samplv1_param.h"
+
+#include <QHash>
 
 #include <QDomDocument>
 #include <QTextStream>
