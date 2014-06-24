@@ -112,6 +112,11 @@ private:
 class QCoreApplication;
 class samplv1widget_jack;
 
+#ifdef CONFIG_NSM
+class samplv1_nsm;
+#endif
+
+
 class samplv1_application : public QObject
 {
 	Q_OBJECT
@@ -127,6 +132,19 @@ public:
 	// Facade method.
 	int exec();
 
+#ifdef CONFIG_NSM
+
+protected slots:
+
+	// NSM callback slots.
+	void openSession();
+	void saveSession();
+
+	void hideSession();
+	void showSession();
+
+#endif	// CONFIG_NSM
+
 protected:
 
 	// Argument parser method.
@@ -141,8 +159,13 @@ private:
 	QCoreApplication *m_pApp;
 	bool m_bGui;
 	QStringList m_presets;
+
 	samplv1_jack *m_pSampl;
 	samplv1widget_jack *m_pWidget;
+
+#ifdef CONFIG_NSM
+	samplv1_nsm *m_pNsmClient;
+#endif
 };
 
 
