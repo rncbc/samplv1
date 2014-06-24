@@ -110,6 +110,7 @@ private:
 
 // forward decls.
 class QCoreApplication;
+class samplv1widget_jack;
 
 class samplv1_application : public QObject
 {
@@ -131,12 +132,17 @@ protected:
 	// Argument parser method.
 	bool parse_args();
 
+	// Startup method.
+	bool setup();
+
 private:
 
 	// Instance variables.
 	QCoreApplication *m_pApp;
 	bool m_bGui;
 	QStringList m_presets;
+	samplv1_jack *m_pSampl;
+	samplv1widget_jack *m_pWidget;
 };
 
 

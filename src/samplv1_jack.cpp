@@ -603,7 +603,8 @@ void samplv1_jack::sessionEvent ( void *pvSessionArg )
 
 // Constructor.
 samplv1_application::samplv1_application ( int& argc, char **argv )
-	: QObject(NULL), m_pApp(NULL), m_bGui(true)
+	: QObject(NULL), m_pApp(NULL), m_bGui(true),
+		m_pSampl(NULL), m_pWidget(NULL)
 {
 #ifdef Q_WS_X11
 	m_bGui = (::getenv("DISPLAY") != 0);
@@ -627,6 +628,8 @@ samplv1_application::samplv1_application ( int& argc, char **argv )
 // Destructor.
 samplv1_application::~samplv1_application (void)
 {
+	if (m_pWidget) delete m_pWidget;
+	if (m_pSampl) delete m_pSampl;
 	if (m_pApp) delete m_pApp;
 }
 
@@ -663,33 +666,40 @@ bool samplv1_application::parse_args (void)
 }
 
 
-// Facade method.
-int samplv1_application::exec (void)
+// Startup methods.
+bool samplv1_application::setup (void)
 {
 	if (m_pApp == NULL)
-		return -1;
+		return false;
 
 	if (!parse_args()) {
 		m_pApp->quit();
-		return 1;
+		return false;
 	}
 
-	samplv1_jack sampl;
+	m_pSampl = new samplv1_jack();
 
 	if (m_bGui) {
-		samplv1widget_jack w(&sampl);
+		m_pWidget = new samplv1widget_jack(m_pSampl);
 		if (m_presets.isEmpty())
-			w.initPreset();
+			m_pWidget->initPreset();
 		else
-			w.loadPreset(m_presets.first());
-		w.show();
-		return m_pApp->exec();
+			m_pWidget->loadPreset(m_presets.first());
+		m_pWidget->show();
 	} else {
 		if (!m_presets.isEmpty())
-			samplv1_param::loadPreset(&sampl, m_presets.first());
-		sampl.reset();
-		return m_pApp->exec();
+			samplv1_param::loadPreset(m_pSampl, m_presets.first());
+		m_pSampl->reset();
 	}
+
+	return true;
+}
+
+
+// Facade method.
+int samplv1_application::exec (void)
+{
+	return (setup() ? m_pApp->exec() : 1);
 }
 
 
