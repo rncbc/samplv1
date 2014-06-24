@@ -285,6 +285,8 @@ void samplv1_param::loadPreset ( samplv1 *pSampl, const QString& sFilename )
 
 	file.close();
 
+	pSampl->reset();
+
 	QDir::setCurrent(currentDir.absolutePath());
 }
 

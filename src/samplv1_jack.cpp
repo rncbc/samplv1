@@ -696,11 +696,10 @@ bool samplv1_application::setup (void)
 		else
 			m_pWidget->loadPreset(m_presets.first());
 		m_pWidget->show();
-	} else {
-		if (!m_presets.isEmpty())
-			samplv1_param::loadPreset(m_pSampl, m_presets.first());
-		m_pSampl->reset();
 	}
+	else
+	if (!m_presets.isEmpty())
+		samplv1_param::loadPreset(m_pSampl, m_presets.first());
 
 #ifdef CONFIG_NSM
 	// Check whether to participate into a NSM session...
