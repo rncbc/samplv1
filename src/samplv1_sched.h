@@ -23,6 +23,10 @@
 #define __samplv1_sched_h
 
 
+// forward decls.
+class samplv1_sched_notifier;
+
+
 //-------------------------------------------------------------------------
 // samplv1_sched - worker/scheduled stuff (pure virtual).
 //
@@ -49,10 +53,35 @@ public:
 	// (pure) virtual processor.
 	virtual void process() = 0;
 
+	// signal/slot proxy accessor (static).
+	static samplv1_sched_notifier *notifier();
+
 private:
 
 	// instance variables.
 	volatile bool m_sync_wait;
+};
+
+
+//-------------------------------------------------------------------------
+// samplv1_sched_notifier - worker/schedule proxy decl.
+//
+
+#include <QObject>
+
+class samplv1_sched_notifier : public QObject
+{
+	Q_OBJECT
+
+public:
+
+	samplv1_sched_notifier(QObject *parent = NULL);
+
+	void sync_notify();
+
+signals:
+
+	void notify();
 };
 
 

@@ -85,6 +85,9 @@ protected slots:
 	// Sample loader slot.
 	void loadSample(const QString& sFilename);
 
+	// Sample updater.
+	void updateSampleNotify();
+
 	// Common context menu.
 	void contextMenuRequest(const QPoint& pos);
 

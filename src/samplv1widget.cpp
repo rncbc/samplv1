@@ -24,6 +24,9 @@
 
 #include "samplv1_sample.h"
 
+#include "samplv1_sample.h"
+#include "samplv1_sched.h"
+
 #include "samplv1widget_config.h"
 
 #include <QMessageBox>
@@ -484,6 +487,11 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 		SIGNAL(triggered(bool)),
 		SLOT(helpAboutQt()));
 
+	// Special sample update notifications (eg. reverse)
+	QObject::connect(samplv1_sched::notifier(),
+		SIGNAL(notify()),
+		SLOT(updateSampleNotify()));
+
 	// Epilog.
 	// QWidget::adjustSize();
 
@@ -577,12 +585,14 @@ void samplv1widget::updateParamEx ( samplv1::ParamIndex index, float fValue )
 	++m_iUpdate;
 
 	switch (index) {
+#if 0//--updateSampleNotify();
 	case samplv1::GEN1_REVERSE: {
 		const bool bReverse = bool(fValue > 0.0f);
 		pSampl->setReverse(bReverse);
 		updateSample(pSampl->sample());
 		break;
 	}
+#endif
 	case samplv1::GEN1_LOOP: {
 		const bool bLoop = bool(fValue > 0.0f);
 		pSampl->setLoop(bLoop);
@@ -821,6 +831,19 @@ void samplv1widget::loadSample ( const QString& sFilename )
 void samplv1widget::openSample (void)
 {
 	m_ui.Gen1Sample->openSample();
+}
+
+
+// Sample updater slot.
+void samplv1widget::updateSampleNotify (void)
+{
+#ifdef CONFIG_DEBUG
+	qDebug("samplv1widget::updateSampleNotify()");
+#endif
+
+	samplv1 *pSampl = instance();
+	if (pSampl)
+		updateSample(pSampl->sample());
 }
 
 
