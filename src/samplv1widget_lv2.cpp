@@ -50,7 +50,10 @@ samplv1widget_lv2::samplv1widget_lv2 ( samplv1_lv2 *pSampl,
 #ifdef CONFIG_LV2_EXTERNAL_UI
 	m_external_host = NULL;
 #endif
-	
+#ifdef CONFIG_LV2_UI_IDLE
+	m_bIdleClosed = false;
+#endif
+
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i)
 		m_params_def[i] = true;
 
@@ -158,9 +161,6 @@ void samplv1widget_lv2::updateNotify (void)
 {
 #ifdef CONFIG_DEBUG
 	qDebug("samplv1widget_lv2::updateNotify()");
-#endif
-#ifdef CONFIG_LV2_UI_IDLE
-	m_bIdleClosed = false;
 #endif
 
 	updateSample(m_pSampl->sample());
