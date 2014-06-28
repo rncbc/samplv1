@@ -27,10 +27,8 @@
 
 #include <QSocketNotifier>
 
-#ifdef CONFIG_LV2_EXTERNAL_UI
 #include <QApplication>
 #include <QCloseEvent>
-#endif
 
 
 //-------------------------------------------------------------------------
@@ -97,17 +95,35 @@ const LV2_External_UI_Host *samplv1widget_lv2::externalHost (void) const
 	return m_external_host;
 }
 
+#endif	// CONFIG_LV2_EXTERNAL_UI
+
+
+#ifdef CONFIG_LV2_UI_IDLE
+
+bool samplv1widget_lv2::isIdleClosed (void) const
+{
+	return m_bIdleClosed;
+}
+
+#endif	// CONFIG_LV2_UI_IDLE
+
+
+// Close event handler.
 void samplv1widget_lv2::closeEvent ( QCloseEvent *pCloseEvent )
 {
 	samplv1widget::closeEvent(pCloseEvent);
 
+#ifdef CONFIG_LV2_UI_IDLE
+	if (pCloseEvent->isAccepted())
+		m_bIdleClosed = true;
+#endif
+#ifdef CONFIG_LV2_EXTERNAL_UI
 	if (m_external_host && m_external_host->ui_closed) {
 		if (pCloseEvent->isAccepted())
 			m_external_host->ui_closed(m_controller);
 	}
+#endif
 }
-
-#endif	// CONFIG_LV2_EXTERNAL_UI
 
 
 // Plugin port event notification.
@@ -143,6 +159,9 @@ void samplv1widget_lv2::updateNotify (void)
 #ifdef CONFIG_DEBUG
 	qDebug("samplv1widget_lv2::updateNotify()");
 #endif
+#ifdef CONFIG_LV2_UI_IDLE
+	m_bIdleClosed = false;
+#endif
 
 	updateSample(m_pSampl->sample());
 
@@ -159,6 +178,10 @@ void samplv1widget_lv2::updateNotify (void)
 //-------------------------------------------------------------------------
 // samplv1widget_lv2 - LV2 UI desc.
 //
+
+static QApplication *samplv1_lv2ui_qapp_instance = NULL;
+static unsigned int  samplv1_lv2ui_qapp_refcount = 0;
+
 
 static LV2UI_Handle samplv1_lv2ui_instantiate (
 	const LV2UI_Descriptor *, const char *, const char *,
@@ -178,6 +201,13 @@ static LV2UI_Handle samplv1_lv2ui_instantiate (
 	if (pSampl == NULL)
 		return NULL;
 
+	if (qApp == NULL && samplv1_lv2ui_qapp_instance == NULL) {
+		static int s_argc = 1;
+		static const char *s_argv[] = { __func__, NULL };
+		samplv1_lv2ui_qapp_instance = new QApplication(s_argc, (char **) s_argv);
+	}
+	samplv1_lv2ui_qapp_refcount++;
+
 	samplv1widget_lv2 *pWidget
 		= new samplv1widget_lv2(pSampl, controller, write_function);
 	*widget = pWidget;
@@ -188,8 +218,13 @@ static LV2UI_Handle samplv1_lv2ui_instantiate (
 static void samplv1_lv2ui_cleanup ( LV2UI_Handle ui )
 {
 	samplv1widget_lv2 *pWidget = static_cast<samplv1widget_lv2 *> (ui);
-	if (pWidget)
+	if (pWidget) {
 		delete pWidget;
+		if (--samplv1_lv2ui_qapp_refcount == 0 && samplv1_lv2ui_qapp_instance) {
+			delete samplv1_lv2ui_qapp_instance;
+			samplv1_lv2ui_qapp_instance = NULL;
+		}
+	}
 }
 
 static void samplv1_lv2ui_port_event (
@@ -201,8 +236,73 @@ static void samplv1_lv2ui_port_event (
 		pWidget->port_event(port_index, buffer_size, format, buffer);
 }
 
-static const void *samplv1_lv2ui_extension_data ( const char * )
+#ifdef CONFIG_LV2_UI_IDLE
+
+int samplv1_lv2ui_idle ( LV2UI_Handle ui )
 {
+	samplv1widget_lv2 *pWidget = static_cast<samplv1widget_lv2 *> (ui);
+	if  (pWidget && !pWidget->isIdleClosed()) {
+		QApplication::processEvents();
+		return 0;
+	} else {
+		return 1;
+	}
+}
+
+static const LV2UI_Idle_Interface samplv1_lv2ui_idle_interface =
+{
+	samplv1_lv2ui_idle
+};
+
+#endif	// CONFIG_LV2_UI_IDLE
+
+
+#ifdef CONFIG_LV2_UI_SHOW
+
+int samplv1_lv2ui_show ( LV2UI_Handle ui )
+{
+	samplv1widget_lv2 *pWidget = static_cast<samplv1widget_lv2 *> (ui);
+	if (pWidget) {
+		pWidget->show();
+		pWidget->raise();
+		pWidget->activateWindow();
+		return 0;
+	} else {
+		return 1;
+	}
+}
+
+int samplv1_lv2ui_hide ( LV2UI_Handle ui )
+{
+	samplv1widget_lv2 *pWidget = static_cast<samplv1widget_lv2 *> (ui);
+	if (pWidget) {
+		pWidget->hide();
+		return 0;
+	} else {
+		return 1;
+	}
+}
+
+static const LV2UI_Show_Interface samplv1_lv2ui_show_interface =
+{
+	samplv1_lv2ui_show,
+	samplv1_lv2ui_hide
+};
+
+#endif	// CONFIG_LV2_UI_IDLE
+
+static const void *samplv1_lv2ui_extension_data ( const char *uri )
+{
+#ifdef CONFIG_LV2_UI_IDLE
+	if (::strcmp(uri, LV2_UI__idleInterface) == 0)
+		return (void *) &samplv1_lv2ui_idle_interface;
+	else
+#endif
+#ifdef CONFIG_LV2_UI_SHOW
+	if (::strcmp(uri, LV2_UI__showInterface) == 0)
+		return (void *) &samplv1_lv2ui_show_interface;
+	else
+#endif
 	return NULL;
 }
 
@@ -212,21 +312,15 @@ static const void *samplv1_lv2ui_extension_data ( const char * )
 struct samplv1_lv2ui_external_widget
 {
 	LV2_External_UI_Widget external;
-	static QApplication   *app_instance;
-	static unsigned int    app_refcount;
 	samplv1widget_lv2     *widget;
 };
-
-QApplication *samplv1_lv2ui_external_widget::app_instance = NULL;
-unsigned int  samplv1_lv2ui_external_widget::app_refcount = 0;
-
 
 static void samplv1_lv2ui_external_run ( LV2_External_UI_Widget *ui_external )
 {
 	samplv1_lv2ui_external_widget *pExtWidget
 		= (samplv1_lv2ui_external_widget *) (ui_external);
-	if (pExtWidget && pExtWidget->app_instance)
-		pExtWidget->app_instance->processEvents();
+	if (pExtWidget)
+		QApplication::processEvents();
 }
 
 static void samplv1_lv2ui_external_show ( LV2_External_UI_Widget *ui_external )
@@ -272,14 +366,14 @@ static LV2UI_Handle samplv1_lv2ui_external_instantiate (
 	if (pSampl == NULL)
 		return NULL;
 
-	samplv1_lv2ui_external_widget *pExtWidget = new samplv1_lv2ui_external_widget;
-	if (qApp == NULL && pExtWidget->app_instance == NULL) {
+	if (qApp == NULL && samplv1_lv2ui_qapp_instance == NULL) {
 		static int s_argc = 1;
 		static const char *s_argv[] = { __func__, NULL };
-		pExtWidget->app_instance = new QApplication(s_argc, (char **) s_argv, true);
+		samplv1_lv2ui_qapp_instance = new QApplication(s_argc, (char **) s_argv);
 	}
-	pExtWidget->app_refcount++;
+	samplv1_lv2ui_qapp_refcount++;
 
+	samplv1_lv2ui_external_widget *pExtWidget = new samplv1_lv2ui_external_widget;
 	pExtWidget->external.run  = samplv1_lv2ui_external_run;
 	pExtWidget->external.show = samplv1_lv2ui_external_show;
 	pExtWidget->external.hide = samplv1_lv2ui_external_hide;
@@ -297,11 +391,11 @@ static void samplv1_lv2ui_external_cleanup ( LV2UI_Handle ui )
 	if (pExtWidget) {
 		if (pExtWidget->widget)
 			delete pExtWidget->widget;
-		if (--pExtWidget->app_refcount == 0 && pExtWidget->app_instance) {
-			delete pExtWidget->app_instance;
-			pExtWidget->app_instance = NULL;
-		}
 		delete pExtWidget;
+		if (--samplv1_lv2ui_qapp_refcount == 0 && samplv1_lv2ui_qapp_instance) {
+			delete samplv1_lv2ui_qapp_instance;
+			samplv1_lv2ui_qapp_instance = NULL;
+		}
 	}
 }
 
