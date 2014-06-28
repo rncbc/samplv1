@@ -1,7 +1,7 @@
 // samplv1_lv2.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2013, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2014, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -63,11 +63,6 @@ public:
 
 	uint32_t urid_map(const char *uri) const;
 
-	int update_fds(int mode) const;
-
-	void update_notify();
-	void update_reset();
-
 private:
 
 	LV2_URID_Map *m_urid_map;
@@ -78,9 +73,6 @@ private:
 
 	float **m_ins;
 	float **m_outs;
-
-	int m_update_fds[2];
-	int m_update_count;
 };
 
 

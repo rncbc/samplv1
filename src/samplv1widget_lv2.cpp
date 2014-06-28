@@ -25,8 +25,6 @@
 
 #include "lv2/lv2plug.in/ns/ext/instance-access/instance-access.h"
 
-#include <QSocketNotifier>
-
 #include <QApplication>
 #include <QCloseEvent>
 
@@ -43,10 +41,6 @@ samplv1widget_lv2::samplv1widget_lv2 ( samplv1_lv2 *pSampl,
 	m_controller = controller;
 	m_write_function = write_function;
 
-	// Update notifier setup.
-	m_pUpdateNotifier = new QSocketNotifier(
-		m_pSampl->update_fds(1), QSocketNotifier::Read, this);
-
 #ifdef CONFIG_LV2_EXTERNAL_UI
 	m_external_host = NULL;
 #endif
@@ -57,22 +51,11 @@ samplv1widget_lv2::samplv1widget_lv2 ( samplv1_lv2 *pSampl,
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i)
 		m_params_def[i] = true;
 
-	QObject::connect(m_pUpdateNotifier,
-		SIGNAL(activated(int)),
-		SLOT(updateNotify()));
-
 	// Initial update, always...
 	if (m_pSampl->sampleFile())
 		updateSample(m_pSampl->sample());
 //	else
 //		initPreset();
-}
-
-
-// Destructor.
-samplv1widget_lv2::~samplv1widget_lv2 (void)
-{
-	delete m_pUpdateNotifier;
 }
 
 
@@ -153,25 +136,6 @@ void samplv1widget_lv2::updateParam (
 {
 	m_write_function(m_controller,
 		samplv1_lv2::ParamBase + index, sizeof(float), 0, &fValue);
-}
-
-
-// Update notification slot.
-void samplv1widget_lv2::updateNotify (void)
-{
-#ifdef CONFIG_DEBUG
-	qDebug("samplv1widget_lv2::updateNotify()");
-#endif
-
-	updateSample(m_pSampl->sample());
-
-	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
-		samplv1::ParamIndex index = samplv1::ParamIndex(i);
-		const float *pfValue = m_pSampl->paramPort(index);
-		setParamValue(index, (pfValue ? *pfValue : 0.0f));
-	}
-
-	m_pSampl->update_reset();
 }
 
 

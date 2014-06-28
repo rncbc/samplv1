@@ -34,8 +34,6 @@
 // Forward decls.
 class samplv1_lv2;
 
-class QSocketNotifier;
-
 
 #ifdef CONFIG_LV2_EXTERNAL_UI
 #include "lv2_external_ui.h"
@@ -49,16 +47,11 @@ class QSocketNotifier;
 
 class samplv1widget_lv2 : public samplv1widget
 {
-	Q_OBJECT
-
 public:
 
 	// Constructor.
 	samplv1widget_lv2(samplv1_lv2 *pSampl,
 		LV2UI_Controller controller, LV2UI_Write_Function write_function);
-
-	// Destructor.
-	~samplv1widget_lv2();
 
 	// Plugin port event notification.
 	void port_event(uint32_t port_index,
@@ -72,11 +65,6 @@ public:
 #ifdef CONFIG_LV2_UI_IDLE
 	bool isIdleClosed() const;
 #endif
-
-protected slots:
-
-	// Update notification slot.
-	void updateNotify();
 
 protected:
 
@@ -98,9 +86,6 @@ private:
 
 	LV2UI_Controller     m_controller;
 	LV2UI_Write_Function m_write_function;
-
-	// Update notifier.
-	QSocketNotifier *m_pUpdateNotifier;
 
 #ifdef CONFIG_LV2_EXTERNAL_UI
 	LV2_External_UI_Host *m_external_host;

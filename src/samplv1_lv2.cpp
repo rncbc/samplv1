@@ -1,7 +1,7 @@
 // samplv1_lv2.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2013, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2014, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -21,6 +21,8 @@
 
 #include "samplv1_lv2.h"
 
+#include "samplv1_sched.h"
+
 #include "lv2/lv2plug.in/ns/ext/atom/atom.h"
 #include "lv2/lv2plug.in/ns/ext/midi/midi.h"
 #include "lv2/lv2plug.in/ns/ext/atom/util.h"
@@ -28,10 +30,6 @@
 #include "lv2/lv2plug.in/ns/ext/state/state.h"
 
 #include <stdlib.h>
-#include <unistd.h>
-
-#include <sys/types.h>
-#include <sys/socket.h>
 
 
 //-------------------------------------------------------------------------
@@ -62,9 +60,6 @@ samplv1_lv2::samplv1_lv2 (
 	m_outs = new float * [nchannels];
 	for (uint16_t k = 0; k < nchannels; ++k)
 		m_ins[k] = m_outs[k] = NULL;
-
-	::socketpair(AF_UNIX, SOCK_STREAM, 0, m_update_fds);
-	m_update_count = 0;
 }
 
 
@@ -149,32 +144,6 @@ void samplv1_lv2::deactivate (void)
 uint32_t samplv1_lv2::urid_map ( const char *uri ) const
 {
 	return (m_urid_map ? m_urid_map->map(m_urid_map->handle, uri) : 0);
-}
-
-
-int samplv1_lv2::update_fds ( int mode ) const
-{
-	return m_update_fds[mode];
-}
-
-
-void samplv1_lv2::update_notify (void)
-{
-	if (m_update_count < 1) {
-		char c = 1;
-		if (::write(m_update_fds[0], &c, sizeof(c)) > 0)
-			++m_update_count;
-	}
-}
-
-
-void samplv1_lv2::update_reset (void)
-{
-	if (m_update_count > 0) {
-		char c;
-		if (::read(m_update_fds[1], &c, sizeof(c)) > 0)
-			m_update_count = 0;
-	}
 }
 
 
@@ -332,8 +301,7 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 	if (loop_start < loop_end)
 		pPlugin->setLoopRange(loop_start, loop_end);
 
-	pPlugin->update_notify();
-
+	samplv1_sched::notifier()->sync_notify();
 	return LV2_STATE_SUCCESS;
 }
 
