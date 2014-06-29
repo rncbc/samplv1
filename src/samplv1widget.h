@@ -29,6 +29,10 @@
 #include "samplv1.h"
 
 
+// forward decls.
+class samplv1_sched_notifier;
+
+
 //-------------------------------------------------------------------------
 // samplv1widget - decl.
 //
@@ -41,6 +45,9 @@ public:
 
 	// Constructor
 	samplv1widget(QWidget *pParent = 0, Qt::WindowFlags wflags = 0);
+
+	// Destructor.
+	~samplv1widget();
 
 	// Param port accessors.
 	void setParamValue(
@@ -153,6 +160,8 @@ private:
 	Ui::samplv1widget m_ui;
 
 	samplv1widget_config m_config;
+
+	samplv1_sched_notifier *m_sched_notifier;
 
 	QHash<samplv1::ParamIndex, samplv1widget_knob *> m_paramKnobs;
 	QHash<samplv1widget_knob *, samplv1::ParamIndex> m_knobParams;

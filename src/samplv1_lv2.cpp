@@ -301,7 +301,8 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 	if (loop_start < loop_end)
 		pPlugin->setLoopRange(loop_start, loop_end);
 
-	samplv1_sched::notifier()->sync_notify();
+	samplv1_sched::sync_notify();
+
 	return LV2_STATE_SUCCESS;
 }
 
