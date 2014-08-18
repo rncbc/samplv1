@@ -67,7 +67,16 @@ private:
 
 	LV2_URID_Map *m_urid_map;
 
-	uint32_t m_midi_event_type;
+	struct lv2_urids
+	{
+		LV2_URID atom_Blank;
+		LV2_URID atom_Object;
+		LV2_URID atom_Float;
+		LV2_URID time_Position;
+		LV2_URID time_beatsPerMinute;
+		LV2_URID midi_MidiEvent;
+
+	} m_urids;
 
 	LV2_Atom_Sequence *m_atom_sequence;
 

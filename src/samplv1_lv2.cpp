@@ -23,8 +23,8 @@
 
 #include "samplv1_sched.h"
 
-#include "lv2/lv2plug.in/ns/ext/atom/atom.h"
 #include "lv2/lv2plug.in/ns/ext/midi/midi.h"
+#include "lv2/lv2plug.in/ns/ext/time/time.h"
 #include "lv2/lv2plug.in/ns/ext/atom/util.h"
 
 #include "lv2/lv2plug.in/ns/ext/state/state.h"
@@ -41,14 +41,23 @@ samplv1_lv2::samplv1_lv2 (
 	: samplv1(2, uint32_t(sample_rate))
 {
 	m_urid_map = NULL;
-	m_midi_event_type = 0;
 	m_atom_sequence = NULL;
 
 	for (int i = 0; host_features && host_features[i]; ++i) {
 		if (::strcmp(host_features[i]->URI, LV2_URID_MAP_URI) == 0) {
 			m_urid_map = (LV2_URID_Map *) host_features[i]->data;
 			if (m_urid_map) {
-				m_midi_event_type = m_urid_map->map(
+				m_urids.atom_Blank = m_urid_map->map(
+					m_urid_map->handle, LV2_ATOM__Blank);
+				m_urids.atom_Object = m_urid_map->map(
+					m_urid_map->handle, LV2_ATOM__Object);
+				m_urids.atom_Float = m_urid_map->map(
+					m_urid_map->handle, LV2_ATOM__Float);
+				m_urids.time_Position = m_urid_map->map(
+					m_urid_map->handle, LV2_TIME__Position);
+				m_urids.time_beatsPerMinute = m_urid_map->map(
+					m_urid_map->handle, LV2_TIME__beatsPerMinute);
+				m_urids.midi_MidiEvent = m_urid_map->map(
 					m_urid_map->handle, LV2_MIDI__MidiEvent);
 				break;
 			}
@@ -108,9 +117,11 @@ void samplv1_lv2::run ( uint32_t nframes )
 
 	if (m_atom_sequence) {
 		LV2_ATOM_SEQUENCE_FOREACH(m_atom_sequence, event) {
-			if (event && event->body.type == m_midi_event_type) {
+			if (event == NULL)
+				continue;
+			if (event->body.type == m_urids.midi_MidiEvent) {
 				uint8_t *data = (uint8_t *) LV2_ATOM_BODY(&event->body);
-				uint32_t nread = event->time.frames - ndelta;
+				const uint32_t nread = event->time.frames - ndelta;
 				if (nread > 0) {
 					process(ins, outs, nread);
 					for (uint16_t k = 0; k < nchannels; ++k) {
@@ -120,6 +131,25 @@ void samplv1_lv2::run ( uint32_t nframes )
 				}
 				ndelta = event->time.frames;
 				process_midi(data, event->body.size);
+			}
+			else
+			if (event->body.type == m_urids.atom_Blank ||
+				event->body.type == m_urids.atom_Object) {
+				const LV2_Atom_Object *object
+					= (LV2_Atom_Object *) &event->body;
+				if (object->body.otype == m_urids.time_Position) {
+					LV2_Atom *bpm = NULL;
+					lv2_atom_object_get(object,
+						m_urids.time_beatsPerMinute, &bpm, NULL);
+					if (bpm && bpm->type == m_urids.atom_Float) {
+						float *pBpmSync = paramPort(samplv1::DEL1_BPMSYNC);
+						if (pBpmSync && *pBpmSync > 0.0f) {
+							float *pBpm = paramPort(samplv1::DEL1_BPM);
+							if (pBpm)
+								*pBpm = ((LV2_Atom_Float *) bpm)->body;
+						}
+					}
+				}
 			}
 		}
 	//	m_atom_sequence = NULL;

@@ -4,6 +4,11 @@ samplv1 - an old-school polyphonic sampler
 ChangeLog
 
 
+SVN TRUNK
+
+- Experimental LV2 Time/position atom-event support (Delay BPM).
+
+
 0.5.0  2014-06-30  Officially beta now.
 
 - LV2 UI Idle and Show interfaces support added.
