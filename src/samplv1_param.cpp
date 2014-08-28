@@ -269,10 +269,10 @@ void samplv1_param::loadPreset ( samplv1 *pSampl, const QString& sFilename )
 								index = s_hash.value(sName);
 							}
 							float fParamValue = eParam.text().toFloat();
-						//--legacy support < 0.3.0.4 -- begin
+						#if 0 //--legacy support < 0.3.0.4 -- begin...
 							if (index == samplv1::DEL1_BPM && fParamValue < 3.6f)
 								fParamValue *= 100.0f;
-						//--legacy support < 0.3.0.4 -- end.
+						#endif//--legacy support < 0.3.0.4 -- end.
 							float *pfParamPort = pSampl->paramPort(index);
 							if (pfParamPort)
 								*pfParamPort = fParamValue;

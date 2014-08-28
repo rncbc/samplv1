@@ -1396,10 +1396,10 @@ void samplv1_impl::allSustainOff (void)
 
 void samplv1_impl::reset (void)
 {
-//--legacy support < 0.3.0.4 -- begin
+#if 0 //--legacy support < 0.3.0.4 -- begin...
 	if (*m_del.bpm < 3.6f)
 		*m_del.bpm *= 100.0f;
-//--legacy support < 0.3.0.4 -- end.
+#endif//--legacy support < 0.3.0.4 -- end.
 
 	m_vol1.reset(m_out1.volume, m_dca1.volume, &m_ctl.volume, &m_aux1.volume);
 	m_pan1.reset(m_out1.panning, &m_ctl.panning, &m_aux1.panning);
