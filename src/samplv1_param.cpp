@@ -173,8 +173,6 @@ void samplv1_param::loadSamples (
 			pSampl->setLoopRange(iLoopStart, iLoopEnd);
 		}
 	}
-
-	pSampl->reset();
 }
 
 
