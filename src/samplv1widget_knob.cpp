@@ -107,7 +107,7 @@ void samplv1widget_knob::setValue ( float fValue, bool bDefault )
 	}
 	QWidget::setPalette(pal);
 
-	emit valueChanged(value());
+	emit valueChanged(fValue);
 
 	m_pDial->blockSignals(bDialBlock);
 }
@@ -120,7 +120,7 @@ float samplv1widget_knob::value (void) const
 
 QString samplv1widget_knob::valueText (void) const
 {
-	return QString::number(m_pDial->value());
+	return QString::number(value());
 }
 
 
@@ -211,14 +211,14 @@ float samplv1widget_knob::scale (void) const
 
 
 // Scale/value converters.
-int samplv1widget_knob::scaleFromValue ( float fValue ) const
+float samplv1widget_knob::scaleFromValue ( float fValue ) const
 {
-	return iroundf(m_fScale * fValue);
+	return (m_fScale * fValue);
 }
 
-float samplv1widget_knob::valueFromScale ( int iScale ) const
+float samplv1widget_knob::valueFromScale ( float fScale ) const
 {
-	return float(iScale) / m_fScale;
+	return (fScale / m_fScale);
 }
 
 
@@ -230,12 +230,14 @@ float samplv1widget_knob::valueFromScale ( int iScale ) const
 samplv1widget_spin::samplv1widget_spin ( QWidget *pParent )
 	: samplv1widget_knob(pParent)
 {
-	m_pSpinBox = new QSpinBox();
+	m_pSpinBox = new QDoubleSpinBox();
 	m_pSpinBox->setAccelerated(true);
 	m_pSpinBox->setAlignment(Qt::AlignCenter);
 
 	const QFontMetrics fm(samplv1widget_knob::font());
 	m_pSpinBox->setMaximumHeight(fm.height() + 6);
+	m_pSpinBox->setDecimals(1);
+	m_pSpinBox->setSingleStep(0.1f);
 
 	QGridLayout *pGridLayout
 		= static_cast<QGridLayout *> (QWidget::layout());
@@ -243,10 +245,11 @@ samplv1widget_spin::samplv1widget_spin ( QWidget *pParent )
 
 	setMinimum(0.0f);
 	setMaximum(1.0f);
+	setSingleStep(0.1f);
 
 	QObject::connect(m_pSpinBox,
-		SIGNAL(valueChanged(int)),
-		SLOT(spinBoxValueChanged(int)));
+		SIGNAL(valueChanged(double)),
+		SLOT(spinBoxValueChanged(double)));
 }
 
 
@@ -276,9 +279,9 @@ void samplv1widget_spin::setMinimum ( float fMinimum )
 
 
 // Internal widget slots.
-void samplv1widget_spin::spinBoxValueChanged ( int iSpinValue )
+void samplv1widget_spin::spinBoxValueChanged ( double spinValue )
 {
-	setValue(valueFromScale(iSpinValue));
+	samplv1widget_knob::setValue(valueFromScale(float(spinValue)));
 }
 
 
@@ -294,6 +297,18 @@ QString samplv1widget_spin::specialValueText (void) const
 }
 
 
+QString samplv1widget_spin::valueText (void) const
+{
+	return QString::number(m_pSpinBox->value());
+}
+
+
+float samplv1widget_spin::value (void) const
+{
+	return float(m_pSpinBox->value());
+}
+
+
 //-------------------------------------------------------------------------
 // samplv1widget_combo - Custom knob/combo-box widget.
 //
@@ -306,8 +321,6 @@ samplv1widget_combo::samplv1widget_combo ( QWidget *pParent )
 
 	const QFontMetrics fm(samplv1widget_knob::font());
 	m_pComboBox->setMaximumHeight(fm.height() + 6);
-
-	setSingleStep(1);
 
 	QGridLayout *pGridLayout
 		= static_cast<QGridLayout *> (QWidget::layout());
@@ -337,13 +350,27 @@ QString samplv1widget_combo::valueText (void) const
 }
 
 
+float samplv1widget_combo::value (void) const
+{
+	return float(m_pComboBox->currentIndex());
+}
+
+
 // Special combo-box mode accessors.
 void samplv1widget_combo::insertItems ( int iIndex, const QStringList& items )
 {
 	m_pComboBox->insertItems(iIndex, items);
 
 	setMinimum(0.0f);
-	setMaximum(float(m_pComboBox->count() - 1));
+
+	const int iItemCount = m_pComboBox->count();
+	if (iItemCount > 0) {
+		setMaximum(float(iItemCount - 1));
+		setSingleStep(5.0f / float(iItemCount));
+	} else {
+		setMaximum(1.0f);
+		setSingleStep(1.0f);
+	}
 }
 
 void samplv1widget_combo::clear (void)
@@ -352,13 +379,15 @@ void samplv1widget_combo::clear (void)
 
 	setMinimum(0.0f);
 	setMaximum(1.0f);
+
+	setSingleStep(1.0f);
 }
 
 
 // Internal widget slots.
 void samplv1widget_combo::comboBoxValueChanged ( int iComboValue )
 {
-	setValue(float(iComboValue));
+	samplv1widget_knob::setValue(float(iComboValue));
 }
 
 
