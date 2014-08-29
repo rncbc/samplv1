@@ -236,8 +236,6 @@ samplv1widget_spin::samplv1widget_spin ( QWidget *pParent )
 
 	const QFontMetrics fm(samplv1widget_knob::font());
 	m_pSpinBox->setMaximumHeight(fm.height() + 6);
-	m_pSpinBox->setDecimals(1);
-	m_pSpinBox->setSingleStep(0.1f);
 
 	QGridLayout *pGridLayout
 		= static_cast<QGridLayout *> (QWidget::layout());
@@ -245,7 +243,8 @@ samplv1widget_spin::samplv1widget_spin ( QWidget *pParent )
 
 	setMinimum(0.0f);
 	setMaximum(1.0f);
-	setSingleStep(0.1f);
+
+	setDecimals(1);
 
 	QObject::connect(m_pSpinBox,
 		SIGNAL(valueChanged(double)),
@@ -253,6 +252,7 @@ samplv1widget_spin::samplv1widget_spin ( QWidget *pParent )
 }
 
 
+// Virtual accessors.
 void samplv1widget_spin::setValue ( float fValue, bool bDefault )
 {
 	const bool bSpinBlock = m_pSpinBox->blockSignals(true);
@@ -278,6 +278,18 @@ void samplv1widget_spin::setMinimum ( float fMinimum )
 }
 
 
+QString samplv1widget_spin::valueText (void) const
+{
+	return QString::number(m_pSpinBox->value());
+}
+
+
+float samplv1widget_spin::value (void) const
+{
+	return float(m_pSpinBox->value());
+}
+
+
 // Internal widget slots.
 void samplv1widget_spin::spinBoxValueChanged ( double spinValue )
 {
@@ -297,15 +309,20 @@ QString samplv1widget_spin::specialValueText (void) const
 }
 
 
-QString samplv1widget_spin::valueText (void) const
+// Decimal digits allowed.
+void samplv1widget_spin::setDecimals ( int iDecimals )
 {
-	return QString::number(m_pSpinBox->value());
+	m_pSpinBox->setDecimals(iDecimals);
+
+	const float fSingleStep
+		= ::powf(10.0f, - float(iDecimals));
+	m_pSpinBox->setSingleStep(fSingleStep);
+	samplv1widget_knob::setSingleStep(fSingleStep);
 }
 
-
-float samplv1widget_spin::value (void) const
+int samplv1widget_spin::decimals (void) const
 {
-	return float(m_pSpinBox->value());
+	return m_pSpinBox->decimals();
 }
 
 
@@ -332,6 +349,7 @@ samplv1widget_combo::samplv1widget_combo ( QWidget *pParent )
 }
 
 
+// Virtual accessors.
 void samplv1widget_combo::setValue ( float fValue, bool bDefault )
 {
 	const bool bComboBlock = m_pComboBox->blockSignals(true);
