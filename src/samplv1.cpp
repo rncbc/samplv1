@@ -426,7 +426,7 @@ struct samplv1_del
 	float *wet;
 	float *delay;
 	float *feedb;
-	float *bpm;
+	float *bpm, *bpm0;
 	float *bpmsync, bpmsync0;
 	float *bpmhost;
 };
@@ -863,6 +863,7 @@ samplv1_impl::samplv1_impl ( uint16_t iChannels, uint32_t iSampleRate )
 
 	// no delay sync yet
 	m_del.bpmsync0 = 0.0f;
+	m_del.bpm0 = 0;
 
 	// number of channels
 	setChannels(iChannels);
@@ -1396,13 +1397,14 @@ void samplv1_impl::allSustainOff (void)
 
 void samplv1_impl::reset (void)
 {
-#if 0 //--legacy support < 0.3.0.4 -- begin...
+#if 0//--legacy support < 0.3.0.4
 	if (*m_del.bpm < 3.6f)
 		*m_del.bpm *= 100.0f;
-#endif//--legacy support < 0.3.0.4 -- end.
+#endif
 
 	// make sure dangling states aren't...
-	m_del.bpmsync0 = *m_del.bpmsync;
+	m_del.bpmsync0 = 0.0f;
+	m_del.bpm0 = m_del.bpm;
 
 	m_vol1.reset(m_out1.volume, m_dca1.volume, &m_ctl.volume, &m_aux1.volume);
 	m_pan1.reset(m_out1.panning, &m_ctl.panning, &m_aux1.panning);
@@ -1599,11 +1601,8 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 
 	// delay sync toggle
 	if (int(*m_del.bpmsync) != int(m_del.bpmsync0)) {
-		float *del_bpm = m_del.bpm; 
-		float *del_bpmhost = m_del.bpmhost;
 		m_del.bpmsync0 = *m_del.bpmsync;
-		m_del.bpmhost = del_bpm;
-		m_del.bpm = del_bpmhost;
+		m_del.bpm0 = (m_del.bpmsync0 > 0.0f ? m_del.bpmhost : m_del.bpm);
 	}
 
 
@@ -1624,7 +1623,7 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 			*m_pha.rate, *m_pha.feedb, *m_pha.depth, *m_pha.daft * float(k));
 		// delay
 		m_delay[k].process(in, nframes, *m_del.wet,
-			*m_del.delay, *m_del.feedb, *m_del.bpm);
+			*m_del.delay, *m_del.feedb, *m_del.bpm0);
 	}
 
 	// reverb
