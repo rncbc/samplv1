@@ -155,6 +155,9 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	m_ui.Gen1EnvTimeKnob->setSpecialValueText(sAuto);
 	m_ui.Del1BpmKnob->setSpecialValueText(sAuto);
 
+	// Wave integer widths.
+	m_ui.Lfo1WidthKnob->setDecimals(0);
+
 	// GEN note limits.
 	m_ui.Gen1SampleKnob->setMinimum(0.0f);
 	m_ui.Gen1SampleKnob->setMaximum(127.0f);
@@ -206,9 +209,9 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 
 	// Effects (delay BPM)
 	m_ui.Del1BpmKnob->setScale(1.0f);
-	m_ui.Del1BpmKnob->setMinimum(0.0f);
+	m_ui.Del1BpmKnob->setMinimum(3.6f);
 	m_ui.Del1BpmKnob->setMaximum(360.0f);
-	m_ui.Del1BpmKnob->setSingleStep(10.0f);
+	m_ui.Del1BpmKnob->setSingleStep(1.0f);
 
 	// Reverb (stereo-)width limits.
 	m_ui.Rev1WidthKnob->setMinimum(-1.0f);
