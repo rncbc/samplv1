@@ -327,6 +327,12 @@ QString samplv1widget_spin::specialValueText (void) const
 }
 
 
+bool samplv1widget_spin::isSpecialValue (void) const
+{
+	return (m_pSpinBox->minimum() >= m_pSpinBox->value());
+}
+
+
 // Decimal digits allowed.
 void samplv1widget_spin::setDecimals ( int iDecimals )
 {
