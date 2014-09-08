@@ -97,6 +97,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	for (int note = 0; note < 128; ++note)
 		notes << noteName(note);
 
+	m_ui.Gen1SampleKnob->setScale(1000.0f);
 	m_ui.Gen1SampleKnob->insertItems(0, notes);
 
 	// Swappable params A/B group.

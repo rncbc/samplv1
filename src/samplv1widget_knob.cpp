@@ -364,8 +364,6 @@ samplv1widget_combo::samplv1widget_combo ( QWidget *pParent )
 		= static_cast<QGridLayout *> (QWidget::layout());
 	pGridLayout->addWidget(m_pComboBox, 2, 0, 1, 3);
 
-	setScale(10.0f);
-
 	QObject::connect(m_pComboBox,
 		SIGNAL(activated(int)),
 		SLOT(comboBoxValueChanged(int)));
