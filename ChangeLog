@@ -4,7 +4,7 @@ samplv1 - an old-school polyphonic sampler
 ChangeLog
 
 
-SVN TRUNK
+GIT HEAD
 
 - Fixed parameters A/B comparison swap. (EXPERIMENTAL)
 
