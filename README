@@ -24,9 +24,9 @@ project page:
 
   http://sourceforge.net/projects/samplv1
 
-svn trunk:
+git repo:
 
-  http://svn.code.sf.net/p/samplv1/code/trunk
+  http://git.code.sf.net/p/samplv1/code
 
 weblog:
 
@@ -66,7 +66,7 @@ requirements:
 
 installation:
 
-  - unpack tarball as usual; in the extracted source directory
+  - unpack tarball as usual; in the extracted source directory:
 
     ./configure [--prefix=/usr/local]
     make
@@ -75,7 +75,7 @@ installation:
 
     make install
 
-  - if checking out from svn, prepare configure script with
+  - if checking out from git, prepare the configure script with:
 
     make -f Makefile.git
 
