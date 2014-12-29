@@ -19,8 +19,6 @@
 
 *****************************************************************************/
 
-#include "samplv1_config.h"
-
 #include "samplv1_jack.h"
 #include "samplv1_param.h"
 

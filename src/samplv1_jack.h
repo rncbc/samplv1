@@ -23,6 +23,7 @@
 #define __samplv1_jack_h
 
 #include "samplv1.h"
+#include "samplv1_config.h"
 
 #include <jack/jack.h>
 
@@ -71,6 +72,8 @@ public:
 #endif
 
 private:
+
+	samplv1_config m_config;
 
 	jack_client_t *m_client;
 

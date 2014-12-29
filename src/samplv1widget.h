@@ -159,8 +159,6 @@ private:
 	// Instance variables.
 	Ui::samplv1widget m_ui;
 
-	samplv1_config m_config;
-
 	samplv1_sched_notifier *m_sched_notifier;
 
 	QHash<samplv1::ParamIndex, samplv1widget_knob *> m_paramKnobs;

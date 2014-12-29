@@ -23,6 +23,7 @@
 #define __samplv1_lv2_h
 
 #include "samplv1.h"
+#include "samplv1_config.h"
 
 #include "lv2.h"
 #include "lv2/lv2plug.in/ns/ext/urid/urid.h"
@@ -66,6 +67,8 @@ public:
 private:
 
 	LV2_URID_Map *m_urid_map;
+
+	samplv1_config m_config;
 
 	struct lv2_urids
 	{
