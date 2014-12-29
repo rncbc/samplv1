@@ -20,8 +20,8 @@
 *****************************************************************************/
 
 #include "samplv1widget_sample.h"
-#include "samplv1widget_config.h"
 
+#include "samplv1_config.h"
 #include "samplv1_sample.h"
 
 #include <sndfile.h>
@@ -486,7 +486,7 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 // Browse for a new sample.
 void samplv1widget_sample::openSample (void)
 {
-	samplv1widget_config *pConfig = samplv1widget_config::getInstance();
+	samplv1_config *pConfig = samplv1_config::getInstance();
 	if (pConfig == NULL)
 		return;
 

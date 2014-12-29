@@ -33,6 +33,52 @@
 
 #define SAMPLV1_DOMAIN	"rncbc.org"
 
+
+//-------------------------------------------------------------------------
+// samplv1_config - Prototype settings class (singleton).
+//
+
+#include <QSettings>
+#include <QStringList>
+
+
+class samplv1_config : public QSettings
+{
+public:
+
+	// Constructor.
+	samplv1_config();
+
+	// Default destructor.
+	~samplv1_config();
+
+	// Default options...
+	QString sPreset;
+	QString sPresetDir;
+	QString sSampleDir;
+
+	// Special persistent options.
+	bool bUseNativeDialogs;
+
+	// Run-time special non-persistent options.
+	bool bDontUseNativeDialogs;
+
+	// Singleton instance accessor.
+	static samplv1_config *getInstance();
+
+protected:
+
+	// Explicit I/O methods.
+	void load();
+	void save();
+
+private:
+
+	// The singleton instance.
+	static samplv1_config *g_pSettings;
+};
+
+
 #endif	// __samplv1_config_h
 
 // end of samplv1_config.h

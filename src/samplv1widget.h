@@ -24,7 +24,7 @@
 
 #include "ui_samplv1widget.h"
 
-#include "samplv1widget_config.h"
+#include "samplv1_config.h"
 
 #include "samplv1.h"
 
@@ -159,7 +159,7 @@ private:
 	// Instance variables.
 	Ui::samplv1widget m_ui;
 
-	samplv1widget_config m_config;
+	samplv1_config m_config;
 
 	samplv1_sched_notifier *m_sched_notifier;
 

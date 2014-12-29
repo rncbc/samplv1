@@ -21,7 +21,7 @@
 
 #include "samplv1widget_preset.h"
 
-#include "samplv1widget_config.h"
+#include "samplv1_config.h"
 
 #include <QHBoxLayout>
 
@@ -121,7 +121,7 @@ void samplv1widget_preset::clearPreset (void)
 {
 	++m_iInitPreset;
 
-	samplv1widget_config *pConfig = samplv1widget_config::getInstance();
+	samplv1_config *pConfig = samplv1_config::getInstance();
 	if (pConfig)
 		pConfig->sPreset.clear();
 
@@ -150,7 +150,7 @@ bool samplv1widget_preset::queryPreset (void)
 	if (m_iInitPreset == 0)
 		return true;
 
-	samplv1widget_config *pConfig = samplv1widget_config::getInstance();
+	samplv1_config *pConfig = samplv1_config::getInstance();
 	if (pConfig == NULL)
 		return false;
 
@@ -202,7 +202,7 @@ void samplv1widget_preset::loadPreset ( const QString& sPreset )
 	if (sPreset.isEmpty())
 		return;
 
-	samplv1widget_config *pConfig = samplv1widget_config::getInstance();
+	samplv1_config *pConfig = samplv1_config::getInstance();
 	if (pConfig) {
 		pConfig->beginGroup(presetGroup());
 		emit loadPresetFile(pConfig->value(sPreset).toString());
@@ -231,7 +231,7 @@ void samplv1widget_preset::newPreset (void)
 
 void samplv1widget_preset::openPreset (void)
 {
-	samplv1widget_config *pConfig = samplv1widget_config::getInstance();
+	samplv1_config *pConfig = samplv1_config::getInstance();
 	if (pConfig == NULL)
 		return;
 
@@ -290,7 +290,7 @@ void samplv1widget_preset::savePreset ( const QString& sPreset )
 	if (sPreset.isEmpty())
 		return;
 
-	samplv1widget_config *pConfig = samplv1widget_config::getInstance();
+	samplv1_config *pConfig = samplv1_config::getInstance();
 	if (pConfig == NULL)
 		return;
 
@@ -356,7 +356,7 @@ void samplv1widget_preset::deletePreset (void)
 	if (sPreset.isEmpty())
 		return;
 
-	samplv1widget_config *pConfig = samplv1widget_config::getInstance();
+	samplv1_config *pConfig = samplv1_config::getInstance();
 	if (pConfig == NULL)
 		return;
 
@@ -409,7 +409,7 @@ void samplv1widget_preset::refreshPreset (void)
 	const QString sOldPreset = m_pComboBox->currentText();
 	const QIcon icon(":/images/samplv1_preset.png");
 	m_pComboBox->clear();
-	samplv1widget_config *pConfig = samplv1widget_config::getInstance();
+	samplv1_config *pConfig = samplv1_config::getInstance();
 	if (pConfig) {
 		pConfig->beginGroup(presetGroup());
 		const QStringList& list = pConfig->childKeys();
@@ -438,7 +438,7 @@ void samplv1widget_preset::refreshPreset (void)
 // Preset control.
 void samplv1widget_preset::initPreset (void)
 {
-	samplv1widget_config *pConfig = samplv1widget_config::getInstance();
+	samplv1_config *pConfig = samplv1_config::getInstance();
 	if (pConfig && !pConfig->sPreset.isEmpty())
 		loadPreset(pConfig->sPreset);
 	else

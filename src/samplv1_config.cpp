@@ -1,4 +1,4 @@
-// samplv1widget_config.cpp
+// samplv1_config.cpp
 //
 /****************************************************************************
    Copyright (C) 2012-2014, rncbc aka Rui Nuno Capela. All rights reserved.
@@ -19,24 +19,24 @@
 
 *****************************************************************************/
 
-#include "samplv1widget_config.h"
+#include "samplv1_config.h"
 
 
 //-------------------------------------------------------------------------
-// samplv1widget_config - Prototype settings structure (pseudo-singleton).
+// samplv1_config - Prototype settings structure (pseudo-singleton).
 //
 
 // Singleton instance accessor (static).
-samplv1widget_config *samplv1widget_config::g_pSettings = NULL;
+samplv1_config *samplv1_config::g_pSettings = NULL;
 
-samplv1widget_config *samplv1widget_config::getInstance (void)
+samplv1_config *samplv1_config::getInstance (void)
 {
 	return g_pSettings;
 }
 
 
 // Constructor.
-samplv1widget_config::samplv1widget_config (void)
+samplv1_config::samplv1_config (void)
 	: QSettings(SAMPLV1_DOMAIN, SAMPLV1_TITLE)
 {
 	g_pSettings = this;
@@ -46,7 +46,7 @@ samplv1widget_config::samplv1widget_config (void)
 
 
 // Default destructor.
-samplv1widget_config::~samplv1widget_config (void)
+samplv1_config::~samplv1_config (void)
 {
 	save();
 
@@ -55,7 +55,7 @@ samplv1widget_config::~samplv1widget_config (void)
 
 
 // Explicit I/O methods.
-void samplv1widget_config::load (void)
+void samplv1_config::load (void)
 {
 	QSettings::beginGroup("/Default");
 	sPreset = QSettings::value("/Preset").toString();
@@ -71,7 +71,7 @@ void samplv1widget_config::load (void)
 }
 
 
-void samplv1widget_config::save (void)
+void samplv1_config::save (void)
 {
 	QSettings::beginGroup("/Program");
 	QSettings::setValue("/Version", SAMPLV1_VERSION);
@@ -91,4 +91,4 @@ void samplv1widget_config::save (void)
 }
 
 
-// end of samplv1widget_config.cpp
+// end of samplv1_config.cpp

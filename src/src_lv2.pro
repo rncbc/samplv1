@@ -25,6 +25,7 @@ HEADERS = \
 SOURCES = \
 	samplv1.cpp \
 	samplv1_lv2.cpp \
+	samplv1_config.cpp \
 	samplv1_sample.cpp \
 	samplv1_wave.cpp \
 	samplv1_param.cpp \

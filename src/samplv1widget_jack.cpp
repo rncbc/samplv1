@@ -64,7 +64,7 @@ void samplv1widget_jack::setNsmClient ( samplv1_nsm *pNsmClient )
 {
 	m_pNsmClient = pNsmClient;
 
-	samplv1widget_config *pConfig = samplv1widget_config::getInstance();
+	samplv1_config *pConfig = samplv1_config::getInstance();
 	if (pConfig)
 		pConfig->bDontUseNativeDialogs = true;
 }
