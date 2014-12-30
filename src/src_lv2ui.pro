@@ -23,7 +23,6 @@ HEADERS = \
 	samplv1widget_lv2.h
 
 SOURCES = \
-	samplv1_config.cpp \
 	samplv1_param.cpp \
 	samplv1widget.cpp \
 	samplv1widget_env.cpp \
