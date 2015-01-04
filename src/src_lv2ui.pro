@@ -21,6 +21,7 @@ HEADERS = \
 	samplv1widget_preset.h \
 	samplv1widget_status.h \
 	samplv1widget_programs.h \
+	samplv1widget_config.h \
 	samplv1widget_lv2.h
 
 SOURCES = \
@@ -34,10 +35,12 @@ SOURCES = \
 	samplv1widget_preset.cpp \
 	samplv1widget_status.cpp \
 	samplv1widget_programs.cpp \
+	samplv1widget_config.cpp \
 	samplv1widget_lv2.cpp
 
 FORMS = \
-	samplv1widget.ui
+	samplv1widget.ui \
+	samplv1widget_config.ui
 
 
 RESOURCES += samplv1.qrc

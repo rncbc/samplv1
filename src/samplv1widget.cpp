@@ -1,7 +1,7 @@
 // samplv1widget.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2014, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2015, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -26,6 +26,8 @@
 
 #include "samplv1_sample.h"
 #include "samplv1_sched.h"
+
+#include "samplv1widget_config.h"
 
 #include <QMessageBox>
 #include <QDir>
@@ -478,14 +480,10 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	QObject::connect(m_ui.TabBar, SIGNAL(currentChanged(int)),
 		m_ui.StackedWidget, SLOT(setCurrentIndex(int)));
 
-	samplv1_config *pConfig = samplv1_config::getInstance();
-	if (pConfig)
-		m_ui.helpUseNativeDialogsAction->setChecked(pConfig->bUseNativeDialogs);
-
 	// Menu actions
-	QObject::connect(m_ui.helpUseNativeDialogsAction,
+	QObject::connect(m_ui.helpConfigureAction,
 		SIGNAL(triggered(bool)),
-		SLOT(helpUseNativeDialogs(bool)));
+		SLOT(helpConfigure()));
 	QObject::connect(m_ui.helpAboutAction,
 		SIGNAL(triggered(bool)),
 		SLOT(helpAbout()));
@@ -1065,13 +1063,16 @@ void samplv1widget::contextMenuRequest ( const QPoint& pos )
 
 
 // Menu actions.
-void samplv1widget::helpUseNativeDialogs ( bool bOn )
+void samplv1widget::helpConfigure (void)
 {
-	samplv1_config *pConfig = samplv1_config::getInstance();
-	if (pConfig) {
-		pConfig->bUseNativeDialogs = bOn;
-		pConfig->bDontUseNativeDialogs = !pConfig->bUseNativeDialogs;
-	}
+	samplv1 *pSampl = instance();
+	if (pSampl == NULL)
+		return;
+
+	samplv1widget_config form(this);
+	// TODO: Set programs database...
+//	form.setPrograms(pSampl->programs());
+	form.exec();
 }
 
 
