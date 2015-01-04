@@ -18,9 +18,10 @@ HEADERS = \
 	samplv1_list.h \
 	samplv1_fx.h \
 	samplv1_nsm.h \
+	samplv1_reverb.h \
 	samplv1_param.h \
 	samplv1_sched.h \
-	samplv1_reverb.h \
+	samplv1_programs.h \
 	samplv1widget.h \
 	samplv1widget_env.h \
 	samplv1widget_filt.h \
@@ -29,6 +30,7 @@ HEADERS = \
 	samplv1widget_knob.h \
 	samplv1widget_preset.h \
 	samplv1widget_status.h \
+	samplv1widget_programs.h \
 	samplv1widget_jack.h
 
 SOURCES = \
@@ -40,6 +42,7 @@ SOURCES = \
 	samplv1_nsm.cpp \
 	samplv1_param.cpp \
 	samplv1_sched.cpp \
+	samplv1_programs.cpp \
 	samplv1widget.cpp \
 	samplv1widget_env.cpp \
 	samplv1widget_filt.cpp \
@@ -48,10 +51,12 @@ SOURCES = \
 	samplv1widget_knob.cpp \
 	samplv1widget_preset.cpp \
 	samplv1widget_status.cpp \
+	samplv1widget_programs.cpp \
 	samplv1widget_jack.cpp
 
 FORMS = \
 	samplv1widget.ui
+
 
 RESOURCES += samplv1.qrc
 

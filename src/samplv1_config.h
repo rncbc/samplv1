@@ -1,7 +1,7 @@
 // samplv1_config.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2014, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2015, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -29,7 +29,7 @@
 
 #define SAMPLV1_SUBTITLE     "an old-school polyphonic sampler."
 #define SAMPLV1_WEBSITE      "http://samplv1.sourceforge.net"
-#define SAMPLV1_COPYRIGHT    "Copyright (C) 2012-2014, rncbc aka Rui Nuno Capela. All rights reserved."
+#define SAMPLV1_COPYRIGHT    "Copyright (C) 2012-2015, rncbc aka Rui Nuno Capela. All rights reserved."
 
 #define SAMPLV1_DOMAIN	"rncbc.org"
 
@@ -40,6 +40,9 @@
 
 #include <QSettings>
 #include <QStringList>
+
+// forward decls.
+class samplv1_programs;
 
 
 class samplv1_config : public QSettings
@@ -72,6 +75,13 @@ public:
 	void removePreset(const QString& sPreset);
 	QStringList presetList();
 
+	// Programs utility methods.
+	void loadPrograms(samplv1_programs *pPrograms);
+	void savePrograms(samplv1_programs *pPrograms);
+
+	void loadProgramsCurrent(samplv1_programs *pPrograms);
+	void saveProgramsCurrent(samplv1_programs *pPrograms);
+
 protected:
 
 	// Explicit I/O methods.
@@ -80,6 +90,13 @@ protected:
 
 	// Preset group path.
 	QString presetGroup() const;
+
+	// Banks programs group path.
+	QString programsGroup() const;
+	QString bankPrefix() const;
+	QString currentGroup() const;
+
+	void clearPrograms();
 
 private:
 
