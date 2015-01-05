@@ -36,7 +36,7 @@ class samplv1_reverse_sched : public samplv1_sched
 public:
 
 	// ctor.
-	samplv1_reverse_sched (samplv1_sample *sample) : samplv1_sched(),
+	samplv1_reverse_sched (samplv1_sample *sample) : samplv1_sched(Sample),
 		m_sample(sample), m_reverse(false) {}
 
 	// schedule reverse.

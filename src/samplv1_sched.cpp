@@ -1,7 +1,7 @@
 // samplv1_sched.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2014, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2015, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -164,8 +164,8 @@ void samplv1_sched_thread::run (void)
 //
 
 // ctor.
-samplv1_sched::samplv1_sched (void)
-	: m_sync_wait(false)
+samplv1_sched::samplv1_sched ( Type stype)
+	: m_stype(stype), m_sync_wait(false)
 {
 	if (++g_sched_refcount == 1 && g_sched_thread == NULL) {
 		g_sched_thread = new samplv1_sched_thread();
@@ -213,16 +213,16 @@ void samplv1_sched::sync_process (void)
 
 	m_sync_wait = false;
 
-	sync_notify();
+	sync_notify(m_stype);
 }
 
 
 // signal broadcast (static).
-void samplv1_sched::sync_notify (void)
+void samplv1_sched::sync_notify ( Type stype )
 {
 	QListIterator<samplv1_sched_notifier *> iter(g_sched_notifiers);
 	while (iter.hasNext())
-		iter.next()->sync_notify();
+		iter.next()->sync_notify(stype);
 }
 
 
@@ -245,9 +245,9 @@ samplv1_sched_notifier::~samplv1_sched_notifier (void)
 }
 
 
-void samplv1_sched_notifier::sync_notify (void)
+void samplv1_sched_notifier::sync_notify ( samplv1_sched::Type stype )
 {
-	emit notify();
+	emit notify(int(stype));
 }
 
 

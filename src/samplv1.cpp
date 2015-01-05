@@ -720,7 +720,7 @@ public:
 
 	// ctor.
 	samplv1_programs_sched (samplv1 *pSampl)
-		: samplv1_sched(), m_pSampl(pSampl), m_prog_id(0) {}
+		: samplv1_sched(Programs), m_pSampl(pSampl), m_prog_id(0) {}
 
 	// schedule reset.
 	void set_current_prog(uint16_t prog_id)

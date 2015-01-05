@@ -491,8 +491,8 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 
 	// Special sample update notifications (eg. reverse)
 	QObject::connect(m_sched_notifier,
-		SIGNAL(notify()),
-		SLOT(updateNotify()));
+		SIGNAL(notify(int)),
+		SLOT(updateNotify(int)));
 
 	// Epilog.
 	// QWidget::adjustSize();
@@ -1048,21 +1048,31 @@ void samplv1widget::contextMenuRequest ( const QPoint& pos )
 
 
 // Notification updater.
-void samplv1widget::updateNotify (void)
+void samplv1widget::updateNotify ( int stype )
 {
+	samplv1 *pSampl = instance();
+	if (pSampl == NULL)
+		return;
+
 #ifdef CONFIG_DEBUG
-	qDebug("samplv1widget::updateNotify()");
+	qDebug("samplv1widget::updateNotify(%d)", stype);
 #endif
 
-	samplv1 *pSampl = instance();
-	if (pSampl) {
-		updateSample(pSampl->sample());
+	switch (samplv1_sched::Type(stype)) {
+	case samplv1_sched::Programs: {
 		samplv1_programs *pPrograms = pSampl->programs();
 		samplv1_programs::Prog *pProg = pPrograms->current_prog();
 		if (pProg) {
 			m_ui.Preset->setPreset(pProg->name());
 			updateParamValues();
 		}
+		// Fall thru...
+	}
+	case samplv1_sched::Sample:
+		updateSample(pSampl->sample());
+		// Fall thru again...
+	default:
+		break;
 	}
 }
 
