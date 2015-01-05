@@ -492,7 +492,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	// Special sample update notifications (eg. reverse)
 	QObject::connect(m_sched_notifier,
 		SIGNAL(notify(int)),
-		SLOT(updateNotify(int)));
+		SLOT(updateSchedNotify(int)));
 
 	// Epilog.
 	// QWidget::adjustSize();
@@ -594,7 +594,7 @@ void samplv1widget::updateParamEx ( samplv1::ParamIndex index, float fValue )
 	++m_iUpdate;
 
 	switch (index) {
-#if 0//--updateNotify();
+#if 0//--updateSchedNotify(samplv1_sched::Sample);
 	case samplv1::GEN1_REVERSE: {
 		const bool bReverse = bool(fValue > 0.0f);
 		pSampl->setReverse(bReverse);
@@ -1048,14 +1048,14 @@ void samplv1widget::contextMenuRequest ( const QPoint& pos )
 
 
 // Notification updater.
-void samplv1widget::updateNotify ( int stype )
+void samplv1widget::updateSchedNotify ( int stype )
 {
 	samplv1 *pSampl = instance();
 	if (pSampl == NULL)
 		return;
 
 #ifdef CONFIG_DEBUG
-	qDebug("samplv1widget::updateNotify(%d)", stype);
+	qDebug("samplv1widget::updateSchedNotify(%d)", stype);
 #endif
 
 	switch (samplv1_sched::Type(stype)) {
