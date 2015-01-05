@@ -31,6 +31,7 @@
 #include "samplv1_fx.h"
 #include "samplv1_reverb.h"
 
+#include "samplv1_config.h"
 #include "samplv1_programs.h"
 #include "samplv1_sched.h"
 #include "samplv1_param.h"
@@ -849,6 +850,8 @@ private:
 
 	samplv1_reverb m_reverb;
 
+	samplv1_config m_config;
+
 	samplv1_programs       m_programs;
 	samplv1_programs_sched m_programs_sched;
 };
@@ -912,6 +915,10 @@ samplv1_impl::samplv1_impl (
 	m_del.bpmsync0 = 0.0f;
 	m_del.bpm0 = 0;
 
+	// load programs database...
+	m_config.loadPrograms(&m_programs);
+//	m_config.loadProgramsCurrent(&m_programs);
+
 	// number of channels
 	setChannels(iChannels);
 
@@ -932,6 +939,10 @@ samplv1_impl::samplv1_impl (
 
 samplv1_impl::~samplv1_impl (void)
 {
+	// save programs database...
+	m_config.savePrograms(&m_programs);
+	m_config.saveProgramsCurrent(&m_programs);
+
 	// deallocate sample filenames
 	setSampleFile(0);
 

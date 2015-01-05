@@ -1059,8 +1059,10 @@ void samplv1widget::updateNotify (void)
 		updateSample(pSampl->sample());
 		samplv1_programs *pPrograms = pSampl->programs();
 		samplv1_programs::Prog *pProg = pPrograms->current_prog();
-		if (pProg)
+		if (pProg) {
 			m_ui.Preset->setPreset(pProg->name());
+			updateParamValues();
+		}
 	}
 }
 

@@ -1,7 +1,7 @@
 // samplv1_lv2.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2014, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2015, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -23,7 +23,6 @@
 #define __samplv1_lv2_h
 
 #include "samplv1.h"
-#include "samplv1_config.h"
 
 #include "lv2.h"
 #include "lv2/lv2plug.in/ns/ext/urid/urid.h"
@@ -67,8 +66,6 @@ public:
 private:
 
 	LV2_URID_Map *m_urid_map;
-
-	samplv1_config m_config;
 
 	struct lv2_urids
 	{
