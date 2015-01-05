@@ -23,8 +23,6 @@
 #include "samplv1_param.h"
 
 #include "samplv1_sample.h"
-
-#include "samplv1_sample.h"
 #include "samplv1_sched.h"
 
 #include "samplv1widget_config.h"
@@ -494,7 +492,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	// Special sample update notifications (eg. reverse)
 	QObject::connect(m_sched_notifier,
 		SIGNAL(notify()),
-		SLOT(updateSampleNotify()));
+		SLOT(updateNotify()));
 
 	// Epilog.
 	// QWidget::adjustSize();
@@ -596,7 +594,7 @@ void samplv1widget::updateParamEx ( samplv1::ParamIndex index, float fValue )
 	++m_iUpdate;
 
 	switch (index) {
-#if 0//--updateSampleNotify();
+#if 0//--updateNotify();
 	case samplv1::GEN1_REVERSE: {
 		const bool bReverse = bool(fValue > 0.0f);
 		pSampl->setReverse(bReverse);
@@ -845,19 +843,6 @@ void samplv1widget::openSample (void)
 }
 
 
-// Sample updater slot.
-void samplv1widget::updateSampleNotify (void)
-{
-#ifdef CONFIG_DEBUG
-	qDebug("samplv1widget::updateSampleNotify()");
-#endif
-
-	samplv1 *pSampl = instance();
-	if (pSampl)
-		updateSample(pSampl->sample());
-}
-
-
 // Sample file reset.
 void samplv1widget::clearSampleFile (void)
 {
@@ -1062,6 +1047,24 @@ void samplv1widget::contextMenuRequest ( const QPoint& pos )
 }
 
 
+// Notification updater.
+void samplv1widget::updateNotify (void)
+{
+#ifdef CONFIG_DEBUG
+	qDebug("samplv1widget::updateNotify()");
+#endif
+
+	samplv1 *pSampl = instance();
+	if (pSampl) {
+		updateSample(pSampl->sample());
+		samplv1_programs *pPrograms = pSampl->programs();
+		samplv1_programs::Prog *pProg = pPrograms->current_prog();
+		if (pProg)
+			m_ui.Preset->setPreset(pProg->name());
+	}
+}
+
+
 // Menu actions.
 void samplv1widget::helpConfigure (void)
 {
@@ -1070,8 +1073,9 @@ void samplv1widget::helpConfigure (void)
 		return;
 
 	samplv1widget_config form(this);
-	// TODO: Set programs database...
-//	form.setPrograms(pSampl->programs());
+
+	// Set programs database...
+	form.setPrograms(pSampl->programs());
 	form.exec();
 }
 

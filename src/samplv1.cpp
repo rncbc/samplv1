@@ -1,7 +1,7 @@
 // samplv1.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2014, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2015, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -29,8 +29,11 @@
 #include "samplv1_list.h"
 
 #include "samplv1_fx.h"
-
 #include "samplv1_reverb.h"
+
+#include "samplv1_programs.h"
+#include "samplv1_sched.h"
+#include "samplv1_param.h"
 
 
 #ifdef CONFIG_DEBUG_0
@@ -708,13 +711,50 @@ struct samplv1_voice : public samplv1_list<samplv1_voice>
 };
 
 
+// programs scheduled thread
+
+class samplv1_programs_sched : public samplv1_sched
+{
+public:
+
+	// ctor.
+	samplv1_programs_sched (samplv1 *pSampl)
+		: samplv1_sched(), m_pSampl(pSampl), m_prog_id(0) {}
+
+	// schedule reset.
+	void set_current_prog(uint16_t prog_id)
+	{
+		m_prog_id = prog_id;
+
+		schedule();
+	}
+
+	// process reset (virtual).
+	void process()
+	{
+		samplv1_programs *pPrograms = m_pSampl->programs();
+		pPrograms->set_current_prog(m_prog_id);
+		samplv1_programs::Prog *pProg = pPrograms->current_prog();
+		if (pProg)
+			samplv1_param::loadPreset(m_pSampl, pProg->name());
+	}
+
+private:
+
+	// instance variables.
+	samplv1 *m_pSampl;
+
+	uint16_t m_prog_id;
+};
+
+
 // polyphonic synth implementation
 
 class samplv1_impl
 {
 public:
 
-	samplv1_impl(uint16_t iChannels, uint32_t iSampleRate);
+	samplv1_impl(samplv1 *pSampl, uint16_t iChannels, uint32_t iSampleRate);
 
 	~samplv1_impl();
 
@@ -729,6 +769,8 @@ public:
 
 	void setParamPort(samplv1::ParamIndex index, float *pfParam = 0);
 	float *paramPort(samplv1::ParamIndex index);
+
+	samplv1_programs *programs();
 
 	void process_midi(uint8_t *data, uint32_t size);
 	void process(float **ins, float **outs, uint32_t nframes);
@@ -806,6 +848,9 @@ private:
 	samplv1_fx_comp    *m_comp;
 
 	samplv1_reverb m_reverb;
+
+	samplv1_programs       m_programs;
+	samplv1_programs_sched m_programs_sched;
 };
 
 
@@ -827,7 +872,9 @@ samplv1_voice::samplv1_voice ( samplv1_impl *pImpl ) :
 
 // engine constructor
 
-samplv1_impl::samplv1_impl ( uint16_t iChannels, uint32_t iSampleRate )
+samplv1_impl::samplv1_impl (
+	samplv1 *pSampl, uint16_t iChannels, uint32_t iSampleRate )
+	: m_programs_sched(pSampl)
 {
 	// null sample.
 	m_gen1.sample0 = 0.0f;
@@ -1184,6 +1231,10 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 	const int status = (data[0] & 0xf0);
 	const int key    = (data[1] & 0x7f);
 
+	// program change
+	if (status == 0xc0)
+		m_programs_sched.set_current_prog(key);
+	else
 	if (status == 0xd0) {
 		// channel aftertouch
 		m_ctl.pressure = float(key) / 127.0f;
@@ -1284,7 +1335,11 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 	}
 	// control change
 	else if (status == 0xb0) {
-		switch (key) {
+	switch (key) {
+		case 0x00:
+			// bank-select MSB (cc#0)
+			m_programs.set_current_bank_msb(value);
+			break;
 		case 0x01:
 			// modulation wheel (cc#1)
 			m_ctl.modwheel = *m_def.modwheel * float(value) / 127.0f;
@@ -1296,6 +1351,10 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 		case 0x0a:
 			// channel panning (cc#10)
 			m_ctl.panning = float(value - 64) / 64.0f;
+			break;
+		case 0x20:
+			// bank-select LSB (cc#32)
+			m_programs.set_current_bank_lsb(value);
 			break;
 		case 0x40:
 			// sustain/damper pedal (cc#64)
@@ -1432,6 +1491,14 @@ void samplv1_impl::reset (void)
 	allSoundOff();
 //	allControllersOff();
 	allNotesOff();
+}
+
+
+// programs accessor
+
+samplv1_programs *samplv1_impl::programs (void)
+{
+	return &m_programs;
 }
 
 
@@ -1654,13 +1721,14 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 }
 
 
+
 //-------------------------------------------------------------------------
 // samplv1 - decl.
 //
 
 samplv1::samplv1 ( uint16_t iChannels, uint32_t iSampleRate )
 {
-	m_pImpl = new samplv1_impl(iChannels, iSampleRate);
+	m_pImpl = new samplv1_impl(this, iChannels, iSampleRate);
 }
 
 
@@ -1777,6 +1845,14 @@ void samplv1::process_midi ( uint8_t *data, uint32_t size )
 void samplv1::process ( float **ins, float **outs, uint32_t nframes )
 {
 	m_pImpl->process(ins, outs, nframes);
+}
+
+
+// programs accessor
+
+samplv1_programs *samplv1::programs (void) const
+{
+	return m_pImpl->programs();
 }
 
 
