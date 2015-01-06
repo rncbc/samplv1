@@ -33,8 +33,6 @@
 
 #include "samplv1_config.h"
 #include "samplv1_programs.h"
-#include "samplv1_sched.h"
-#include "samplv1_param.h"
 
 
 #ifdef CONFIG_DEBUG_0
@@ -712,43 +710,6 @@ struct samplv1_voice : public samplv1_list<samplv1_voice>
 };
 
 
-// programs scheduled thread
-
-class samplv1_programs_sched : public samplv1_sched
-{
-public:
-
-	// ctor.
-	samplv1_programs_sched (samplv1 *pSampl)
-		: samplv1_sched(Programs), m_pSampl(pSampl), m_prog_id(0) {}
-
-	// schedule reset.
-	void set_current_prog(uint16_t prog_id)
-	{
-		m_prog_id = prog_id;
-
-		schedule();
-	}
-
-	// process reset (virtual).
-	void process()
-	{
-		samplv1_programs *pPrograms = m_pSampl->programs();
-		pPrograms->set_current_prog(m_prog_id);
-		samplv1_programs::Prog *pProg = pPrograms->current_prog();
-		if (pProg)
-			samplv1_param::loadPreset(m_pSampl, pProg->name());
-	}
-
-private:
-
-	// instance variables.
-	samplv1 *m_pSampl;
-
-	uint16_t m_prog_id;
-};
-
-
 // polyphonic synth implementation
 
 class samplv1_impl
@@ -812,6 +773,9 @@ protected:
 
 private:
 
+	samplv1_config   m_config;
+	samplv1_programs m_programs;
+
 	uint16_t m_iChannels;
 	uint32_t m_iSampleRate;
 
@@ -851,11 +815,6 @@ private:
 	samplv1_fx_comp    *m_comp;
 
 	samplv1_reverb m_reverb;
-
-	samplv1_config m_config;
-
-	samplv1_programs       m_programs;
-	samplv1_programs_sched m_programs_sched;
 };
 
 
@@ -879,7 +838,7 @@ samplv1_voice::samplv1_voice ( samplv1_impl *pImpl ) :
 
 samplv1_impl::samplv1_impl (
 	samplv1 *pSampl, uint16_t iChannels, uint32_t iSampleRate )
-	: m_programs_sched(pSampl)
+	: m_programs(pSampl)
 {
 	// null sample.
 	m_gen1.sample0 = 0.0f;
@@ -1246,7 +1205,7 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 
 	// program change
 	if (status == 0xc0)
-		m_programs_sched.set_current_prog(key);
+		m_programs.set_current_prog(key);
 	else
 	if (status == 0xd0) {
 		// channel aftertouch
@@ -1512,7 +1471,7 @@ void samplv1_impl::reset (void)
 void samplv1_impl::selectProgram ( uint16_t bank_id, uint16_t prog_id )
 {
 	m_programs.set_current_bank(bank_id);
-	m_programs_sched.set_current_prog(prog_id);
+	m_programs.set_current_prog(prog_id);
 }
 
 

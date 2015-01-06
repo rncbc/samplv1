@@ -22,10 +22,10 @@
 #ifndef __samplv1_programs_h
 #define __samplv1_programs_h
 
-#include <QMap>
-#include <QString>
+#include "samplv1_sched.h"
+#include "samplv1_param.h"
 
-#include <stdint.h>
+#include <QMap>
 
 
 //-------------------------------------------------------------------------
@@ -37,7 +37,7 @@ class samplv1_programs
 public:
 
 	// ctor.
-	samplv1_programs();
+	samplv1_programs(samplv1 *pSampl);
 
 	// dtor.
 	~samplv1_programs();
@@ -110,15 +110,42 @@ protected:
 
 	uint16_t current_bank_id() const;
 
+	// current bank/prog. scheduled thread
+	class Sched : public samplv1_sched
+	{
+	public:
+
+		// ctor.
+		Sched (samplv1 *pSampl)
+			: samplv1_sched(Programs), m_pSampl(pSampl) {}
+
+		// process reset (virtual).
+		void process()
+		{
+			samplv1_programs *pPrograms = m_pSampl->programs();
+			samplv1_programs::Prog *pProg = pPrograms->current_prog();
+			if (pProg)
+				samplv1_param::loadPreset(m_pSampl, pProg->name());
+		}
+
+	private:
+
+		// instance variables.
+		samplv1 *m_pSampl;
+	};
+
 private:
 
-	Banks m_banks;
+	// instance variables.
+	Sched *m_sched;
 
 	uint8_t m_bank_msb;
 	uint8_t m_bank_lsb;
 
 	Bank *m_bank;
 	Prog *m_prog;
+
+	Banks m_banks;
 };
 
 

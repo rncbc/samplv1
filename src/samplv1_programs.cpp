@@ -21,14 +21,18 @@
 
 #include "samplv1_programs.h"
 
+#include "samplv1_sched.h"
+#include "samplv1_param.h"
+
 
 //-------------------------------------------------------------------------
 // samplv1_programs - Bank/programs database class (singleton).
 //
 
 // ctor.
-samplv1_programs::samplv1_programs (void)
-	: m_bank_msb(0), m_bank_lsb(0), m_bank(0), m_prog(0)
+samplv1_programs::samplv1_programs ( samplv1 *pSampl )
+	: m_sched(new Sched(pSampl)),
+		m_bank_msb(0), m_bank_lsb(0), m_bank(0), m_prog(0)
 {
 }
 
@@ -37,6 +41,8 @@ samplv1_programs::samplv1_programs (void)
 samplv1_programs::~samplv1_programs (void)
 {
 	clear_banks();
+
+	delete m_sched;
 }
 
 
@@ -157,6 +163,8 @@ void samplv1_programs::set_current_prog ( uint16_t prog_id )
 {
 	m_bank = find_bank(current_bank_id());
 	m_prog = (m_bank ? m_bank->find_prog(prog_id) : 0);
+
+	if (m_prog) m_sched->schedule();
 }
 
 
