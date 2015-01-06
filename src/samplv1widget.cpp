@@ -788,15 +788,7 @@ void samplv1widget::loadPreset ( const QString& sFilename )
 
 	samplv1_param::loadPreset(pSampl, sFilename);
 
-	updateSample(pSampl->sample());
-	updateParamValues();
-
-	const QString& sPreset
-		= QFileInfo(sFilename).completeBaseName();
-
-	m_ui.Preset->setPreset(sPreset);
-	m_ui.StatusBar->showMessage(tr("Load preset: %1").arg(sPreset), 5000);
-	updateDirtyPreset(false);
+	updateLoadPreset(QFileInfo(sFilename).completeBaseName());
 }
 
 
@@ -1047,6 +1039,21 @@ void samplv1widget::contextMenuRequest ( const QPoint& pos )
 }
 
 
+// Preset status updater.
+void samplv1widget::updateLoadPreset ( const QString& sPreset )
+{
+	samplv1 *pSampl = instance();
+	if (pSampl)
+		updateSample(pSampl->sample());
+
+	updateParamValues();
+
+	m_ui.Preset->setPreset(sPreset);
+	m_ui.StatusBar->showMessage(tr("Load preset: %1").arg(sPreset), 5000);
+	updateDirtyPreset(false);
+}
+
+
 // Notification updater.
 void samplv1widget::updateSchedNotify ( int stype )
 {
@@ -1062,15 +1069,12 @@ void samplv1widget::updateSchedNotify ( int stype )
 	case samplv1_sched::Programs: {
 		samplv1_programs *pPrograms = pSampl->programs();
 		samplv1_programs::Prog *pProg = pPrograms->current_prog();
-		if (pProg) {
-			m_ui.Preset->setPreset(pProg->name());
-			updateParamValues();
-		}
-		// Fall thru...
+		if (pProg) updateLoadPreset(pProg->name());
+		break;
 	}
 	case samplv1_sched::Sample:
 		updateSample(pSampl->sample());
-		// Fall thru again...
+		// Fall thru...
 	default:
 		break;
 	}

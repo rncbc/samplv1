@@ -151,6 +151,9 @@ protected:
 	// Update loop range change status.
 	void updateSampleLoop(samplv1_sample *pSample, bool bDirty = false);
 
+	// Preset status updater.
+	void updateLoadPreset(const QString& sPreset);
+
 	// Dirty flag (overridable virtual) methods.
 	virtual void updateDirtyPreset(bool bDirtyPreset);
 
