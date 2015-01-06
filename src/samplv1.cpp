@@ -771,6 +771,8 @@ public:
 	void setParamPort(samplv1::ParamIndex index, float *pfParam = 0);
 	float *paramPort(samplv1::ParamIndex index);
 
+	void selectProgram(uint16_t bank_id, uint16_t prog_id);
+
 	samplv1_programs *programs();
 
 	void process_midi(uint8_t *data, uint32_t size);
@@ -1507,6 +1509,13 @@ void samplv1_impl::reset (void)
 
 // programs accessor
 
+void samplv1_impl::selectProgram ( uint16_t bank_id, uint16_t prog_id )
+{
+	m_programs.set_current_bank(bank_id);
+	m_programs_sched.set_current_prog(prog_id);
+}
+
+
 samplv1_programs *samplv1_impl::programs (void)
 {
 	return &m_programs;
@@ -1860,6 +1869,12 @@ void samplv1::process ( float **ins, float **outs, uint32_t nframes )
 
 
 // programs accessor
+
+void samplv1::selectProgram ( uint16_t bank_id, uint16_t prog_id )
+{
+	m_pImpl->selectProgram(bank_id, prog_id);
+}
+
 
 samplv1_programs *samplv1::programs (void) const
 {
