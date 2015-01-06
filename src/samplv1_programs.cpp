@@ -125,22 +125,22 @@ void samplv1_programs::clear_banks (void)
 
 
 // current bank/prog. managers
-void samplv1_programs::set_current_bank_msb ( uint8_t bank_msb )
+void samplv1_programs::bank_select_msb ( uint8_t bank_msb )
 {
 	m_bank_msb = 0x80 | (bank_msb & 0x7f);
 }
 
 
-void samplv1_programs::set_current_bank_lsb ( uint8_t bank_lsb )
+void samplv1_programs::bank_select_lsb ( uint8_t bank_lsb )
 {
 	m_bank_lsb = 0x80 | (bank_lsb & 0x7f);
 }
 
 
-void samplv1_programs::set_current_bank ( uint16_t bank_id )
+void samplv1_programs::bank_select ( uint16_t bank_id )
 {
-	set_current_bank_msb(bank_id >> 7);
-	set_current_bank_lsb(bank_id);
+	bank_select_msb(bank_id >> 7);
+	bank_select_lsb(bank_id);
 }
 
 
@@ -159,12 +159,26 @@ uint16_t samplv1_programs::current_bank_id (void) const
 }
 
 
-void samplv1_programs::set_current_prog ( uint16_t prog_id )
+void samplv1_programs::prog_change ( uint16_t prog_id )
 {
-	m_bank = find_bank(current_bank_id());
+	select_program(current_bank_id(), prog_id);
+}
+
+
+void samplv1_programs::select_program ( uint16_t bank_id, uint16_t prog_id )
+{
+	m_sched->select_program(bank_id, prog_id);
+}
+
+
+void samplv1_programs::process_program (
+	samplv1 *pSampl, uint16_t bank_id, uint16_t prog_id )
+{
+	m_bank = find_bank(bank_id);
 	m_prog = (m_bank ? m_bank->find_prog(prog_id) : 0);
 
-	if (m_prog) m_sched->schedule();
+	if (m_prog)
+		samplv1_param::loadPreset(pSampl, m_prog->name());
 }
 
 

@@ -97,11 +97,15 @@ public:
 	void clear_banks();
 
 	// current bank/prog. managers
-	void set_current_bank_msb(uint8_t bank_msb);
-	void set_current_bank_lsb(uint8_t bank_lsb);
+	void bank_select_msb(uint8_t bank_msb);
+	void bank_select_lsb(uint8_t bank_lsb);
 
-	void set_current_bank(uint16_t bank_id);
-	void set_current_prog(uint16_t prog_id);
+	void bank_select(uint16_t bank_id);
+	void prog_change(uint16_t prog_id);
+
+	void select_program(uint16_t bank_id, uint16_t prog_id);
+
+	void process_program(samplv1 *pSampl, uint16_t bank_id, uint16_t prog_id);
 
 	Bank *current_bank() const { return m_bank; }
 	Prog *current_prog() const { return m_prog; }
@@ -116,22 +120,32 @@ protected:
 	public:
 
 		// ctor.
-		Sched (samplv1 *pSampl)
-			: samplv1_sched(Programs), m_pSampl(pSampl) {}
+		Sched (samplv1 *pSampl) : samplv1_sched(Programs),
+			m_pSampl(pSampl), m_bank_id(0), m_prog_id(0) {}
 
-		// process reset (virtual).
+		// schedule (override)
+		void select_program(uint16_t bank_id, uint16_t prog_id)
+		{
+			m_bank_id = bank_id;
+			m_prog_id = prog_id;
+
+			schedule();
+		}
+
+		// process (virtual).
 		void process()
 		{
 			samplv1_programs *pPrograms = m_pSampl->programs();
-			samplv1_programs::Prog *pProg = pPrograms->current_prog();
-			if (pProg)
-				samplv1_param::loadPreset(m_pSampl, pProg->name());
+			pPrograms->process_program(m_pSampl, m_bank_id, m_prog_id);
 		}
 
 	private:
 
 		// instance variables.
 		samplv1 *m_pSampl;
+
+		uint16_t m_bank_id;
+		uint16_t m_prog_id;
 	};
 
 private:

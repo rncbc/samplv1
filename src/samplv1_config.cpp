@@ -213,8 +213,8 @@ void samplv1_config::clearPrograms (void)
 void samplv1_config::loadProgramsCurrent ( samplv1_programs *pPrograms )
 {
 	QSettings::beginGroup(currentGroup());
-	pPrograms->set_current_bank(QSettings::value("/Bank", 0).toInt());
-	pPrograms->set_current_prog(QSettings::value("/Prog", 0).toInt());
+	pPrograms->bank_select(QSettings::value("/Bank", 0).toInt());
+	pPrograms->prog_change(QSettings::value("/Prog", 0).toInt());
 	QSettings::endGroup();
 }
 
