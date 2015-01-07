@@ -29,10 +29,6 @@
 
 #include "lv2/lv2plug.in/ns/ext/state/state.h"
 
-#ifdef CONFIG_LV2_PROGRAMS
-#include "lv2_programs.h"
-#endif
-
 #include <stdlib.h>
 #include <math.h>
 
@@ -352,6 +348,44 @@ static const LV2_State_Interface samplv1_lv2_state_interface =
 };
 
 
+#ifdef CONFIG_LV2_PROGRAMS
+
+#include "samplv1_programs.h"
+
+const LV2_Program_Descriptor *samplv1_lv2::get_program ( uint32_t index )
+{
+	samplv1_programs *pPrograms = samplv1::programs();
+	const samplv1_programs::Banks& banks = pPrograms->banks();
+	samplv1_programs::Banks::ConstIterator bank_iter = banks.constBegin();
+	const samplv1_programs::Banks::ConstIterator& bank_end = banks.constEnd();
+	for (uint32_t i = 0; bank_iter != bank_end; ++bank_iter) {
+		samplv1_programs::Bank *pBank = bank_iter.value();
+		const samplv1_programs::Progs& progs = pBank->progs();
+		samplv1_programs::Progs::ConstIterator prog_iter = progs.constBegin();
+		const samplv1_programs::Progs::ConstIterator& prog_end = progs.constEnd();
+		for ( ; prog_iter != prog_end; ++prog_iter, ++i) {
+			samplv1_programs::Prog *pProg = prog_iter.value();
+			if (i >= index) {
+				m_aProgramName = pProg->name().toUtf8();
+				m_program.bank = pBank->id();
+				m_program.program = pProg->id();
+				m_program.name = m_aProgramName.constData();
+				return &m_program;
+			}
+		}
+	}
+
+	return NULL;
+}
+
+void samplv1_lv2::select_program ( uint32_t bank, uint32_t program )
+{
+	samplv1::programs()->select_program(bank, program);
+}
+
+#endif	// CONFIG_LV2_PROGRAMS
+
+
 //-------------------------------------------------------------------------
 // samplv1_lv2 - LV2 desc.
 //
@@ -407,38 +441,14 @@ static void samplv1_lv2_cleanup ( LV2_Handle instance )
 
 #ifdef CONFIG_LV2_PROGRAMS
 
-#include "samplv1_programs.h"
-
 static const LV2_Program_Descriptor *samplv1_lv2_programs_get_program (
 	LV2_Handle instance, uint32_t index )
 {
 	samplv1_lv2 *pPlugin = static_cast<samplv1_lv2 *> (instance);
-	if (pPlugin) {
-		static LV2_Program_Descriptor s_program;
-		static QByteArray s_aProgramName;
-		samplv1_programs *pPrograms = pPlugin->programs();
-		const samplv1_programs::Banks& banks = pPrograms->banks();
-		samplv1_programs::Banks::ConstIterator bank_iter = banks.constBegin();
-		const samplv1_programs::Banks::ConstIterator& bank_end = banks.constEnd();
-		for (uint32_t i = 0; bank_iter != bank_end; ++bank_iter) {
-			samplv1_programs::Bank *pBank = bank_iter.value();
-			const samplv1_programs::Progs& progs = pBank->progs();
-			samplv1_programs::Progs::ConstIterator prog_iter = progs.constBegin();
-			const samplv1_programs::Progs::ConstIterator& prog_end = progs.constEnd();
-			for ( ; prog_iter != prog_end; ++prog_iter, ++i) {
-				samplv1_programs::Prog *pProg = prog_iter.value();
-				if (i >= index) {
-					s_aProgramName = pProg->name().toUtf8();
-					s_program.bank = pBank->id();
-					s_program.program = pProg->id();
-					s_program.name = s_aProgramName.constData();
-					return &s_program;
-				}
-			}
-		}
-	}
-
-	return NULL;
+	if (pPlugin)
+		return pPlugin->get_program(index);
+	else
+		return NULL;
 }
 
 static void samplv1_lv2_programs_select_program (
@@ -446,7 +456,7 @@ static void samplv1_lv2_programs_select_program (
 {
 	samplv1_lv2 *pPlugin = static_cast<samplv1_lv2 *> (instance);
 	if (pPlugin)
-		pPlugin->selectProgram(bank, program);
+		pPlugin->select_program(bank, program);
 }
 
 static const LV2_Programs_Interface samplv1_lv2_programs_interface =

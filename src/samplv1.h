@@ -148,8 +148,6 @@ public:
 
 	void reset();
 
-	void selectProgram(uint16_t bank_id, uint16_t prog_id);
-
 	samplv1_programs *programs() const;
 
 protected:

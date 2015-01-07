@@ -79,14 +79,11 @@ public:
 	void loadPrograms(samplv1_programs *pPrograms);
 	void savePrograms(samplv1_programs *pPrograms);
 
-	void loadProgramsCurrent(samplv1_programs *pPrograms);
-	void saveProgramsCurrent(samplv1_programs *pPrograms);
-
-protected:
-
 	// Explicit I/O methods.
 	void load();
 	void save();
+
+protected:
 
 	// Preset group path.
 	QString presetGroup() const;
@@ -94,7 +91,6 @@ protected:
 	// Banks programs group path.
 	QString programsGroup() const;
 	QString bankPrefix() const;
-	QString currentGroup() const;
 
 	void clearPrograms();
 
