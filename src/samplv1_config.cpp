@@ -219,6 +219,7 @@ void samplv1_config::load (void)
 	QSettings::endGroup();
 
 	QSettings::beginGroup("/Dialogs");
+	bProgramsPreview = QSettings::value("/ProgramsPreview", false).toBool();
 	bUseNativeDialogs = QSettings::value("/UseNativeDialogs", true).toBool();
 	// Run-time special non-persistent options.
 	bDontUseNativeDialogs = !bUseNativeDialogs;
@@ -239,6 +240,7 @@ void samplv1_config::save (void)
 	QSettings::endGroup();
 
 	QSettings::beginGroup("/Dialogs");
+	QSettings::setValue("/ProgramsPreview", bProgramsPreview);
 	QSettings::setValue("/UseNativeDialogs", bUseNativeDialogs);
 	QSettings::endGroup();
 

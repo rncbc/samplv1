@@ -79,7 +79,7 @@ public:
 	void loadPrograms(samplv1_programs *pPrograms);
 	void savePrograms(samplv1_programs *pPrograms);
 
-	void selectPrograms(samplv1_programs *pPrograms);
+	void selectProgram(samplv1_programs *pPrograms);
 
 public slots:
 

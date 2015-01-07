@@ -87,7 +87,7 @@ QWidget *samplv1widget_programs_item_delegate::createEditor ( QWidget *pParent,
 		break;
 	}
 
-#ifdef CONFIG_DEBUG
+#ifdef CONFIG_DEBUG_0
 	qDebug("samplv1widget_programs_item_delegate::createEditor(%p, %d, %d) = %p",
 		pParent, index.row(), index.column(), pEditor);
 #endif
@@ -99,7 +99,7 @@ QWidget *samplv1widget_programs_item_delegate::createEditor ( QWidget *pParent,
 void samplv1widget_programs_item_delegate::setEditorData (
 	QWidget *pEditor, const QModelIndex& index ) const
 {
-#ifdef CONFIG_DEBUG
+#ifdef CONFIG_DEBUG_0
 	qDebug("samplv1widget_programs_item_delegate::setEditorData(%p, %d, %d)",
 		pEditor, index.row(), index.column());
 #endif
@@ -140,7 +140,7 @@ void samplv1widget_programs_item_delegate::setEditorData (
 void samplv1widget_programs_item_delegate::setModelData ( QWidget *pEditor,
 	QAbstractItemModel *pModel,	const QModelIndex& index ) const
 {
-#ifdef CONFIG_DEBUG
+#ifdef CONFIG_DEBUG_0
 	qDebug("samplv1widget_programs_item_delegate::setModelData(%p, %d, %d)",
 		pEditor, index.row(), index.column());
 #endif
@@ -292,32 +292,17 @@ void samplv1widget_programs::savePrograms ( samplv1_programs *pPrograms )
 }
 
 
-void samplv1widget_programs::selectPrograms ( samplv1_programs *pPrograms )
+void samplv1widget_programs::selectProgram ( samplv1_programs *pPrograms )
 {
-	samplv1_programs::Bank *pBank = pPrograms->current_bank();
-	if (pBank == NULL)
-		return;
-
-	samplv1_programs::Prog *pProg = pPrograms->current_prog();
-	if (pProg == NULL)
-		return;
-
-	const int iBankData = pBank->id();
-	const int iProgData = pProg->id();
-
-	const int iBankCount = QTreeWidget::topLevelItemCount();
-	for (int iBank = 0 ; iBank < iBankCount; ++iBank) {
-		QTreeWidgetItem *pBankItem = QTreeWidget::topLevelItem(iBank);
-		if (iBankData == pBankItem->data(0, Qt::UserRole).toInt()) {
-			const int iProgCount = pBankItem->childCount();
-			for (int iProg = 0 ; iProg < iProgCount; ++iProg) {
-				QTreeWidgetItem *pProgItem = pBankItem->child(iProg);
-				if (iProgData == pProgItem->data(0, Qt::UserRole).toInt()) {
-					QTreeWidget::setCurrentItem(pProgItem);
-					break;
-				}
-			}
-			break;
+	const QList<QTreeWidgetItem *>& selectedItems
+		= QTreeWidget::selectedItems();
+	if (!selectedItems.isEmpty()) {
+		QTreeWidgetItem *pProgItem = selectedItems.first();
+		QTreeWidgetItem *pBankItem = pProgItem->parent();
+		if (pBankItem) {
+			const uint16_t bank_id = pBankItem->data(0, Qt::UserRole).toInt();
+			const uint16_t prog_id = pProgItem->data(0, Qt::UserRole).toInt();
+			pPrograms->select_program(bank_id, prog_id);
 		}
 	}
 }

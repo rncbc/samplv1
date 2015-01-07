@@ -40,8 +40,10 @@ samplv1widget_config::samplv1widget_config (
 
 	// Setup options...
 	samplv1_config *pConfig = samplv1_config::getInstance();
-	if (pConfig)
+	if (pConfig) {
+		m_ui.ProgramsPreviewCheckBox->setChecked(pConfig->bProgramsPreview);
 		m_ui.UseNativeDialogsCheckBox->setChecked(pConfig->bUseNativeDialogs);
+	}
 
 	// Signal/slots connections...
 	QObject::connect(m_ui.ProgramsAddBankToolButton,
@@ -59,16 +61,13 @@ samplv1widget_config::samplv1widget_config (
 
 	QObject::connect(m_ui.ProgramsTreeWidget,
 		SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
-		SLOT(programsCurrentChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
+		SLOT(programsCurrentChanged()));
 	QObject::connect(m_ui.ProgramsTreeWidget,
 		SIGNAL(itemChanged(QTreeWidgetItem *, int)),
 		SLOT(programsChanged()));
 	QObject::connect(m_ui.ProgramsTreeWidget,
 		SIGNAL(itemActivated(QTreeWidgetItem *, int)),
-		SLOT(programsChanged()));
-	QObject::connect(m_ui.ProgramsTreeWidget,
-		SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)),
-		SLOT(programsDoubleClicked(QTreeWidgetItem *, int)));
+		SLOT(programsActivated()));
 
 	// Custom context menu...
 	m_ui.ProgramsTreeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -78,6 +77,9 @@ samplv1widget_config::samplv1widget_config (
 		SLOT(programsContextMenuRequested(const QPoint&)));
 
 	// Options slots...
+	QObject::connect(m_ui.ProgramsPreviewCheckBox,
+		SIGNAL(toggled(bool)),
+		SLOT(optionsChanged()));
 	QObject::connect(m_ui.UseNativeDialogsCheckBox,
 		SIGNAL(toggled(bool)),
 		SLOT(optionsChanged()));
@@ -114,13 +116,10 @@ void samplv1widget_config::setPrograms ( samplv1_programs *pPrograms )
 	// Programs database.
 	m_pPrograms = pPrograms;
 
+	// Load programs database...
 	samplv1_config *pConfig = samplv1_config::getInstance();
-	if (pConfig && m_pPrograms) {
-		// Load programs.
+	if (pConfig && m_pPrograms)
 		m_ui.ProgramsTreeWidget->loadPrograms(m_pPrograms);
-		// Selected current program, if any...
-		m_ui.ProgramsTreeWidget->selectPrograms(m_pPrograms);
-	}
 
 	// Reset Dialog dirty flags.
 	m_iDirtyPrograms = 0;
@@ -173,16 +172,9 @@ void samplv1widget_config::programsDeleteItem (void)
 
 
 // janitor slots.
-void samplv1widget_config::programsCurrentChanged ( QTreeWidgetItem *, QTreeWidgetItem * )
+void samplv1widget_config::programsCurrentChanged (void)
 {
 	stabilize();
-}
-
-
-void samplv1widget_config::programsDoubleClicked ( QTreeWidgetItem *pItem, int iColumn )
-{
-	if (pItem->parent() && iColumn > 0)
-		accept();
 }
 
 
@@ -229,6 +221,15 @@ void samplv1widget_config::programsChanged (void)
 }
 
 
+void samplv1widget_config::programsActivated (void)
+{
+	if (m_ui.ProgramsPreviewCheckBox->isChecked() && m_pPrograms)
+		m_ui.ProgramsTreeWidget->selectProgram(m_pPrograms);
+
+	stabilize();
+}
+
+
 void samplv1widget_config::optionsChanged (void)
 {
 	++m_iDirtyOptions;
@@ -269,6 +270,7 @@ void samplv1widget_config::accept (void)
 
 	if (m_iDirtyOptions > 0 && pConfig) {
 		// Save options...
+		pConfig->bProgramsPreview = m_ui.ProgramsPreviewCheckBox->isChecked();
 		pConfig->bUseNativeDialogs = m_ui.UseNativeDialogsCheckBox->isChecked();
 		pConfig->bDontUseNativeDialogs = !pConfig->bUseNativeDialogs;
 		pConfig->save();
