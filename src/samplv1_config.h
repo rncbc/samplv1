@@ -80,10 +80,6 @@ public:
 	void loadPrograms(samplv1_programs *pPrograms);
 	void savePrograms(samplv1_programs *pPrograms);
 
-	// Explicit I/O methods.
-	void load();
-	void save();
-
 protected:
 
 	// Preset group path.
@@ -94,6 +90,10 @@ protected:
 	QString bankPrefix() const;
 
 	void clearPrograms();
+
+	// Explicit I/O methods.
+	void load();
+	void save();
 
 private:
 
