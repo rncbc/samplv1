@@ -81,9 +81,7 @@ samplv1_nsm *samplv1widget_jack::nsmClient (void) const
 void samplv1widget_jack::updateParam (
 	samplv1::ParamIndex index, float fValue ) const
 {
-	float *pParamPort = m_pSampl->paramPort(index);
-	if (pParamPort)
-		*pParamPort = fValue;
+	m_pSampl->setParamValue(index, fValue);
 }
 
 

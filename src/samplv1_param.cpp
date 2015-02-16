@@ -279,14 +279,12 @@ void samplv1_param::loadPreset ( samplv1 *pSampl, const QString& sFilename )
 									continue;
 								index = s_hash.value(sName);
 							}
-							float fParamValue = eParam.text().toFloat();
+							float fValue = eParam.text().toFloat();
 						#if 1//--legacy support < 0.3.0.4
-							if (index == samplv1::DEL1_BPM && fParamValue < 3.6f)
-								fParamValue *= 100.0f;
+							if (index == samplv1::DEL1_BPM && fValue < 3.6f)
+								fValue *= 100.0f;
 						#endif
-							float *pfParamPort = pSampl->paramPort(index);
-							if (pfParamPort)
-								*pfParamPort = fParamValue;
+							pSampl->setParamValue(index, fValue);
 						}
 					}
 				}
@@ -326,12 +324,8 @@ void samplv1_param::savePreset ( samplv1 *pSampl, const QString& sFilename )
 		samplv1::ParamIndex index = samplv1::ParamIndex(i);
 		eParam.setAttribute("index", QString::number(i));
 		eParam.setAttribute("name", samplv1_param::paramName(index));
-		const float *pfParamPort = pSampl->paramPort(index);
-		float fParamValue = 0.0f;
-		if (pfParamPort)
-			fParamValue = *pfParamPort;
-		eParam.appendChild(
-			doc.createTextNode(QString::number(fParamValue)));
+		const float fValue = pSampl->paramValue(index);
+		eParam.appendChild(doc.createTextNode(QString::number(fValue)));
 		eParams.appendChild(eParam);
 	}
 	ePreset.appendChild(eParams);

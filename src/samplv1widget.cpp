@@ -546,21 +546,18 @@ void samplv1widget::setParamValue (
 
 float samplv1widget::paramValue ( samplv1::ParamIndex index ) const
 {
-	float fParamValue = 0.0f;
+	float fValue = 0.0f;
 
 	samplv1widget_knob *pKnob = paramKnob(index);
 	if (pKnob) {
-		fParamValue = pKnob->value();
+		fValue = pKnob->value();
 	} else {
 		samplv1 *pSampl = instance();
-		if (pSampl) {
-			const float *pParamPort = pSampl->paramPort(index);
-			if (pParamPort)
-				fParamValue = *pParamPort;
-		}
+		if (pSampl)
+			fValue = pSampl->paramValue(index);
 	}
 
-	return fParamValue;
+	return fValue;
 }
 
 
@@ -698,11 +695,9 @@ void samplv1widget::updateParamValues (void)
 
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
 		samplv1::ParamIndex index = samplv1::ParamIndex(i);
-		float fValue = samplv1_param::paramDefaultValue(index);
-		const float *pfParamPort
-			= (pSampl ? pSampl->paramPort(index) : NULL);
-		if (pfParamPort)
-			fValue = *pfParamPort;
+		const float fValue = (pSampl
+			? pSampl->paramValue(index)
+			: samplv1_param::paramDefaultValue(index));
 		setParamValue(index, fValue, true);
 		updateParam(index, fValue);
 	//	updateParamEx(index, fValue);
@@ -1003,13 +998,10 @@ void samplv1widget::bpmSyncChanged (void)
 	++m_iUpdate;
 	samplv1 *pSampl = instance();
 	if (pSampl) {
-		float *pBpmSync = pSampl->paramPort(samplv1::DEL1_BPMSYNC);
-		if (pBpmSync) {
-			const bool bBpmSync0 = (*pBpmSync > 0.0f);
-			const bool bBpmSync1 = m_ui.Del1BpmKnob->isSpecialValue();
-			if ((bBpmSync1 && !bBpmSync0) || (!bBpmSync1 && bBpmSync0))
-				*pBpmSync = (bBpmSync1 ? 1.0f : 0.0f);
-		}
+		const bool bBpmSync0 = (pSampl->paramValue(samplv1::DEL1_BPMSYNC) > 0.0f);
+		const bool bBpmSync1 = m_ui.Del1BpmKnob->isSpecialValue();
+		if ((bBpmSync1 && !bBpmSync0) || (!bBpmSync1 && bBpmSync0))
+			pSampl->setParamValue(samplv1::DEL1_BPMSYNC, (bBpmSync1 ? 1.0f : 0.0f));
 	}
 	--m_iUpdate;
 }

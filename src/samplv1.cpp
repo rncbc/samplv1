@@ -730,7 +730,10 @@ public:
 	const char *sampleFile() const;
 
 	void setParamPort(samplv1::ParamIndex index, float *pfParam = 0);
-	float *paramPort(samplv1::ParamIndex index);
+	float *paramPort(samplv1::ParamIndex index) const;
+
+	void setParamValue(samplv1::ParamIndex index, float fValue);
+	float paramValue(samplv1::ParamIndex index) const;
 
 	samplv1_programs *programs();
 
@@ -1099,7 +1102,7 @@ void samplv1_impl::setParamPort ( samplv1::ParamIndex index, float *pfParam )
 }
 
 
-float *samplv1_impl::paramPort ( samplv1::ParamIndex index )
+float *samplv1_impl::paramPort ( samplv1::ParamIndex index ) const
 {
 	float *pfParam= 0;
 
@@ -1178,6 +1181,21 @@ float *samplv1_impl::paramPort ( samplv1::ParamIndex index )
 	}
 
 	return pfParam;
+}
+
+
+void samplv1_impl::setParamValue ( samplv1::ParamIndex index, float fValue )
+{
+	float *pfParamPort = paramPort(index);
+	if (pfParamPort)
+		*pfParamPort = fValue;
+}
+
+
+float samplv1_impl::paramValue ( samplv1::ParamIndex index ) const
+{
+	float *pfParamPort = paramPort(index);
+	return (pfParamPort ? *pfParamPort : 0.0f);
 }
 
 
@@ -1797,6 +1815,17 @@ void samplv1::setParamPort ( ParamIndex index, float *pfParam )
 float *samplv1::paramPort ( ParamIndex index ) const
 {
 	return m_pImpl->paramPort(index);
+}
+
+
+void samplv1::setParamValue ( ParamIndex index, float fValue )
+{
+	m_pImpl->setParamValue(index, fValue);
+}
+
+float samplv1::paramValue ( ParamIndex index ) const
+{
+	return m_pImpl->paramValue(index);
 }
 
 
