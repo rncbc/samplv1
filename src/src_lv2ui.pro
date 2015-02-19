@@ -10,6 +10,8 @@ include(src_lv2.pri)
 
 HEADERS = \
 	config.h \
+	samplv1.h \
+	samplv1_lv2.h \
 	samplv1_config.h \
 	samplv1_param.h \
 	samplv1widget.h \
@@ -25,7 +27,6 @@ HEADERS = \
 	samplv1widget_lv2.h
 
 SOURCES = \
-	samplv1_param.cpp \
 	samplv1widget.cpp \
 	samplv1widget_env.cpp \
 	samplv1widget_filt.cpp \
