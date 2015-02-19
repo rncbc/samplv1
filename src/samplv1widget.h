@@ -26,7 +26,7 @@
 
 #include "samplv1_config.h"
 
-#include "samplv1.h"
+#include "samplv1_ui.h"
 
 
 // forward decls.
@@ -121,7 +121,7 @@ protected slots:
 protected:
 
 	// Synth engine accessor.
-	virtual samplv1 *instance() const = 0;
+	virtual samplv1_ui *ui_instance() const = 0;
 
 	// Reset swap params A/B group.
 	void resetSwapParams();

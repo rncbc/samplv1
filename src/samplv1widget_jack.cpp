@@ -38,23 +38,23 @@
 //
 
 // Constructor.
-samplv1widget_jack::samplv1widget_jack ( samplv1_jack *pSampl )
-	: samplv1widget(), m_pSampl(pSampl)
+samplv1widget_jack::samplv1widget_jack ( samplv1_jack *pSamplUi )
+	: samplv1widget(), m_pSamplUi(pSamplUi)
 	#ifdef CONFIG_NSM
 		, m_pNsmClient(NULL)
 	#endif
 {
 	// Initialize preset stuff...
 	// initPreset();
-	updateSample(m_pSampl->sample());
+	updateSample(m_pSamplUi->sample());
 	updateParamValues();
 }
 
 
 // Synth engine accessor.
-samplv1 *samplv1widget_jack::instance (void) const
+samplv1_ui *samplv1widget_jack::ui_instance (void) const
 {
-	return m_pSampl;
+	return m_pSamplUi;
 }
 
 #ifdef CONFIG_NSM
@@ -81,7 +81,7 @@ samplv1_nsm *samplv1widget_jack::nsmClient (void) const
 void samplv1widget_jack::updateParam (
 	samplv1::ParamIndex index, float fValue ) const
 {
-	m_pSampl->setParamValue(index, fValue);
+	m_pSamplUi->setParamValue(index, fValue);
 }
 
 

@@ -552,9 +552,9 @@ float samplv1widget::paramValue ( samplv1::ParamIndex index ) const
 	if (pKnob) {
 		fValue = pKnob->value();
 	} else {
-		samplv1 *pSampl = instance();
-		if (pSampl)
-			fValue = pSampl->paramValue(index);
+		samplv1_ui *pSamplUi = ui_instance();
+		if (pSamplUi)
+			fValue = pSamplUi->paramValue(index);
 	}
 
 	return fValue;
@@ -584,8 +584,8 @@ void samplv1widget::paramChanged ( float fValue )
 // Update local tied widgets.
 void samplv1widget::updateParamEx ( samplv1::ParamIndex index, float fValue )
 {
-	samplv1 *pSampl = instance();
-	if (pSampl == NULL)
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi == NULL)
 		return;
 
 	++m_iUpdate;
@@ -601,12 +601,12 @@ void samplv1widget::updateParamEx ( samplv1::ParamIndex index, float fValue )
 #endif
 	case samplv1::GEN1_LOOP: {
 		const bool bLoop = bool(fValue > 0.0f);
-		pSampl->setLoop(bLoop);
+		pSamplUi->setLoop(bLoop);
 		m_ui.Gen1Sample->setLoop(bLoop);
-		m_ui.Gen1Sample->setLoopStart(pSampl->loopStart());
-		m_ui.Gen1Sample->setLoopEnd(pSampl->loopEnd());
+		m_ui.Gen1Sample->setLoopStart(pSamplUi->loopStart());
+		m_ui.Gen1Sample->setLoopEnd(pSamplUi->loopEnd());
 		m_ui.Gen1LoopRangeFrame->setEnabled(bLoop);
-		updateSampleLoop(pSampl->sample());
+		updateSampleLoop(pSamplUi->sample());
 		break;
 	}
 	case samplv1::DEL1_BPMSYNC:
@@ -624,11 +624,11 @@ void samplv1widget::updateParamEx ( samplv1::ParamIndex index, float fValue )
 // Reset all param knobs to default values.
 void samplv1widget::resetParams (void)
 {
-	samplv1 *pSampl = instance();
-	if (pSampl == NULL)
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi == NULL)
 		return;
 
-	pSampl->reset();
+	pSamplUi->reset();
 
 	resetSwapParams();
 
@@ -691,12 +691,12 @@ void samplv1widget::updateParamValues (void)
 {
 	resetSwapParams();
 
-	samplv1 *pSampl = instance();
+	samplv1_ui *pSamplUi = ui_instance();
 
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
 		samplv1::ParamIndex index = samplv1::ParamIndex(i);
-		const float fValue = (pSampl
-			? pSampl->paramValue(index)
+		const float fValue = (pSamplUi
+			? pSamplUi->paramValue(index)
 			: samplv1_param::paramDefaultValue(index));
 		setParamValue(index, fValue, true);
 		updateParam(index, fValue);
@@ -777,11 +777,11 @@ void samplv1widget::loadPreset ( const QString& sFilename )
 	resetParamKnobs();
 	resetParamValues();
 
-	samplv1 *pSampl = instance();
-	if (pSampl == NULL)
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi == NULL)
 		return;
 
-	samplv1_param::loadPreset(pSampl, sFilename);
+	samplv1_param::loadPreset(pSamplUi, sFilename);
 
 	updateLoadPreset(QFileInfo(sFilename).completeBaseName());
 }
@@ -793,7 +793,7 @@ void samplv1widget::savePreset ( const QString& sFilename )
 	qDebug("samplv1widget::savePreset(\"%s\")", sFilename.toUtf8().constData());
 #endif
 
-	samplv1_param::savePreset(instance(), sFilename);
+	samplv1_param::savePreset(ui_instance(), sFilename);
 
 	const QString& sPreset
 		= QFileInfo(sFilename).completeBaseName();
@@ -837,9 +837,9 @@ void samplv1widget::clearSampleFile (void)
 	qDebug("samplv1widget::clearSampleFile()");
 #endif
 
-	samplv1 *pSampl = instance();
-	if (pSampl)
-		pSampl->setSampleFile(0);
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi)
+		pSamplUi->setSampleFile(0);
 
 	updateSample(0);
 }
@@ -852,10 +852,10 @@ void samplv1widget::loadSampleFile ( const QString& sFilename )
 	qDebug("samplv1widget::loadSampleFile(\"%s\")", sFilename.toUtf8().constData());
 #endif
 
-	samplv1 *pSampl = instance();
-	if (pSampl) {
-		pSampl->setSampleFile(sFilename.toUtf8().constData());
-		updateSample(pSampl->sample());
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi) {
+		pSamplUi->setSampleFile(sFilename.toUtf8().constData());
+		updateSample(pSamplUi->sample());
 	}
 }
 
@@ -910,12 +910,12 @@ void samplv1widget::loopRangeChanged (void)
 		return;
 
 	++m_iUpdate;
-	samplv1 *pSampl = instance();
-	if (pSampl) {
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi) {
 		const uint32_t iLoopStart = m_ui.Gen1Sample->loopStart();
 		const uint32_t iLoopEnd = m_ui.Gen1Sample->loopEnd();
-		pSampl->setLoopRange(iLoopStart, iLoopEnd);
-		updateSampleLoop(pSampl->sample(), true);
+		pSamplUi->setLoopRange(iLoopStart, iLoopEnd);
+		updateSampleLoop(pSamplUi->sample(), true);
 	}
 	--m_iUpdate;
 }
@@ -928,13 +928,13 @@ void samplv1widget::loopStartChanged (void)
 		return;
 
 	++m_iUpdate;
-	samplv1 *pSampl = instance();
-	if (pSampl) {
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi) {
 		const uint32_t iLoopStart = m_ui.Gen1LoopStartSpinBox->value();
-		const uint32_t iLoopEnd = pSampl->loopEnd();
-		pSampl->setLoopRange(iLoopStart, iLoopEnd);
+		const uint32_t iLoopEnd = pSamplUi->loopEnd();
+		pSamplUi->setLoopRange(iLoopStart, iLoopEnd);
 		m_ui.Gen1Sample->setLoopStart(iLoopStart);
-		updateSampleLoop(pSampl->sample(), true);
+		updateSampleLoop(pSamplUi->sample(), true);
 	}
 	--m_iUpdate;
 }
@@ -947,13 +947,13 @@ void samplv1widget::loopEndChanged (void)
 		return;
 
 	++m_iUpdate;
-	samplv1 *pSampl = instance();
-	if (pSampl) {
-		const uint32_t iLoopStart = pSampl->loopStart();
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi) {
+		const uint32_t iLoopStart = pSamplUi->loopStart();
 		const uint32_t iLoopEnd = m_ui.Gen1LoopEndSpinBox->value();
-		pSampl->setLoopRange(iLoopStart, iLoopEnd);
+		pSamplUi->setLoopRange(iLoopStart, iLoopEnd);
 		m_ui.Gen1Sample->setLoopEnd(iLoopEnd);
-		updateSampleLoop(pSampl->sample(), true);
+		updateSampleLoop(pSamplUi->sample(), true);
 	}
 	--m_iUpdate;
 }
@@ -996,12 +996,12 @@ void samplv1widget::bpmSyncChanged (void)
 		return;
 
 	++m_iUpdate;
-	samplv1 *pSampl = instance();
-	if (pSampl) {
-		const bool bBpmSync0 = (pSampl->paramValue(samplv1::DEL1_BPMSYNC) > 0.0f);
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi) {
+		const bool bBpmSync0 = (pSamplUi->paramValue(samplv1::DEL1_BPMSYNC) > 0.0f);
 		const bool bBpmSync1 = m_ui.Del1BpmKnob->isSpecialValue();
 		if ((bBpmSync1 && !bBpmSync0) || (!bBpmSync1 && bBpmSync0))
-			pSampl->setParamValue(samplv1::DEL1_BPMSYNC, (bBpmSync1 ? 1.0f : 0.0f));
+			pSamplUi->setParamValue(samplv1::DEL1_BPMSYNC, (bBpmSync1 ? 1.0f : 0.0f));
 	}
 	--m_iUpdate;
 }
@@ -1013,15 +1013,15 @@ void samplv1widget::contextMenuRequest ( const QPoint& pos )
 	QMenu menu(this);
 	QAction *pAction;
 
-	samplv1 *pSampl = instance();
+	samplv1_ui *pSamplUi = ui_instance();
 	const char *pszSampleFile = NULL;
-	if (pSampl)
-		pszSampleFile = pSampl->sampleFile();
+	if (pSamplUi)
+		pszSampleFile = pSamplUi->sampleFile();
 
 	pAction = menu.addAction(
 		QIcon(":/images/fileOpen.png"),
 		tr("Open Sample..."), this, SLOT(openSample()));
-	pAction->setEnabled(pSampl != NULL);
+	pAction->setEnabled(pSamplUi != NULL);
 	menu.addSeparator();
 	pAction = menu.addAction(
 		tr("Reset"), this, SLOT(clearSample()));
@@ -1034,9 +1034,9 @@ void samplv1widget::contextMenuRequest ( const QPoint& pos )
 // Preset status updater.
 void samplv1widget::updateLoadPreset ( const QString& sPreset )
 {
-	samplv1 *pSampl = instance();
-	if (pSampl)
-		updateSample(pSampl->sample());
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi)
+		updateSample(pSamplUi->sample());
 
 	updateParamValues();
 
@@ -1049,8 +1049,8 @@ void samplv1widget::updateLoadPreset ( const QString& sPreset )
 // Notification updater.
 void samplv1widget::updateSchedNotify ( int stype )
 {
-	samplv1 *pSampl = instance();
-	if (pSampl == NULL)
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi == NULL)
 		return;
 
 #ifdef CONFIG_DEBUG
@@ -1059,13 +1059,13 @@ void samplv1widget::updateSchedNotify ( int stype )
 
 	switch (samplv1_sched::Type(stype)) {
 	case samplv1_sched::Programs: {
-		samplv1_programs *pPrograms = pSampl->programs();
+		samplv1_programs *pPrograms = pSamplUi->programs();
 		samplv1_programs::Prog *pProg = pPrograms->current_prog();
 		if (pProg) updateLoadPreset(pProg->name());
 		break;
 	}
 	case samplv1_sched::Sample:
-		updateSample(pSampl->sample());
+		updateSample(pSamplUi->sample());
 		// Fall thru...
 	default:
 		break;
@@ -1076,14 +1076,14 @@ void samplv1widget::updateSchedNotify ( int stype )
 // Menu actions.
 void samplv1widget::helpConfigure (void)
 {
-	samplv1 *pSampl = instance();
-	if (pSampl == NULL)
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi == NULL)
 		return;
 
 	samplv1widget_config form(this);
 
 	// Set programs database...
-	form.setPrograms(pSampl->programs());
+	form.setPrograms(pSamplUi->programs());
 	form.exec();
 }
 

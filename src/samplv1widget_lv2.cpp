@@ -1,7 +1,7 @@
 // samplv1widget_lv2.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2014, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2015, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -34,9 +34,9 @@
 //
 
 // Constructor.
-samplv1widget_lv2::samplv1widget_lv2 ( samplv1_lv2 *pSampl,
+samplv1widget_lv2::samplv1widget_lv2 ( samplv1_lv2 *pSamplUi,
 	LV2UI_Controller controller, LV2UI_Write_Function write_function )
-	: samplv1widget(), m_pSampl(pSampl)
+	: samplv1widget(), m_pSamplUi(pSamplUi)
 {
 	m_controller = controller;
 	m_write_function = write_function;
@@ -52,17 +52,17 @@ samplv1widget_lv2::samplv1widget_lv2 ( samplv1_lv2 *pSampl,
 		m_params_def[i] = true;
 
 	// Initial update, always...
-	if (m_pSampl->sampleFile())
-		updateSample(m_pSampl->sample());
+	if (m_pSamplUi->sampleFile())
+		updateSample(m_pSamplUi->sample());
 //	else
 //		initPreset();
 }
 
 
 // Synth engine accessor.
-samplv1 *samplv1widget_lv2::instance (void) const
+samplv1_ui *samplv1widget_lv2::ui_instance (void) const
 {
-	return m_pSampl;
+	return m_pSamplUi;
 }
 
 

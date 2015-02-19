@@ -22,7 +22,7 @@
 #ifndef __samplv1_jack_h
 #define __samplv1_jack_h
 
-#include "samplv1.h"
+#include "samplv1_ui.h"
 
 #include <jack/jack.h>
 
@@ -39,7 +39,7 @@ class samplv1_alsa_thread;
 // samplv1_jack - decl.
 //
 
-class samplv1_jack : public samplv1
+class samplv1_jack : public samplv1_ui
 {
 public:
 
@@ -71,6 +71,8 @@ public:
 #endif
 
 private:
+
+	samplv1 *m_sampl;
 
 	jack_client_t *m_client;
 

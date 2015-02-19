@@ -1,4 +1,4 @@
-// samplv1_param.h
+// samplv1_ui.h
 //
 /****************************************************************************
    Copyright (C) 2012-2015, rncbc aka Rui Nuno Capela. All rights reserved.
@@ -19,42 +19,54 @@
 
 *****************************************************************************/
 
-#ifndef __samplv1_param_h
-#define __samplv1_param_h
+#ifndef __samplv1_ui_h
+#define __samplv1_ui_h
 
-#include "samplv1_ui.h"
-
-#include <QString>
-
-// forward decl.
-class QDomElement;
-class QDomDocument;
+#include "samplv1.h"
 
 
 //-------------------------------------------------------------------------
-// samplv1_param - decl.
+// samplv1_ui - decl.
 //
 
-namespace samplv1_param
+class samplv1_ui
 {
-	// Sample serialization methods.
-	void loadSamples(samplv1_ui *pSamplUi,
-		const QDomElement& eSamples);
-	void saveSamples(samplv1_ui *pSamplUi,
-		QDomDocument& doc, QDomElement& eSamples);
+public:
 
-	// Preset serialization methods.
-	void loadPreset(samplv1_ui *pSamplUi,
-		const QString& sFilename);
-	void savePreset(samplv1_ui *pSamplUi,
-		const QString& sFilename);
+	samplv1_ui(samplv1 *pSampl);
 
-	// Default parameter name/value helpers.
-	const char *paramName(samplv1::ParamIndex index);
-	float paramDefaultValue(samplv1::ParamIndex index);
+	void setSampleFile(const char *pszSampleFile);
+	const char *sampleFile() const;
+
+	samplv1_sample *sample() const;
+
+	void setReverse(bool bReverse);
+	bool isReverse() const;
+
+	void setLoop(bool bLoop);
+	bool isLoop() const;
+
+	void setLoopRange(uint32_t iLoopStart, uint32_t iLoopEnd);
+	uint32_t loopStart() const;
+	uint32_t loopEnd() const;
+
+	void setParamValue(samplv1::ParamIndex index, float fValue);
+	float paramValue(samplv1::ParamIndex index) const;
+
+	samplv1_programs *programs() const;
+
+	void reset();
+
+protected:
+
+	samplv1 *instance() const;
+
+private:
+
+	samplv1 *m_pSampl;
 };
 
 
-#endif	// __samplv1_param_h
+#endif// __samplv1_ui_h
 
-// end of samplv1_param.h
+// end of samplv1_ui.h

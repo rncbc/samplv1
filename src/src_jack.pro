@@ -10,6 +10,7 @@ include(src_jack.pri)
 HEADERS = \
 	config.h \
 	samplv1.h \
+	samplv1_ui.h \
 	samplv1_jack.h \
 	samplv1_config.h \
 	samplv1_sample.h \
@@ -36,6 +37,7 @@ HEADERS = \
 
 SOURCES = \
 	samplv1.cpp \
+	samplv1_ui.cpp \
 	samplv1_config.cpp \
 	samplv1_jack.cpp \
 	samplv1_sample.cpp \

@@ -177,8 +177,10 @@ void samplv1_programs::process_program (
 	m_bank = find_bank(bank_id);
 	m_prog = (m_bank ? m_bank->find_prog(prog_id) : 0);
 
-	if (m_prog)
-		samplv1_param::loadPreset(pSampl, m_prog->name());
+	if (m_prog) {
+		samplv1_ui ui(pSampl);
+		samplv1_param::loadPreset(&ui, m_prog->name());
+	}
 }
 
 

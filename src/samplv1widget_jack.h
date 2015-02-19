@@ -53,7 +53,7 @@ public:
 protected:
 
 	// Synth engine accessor.
-	samplv1 *instance() const;
+	samplv1_ui *ui_instance() const;
 
 	// Param port method.
 	void updateParam(samplv1::ParamIndex index, float fValue) const;
@@ -73,7 +73,7 @@ protected:
 private:
 
 	// Instance variables.
-	samplv1_jack *m_pSampl;
+	samplv1_jack *m_pSamplUi;
 
 #ifdef CONFIG_NSM
 	samplv1_nsm *m_pNsmClient;

@@ -1,7 +1,7 @@
 // samplv1widget_lv2.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2014, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2015, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -69,7 +69,7 @@ public:
 protected:
 
 	// Synth engine accessor.
-	samplv1 *instance() const;
+	samplv1_ui *ui_instance() const;
 
 	// Param methods.
 	void updateParam(samplv1::ParamIndex index, float fValue) const;
@@ -82,7 +82,7 @@ protected:
 private:
 
 	// Instance variables.
-	samplv1_lv2 *m_pSampl;
+	samplv1_lv2 *m_pSamplUi;
 
 	LV2UI_Controller     m_controller;
 	LV2UI_Write_Function m_write_function;

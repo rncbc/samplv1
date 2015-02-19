@@ -22,7 +22,7 @@
 #ifndef __samplv1_lv2_h
 #define __samplv1_lv2_h
 
-#include "samplv1.h"
+#include "samplv1_ui.h"
 
 #include "lv2.h"
 #include "lv2/lv2plug.in/ns/ext/urid/urid.h"
@@ -42,7 +42,7 @@
 // samplv1_lv2 - decl.
 //
 
-class samplv1_lv2 : public samplv1
+class samplv1_lv2 : public samplv1_ui
 {
 public:
 
@@ -77,6 +77,8 @@ public:
 private:
 
 	LV2_URID_Map *m_urid_map;
+
+	samplv1 *m_sampl;
 
 	struct lv2_urids
 	{
