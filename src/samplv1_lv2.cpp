@@ -225,7 +225,8 @@ static LV2_State_Status samplv1_lv2_state_save ( LV2_Handle instance,
 
 	size_t size = ::strlen(value) + 1;
 
-	LV2_State_Status result = (*store)(handle, key, value, size, type, flags);
+	const LV2_State_Status result
+		= (*store)(handle, key, value, size, type, flags);
 
 	if (map_path)
 		::free((void *) value);
