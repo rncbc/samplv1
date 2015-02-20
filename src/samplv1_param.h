@@ -22,7 +22,7 @@
 #ifndef __samplv1_param_h
 #define __samplv1_param_h
 
-#include "samplv1_ui.h"
+#include "samplv1.h"
 
 #include <QString>
 
@@ -38,15 +38,15 @@ class QDomDocument;
 namespace samplv1_param
 {
 	// Sample serialization methods.
-	void loadSamples(samplv1_ui *pSamplUi,
+	void loadSamples(samplv1 *pSampl,
 		const QDomElement& eSamples);
-	void saveSamples(samplv1_ui *pSamplUi,
+	void saveSamples(samplv1 *pSampl,
 		QDomDocument& doc, QDomElement& eSamples);
 
 	// Preset serialization methods.
-	void loadPreset(samplv1_ui *pSamplUi,
+	void loadPreset(samplv1 *pSampl,
 		const QString& sFilename);
-	void savePreset(samplv1_ui *pSamplUi,
+	void savePreset(samplv1 *pSampl,
 		const QString& sFilename);
 
 	// Default parameter name/value helpers.

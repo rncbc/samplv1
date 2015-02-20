@@ -44,6 +44,9 @@ public:
 	// Constructor.
 	samplv1widget_jack(samplv1_jack *pSampl);
 
+	// Destructor.
+	~samplv1widget_jack();
+
 #ifdef CONFIG_NSM
 	// NSM client accessors.
 	void setNsmClient(samplv1_nsm *pNsmClient);
@@ -73,7 +76,8 @@ protected:
 private:
 
 	// Instance variables.
-	samplv1_jack *m_pSamplUi;
+	samplv1     *m_pSampl;
+	samplv1_ui  *m_pSamplUi;
 
 #ifdef CONFIG_NSM
 	samplv1_nsm *m_pNsmClient;

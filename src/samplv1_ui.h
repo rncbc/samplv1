@@ -50,16 +50,14 @@ public:
 	uint32_t loopStart() const;
 	uint32_t loopEnd() const;
 
+	samplv1 *instance() const;
+
 	void setParamValue(samplv1::ParamIndex index, float fValue);
 	float paramValue(samplv1::ParamIndex index) const;
 
 	samplv1_programs *programs() const;
 
 	void reset();
-
-protected:
-
-	samplv1 *instance() const;
 
 private:
 

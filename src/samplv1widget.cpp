@@ -778,10 +778,8 @@ void samplv1widget::loadPreset ( const QString& sFilename )
 	resetParamValues();
 
 	samplv1_ui *pSamplUi = ui_instance();
-	if (pSamplUi == NULL)
-		return;
-
-	samplv1_param::loadPreset(pSamplUi, sFilename);
+	if (pSamplUi)
+		samplv1_param::loadPreset(pSamplUi->instance(), sFilename);
 
 	updateLoadPreset(QFileInfo(sFilename).completeBaseName());
 }
@@ -793,7 +791,9 @@ void samplv1widget::savePreset ( const QString& sFilename )
 	qDebug("samplv1widget::savePreset(\"%s\")", sFilename.toUtf8().constData());
 #endif
 
-	samplv1_param::savePreset(ui_instance(), sFilename);
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi)
+		samplv1_param::savePreset(pSamplUi->instance(), sFilename);
 
 	const QString& sPreset
 		= QFileInfo(sFilename).completeBaseName();

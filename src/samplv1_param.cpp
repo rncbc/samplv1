@@ -129,9 +129,9 @@ float samplv1_param::paramDefaultValue ( samplv1::ParamIndex index )
 
 // Sample serialization methods.
 void samplv1_param::loadSamples (
-	samplv1_ui *pSamplUi, const QDomElement& eSamples )
+	samplv1 *pSampl, const QDomElement& eSamples )
 {
-	if (pSamplUi == NULL)
+	if (pSampl == NULL)
 		return;
 
 	for (QDomNode nSample = eSamples.firstChild();
@@ -168,21 +168,21 @@ void samplv1_param::loadSamples (
 			if (sFilename.isEmpty())
 				sFilename = eSample.text();
 			// Done it.
-			pSamplUi->setSampleFile(sFilename.toUtf8().constData());
+			pSampl->setSampleFile(sFilename.toUtf8().constData());
 			// Set actual sample loop points...
-			pSamplUi->setLoopRange(iLoopStart, iLoopEnd);
+			pSampl->setLoopRange(iLoopStart, iLoopEnd);
 		}
 	}
 }
 
 
 void samplv1_param::saveSamples (
-	samplv1_ui *pSamplUi, QDomDocument& doc, QDomElement& eSamples )
+	samplv1 *pSampl, QDomDocument& doc, QDomElement& eSamples )
 {
-	if (pSamplUi == NULL)
+	if (pSampl == NULL)
 		return;
 
-	const char *pszSampleFile = pSamplUi->sampleFile();
+	const char *pszSampleFile = pSampl->sampleFile();
 	if (pszSampleFile == NULL)
 		return;
 
@@ -196,8 +196,8 @@ void samplv1_param::saveSamples (
 			QString::fromUtf8(pszSampleFile))));
 	eSample.appendChild(eFilename);
 
-	const uint32_t iLoopStart = pSamplUi->loopStart();
-	const uint32_t iLoopEnd   = pSamplUi->loopEnd();
+	const uint32_t iLoopStart = pSampl->loopStart();
+	const uint32_t iLoopEnd   = pSampl->loopEnd();
 	if (iLoopStart < iLoopEnd) {
 		QDomElement eLoopStart = doc.createElement("loop-start");
 		eLoopStart.appendChild(doc.createTextNode(
@@ -214,9 +214,9 @@ void samplv1_param::saveSamples (
 
 
 // Preset serialization methods.
-void samplv1_param::loadPreset ( samplv1_ui *pSamplUi, const QString& sFilename )
+void samplv1_param::loadPreset ( samplv1 *pSampl, const QString& sFilename )
 {
-	if (pSamplUi == NULL)
+	if (pSampl == NULL)
 		return;
 
 	QFileInfo fi(sFilename);
@@ -260,7 +260,7 @@ void samplv1_param::loadPreset ( samplv1_ui *pSamplUi, const QString& sFilename 
 				if (eChild.isNull())
 					continue;
 				if (eChild.tagName() == "samples") {
-					samplv1_param::loadSamples(pSamplUi, eChild);
+					samplv1_param::loadSamples(pSampl, eChild);
 				}
 				else
 				if (eChild.tagName() == "params") {
@@ -284,7 +284,7 @@ void samplv1_param::loadPreset ( samplv1_ui *pSamplUi, const QString& sFilename 
 							if (index == samplv1::DEL1_BPM && fValue < 3.6f)
 								fValue *= 100.0f;
 						#endif
-							pSamplUi->setParamValue(index, fValue);
+							pSampl->setParamValue(index, fValue);
 						}
 					}
 				}
@@ -294,15 +294,15 @@ void samplv1_param::loadPreset ( samplv1_ui *pSamplUi, const QString& sFilename 
 
 	file.close();
 
-	pSamplUi->reset();
+	pSampl->reset();
 
 	QDir::setCurrent(currentDir.absolutePath());
 }
 
 
-void samplv1_param::savePreset ( samplv1_ui *pSamplUi, const QString& sFilename )
+void samplv1_param::savePreset ( samplv1 *pSampl, const QString& sFilename )
 {
-	if (pSamplUi == NULL)
+	if (pSampl == NULL)
 		return;
 
 	const QFileInfo fi(sFilename);
@@ -315,7 +315,7 @@ void samplv1_param::savePreset ( samplv1_ui *pSamplUi, const QString& sFilename 
 	ePreset.setAttribute("version", SAMPLV1_VERSION);
 
 	QDomElement eSamples = doc.createElement("samples");
-	samplv1_param::saveSamples(pSamplUi, doc, eSamples);
+	samplv1_param::saveSamples(pSampl, doc, eSamples);
 	ePreset.appendChild(eSamples);
 
 	QDomElement eParams = doc.createElement("params");
@@ -324,7 +324,7 @@ void samplv1_param::savePreset ( samplv1_ui *pSamplUi, const QString& sFilename 
 		samplv1::ParamIndex index = samplv1::ParamIndex(i);
 		eParam.setAttribute("index", QString::number(i));
 		eParam.setAttribute("name", samplv1_param::paramName(index));
-		const float fValue = pSamplUi->paramValue(index);
+		const float fValue = pSampl->paramValue(index);
 		eParam.appendChild(doc.createTextNode(QString::number(fValue)));
 		eParams.appendChild(eParam);
 	}

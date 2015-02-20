@@ -53,7 +53,10 @@ public:
 	samplv1widget_lv2(samplv1_lv2 *pSampl,
 		LV2UI_Controller controller, LV2UI_Write_Function write_function);
 
-	// Plugin port event notification.
+	// Destructor.
+	~samplv1widget_lv2();
+
+	// LV2 port event dispatcher.
 	void port_event(uint32_t port_index,
 		uint32_t buffer_size, uint32_t format, const void *buffer);
 
@@ -82,7 +85,7 @@ protected:
 private:
 
 	// Instance variables.
-	samplv1_lv2 *m_pSamplUi;
+	samplv1_ui *m_pSamplUi;
 
 	LV2UI_Controller     m_controller;
 	LV2UI_Write_Function m_write_function;

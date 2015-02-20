@@ -39,10 +39,8 @@
 
 samplv1_lv2::samplv1_lv2 (
 	double sample_rate, const LV2_Feature *const *host_features )
-	: samplv1_ui(new samplv1(2, uint32_t(sample_rate)))
+	: samplv1(2, uint32_t(sample_rate))
 {
-	m_sampl = samplv1_ui::instance();
-
 	m_urid_map = NULL;
 	m_atom_sequence = NULL;
 
@@ -67,7 +65,7 @@ samplv1_lv2::samplv1_lv2 (
 		}
 	}
 
-	const uint16_t nchannels = m_sampl->channels();
+	const uint16_t nchannels = samplv1::channels();
 	m_ins  = new float * [nchannels];
 	m_outs = new float * [nchannels];
 	for (uint16_t k = 0; k < nchannels; ++k)
@@ -79,8 +77,6 @@ samplv1_lv2::~samplv1_lv2 (void)
 {
 	delete [] m_outs;
 	delete [] m_ins;
-
-	delete m_sampl;
 }
 
 
@@ -103,7 +99,7 @@ void samplv1_lv2::connect_port ( uint32_t port, void *data )
 		m_outs[1] = (float *) data;
 		break;
 	default:
-		m_sampl->setParamPort(samplv1::ParamIndex(port - ParamBase), (float *) data);
+		samplv1::setParamPort(samplv1::ParamIndex(port - ParamBase), (float *) data);
 		break;
 	}
 }
@@ -111,7 +107,7 @@ void samplv1_lv2::connect_port ( uint32_t port, void *data )
 
 void samplv1_lv2::run ( uint32_t nframes )
 {
-	const uint16_t nchannels = m_sampl->channels();
+	const uint16_t nchannels = samplv1::channels();
 	float *ins[nchannels], *outs[nchannels];
 	for (uint16_t k = 0; k < nchannels; ++k) {
 		ins[k]  = m_ins[k];
@@ -128,14 +124,14 @@ void samplv1_lv2::run ( uint32_t nframes )
 				uint8_t *data = (uint8_t *) LV2_ATOM_BODY(&event->body);
 				const uint32_t nread = event->time.frames - ndelta;
 				if (nread > 0) {
-					m_sampl->process(ins, outs, nread);
+					samplv1::process(ins, outs, nread);
 					for (uint16_t k = 0; k < nchannels; ++k) {
 						ins[k]  += nread;
 						outs[k] += nread;
 					}
 				}
 				ndelta = event->time.frames;
-				m_sampl->process_midi(data, event->body.size);
+				samplv1::process_midi(data, event->body.size);
 			}
 			else
 			if (event->body.type == m_urids.atom_Blank ||
@@ -147,13 +143,13 @@ void samplv1_lv2::run ( uint32_t nframes )
 					lv2_atom_object_get(object,
 						m_urids.time_beatsPerMinute, &atom, NULL);
 					if (atom && atom->type == m_urids.atom_Float) {
-						const float bpm_sync = paramValue(samplv1::DEL1_BPMSYNC);
+						const float bpm_sync = samplv1::paramValue(samplv1::DEL1_BPMSYNC);
 						if (bpm_sync > 0.0f) {
-							const float bpm_host = paramValue(samplv1::DEL1_BPMHOST);
+							const float bpm_host = samplv1::paramValue(samplv1::DEL1_BPMHOST);
 							if (bpm_host > 0.0f) {
 								const float bpm	= ((LV2_Atom_Float *) atom)->body;
 								if (::fabs(bpm_host - bpm) > 0.01f)
-									setParamValue(samplv1::DEL1_BPMHOST, bpm);
+									samplv1::setParamValue(samplv1::DEL1_BPMHOST, bpm);
 							}
 						}
 					}
@@ -163,19 +159,19 @@ void samplv1_lv2::run ( uint32_t nframes )
 	//	m_atom_sequence = NULL;
 	}
 
-	m_sampl->process(ins, outs, nframes - ndelta);
+	samplv1::process(ins, outs, nframes - ndelta);
 }
 
 
 void samplv1_lv2::activate (void)
 {
-	reset();
+	samplv1::reset();
 }
 
 
 void samplv1_lv2::deactivate (void)
 {
-	reset();
+	samplv1::reset();
 }
 
 
@@ -358,7 +354,7 @@ static const LV2_State_Interface samplv1_lv2_state_interface =
 
 const LV2_Program_Descriptor *samplv1_lv2::get_program ( uint32_t index )
 {
-	samplv1_programs *pPrograms = programs();
+	samplv1_programs *pPrograms = samplv1::programs();
 	const samplv1_programs::Banks& banks = pPrograms->banks();
 	samplv1_programs::Banks::ConstIterator bank_iter = banks.constBegin();
 	const samplv1_programs::Banks::ConstIterator& bank_end = banks.constEnd();
@@ -384,7 +380,7 @@ const LV2_Program_Descriptor *samplv1_lv2::get_program ( uint32_t index )
 
 void samplv1_lv2::select_program ( uint32_t bank, uint32_t program )
 {
-	programs()->select_program(bank, program);
+	samplv1::programs()->select_program(bank, program);
 }
 
 #endif	// CONFIG_LV2_PROGRAMS

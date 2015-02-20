@@ -22,7 +22,7 @@
 #ifndef __samplv1_jack_h
 #define __samplv1_jack_h
 
-#include "samplv1_ui.h"
+#include "samplv1.h"
 
 #include <jack/jack.h>
 
@@ -39,7 +39,7 @@ class samplv1_alsa_thread;
 // samplv1_jack - decl.
 //
 
-class samplv1_jack : public samplv1_ui
+class samplv1_jack : public samplv1
 {
 public:
 
@@ -72,8 +72,6 @@ public:
 
 private:
 
-	samplv1 *m_sampl;
-
 	jack_client_t *m_client;
 
 	volatile bool m_activated;
@@ -103,7 +101,7 @@ private:
 
 
 //-------------------------------------------------------------------------
-// samplv1_application -- Singleton application instance.
+// samplv1_jack_application -- Singleton application instance.
 //
 
 #include <QObject>
@@ -119,17 +117,17 @@ class samplv1_nsm;
 #endif
 
 
-class samplv1_application : public QObject
+class samplv1_jack_application : public QObject
 {
 	Q_OBJECT
 
 public:
 
 	// Constructor.
-	samplv1_application(int& argc, char **argv);
+	samplv1_jack_application(int& argc, char **argv);
 
 	// Destructor.
-	~samplv1_application();
+	~samplv1_jack_application();
 
 	// Facade method.
 	int exec();

@@ -38,16 +38,26 @@
 //
 
 // Constructor.
-samplv1widget_jack::samplv1widget_jack ( samplv1_jack *pSamplUi )
-	: samplv1widget(), m_pSamplUi(pSamplUi)
+samplv1widget_jack::samplv1widget_jack ( samplv1_jack *pSampl )
+	: samplv1widget(), m_pSampl(pSampl)
 	#ifdef CONFIG_NSM
 		, m_pNsmClient(NULL)
 	#endif
 {
+	// Initialize (user) interface stuff...
+	m_pSamplUi = new samplv1_ui(m_pSampl);
+
 	// Initialize preset stuff...
 	// initPreset();
 	updateSample(m_pSamplUi->sample());
 	updateParamValues();
+}
+
+
+// Destructor.
+samplv1widget_jack::~samplv1widget_jack (void)
+{
+	delete m_pSamplUi;
 }
 
 
