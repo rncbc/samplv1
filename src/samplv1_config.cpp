@@ -221,6 +221,10 @@ void samplv1_config::load (void)
 	// Run-time special non-persistent options.
 	bDontUseNativeDialogs = !bUseNativeDialogs;
 	QSettings::endGroup();
+
+	QSettings::beginGroup("/Custom");
+	sCustomStyleTheme = QSettings::value("/StyleTheme").toString();
+	QSettings::endGroup();
 }
 
 
@@ -239,6 +243,10 @@ void samplv1_config::save (void)
 	QSettings::beginGroup("/Dialogs");
 	QSettings::setValue("/ProgramsPreview", bProgramsPreview);
 	QSettings::setValue("/UseNativeDialogs", bUseNativeDialogs);
+	QSettings::endGroup();
+
+	QSettings::beginGroup("/Custom");
+	QSettings::setValue("/StyleTheme", sCustomStyleTheme);
 	QSettings::endGroup();
 
 	QSettings::sync();
