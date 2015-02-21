@@ -32,6 +32,22 @@
 
 #include <QCloseEvent>
 
+#include <QStyleFactory>
+
+#ifndef CONFIG_LIBDIR
+#if defined(__x86_64__)
+#define CONFIG_LIBDIR CONFIG_PREFIX "/lib64"
+#else
+#define CONFIG_LIBDIR CONFIG_PREFIX "/lib"
+#endif
+#endif
+
+#if QT_VERSION < 0x050000
+#define CONFIG_PLUGINSDIR CONFIG_LIBDIR "/qt4/plugins"
+#else
+#define CONFIG_PLUGINSDIR CONFIG_LIBDIR "/qt5/plugins"
+#endif
+
 
 //-------------------------------------------------------------------------
 // samplv1widget_jack - impl.
@@ -44,6 +60,15 @@ samplv1widget_jack::samplv1widget_jack ( samplv1_jack *pSampl )
 		, m_pNsmClient(NULL)
 	#endif
 {
+	// Special style paths...
+	if (QDir(CONFIG_PLUGINSDIR).exists())
+		QApplication::addLibraryPath(CONFIG_PLUGINSDIR);
+
+	// Custom style theme...
+	samplv1_config *pConfig = samplv1_config::getInstance();
+	if (pConfig && !pConfig->sCustomStyleTheme.isEmpty())
+		QApplication::setStyle(QStyleFactory::create(pConfig->sCustomStyleTheme));
+
 	// Initialize (user) interface stuff...
 	m_pSamplUi = new samplv1_ui(m_pSampl);
 
