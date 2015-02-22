@@ -13,6 +13,7 @@ HEADERS = \
 	samplv1.h \
 	samplv1_ui.h \
 	samplv1_lv2.h \
+	samplv1_lv2ui.h \
 	samplv1_config.h \
 	samplv1_param.h \
 	samplv1widget.h \
@@ -28,6 +29,7 @@ HEADERS = \
 	samplv1widget_lv2.h
 
 SOURCES = \
+	samplv1_lv2ui.cpp \
 	samplv1widget.cpp \
 	samplv1widget_env.cpp \
 	samplv1widget_filt.cpp \

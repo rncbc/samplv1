@@ -23,22 +23,7 @@
 #define __samplv1widget_lv2_h
 
 #include "samplv1widget.h"
-
-#include "lv2.h"
-#include "lv2/lv2plug.in/ns/extensions/ui/ui.h"
-
-
-#define SAMPLV1_LV2UI_URI SAMPLV1_LV2_PREFIX "ui"
-
-
-// Forward decls.
-class samplv1_lv2;
-
-
-#ifdef CONFIG_LV2_EXTERNAL_UI
-#include "lv2_external_ui.h"
-#define SAMPLV1_LV2UI_EXTERNAL_URI SAMPLV1_LV2_PREFIX "ui_external"
-#endif
+#include "samplv1_lv2ui.h"
 
 
 //-------------------------------------------------------------------------
@@ -85,10 +70,7 @@ protected:
 private:
 
 	// Instance variables.
-	samplv1_ui *m_pSamplUi;
-
-	LV2UI_Controller     m_controller;
-	LV2UI_Write_Function m_write_function;
+	samplv1_lv2ui *m_pSamplUi;
 
 #ifdef CONFIG_LV2_EXTERNAL_UI
 	LV2_External_UI_Host *m_external_host;
