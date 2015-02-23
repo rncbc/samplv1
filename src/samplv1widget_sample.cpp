@@ -325,7 +325,8 @@ void samplv1widget_sample::mouseMoveEvent ( QMouseEvent *pMouseEvent )
 		if ((m_posDrag - pMouseEvent->pos()).manhattanLength()
 			> QApplication::startDragDistance()) {
 			// Start dragging alright...
-			if (m_bLoop) {
+			if (m_bLoop && (pMouseEvent->modifiers()
+				& (Qt::ShiftModifier | Qt::ControlModifier))) {
 				m_dragState = m_dragCursor = DragSelect;
 				m_iDragStartX = m_iDragEndX = m_posDrag.x();
 				QFrame::setCursor(QCursor(Qt::SizeHorCursor));
