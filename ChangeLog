@@ -6,6 +6,7 @@ ChangeLog
 
 GIT HEAD
 
+- Sample file drag-and-drop support has been added.
 - Introducing a brand new user preference on eye-candy: cf.Help
   /Configure.../Options/Custom style theme (applies to the JACK
   stand-alone client only though).

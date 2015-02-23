@@ -1,7 +1,7 @@
 // samplv1widget_sample.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2014, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2015, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -33,6 +33,8 @@
 #include <QUrl>
 
 #include <QMouseEvent>
+#include <QDragEnterEvent>
+#include <QDropEvent>
 
 #include <QToolTip>
 
@@ -48,6 +50,8 @@ samplv1widget_sample::samplv1widget_sample (
 	QFrame::setMouseTracking(true);
 	QFrame::setFocusPolicy(Qt::ClickFocus);
 	QFrame::setMinimumSize(QSize(480, 80));
+
+	QFrame::setAcceptDrops(true);
 
 	QFrame::setFrameShape(QFrame::Panel);
 	QFrame::setFrameShadow(QFrame::Sunken);
@@ -190,13 +194,6 @@ uint32_t samplv1widget_sample::loopEnd (void) const
 }
 
 
-// Widget resize handler.
-void samplv1widget_sample::resizeEvent ( QResizeEvent * )
-{
-//	setSample(m_pSample);	-- reset polygon...
-}
-
-
 // Sanitizer helper;
 int samplv1widget_sample::safeX ( int x ) const
 {
@@ -208,6 +205,13 @@ int samplv1widget_sample::safeX ( int x ) const
 		return w;
 	else
 		return x;
+}
+
+
+// Widget resize handler.
+void samplv1widget_sample::resizeEvent ( QResizeEvent * )
+{
+//	setSample(m_pSample);	-- reset polygon...
 }
 
 
@@ -405,6 +409,26 @@ void samplv1widget_sample::keyPressEvent ( QKeyEvent *pKeyEvent )
 }
 
 
+// Drag-n-drop (more of the later) support.
+void samplv1widget_sample::dragEnterEvent ( QDragEnterEvent *pDragEnterEvent )
+{
+	if (pDragEnterEvent->mimeData()->hasUrls())
+		pDragEnterEvent->acceptProposedAction();
+}
+
+
+void samplv1widget_sample::dropEvent ( QDropEvent *pDropEvent )
+{
+	const QMimeData *pMimeData = pDropEvent->mimeData();
+	if (pMimeData->hasUrls()) {
+		const QString& sFilename
+			= QListIterator<QUrl>(pMimeData->urls()).peekNext().toLocalFile();
+		if (!sFilename.isEmpty())
+			emit loadSampleFile(sFilename);
+	}
+}
+
+
 // Reset drag/select state.
 void samplv1widget_sample::resetDragState (void)
 {
@@ -474,7 +498,7 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 	} else {
 		painter.setPen(pal.midlight().color());
 		painter.drawText(rect, Qt::AlignCenter,
-			tr("(double-click to load new sample...)"));
+			tr("(double-click or drop to load new sample...)"));
 	}
 
 	painter.end();

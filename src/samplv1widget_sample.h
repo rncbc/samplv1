@@ -1,7 +1,7 @@
 // samplv1widget_sample.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2014, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2015, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -29,6 +29,9 @@
 
 // Forward decl.
 class samplv1_sample;
+
+class QDragEnterEvent;
+class QDropEvent;
 
 
 //----------------------------------------------------------------------------
@@ -81,6 +84,9 @@ public slots:
 
 protected:
 
+	// Sanitizer helper;
+	int safeX(int x) const;
+
 	// Widget resize handler.
 	void resizeEvent(QResizeEvent *);
 
@@ -97,8 +103,9 @@ protected:
 	// Trap for escape key.
 	void keyPressEvent(QKeyEvent *pKeyEvent);
 
-	// Sanitizer helper;
-	int safeX(int x) const;
+	// Drag-n-drop (more of the later) support.
+	void dragEnterEvent(QDragEnterEvent *pDragEnterEvent);
+	void dropEvent(QDropEvent *pDropEvent);
 
 	// Reset drag/select state.
 	void resetDragState();
