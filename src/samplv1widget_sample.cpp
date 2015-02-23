@@ -218,19 +218,17 @@ void samplv1widget_sample::resizeEvent ( QResizeEvent * )
 // Mouse interaction.
 void samplv1widget_sample::mousePressEvent ( QMouseEvent *pMouseEvent )
 {
-	if (m_bLoop) {
-		if (pMouseEvent->button() == Qt::LeftButton) {
-			if (m_dragCursor == DragNone) {
-				m_dragState = DragStart;
-				m_posDrag = pMouseEvent->pos();
-			} else {
-				const int w = QFrame::width();
-				const uint32_t nframes = m_pSample->length();
-				if (nframes > 0) {
-					m_iDragStartX = safeX((m_iLoopStart * w) / nframes);
-					m_iDragEndX   = safeX((m_iLoopEnd   * w) / nframes);
-					m_dragState   = m_dragCursor;
-				}
+	if (pMouseEvent->button() == Qt::LeftButton) {
+		if (m_dragCursor == DragNone) {
+			m_dragState = DragStart;
+			m_posDrag = pMouseEvent->pos();
+		} else if (m_bLoop) {
+			const int w = QFrame::width();
+			const uint32_t nframes = m_pSample->length();
+			if (nframes > 0) {
+				m_iDragStartX = safeX((m_iLoopStart * w) / nframes);
+				m_iDragEndX   = safeX((m_iLoopEnd   * w) / nframes);
+				m_dragState   = m_dragCursor;
 			}
 		}
 	}
@@ -327,9 +325,20 @@ void samplv1widget_sample::mouseMoveEvent ( QMouseEvent *pMouseEvent )
 		if ((m_posDrag - pMouseEvent->pos()).manhattanLength()
 			> QApplication::startDragDistance()) {
 			// Start dragging alright...
-			m_dragState = m_dragCursor = DragSelect;
-			m_iDragStartX = m_iDragEndX = m_posDrag.x();
-			QFrame::setCursor(QCursor(Qt::SizeHorCursor));
+			if (m_bLoop) {
+				m_dragState = m_dragCursor = DragSelect;
+				m_iDragStartX = m_iDragEndX = m_posDrag.x();
+				QFrame::setCursor(QCursor(Qt::SizeHorCursor));
+			} else if (m_pSample && m_pSample->filename()) {
+				QList<QUrl> urls;
+				urls.append(QUrl::fromLocalFile(m_pSample->filename()));
+				QMimeData *pMimeData = new QMimeData();
+				pMimeData->setUrls(urls);;
+				QDrag *pDrag = new QDrag(this);
+				pDrag->setMimeData(pMimeData);
+				pDrag->exec(Qt::CopyAction);
+				resetDragState();
+			}
 		}
 		// Fall thru...
 	default:
@@ -383,7 +392,6 @@ void samplv1widget_sample::mouseReleaseEvent ( QMouseEvent *pMouseEvent )
 		break;
 	}
 
-
 	resetDragState();
 }
 
@@ -412,7 +420,8 @@ void samplv1widget_sample::keyPressEvent ( QKeyEvent *pKeyEvent )
 // Drag-n-drop (more of the later) support.
 void samplv1widget_sample::dragEnterEvent ( QDragEnterEvent *pDragEnterEvent )
 {
-	if (pDragEnterEvent->mimeData()->hasUrls())
+	if (pDragEnterEvent->source() != this
+		&& pDragEnterEvent->mimeData()->hasUrls())
 		pDragEnterEvent->acceptProposedAction();
 }
 

@@ -168,6 +168,7 @@ void samplv1_param::loadSamples (
 			if (sFilename.isEmpty())
 				sFilename = eSample.text();
 			// Done it.
+			sFilename = QFileInfo(sFilename).canonicalFilePath();
 			pSampl->setSampleFile(sFilename.toUtf8().constData());
 			// Set actual sample loop points...
 			pSampl->setLoopRange(iLoopStart, iLoopEnd);
