@@ -30,6 +30,8 @@
 
 #include <QApplication>
 #include <QFileDialog>
+#include <QMimeData>
+#include <QDrag>
 #include <QUrl>
 
 #include <QMouseEvent>
