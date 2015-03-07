@@ -6,6 +6,8 @@ ChangeLog
 
 GIT HEAD
 
+- Introducing LV2 port-groups (as proposed by Amadeus Folego aka.
+  badosu, thanks). (EXPERIMENTAL)
 - Improved envelope widget nodes click-and-drag precision.
 - Sample file drag-and-drop support has been added.
 - Introducing a brand new user preference on eye-candy: cf.Help
