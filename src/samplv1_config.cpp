@@ -213,6 +213,7 @@ void samplv1_config::load (void)
 	sPreset = QSettings::value("/Preset").toString();
 	sPresetDir = QSettings::value("/PresetDir").toString();
 	sSampleDir = QSettings::value("/SampleDir").toString();
+	iKnobDialMode = QSettings::value("/KnobDialMode", 0).toInt();
 	QSettings::endGroup();
 
 	QSettings::beginGroup("/Dialogs");
@@ -238,6 +239,7 @@ void samplv1_config::save (void)
 	QSettings::setValue("/Preset", sPreset);
 	QSettings::setValue("/PresetDir", sPresetDir);
 	QSettings::setValue("/SampleDir", sSampleDir);
+	QSettings::setValue("/KnobDialMode", iKnobDialMode);
 	QSettings::endGroup();
 
 	QSettings::beginGroup("/Dialogs");

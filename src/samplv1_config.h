@@ -60,10 +60,12 @@ public:
 	QString sPresetDir;
 	QString sSampleDir;
 
+	// Dial knob behavior mode.
+	int iKnobDialMode;
+
 	// Special persistent options.
 	bool bProgramsPreview;
 	bool bUseNativeDialogs;
-
 	// Run-time special non-persistent options.
 	bool bDontUseNativeDialogs;
 

@@ -494,6 +494,13 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 		SIGNAL(notify(int)),
 		SLOT(updateSchedNotify(int)));
 
+	// General knob/dial  behavior init...
+	samplv1_config *pConfig = samplv1_config::getInstance();
+	if (pConfig) {
+		samplv1widget_dial::setDialMode(
+			samplv1widget_dial::DialMode(pConfig->iKnobDialMode));
+	}
+
 	// Epilog.
 	// QWidget::adjustSize();
 
