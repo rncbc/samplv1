@@ -95,8 +95,8 @@
         <property name="title">
          <string>&amp;Help</string>
         </property>
-		<addaction name="helpConfigureAction"/>
-		<addaction name="separator"/>
+        <addaction name="helpConfigureAction"/>
+        <addaction name="separator"/>
         <addaction name="helpAboutAction"/>
         <addaction name="helpAboutQtAction"/>
        </widget>
@@ -206,6 +206,19 @@
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
               </widget>
+             </item>
+             <item>
+              <spacer>
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint">
+                <size>
+                 <width>8</width>
+                 <height>0</height>
+                </size>
+               </property>
+              </spacer>
              </item>
             </layout>
            </widget>
@@ -800,19 +813,6 @@
          </layout>
         </widget>
        </item>
-       <item row="4" column="0" colspan="12">
-        <spacer>
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint">
-          <size>
-           <width>8</width>
-           <height>4</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="EffectsPage">
@@ -1251,13 +1251,13 @@
   </layout>
   <action name="helpConfigureAction" >
    <property name="text" >
-	<string>&amp;Configure...</string>
+    <string>&amp;Configure...</string>
    </property>
    <property name="iconText" >
-	<string>Configure</string>
+    <string>Configure</string>
    </property>
    <property name="statusTip" >
-	<string>Configure options</string>
+    <string>Configure options</string>
    </property>
   </action>
   <action name="helpAboutAction" >

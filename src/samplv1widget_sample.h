@@ -113,6 +113,9 @@ protected:
 	// Update tool-tip.
 	void updateToolTip();
 
+	// Default size hint.
+	QSize sizeHint() const;
+
 private:
 
 	// Instance state.

@@ -51,7 +51,10 @@ samplv1widget_sample::samplv1widget_sample (
 {
 	QFrame::setMouseTracking(true);
 	QFrame::setFocusPolicy(Qt::ClickFocus);
+
 	QFrame::setMinimumSize(QSize(480, 80));
+	QFrame::setSizePolicy(
+		QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
 
 	QFrame::setAcceptDrops(true);
 
@@ -86,7 +89,7 @@ void samplv1widget_sample::setSample ( samplv1_sample *pSample )
 	m_pSample = pSample;
 
 //	m_bLoop = false;
-	m_iLoopStart = m_iLoopEnd = 0;
+//	m_iLoopStart = m_iLoopEnd = 0;
 
 	if (m_pSample)
 		m_iChannels = m_pSample->channels();
@@ -213,7 +216,7 @@ int samplv1widget_sample::safeX ( int x ) const
 // Widget resize handler.
 void samplv1widget_sample::resizeEvent ( QResizeEvent * )
 {
-//	setSample(m_pSample);	-- reset polygon...
+	setSample(m_pSample);	// reset polygon...
 }
 
 
@@ -619,6 +622,13 @@ void samplv1widget_sample::updateToolTip (void)
 	}
 
 	setToolTip(sToolTip);
+}
+
+
+// Default size hint.
+QSize samplv1widget_sample::sizeHint (void) const
+{
+	return QSize(480, 80);
 }
 
 
