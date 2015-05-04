@@ -136,6 +136,8 @@ private:
 	int m_iDragStartX;
 	int m_iDragEndX;
 
+	samplv1_sample *m_pDragSample;
+
 	// Loop state.
 	bool     m_bLoop;
 	uint32_t m_iLoopStart;
