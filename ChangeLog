@@ -3,7 +3,8 @@ samplv1 - an old-school polyphonic sampler
 
 ChangeLog
 
-GIT HEAD
+
+0.6.3  2015-05-09  A sixth official beta.
 
 - Main widget layout changed as much to allow sampler display to
   expand or grow vertically as needed.
