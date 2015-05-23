@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT(samplv1, 0.6.3.1, rncbc@rncbc.org)
+AC_INIT(samplv1, 0.6.3.2, rncbc@rncbc.org)
 
 AC_CONFIG_SRCDIR(src/samplv1.cpp)
 AC_CONFIG_HEADERS(src/config.h)
@@ -202,9 +202,12 @@ fi
 ac_topdirs="/usr/share /usr/lib"
 
 if test "x$ac_arch" = "xx86_64"; then
+   ac_topdirs="$ac_topdirs /usr/lib64"
+fi
+
+if test "x$ac_arch" = "xx86_64" -o "x$ac_qt5" = "xyes"; then
    CFLAGS="-fPIC $CFLAGS"
    CPPFLAGS="-fPIC $CPPFLAGS"
-   ac_topdirs="$ac_topdirs /usr/lib64"
 fi
 
 for X in $ac_topdirs; do
@@ -232,9 +235,9 @@ for X in $ac_with_paths; do
         ac_incpath="$X/include/$Y $ac_incpath"
       fi
     done
-    CFLAGS="-I$X/include $CFLAGS"
-    CPPFLAGS="-I$X/include $CPPFLAGS"
-    ac_incpath="$X/include $ac_incpath"
+    CFLAGS="$CFLAGS -I$X/include"
+    CPPFLAGS="$CPPFLAGS -I$X/include"
+    ac_incpath="$ac_incpath $X/include"
   fi
   if test "x$ac_arch" = "xx86_64" -a -d $X/lib64; then
     LIBS="-L$X/lib64 $LIBS"
