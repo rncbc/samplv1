@@ -32,6 +32,7 @@
 #include "samplv1_reverb.h"
 
 #include "samplv1_config.h"
+#include "samplv1_control.h"
 #include "samplv1_programs.h"
 
 
@@ -775,6 +776,7 @@ protected:
 private:
 
 	samplv1_config   m_config;
+	samplv1_control  m_control;
 	samplv1_programs m_programs;
 
 	uint16_t m_iChannels;
@@ -1364,12 +1366,20 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 			allNotesOff();
 			break;
 		}
+		// process controller...
+		m_control.process_enqueue(channel, key, value);
 	}
 	// pitch bend
 	else if (status == 0xe0) {
 		const float pitchbend = float(key + (value << 7) - 0x2000) / 8192.0f;
 		m_ctl.pitchbend = samplv1_pow2f(*m_def.pitchbend * pitchbend);
 	}
+	else
+	// flush controllers...
+	m_control.flush();
+
+	// process pending controllers...
+	m_control.process_dequeue();
 }
 
 
