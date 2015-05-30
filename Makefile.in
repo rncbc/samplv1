@@ -19,7 +19,8 @@ headers = \
 	src/$(name)_config.h \
 	src/$(name)_param.h \
 	src/$(name)_sched.h \
-	src/$(name)_programs.h
+	src/$(name)_programs.h \
+	src/$(name)_control.h
 
 sources = \
 	src/$(name).cpp \
@@ -28,7 +29,8 @@ sources = \
 	src/$(name)_config.cpp \
 	src/$(name)_param.cpp \
 	src/$(name)_sched.cpp \
-	src/$(name)_programs.cpp
+	src/$(name)_programs.cpp \
+	src/$(name)_control.cpp
 
 headers_ui = \
 	src/$(name)widget.h \

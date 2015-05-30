@@ -21,9 +21,6 @@
 
 #include "samplv1_programs.h"
 
-#include "samplv1_sched.h"
-#include "samplv1_param.h"
-
 
 //-------------------------------------------------------------------------
 // samplv1_programs - Bank/programs database class (singleton).
