@@ -522,9 +522,9 @@ private:
 // samplv1_control - impl.
 //
 
-samplv1_control::samplv1_control (void)
+samplv1_control::samplv1_control ( samplv1 *pSampl )
+	: m_pImpl(new samplv1_control::Impl()), m_pSampl(pSampl)
 {
-	m_pImpl = new samplv1_control::Impl();
 }
 
 
@@ -534,6 +534,7 @@ samplv1_control::~samplv1_control (void)
 }
 
 
+// controller queue methods.
 void samplv1_control::process_enqueue (
 	unsigned short channel, unsigned short param, unsigned short value )
 {
@@ -563,7 +564,17 @@ void samplv1_control::process_dequeue (void)
 
 void samplv1_control::process_event ( const Event& event )
 {
+	const Key key(event);
+	const int index = find_controller(key);
+	if (index < 0)
+		return;
+
 	// TODO: process controller event...
+	float fValue = float(event.value) / 127.0f;
+	if (Type(key.status & 0xf0) != CC)
+		fValue /= 127.0f;
+
+	m_pSampl->setParamValue(samplv1::ParamIndex(index), fValue);
 }
 
 

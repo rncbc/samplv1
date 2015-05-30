@@ -736,6 +736,7 @@ public:
 	void setParamValue(samplv1::ParamIndex index, float fValue);
 	float paramValue(samplv1::ParamIndex index) const;
 
+	samplv1_control *control();
 	samplv1_programs *programs();
 
 	void process_midi(uint8_t *data, uint32_t size);
@@ -841,7 +842,7 @@ samplv1_voice::samplv1_voice ( samplv1_impl *pImpl ) :
 
 samplv1_impl::samplv1_impl (
 	samplv1 *pSampl, uint16_t iChannels, uint32_t iSampleRate )
-	: m_programs(pSampl)
+	: m_control(pSampl), m_programs(pSampl)
 {
 	// null sample.
 	m_gen1.sample0 = 0.0f;
@@ -1493,6 +1494,14 @@ void samplv1_impl::reset (void)
 }
 
 
+// controllers accessor
+
+samplv1_control *samplv1_impl::control (void)
+{
+	return &m_control;
+}
+
+
 // programs accessor
 
 samplv1_programs *samplv1_impl::programs (void)
@@ -1855,6 +1864,14 @@ void samplv1::process_midi ( uint8_t *data, uint32_t size )
 void samplv1::process ( float **ins, float **outs, uint32_t nframes )
 {
 	m_pImpl->process(ins, outs, nframes);
+}
+
+
+// controllers accessor
+
+samplv1_control *samplv1::control (void) const
+{
+	return m_pImpl->control();
 }
 
 
