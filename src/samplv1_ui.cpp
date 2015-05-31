@@ -102,6 +102,12 @@ float samplv1_ui::paramValue ( samplv1::ParamIndex index ) const
 }
 
 
+samplv1_controls *samplv1_ui::controls (void) const
+{
+	return m_pSampl->controls();
+}
+
+
 samplv1_programs *samplv1_ui::programs (void) const
 {
 	return m_pSampl->programs();

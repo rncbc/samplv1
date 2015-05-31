@@ -43,6 +43,7 @@
 
 // forward decls.
 class samplv1_programs;
+class samplv1_controls;
 
 
 class samplv1_config : public QSettings
@@ -85,6 +86,10 @@ public:
 	void loadPrograms(samplv1_programs *pPrograms);
 	void savePrograms(samplv1_programs *pPrograms);
 
+	// Controllers utility methods.
+	void loadControls(samplv1_controls *pControls);
+	void saveControls(samplv1_controls *pControls);
+
 protected:
 
 	// Preset group path.
@@ -95,6 +100,12 @@ protected:
 	QString bankPrefix() const;
 
 	void clearPrograms();
+
+	// Controllers group path.
+	QString controlsGroup() const;
+	QString controlPrefix() const;
+
+	void clearControls();
 
 	// Explicit I/O methods.
 	void load();

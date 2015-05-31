@@ -1089,8 +1089,10 @@ void samplv1widget::helpConfigure (void)
 
 	samplv1widget_config form(this);
 
-	// Set programs database...
+	// Set controllers&&programs database...
+	form.setControls(pSamplUi->controls());
 	form.setPrograms(pSamplUi->programs());
+
 	form.exec();
 }
 

@@ -55,6 +55,7 @@ public:
 	void setParamValue(samplv1::ParamIndex index, float fValue);
 	float paramValue(samplv1::ParamIndex index) const;
 
+	samplv1_controls *controls() const;
 	samplv1_programs *programs() const;
 
 	void reset();
