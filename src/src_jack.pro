@@ -23,7 +23,7 @@ HEADERS = \
 	samplv1_param.h \
 	samplv1_sched.h \
 	samplv1_programs.h \
-	samplv1_control.h \
+	samplv1_controls.h \
 	samplv1widget.h \
 	samplv1widget_env.h \
 	samplv1widget_filt.h \
@@ -33,6 +33,7 @@ HEADERS = \
 	samplv1widget_preset.h \
 	samplv1widget_status.h \
 	samplv1widget_programs.h \
+	samplv1widget_controls.h \
 	samplv1widget_config.h \
 	samplv1widget_jack.h
 
@@ -47,7 +48,7 @@ SOURCES = \
 	samplv1_param.cpp \
 	samplv1_sched.cpp \
 	samplv1_programs.cpp \
-	samplv1_control.cpp \
+	samplv1_controls.cpp \
 	samplv1widget.cpp \
 	samplv1widget_env.cpp \
 	samplv1widget_filt.cpp \
@@ -57,6 +58,7 @@ SOURCES = \
 	samplv1widget_preset.cpp \
 	samplv1widget_status.cpp \
 	samplv1widget_programs.cpp \
+	samplv1widget_controls.cpp \
 	samplv1widget_config.cpp \
 	samplv1widget_jack.cpp
 

@@ -23,7 +23,7 @@ HEADERS = \
 	samplv1_param.h \
 	samplv1_sched.h \
 	samplv1_programs.h \
-	samplv1_control.h
+	samplv1_controls.h
 
 SOURCES = \
 	samplv1.cpp \
@@ -35,7 +35,7 @@ SOURCES = \
 	samplv1_param.cpp \
 	samplv1_sched.cpp \
 	samplv1_programs.cpp \
-	samplv1_control.cpp
+	samplv1_controls.cpp
 
 
 unix {

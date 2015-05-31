@@ -1,4 +1,4 @@
-// samplv1_control.cpp
+// samplv1_controls.cpp
 //
 /****************************************************************************
    Copyright (C) 2012-2015, rncbc aka Rui Nuno Capela. All rights reserved.
@@ -19,7 +19,7 @@
 
 *****************************************************************************/
 
-#include "samplv1_control.h"
+#include "samplv1_controls.h"
 
 #include <QHash>
 
@@ -137,8 +137,8 @@ public:
 	unsigned char status() const
 		{ return m_status; }
 
-	samplv1_control::Type type() const
-		{ return samplv1_control::Type(m_status & 0xf0); }
+	samplv1_controls::Type type() const
+		{ return samplv1_controls::Type(m_status & 0xf0); }
 	unsigned short channel() const
 		{ return (m_status & 0x0f); }
 
@@ -219,21 +219,21 @@ public:
 			new_size <<= 1;
 		if (new_size > m_size) {
 			const unsigned int old_size = m_size;
-			samplv1_control::Event *new_events
-				= new samplv1_control::Event [new_size];
-			samplv1_control::Event *old_events = m_events;
+			samplv1_controls::Event *new_events
+				= new samplv1_controls::Event [new_size];
+			samplv1_controls::Event *old_events = m_events;
 			if (old_events) {
 				if (m_write > m_read) {
 					::memcpy(new_events + m_read, old_events + m_read,
-						(m_write - m_read) * sizeof(samplv1_control::Event));
+						(m_write - m_read) * sizeof(samplv1_controls::Event));
 				}
 				else
 				if (m_write < m_read) {
 					::memcpy(new_events + m_read, old_events + m_read,
-						(old_size - m_read) * sizeof(samplv1_control::Event));
+						(old_size - m_read) * sizeof(samplv1_controls::Event));
 					if (m_write > 0) {
 						::memcpy(new_events + old_size, old_events,
-							m_write * sizeof(samplv1_control::Event));
+							m_write * sizeof(samplv1_controls::Event));
 					}
 					m_write += old_size;
 				}
@@ -253,7 +253,7 @@ public:
 		unsigned short param,
 		unsigned short value )
 	{
-		samplv1_control::Event event;
+		samplv1_controls::Event event;
 
 		event.status = status;
 		event.param  = param;
@@ -262,7 +262,7 @@ public:
 		return push(event);
 	}
 
-	bool push ( const samplv1_control::Event& event )
+	bool push ( const samplv1_controls::Event& event )
 	{
 		if (count() >= m_mask)
 			resize(m_size + 4);
@@ -274,7 +274,7 @@ public:
 		return true;
 	}
 
-	bool pop ( samplv1_control::Event& event )
+	bool pop ( samplv1_controls::Event& event )
 	{
 		const unsigned int r = m_read;
 		if (r == m_write)
@@ -302,14 +302,14 @@ private:
 	unsigned int m_read;
 	unsigned int m_write;
 
-	samplv1_control::Event *m_events;
+	samplv1_controls::Event *m_events;
 };
 
 
 //---------------------------------------------------------------------
-// samplv1_control:Impl - decl.
+// samplv1_controls:Impl - decl.
 //
-class samplv1_control::Impl
+class samplv1_controls::Impl
 {
 public:
 
@@ -318,7 +318,7 @@ public:
 	bool is_pending () const
 		{ return m_queue.is_pending(); }
 
-	bool dequeue ( samplv1_control::Event& event )
+	bool dequeue ( samplv1_controls::Event& event )
 		{ return m_queue.pop(event); }
 
 	void flush()
@@ -333,17 +333,17 @@ public:
 		}
 	}
 
-	bool process ( const samplv1_control::Event& event )
+	bool process ( const samplv1_controls::Event& event )
 	{
 		const unsigned short channel = (event.status & 0x0f);
 
 		if (event.param == RPN_MSB) {
 			xrpn_item& item = get_item(channel);
 			if (item.is_param_msb()
-				|| (item.is_any() && item.type() != samplv1_control::RPN))
+				|| (item.is_any() && item.type() != samplv1_controls::RPN))
 				enqueue(item);
-			if (item.type() == samplv1_control::None) {
-				item.set_status(samplv1_control::RPN | channel);
+			if (item.type() == samplv1_controls::None) {
+				item.set_status(samplv1_controls::RPN | channel);
 				++m_count;
 			}
 			item.set_param_msb(event.value);
@@ -353,10 +353,10 @@ public:
 		if (event.param == RPN_LSB) {
 			xrpn_item& item = get_item(channel);
 			if (item.is_param_lsb()
-				|| (item.is_any() && item.type() != samplv1_control::RPN))
+				|| (item.is_any() && item.type() != samplv1_controls::RPN))
 				enqueue(item);
-			if (item.type() == samplv1_control::None) {
-				item.set_status(samplv1_control::RPN | channel);
+			if (item.type() == samplv1_controls::None) {
+				item.set_status(samplv1_controls::RPN | channel);
 				++m_count;
 			}
 			item.set_param_lsb(event.value);
@@ -366,10 +366,10 @@ public:
 		if (event.param == NRPN_MSB) {
 			xrpn_item& item = get_item(channel);
 			if (item.is_param_msb()
-				|| (item.is_any() && item.type() != samplv1_control::NRPN))
+				|| (item.is_any() && item.type() != samplv1_controls::NRPN))
 				enqueue(item);
-			if (item.type() == samplv1_control::None) {
-				item.set_status(samplv1_control::NRPN | channel);
+			if (item.type() == samplv1_controls::None) {
+				item.set_status(samplv1_controls::NRPN | channel);
 				++m_count;
 			}
 			item.set_param_msb(event.value);
@@ -379,10 +379,10 @@ public:
 		if (event.param == NRPN_LSB) {
 			xrpn_item& item = get_item(channel);
 			if (item.is_param_lsb()
-				|| (item.is_any() && item.type() != samplv1_control::NRPN))
+				|| (item.is_any() && item.type() != samplv1_controls::NRPN))
 				enqueue(item);
-			if (item.type() == samplv1_control::None) {
-				item.set_status(samplv1_control::NRPN | channel);
+			if (item.type() == samplv1_controls::None) {
+				item.set_status(samplv1_controls::NRPN | channel);
 				++m_count;
 			}
 			item.set_param_lsb(event.value);
@@ -391,11 +391,11 @@ public:
 		else
 		if (event.param == DATA_MSB) {
 			xrpn_item& item = get_item(channel);
-			if (item.type() == samplv1_control::None)
+			if (item.type() == samplv1_controls::None)
 				return false;
 			if (item.is_value_msb()
-				|| (item.type() != samplv1_control::RPN
-				 && item.type() != samplv1_control::NRPN)) {
+				|| (item.type() != samplv1_controls::RPN
+				 && item.type() != samplv1_controls::NRPN)) {
 				enqueue(item);
 				return false;
 			}
@@ -407,11 +407,11 @@ public:
 		else
 		if (event.param == DATA_LSB) {
 			xrpn_item& item = get_item(channel);
-			if (item.type() == samplv1_control::None)
+			if (item.type() == samplv1_controls::None)
 				return false;
 			if (item.is_value_lsb()
-				|| (item.type() != samplv1_control::RPN
-				 && item.type() != samplv1_control::NRPN)) {
+				|| (item.type() != samplv1_controls::RPN
+				 && item.type() != samplv1_controls::NRPN)) {
 				enqueue(item);
 				return false;
 			}
@@ -424,12 +424,12 @@ public:
 		if (event.param > CC14_MSB_MIN && event.param < CC14_MSB_MAX) {
 			xrpn_item& item = get_item(channel);
 			if (item.is_param_msb() || item.is_value_msb()
-				|| (item.is_any() && item.type() != samplv1_control::CC14)
-				|| (item.type() == samplv1_control::CC14
+				|| (item.is_any() && item.type() != samplv1_controls::CC14)
+				|| (item.type() == samplv1_controls::CC14
 					&& item.param_lsb() != event.param + CC14_LSB_MIN))
 				enqueue(item);
-			if (item.type() == samplv1_control::None) {
-				item.set_status(samplv1_control::CC14 | channel);
+			if (item.type() == samplv1_controls::None) {
+				item.set_status(samplv1_controls::CC14 | channel);
 				++m_count;
 			}
 			item.set_param_msb(event.param);
@@ -442,12 +442,12 @@ public:
 		if (event.param > CC14_LSB_MIN && event.param < CC14_LSB_MAX) {
 			xrpn_item& item = get_item(channel);
 			if (item.is_param_lsb() || item.is_value_lsb()
-				|| (item.is_any() && item.type() != samplv1_control::CC14)
-				|| (item.type() == samplv1_control::CC14
+				|| (item.is_any() && item.type() != samplv1_controls::CC14)
+				|| (item.type() == samplv1_controls::CC14
 					&& item.param_msb() != event.param - CC14_LSB_MIN))
 				enqueue(item);
-			if (item.type() == samplv1_control::None) {
-				item.set_status(samplv1_control::CC14 | channel);
+			if (item.type() == samplv1_controls::None) {
+				item.set_status(samplv1_controls::CC14 | channel);
 				++m_count;
 			}
 			item.set_param_lsb(event.param);
@@ -467,14 +467,14 @@ protected:
 
 	void enqueue ( xrpn_item& item )
 	{
-		if (item.type() == samplv1_control::None)
+		if (item.type() == samplv1_controls::None)
 			return;
 
-		if (item.type() == samplv1_control::CC14) {
+		if (item.type() == samplv1_controls::CC14) {
 			if (item.is_14bit()) {
 				m_queue.push(item.status(), item.param_msb(), item.value());
 			} else  {
-				const unsigned char status = samplv1_control::CC | item.channel();
+				const unsigned char status = samplv1_controls::CC | item.channel();
 				if (item.is_value_msb())
 					m_queue.push(status, item.param_msb(), item.value_msb());
 				if (item.is_value_lsb())
@@ -485,15 +485,15 @@ protected:
 		if (item.is_ready()) {
 			m_queue.push(item.status(), item.param(), item.value());
 		} else {
-			const unsigned char status = samplv1_control::CC | item.channel();
-			if (item.type() == samplv1_control::RPN) {
+			const unsigned char status = samplv1_controls::CC | item.channel();
+			if (item.type() == samplv1_controls::RPN) {
 				if (item.is_param_msb())
 					m_queue.push(status, RPN_MSB, item.param_msb());
 				if (item.is_param_lsb())
 					m_queue.push(status, RPN_LSB, item.param_lsb());
 			}
 			else
-			if (item.type() == samplv1_control::NRPN) {
+			if (item.type() == samplv1_controls::NRPN) {
 				if (item.is_param_msb())
 					m_queue.push(status, NRPN_MSB, item.param_msb());
 				if (item.is_param_lsb())
@@ -519,23 +519,23 @@ private:
 
 
 //---------------------------------------------------------------------
-// samplv1_control - impl.
+// samplv1_controls - impl.
 //
 
-samplv1_control::samplv1_control ( samplv1 *pSampl )
-	: m_pImpl(new samplv1_control::Impl()), m_pSampl(pSampl)
+samplv1_controls::samplv1_controls ( samplv1 *pSynth )
+	: m_pImpl(new samplv1_controls::Impl()), m_pSynth(pSynth)
 {
 }
 
 
-samplv1_control::~samplv1_control (void)
+samplv1_controls::~samplv1_controls (void)
 {
 	delete m_pImpl;
 }
 
 
 // controller queue methods.
-void samplv1_control::process_enqueue (
+void samplv1_controls::process_enqueue (
 	unsigned short channel, unsigned short param, unsigned short value )
 {
 	Event event;
@@ -551,7 +551,7 @@ void samplv1_control::process_enqueue (
 }
 
 
-void samplv1_control::process_dequeue (void)
+void samplv1_controls::process_dequeue (void)
 {
 	Event event;
 
@@ -562,10 +562,10 @@ void samplv1_control::process_dequeue (void)
 }
 
 
-void samplv1_control::process_event ( const Event& event )
+void samplv1_controls::process_event ( const Event& event )
 {
 	const Key key(event);
-	const int index = find_controller(key);
+	const int index = find_control(key);
 	if (index < 0)
 		return;
 
@@ -574,14 +574,58 @@ void samplv1_control::process_event ( const Event& event )
 	if (Type(key.status & 0xf0) != CC)
 		fValue /= 127.0f;
 
-	m_pSampl->setParamValue(samplv1::ParamIndex(index), fValue);
+	m_pSynth->setParamValue(samplv1::ParamIndex(index), fValue);
 }
 
 
-void samplv1_control::flush (void)
+void samplv1_controls::flush (void)
 {
 	m_pImpl->flush();
 }
 
 
-// end of samplv1_control.cpp
+// text utilities.
+samplv1_controls::Type samplv1_controls::typeFromText ( const QString& sText )
+{
+	if (sText == "CC")
+		return CC;
+	else
+	if (sText == "RPN")
+		return RPN;
+	else
+	if (sText == "NRPN")
+		return NRPN;
+	else
+	if (sText == "CC14")
+		return CC14;
+	else
+		return None;
+}
+
+
+QString samplv1_controls::textFromType ( Type ctype )
+{
+	QString sText;
+
+	switch (ctype) {
+	case CC:
+		sText = "CC";
+		break;
+	case RPN:
+		sText = "RPN";
+		break;
+	case NRPN:
+		sText = "NRPN";
+		break;
+	case CC14:
+		sText = "CC14";
+		break;
+	default:
+		break;
+	}
+
+	return sText;
+}
+
+
+// end of samplv1_controls.cpp

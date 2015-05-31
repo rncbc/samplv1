@@ -29,7 +29,7 @@
 // forward declarations
 class samplv1_impl;
 class samplv1_sample;
-class samplv1_control;
+class samplv1_controls;
 class samplv1_programs;
 
 
@@ -152,7 +152,7 @@ public:
 
 	void reset();
 
-	samplv1_control *control() const;
+	samplv1_controls *controls() const;
 	samplv1_programs *programs() const;
 
 	void process_midi(uint8_t *data, uint32_t size);

@@ -32,7 +32,7 @@
 #include "samplv1_reverb.h"
 
 #include "samplv1_config.h"
-#include "samplv1_control.h"
+#include "samplv1_controls.h"
 #include "samplv1_programs.h"
 
 
@@ -736,7 +736,7 @@ public:
 	void setParamValue(samplv1::ParamIndex index, float fValue);
 	float paramValue(samplv1::ParamIndex index) const;
 
-	samplv1_control *control();
+	samplv1_controls *controls();
 	samplv1_programs *programs();
 
 	void process_midi(uint8_t *data, uint32_t size);
@@ -777,7 +777,7 @@ protected:
 private:
 
 	samplv1_config   m_config;
-	samplv1_control  m_control;
+	samplv1_controls m_controls;
 	samplv1_programs m_programs;
 
 	uint16_t m_iChannels;
@@ -842,7 +842,7 @@ samplv1_voice::samplv1_voice ( samplv1_impl *pImpl ) :
 
 samplv1_impl::samplv1_impl (
 	samplv1 *pSampl, uint16_t iChannels, uint32_t iSampleRate )
-	: m_control(pSampl), m_programs(pSampl)
+	: m_controls(pSampl), m_programs(pSampl)
 {
 	// null sample.
 	m_gen1.sample0 = 0.0f;
@@ -1368,7 +1368,7 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 			break;
 		}
 		// process controller...
-		m_control.process_enqueue(channel, key, value);
+		m_controls.process_enqueue(channel, key, value);
 	}
 	// pitch bend
 	else if (status == 0xe0) {
@@ -1377,10 +1377,10 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 	}
 	else
 	// flush controllers...
-	m_control.flush();
+	m_controls.flush();
 
 	// process pending controllers...
-	m_control.process_dequeue();
+	m_controls.process_dequeue();
 }
 
 
@@ -1496,9 +1496,9 @@ void samplv1_impl::reset (void)
 
 // controllers accessor
 
-samplv1_control *samplv1_impl::control (void)
+samplv1_controls *samplv1_impl::controls (void)
 {
-	return &m_control;
+	return &m_controls;
 }
 
 
@@ -1869,9 +1869,9 @@ void samplv1::process ( float **ins, float **outs, uint32_t nframes )
 
 // controllers accessor
 
-samplv1_control *samplv1::control (void) const
+samplv1_controls *samplv1::controls (void) const
 {
-	return m_pImpl->control();
+	return m_pImpl->controls();
 }
 
 

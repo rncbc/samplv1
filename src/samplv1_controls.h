@@ -1,4 +1,4 @@
-// samplv1_control.h
+// samplv1_controls.h
 //
 /****************************************************************************
    Copyright (C) 2012-2015, rncbc aka Rui Nuno Capela. All rights reserved.
@@ -19,8 +19,8 @@
 
 *****************************************************************************/
 
-#ifndef __samplv1_control_h
-#define __samplv1_control_h
+#ifndef __samplv1_controls_h
+#define __samplv1_controls_h
 
 #include "samplv1_param.h"
 
@@ -28,18 +28,18 @@
 
 
 //-------------------------------------------------------------------------
-// samplv1_control - Controller processs class.
+// samplv1_controls - Controller processs class.
 //
 
-class samplv1_control
+class samplv1_controls
 {
 public:
 
 	// ctor.
-	samplv1_control(samplv1 *pSampl);
+	samplv1_controls(samplv1 *pSynth);
 
 	// dtor.
-	~samplv1_control();
+	~samplv1_controls();
 
 	// controller types,
 	enum Type { None = 0, CC = 0xb0, RPN = 0x10, NRPN = 0x20, CC14 = 0x30 };
@@ -55,15 +55,16 @@ public:
 	// controller hash key.
 	struct Key
 	{
-		unsigned char  status;
-		unsigned short param;
-
+		Key () : status(0), param(0) {}
 		Key (const Event& event)
 			: status(event.status), param(event.param) {}
 
 		// hash key comparator.
 		bool operator== (const Key& key) const
 			{ return (key.status == status) && (key.param == param); }
+
+		unsigned char  status;
+		unsigned short param;
 	};
 
 	typedef QHash<Key, int> Map;
@@ -71,11 +72,11 @@ public:
 	// controller map methods.
 	const Map& map() const { return m_map; }
 
-	int find_controller(const Key& key) const
+	int find_control(const Key& key) const
 		{ return m_map.value(key, -1); }
-	void add_controller(const Key& key, int index)
+	void add_control(const Key& key, int index)
 		{ m_map.insert(key, index); }
-	void remove__controller(const Key& key)
+	void remove__control(const Key& key)
 		{ m_map.remove(key); }
 
 	void clear() { m_map.clear(); }
@@ -90,6 +91,10 @@ public:
 
 	void flush();
 
+	// text utilities.
+	static Type typeFromText(const QString& sText);
+	static QString textFromType(Type ctype);
+
 protected:
 
 	void process_event(const Event& event);
@@ -101,7 +106,7 @@ private:
 
 	Impl *m_pImpl;
 
-	samplv1 *m_pSampl;
+	samplv1 *m_pSynth;
 
 	// Controllers map.
 	Map m_map;
@@ -109,12 +114,12 @@ private:
 
 
 // hash key function.
-inline uint qHash ( const samplv1_control::Key& key )
+inline uint qHash ( const samplv1_controls::Key& key )
 {
 	return qHash(key.status ^ key.param);
 }
 
 
-#endif	// __samplv1_control_h
+#endif	// __samplv1_controls_h
 
-// end of samplv1_control.h
+// end of samplv1_controls.h
