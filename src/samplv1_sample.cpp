@@ -36,8 +36,8 @@ class samplv1_reverse_sched : public samplv1_sched
 public:
 
 	// ctor.
-	samplv1_reverse_sched (samplv1_sample *sample) : samplv1_sched(Sample),
-		m_sample(sample), m_reverse(false) {}
+	samplv1_reverse_sched (samplv1_sample *sample)
+		: samplv1_sched(Sample), m_sample(sample), m_reverse(false) {}
 
 	// schedule reverse.
 	void reverse_sched(bool reverse)
@@ -48,7 +48,7 @@ public:
 	}
 
 	// process reverse (virtual).
-	void process()
+	void process(int)
 	{
 		m_sample->setReverse(m_reverse);
 	}

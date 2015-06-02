@@ -133,7 +133,7 @@ protected:
 		}
 
 		// process (virtual).
-		void process()
+		void process(int)
 		{
 			samplv1_programs *pPrograms = m_pSampl->programs();
 			pPrograms->process_program(m_pSampl, m_bank_id, m_prog_id);

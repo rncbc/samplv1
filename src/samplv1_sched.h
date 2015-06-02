@@ -22,6 +22,7 @@
 #ifndef __samplv1_sched_h
 #define __samplv1_sched_h
 
+#include <stdint.h>
 
 // forward decls.
 class samplv1_sched_notifier;
@@ -36,16 +37,16 @@ class samplv1_sched
 public:
 
 	// plausible sched types.
-	enum Type { Sample, Programs };
+	enum Type { Sample, Programs, Controls };
 
 	// ctor.
-	samplv1_sched(Type stype);
+	samplv1_sched(Type stype, uint32_t nsize = 8);
 
 	// virtual dtor.
 	virtual ~samplv1_sched();
 
 	// schedule process.
-	void schedule();
+	void schedule(int sid = 0);
 
 	// test-and-set wait.
 	bool sync_wait();
@@ -54,15 +55,24 @@ public:
 	void sync_process();
 
 	// (pure) virtual processor.
-	virtual void process() = 0;
+	virtual void process(int sid) = 0;
 
 	// signal broadcast (static).
-	static void sync_notify(Type stype);
+	static void sync_notify(Type stype, int sid);
 
 private:
 
 	// instance variables.
 	Type m_stype;
+
+	// sched queue instance reference.
+	uint32_t m_nsize;
+	uint32_t m_nmask;
+
+	int *m_items;
+
+	volatile uint32_t m_iread;
+	volatile uint32_t m_iwrite;
 
 	volatile bool m_sync_wait;
 };
@@ -87,11 +97,11 @@ public:
 	~samplv1_sched_notifier();
 
 	// signal notifier.
-	void sync_notify(samplv1_sched::Type stype);
+	void sync_notify(samplv1_sched::Type stype, int sid);
 
 signals:
 
-	void notify(int stype);
+	void notify(int stype, int sid);
 };
 
 

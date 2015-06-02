@@ -23,6 +23,7 @@
 #define __samplv1_controls_h
 
 #include "samplv1_param.h"
+#include "samplv1_sched.h"
 
 #include <QHash>
 
@@ -97,6 +98,31 @@ protected:
 
 	void process_event(const Event& event);
 
+	// controller scheduled thread
+	class Sched : public samplv1_sched
+	{
+	public:
+
+		// ctor.
+		Sched (samplv1 *pSampl)
+			: samplv1_sched(Controls), m_pSampl(pSampl) {}
+
+		void schedule_event(int iIndex, float fValue)
+		{
+			m_pSampl->setParamValue(samplv1::ParamIndex(iIndex), fValue);
+
+			schedule(iIndex);
+		}
+
+		// process (virtual stub).
+		void process(int) {}
+
+	private:
+
+		// instance variables.
+		samplv1 *m_pSampl;
+	};
+
 private:
 
 	// instance variables.
@@ -104,7 +130,8 @@ private:
 
 	Impl *m_pImpl;
 
-	samplv1 *m_pSynth;
+	// Event scheduler.
+	Sched m_sched;
 
 	// Controllers map.
 	Map m_map;

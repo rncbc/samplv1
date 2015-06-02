@@ -491,8 +491,8 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 
 	// Special sample update notifications (eg. reverse)
 	QObject::connect(m_sched_notifier,
-		SIGNAL(notify(int)),
-		SLOT(updateSchedNotify(int)));
+		SIGNAL(notify(int, int)),
+		SLOT(updateSchedNotify(int, int)));
 
 	// General knob/dial  behavior init...
 	samplv1_config *pConfig = samplv1_config::getInstance();
@@ -598,7 +598,7 @@ void samplv1widget::updateParamEx ( samplv1::ParamIndex index, float fValue )
 	++m_iUpdate;
 
 	switch (index) {
-#if 1//--updateSchedNotify(samplv1_sched::Sample);
+#if 1//--updateSchedNotify(samplv1_sched::Sample, 0);
 	case samplv1::GEN1_REVERSE: {
 		const bool bReverse = bool(fValue > 0.0f);
 		pSamplUi->setReverse(bReverse);
@@ -1054,17 +1054,22 @@ void samplv1widget::updateLoadPreset ( const QString& sPreset )
 
 
 // Notification updater.
-void samplv1widget::updateSchedNotify ( int stype )
+void samplv1widget::updateSchedNotify ( int stype, int sid )
 {
 	samplv1_ui *pSamplUi = ui_instance();
 	if (pSamplUi == NULL)
 		return;
 
 #ifdef CONFIG_DEBUG
-	qDebug("samplv1widget::updateSchedNotify(%d)", stype);
+	qDebug("samplv1widget::updateSchedNotify(%d, %d)", stype, sid);
 #endif
 
 	switch (samplv1_sched::Type(stype)) {
+	case samplv1_sched::Controls: {
+		const samplv1::ParamIndex index = samplv1::ParamIndex(sid);
+		setParamValue(index, pSamplUi->paramValue(index));
+		break;
+	}
 	case samplv1_sched::Programs: {
 		samplv1_programs *pPrograms = pSamplUi->programs();
 		samplv1_programs::Prog *pProg = pPrograms->current_prog();
