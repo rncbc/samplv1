@@ -25,6 +25,8 @@
 #include <QItemDelegate>
 #include <QTreeWidget>
 
+#include <QMap>
+
 
 // forward decls.
 class samplv1_controls;
@@ -78,6 +80,14 @@ public:
 	// utilities.
 	void loadControls(samplv1_controls *pControls);
 	void saveControls(samplv1_controls *pControls);
+
+	// controller name utilities.
+	typedef QMap<unsigned short, QString> Names;
+
+	static const Names& controllerNames();
+	static const Names& rpnNames();
+	static const Names& nrpnNames();
+	static const Names& control14Names();
 
 public slots:
 
