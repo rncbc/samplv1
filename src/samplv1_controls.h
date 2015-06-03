@@ -107,11 +107,11 @@ protected:
 		Sched (samplv1 *pSampl)
 			: samplv1_sched(Controls), m_pSampl(pSampl) {}
 
-		void schedule_event(int iIndex, float fValue)
+		void schedule_event(samplv1::ParamIndex index, float fValue)
 		{
-			m_pSampl->setParamValue(samplv1::ParamIndex(iIndex), fValue);
+			m_pSampl->setParamValue(index, fValue);
 
-			schedule(iIndex);
+			schedule(int(index));
 		}
 
 		// process (virtual stub).

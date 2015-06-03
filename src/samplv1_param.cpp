@@ -28,22 +28,24 @@
 #include <QTextStream>
 #include <QDir>
 
+#include <math.h>
+
 
 //-------------------------------------------------------------------------
 // state params description.
 
-enum Param_Type { PARAM_FLOAT = 0, PARAM_INT, PARAM_BOOL };
+enum ParamType { PARAM_FLOAT = 0, PARAM_INT, PARAM_BOOL };
 
 static
-struct {
+struct ParamInfo {
 
 	const char *name;
-	Param_Type type;
+	ParamType type;
 	float def;
 	float min;
 	float max;
 
-} samplv1_default_params[samplv1::NUM_PARAMS] = {
+} samplv1_params[samplv1::NUM_PARAMS] = {
 
 	// name            type,           def,    min,    max
 	{ "GEN1_SAMPLE",   PARAM_INT,    60.0f,   0.0f, 127.0f }, // GEN1 Sample
@@ -123,13 +125,29 @@ struct {
 
 const char *samplv1_param::paramName ( samplv1::ParamIndex index )
 {
-	return samplv1_default_params[index].name;
+	return samplv1_params[index].name;
 }
 
 
 float samplv1_param::paramDefaultValue ( samplv1::ParamIndex index )
 {
-	return samplv1_default_params[index].def;
+	return samplv1_params[index].def;
+}
+
+
+float samplv1_param::paramValue ( samplv1::ParamIndex index, float fValue )
+{
+	const ParamInfo& param = samplv1_params[index];
+
+	if (param.type == PARAM_BOOL)
+		return (fValue > 0.5f ? 1.0f : 0.0f);
+
+	fValue = param.min + fValue * (param.max - param.min);
+
+	if (param.type == PARAM_INT)
+		return ::rintf(fValue);
+	else
+		return fValue;
 }
 
 
