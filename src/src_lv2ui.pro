@@ -16,6 +16,7 @@ HEADERS = \
 	samplv1_lv2ui.h \
 	samplv1_config.h \
 	samplv1_param.h \
+	samplv1_sched.h \
 	samplv1widget.h \
 	samplv1widget_env.h \
 	samplv1widget_filt.h \

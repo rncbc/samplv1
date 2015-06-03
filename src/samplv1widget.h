@@ -25,12 +25,13 @@
 #include "ui_samplv1widget.h"
 
 #include "samplv1_config.h"
+#include "samplv1_sched.h"
 
 #include "samplv1_ui.h"
 
 
 // forward decls.
-class samplv1_sched_notifier;
+class samplv1widget_sched_notifier;
 
 
 //-------------------------------------------------------------------------
@@ -162,7 +163,7 @@ private:
 	// Instance variables.
 	Ui::samplv1widget m_ui;
 
-	samplv1_sched_notifier *m_sched_notifier;
+	samplv1widget_sched_notifier *m_sched_notifier;
 
 	QHash<samplv1::ParamIndex, samplv1widget_knob *> m_paramKnobs;
 	QHash<samplv1widget_knob *, samplv1::ParamIndex> m_knobParams;
@@ -170,6 +171,54 @@ private:
 	float m_params_ab[samplv1::NUM_PARAMS];
 
 	int m_iUpdate;
+};
+
+
+//-------------------------------------------------------------------------
+// samplv1widget_sched_notifier - worker/schedule proxy decl.
+//
+
+class samplv1widget_sched_notifier : public QObject
+{
+	Q_OBJECT
+
+public:
+
+	// ctor.
+	samplv1widget_sched_notifier(QObject *pParent = NULL)
+		: QObject(pParent), m_notifier(this) {}
+
+signals:
+
+	// Notification signal.
+	void notify(int stype, int sid);
+
+protected:
+
+	// Notififier visitor.
+	class Notifier : public samplv1_sched_notifier
+	{
+	public:
+
+		Notifier(samplv1widget_sched_notifier *pNotifier)
+			: samplv1_sched_notifier(), m_pNotifier(pNotifier) {}
+
+		void notify(samplv1_sched::Type stype, int sid) const
+			{ m_pNotifier->emit_notify(stype, sid); }
+
+	private:
+
+		samplv1widget_sched_notifier *m_pNotifier;
+	};
+
+	// Notification method.
+	void emit_notify(samplv1_sched::Type stype, int sid)
+		{ emit notify(int(stype), sid); }
+
+private:
+
+	// Instance variables.
+	Notifier m_notifier;
 };
 
 

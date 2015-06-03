@@ -246,7 +246,7 @@ void samplv1_sched::sync_notify ( Type stype, int sid )
 {
 	QListIterator<samplv1_sched_notifier *> iter(g_sched_notifiers);
 	while (iter.hasNext())
-		iter.next()->sync_notify(stype, sid);
+		iter.next()->notify(stype, sid);
 }
 
 
@@ -255,8 +255,7 @@ void samplv1_sched::sync_notify ( Type stype, int sid )
 //
 
 // ctor.
-samplv1_sched_notifier::samplv1_sched_notifier ( QObject *parent )
-	: QObject(parent)
+samplv1_sched_notifier::samplv1_sched_notifier (void)
 {
 	g_sched_notifiers.append(this);
 }
@@ -266,12 +265,6 @@ samplv1_sched_notifier::samplv1_sched_notifier ( QObject *parent )
 samplv1_sched_notifier::~samplv1_sched_notifier (void)
 {
 	g_sched_notifiers.removeAll(this);
-}
-
-
-void samplv1_sched_notifier::sync_notify ( samplv1_sched::Type stype, int sid )
-{
-	emit notify(int(stype), sid);
 }
 
 
