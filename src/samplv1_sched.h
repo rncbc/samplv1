@@ -24,6 +24,9 @@
 
 #include <stdint.h>
 
+// forward decls.
+class samplv1;
+
 
 //-------------------------------------------------------------------------
 // samplv1_sched - worker/scheduled stuff (pure virtual).
@@ -37,10 +40,13 @@ public:
 	enum Type { Sample, Programs, Controls };
 
 	// ctor.
-	samplv1_sched(Type stype, uint32_t nsize = 8);
+	samplv1_sched(samplv1 *pSampl, Type stype, uint32_t nsize = 8);
 
 	// virtual dtor.
 	virtual ~samplv1_sched();
+
+	// instance access.
+	samplv1 *instance() const;
 
 	// schedule process.
 	void schedule(int sid = 0);
@@ -55,11 +61,13 @@ public:
 	virtual void process(int sid) = 0;
 
 	// signal broadcast (static).
-	static void sync_notify(Type stype, int sid);
+	static void sync_notify(samplv1 *pSampl, Type stype, int sid);
 
 private:
 
 	// instance variables.
+	samplv1 *m_pSampl;
+
 	Type m_stype;
 
 	// sched queue instance reference.
@@ -84,13 +92,18 @@ class samplv1_sched_notifier
 public:
 
 	// ctor.
-	samplv1_sched_notifier();
+	samplv1_sched_notifier(samplv1 *pSampl);
 
 	// dtor.
 	~samplv1_sched_notifier();
 
 	// signal notifier.
 	virtual void notify(samplv1_sched::Type stype, int sid) const = 0;
+
+private:
+
+	// instance variables.
+	samplv1 *m_pSampl;
 };
 
 

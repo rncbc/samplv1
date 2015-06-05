@@ -63,7 +63,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	m_ui.setupUi(this);
 
 	// Init sched notifier.
-	m_sched_notifier = new samplv1widget_sched(this);
+	m_sched_notifier = NULL;
 
 	// Init swapable params A/B to default.
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i)
@@ -489,11 +489,6 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 		SIGNAL(triggered(bool)),
 		SLOT(helpAboutQt()));
 
-	// Special sample update notifications (eg. reverse)
-	QObject::connect(m_sched_notifier,
-		SIGNAL(notify(int, int)),
-		SLOT(updateSchedNotify(int, int)));
-
 	// General knob/dial  behavior init...
 	samplv1_config *pConfig = samplv1_config::getInstance();
 	if (pConfig) {
@@ -513,7 +508,28 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 // Destructor.
 samplv1widget::~samplv1widget (void)
 {
-	delete m_sched_notifier;
+	if (m_sched_notifier)
+		delete m_sched_notifier;
+}
+
+
+// Create/initialize the scheduler/work notifier.
+void samplv1widget::initSchedNotifier (void)
+{
+	if (m_sched_notifier) {
+		delete m_sched_notifier;
+		m_sched_notifier = NULL;
+	}
+
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi == NULL)
+		return;
+
+	m_sched_notifier = new samplv1widget_sched(pSamplUi->instance(), this);
+
+	QObject::connect(m_sched_notifier,
+		SIGNAL(notify(int, int)),
+		SLOT(updateSchedNotify(int, int)));
 }
 
 

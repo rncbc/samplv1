@@ -120,8 +120,8 @@ protected:
 	public:
 
 		// ctor.
-		Sched (samplv1 *pSampl) : samplv1_sched(Programs),
-			m_pSampl(pSampl), m_bank_id(0), m_prog_id(0) {}
+		Sched (samplv1 *pSampl)
+			: samplv1_sched(pSampl, Programs), m_bank_id(0), m_prog_id(0) {}
 
 		// schedule (override)
 		void select_program(uint16_t bank_id, uint16_t prog_id)
@@ -135,15 +135,14 @@ protected:
 		// process (virtual).
 		void process(int)
 		{
-			samplv1_programs *pPrograms = m_pSampl->programs();
-			pPrograms->process_program(m_pSampl, m_bank_id, m_prog_id);
+			samplv1 *pSampl = instance();
+			samplv1_programs *pPrograms = pSampl->programs();
+			pPrograms->process_program(pSampl, m_bank_id, m_prog_id);
 		}
 
 	private:
 
 		// instance variables.
-		samplv1 *m_pSampl;
-
 		uint16_t m_bank_id;
 		uint16_t m_prog_id;
 	};

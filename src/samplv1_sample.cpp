@@ -1,7 +1,7 @@
 // samplv1_sample.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2014, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2015, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -36,8 +36,9 @@ class samplv1_reverse_sched : public samplv1_sched
 public:
 
 	// ctor.
-	samplv1_reverse_sched (samplv1_sample *sample)
-		: samplv1_sched(Sample), m_sample(sample), m_reverse(false) {}
+	samplv1_reverse_sched (samplv1 *pSampl, samplv1_sample *sample)
+		: samplv1_sched(pSampl, Sample),
+			m_sample(sample), m_reverse(false) {}
 
 	// schedule reverse.
 	void reverse_sched(bool reverse)
@@ -67,13 +68,13 @@ private:
 //
 
 // ctor.
-samplv1_sample::samplv1_sample ( float srate )
+samplv1_sample::samplv1_sample ( samplv1 *pSampl, float srate )
 	: m_srate(srate), m_filename(0), m_nchannels(0),
 		m_rate0(0.0f), m_freq0(1.0f), m_ratio(0.0f),
 		m_nframes(0), m_pframes(0), m_reverse(false),
 		m_loop(false), m_loop_start(0), m_loop_end(0)
 {
-	m_reverse_sched = new samplv1_reverse_sched(this);
+	m_reverse_sched = new samplv1_reverse_sched(pSampl, this);
 }
 
 

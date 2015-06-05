@@ -105,22 +105,17 @@ protected:
 
 		// ctor.
 		Sched (samplv1 *pSampl)
-			: samplv1_sched(Controls), m_pSampl(pSampl) {}
+			: samplv1_sched(pSampl, Controls) {}
 
 		void schedule_event(samplv1::ParamIndex index, float fValue)
 		{
-			m_pSampl->setParamValue(index, fValue);
+			instance()->setParamValue(index, fValue);
 
 			schedule(int(index));
 		}
 
 		// process (virtual stub).
 		void process(int) {}
-
-	private:
-
-		// instance variables.
-		samplv1 *m_pSampl;
 	};
 
 private:

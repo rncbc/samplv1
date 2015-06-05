@@ -842,7 +842,7 @@ samplv1_voice::samplv1_voice ( samplv1_impl *pImpl ) :
 
 samplv1_impl::samplv1_impl (
 	samplv1 *pSampl, uint16_t iChannels, uint32_t iSampleRate )
-	: m_controls(pSampl), m_programs(pSampl)
+	: gen1_sample(pSampl), m_controls(pSampl), m_programs(pSampl)
 {
 	// null sample.
 	m_gen1.sample0 = 0.0f;

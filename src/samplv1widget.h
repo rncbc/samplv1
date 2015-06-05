@@ -50,6 +50,9 @@ public:
 	// Destructor.
 	virtual ~samplv1widget();
 
+	// Create/initialize the scheduler/work notifier.
+	void initSchedNotifier();
+
 	// Param port accessors.
 	void setParamValue(
 		samplv1::ParamIndex index, float fValue, bool bDefault = false);
@@ -185,8 +188,8 @@ class samplv1widget_sched : public QObject
 public:
 
 	// ctor.
-	samplv1widget_sched(QObject *pParent = NULL)
-		: QObject(pParent), m_notifier(this) {}
+	samplv1widget_sched(samplv1 *pSampl, QObject *pParent = NULL)
+		: QObject(pParent), m_notifier(pSampl, this) {}
 
 signals:
 
@@ -200,8 +203,8 @@ protected:
 	{
 	public:
 
-		Notifier(samplv1widget_sched *pSched)
-			: samplv1_sched_notifier(), m_pSched(pSched) {}
+		Notifier(samplv1 *pSampl, samplv1widget_sched *pSched)
+			: samplv1_sched_notifier(pSampl), m_pSched(pSched) {}
 
 		void notify(samplv1_sched::Type stype, int sid) const
 			{ m_pSched->emit_notify(stype, sid); }
