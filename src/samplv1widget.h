@@ -31,7 +31,7 @@
 
 
 // forward decls.
-class samplv1widget_sched_notifier;
+class samplv1widget_sched;
 
 
 //-------------------------------------------------------------------------
@@ -48,7 +48,7 @@ public:
 	samplv1widget(QWidget *pParent = 0, Qt::WindowFlags wflags = 0);
 
 	// Destructor.
-	~samplv1widget();
+	virtual ~samplv1widget();
 
 	// Param port accessors.
 	void setParamValue(
@@ -163,7 +163,7 @@ private:
 	// Instance variables.
 	Ui::samplv1widget m_ui;
 
-	samplv1widget_sched_notifier *m_sched_notifier;
+	samplv1widget_sched *m_sched_notifier;
 
 	QHash<samplv1::ParamIndex, samplv1widget_knob *> m_paramKnobs;
 	QHash<samplv1widget_knob *, samplv1::ParamIndex> m_knobParams;
@@ -175,17 +175,17 @@ private:
 
 
 //-------------------------------------------------------------------------
-// samplv1widget_sched_notifier - worker/schedule proxy decl.
+// samplv1widget_sched - worker/schedule proxy decl.
 //
 
-class samplv1widget_sched_notifier : public QObject
+class samplv1widget_sched : public QObject
 {
 	Q_OBJECT
 
 public:
 
 	// ctor.
-	samplv1widget_sched_notifier(QObject *pParent = NULL)
+	samplv1widget_sched(QObject *pParent = NULL)
 		: QObject(pParent), m_notifier(this) {}
 
 signals:
@@ -200,15 +200,15 @@ protected:
 	{
 	public:
 
-		Notifier(samplv1widget_sched_notifier *pNotifier)
-			: samplv1_sched_notifier(), m_pNotifier(pNotifier) {}
+		Notifier(samplv1widget_sched *pSched)
+			: samplv1_sched_notifier(), m_pSched(pSched) {}
 
 		void notify(samplv1_sched::Type stype, int sid) const
-			{ m_pNotifier->emit_notify(stype, sid); }
+			{ m_pSched->emit_notify(stype, sid); }
 
 	private:
 
-		samplv1widget_sched_notifier *m_pNotifier;
+		samplv1widget_sched *m_pSched;
 	};
 
 	// Notification method.

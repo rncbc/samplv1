@@ -63,7 +63,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	m_ui.setupUi(this);
 
 	// Init sched notifier.
-	m_sched_notifier = new samplv1widget_sched_notifier(this);
+	m_sched_notifier = new samplv1widget_sched(this);
 
 	// Init swapable params A/B to default.
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i)
