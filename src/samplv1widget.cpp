@@ -595,8 +595,7 @@ void samplv1widget::paramChanged ( float fValue )
 		samplv1::ParamIndex index = m_knobParams.value(pKnob);
 		updateParam(index, fValue);
 		updateParamEx(index, fValue);
-		m_ui.StatusBar->showMessage(QString("%1 / %2: %3")
-			.arg(m_ui.StackedWidget->currentWidget()->windowTitle())
+		m_ui.StatusBar->showMessage(QString("%1: %2")
 			.arg(pKnob->toolTip())
 			.arg(pKnob->valueText()), 5000);
 		updateDirtyPreset(true);
@@ -638,6 +637,26 @@ void samplv1widget::updateParamEx ( samplv1::ParamIndex index, float fValue )
 		// Fall thru...
 	default:
 		break;
+	}
+
+	--m_iUpdate;
+}
+
+
+// Update scheduled controllers param/knob widgets.
+void samplv1widget::updateSchedParam ( samplv1::ParamIndex index, float fValue )
+{
+	++m_iUpdate;
+
+	samplv1widget_knob *pKnob = paramKnob(index);
+	if (pKnob) {
+		pKnob->setValue(fValue, false);
+		updateParam(index, fValue);
+		updateParamEx(index, fValue);
+		m_ui.StatusBar->showMessage(QString("%1: %2")
+			.arg(pKnob->toolTip())
+			.arg(pKnob->valueText()), 5000);
+		updateDirtyPreset(true);
 	}
 
 	--m_iUpdate;
@@ -1083,7 +1102,7 @@ void samplv1widget::updateSchedNotify ( int stype, int sid )
 	switch (samplv1_sched::Type(stype)) {
 	case samplv1_sched::Controls: {
 		const samplv1::ParamIndex index = samplv1::ParamIndex(sid);
-		setParamValue(index, pSamplUi->paramValue(index));
+		updateSchedParam(index, pSamplUi->paramValue(index));
 		break;
 	}
 	case samplv1_sched::Programs: {

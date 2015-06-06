@@ -155,6 +155,9 @@ protected:
 	// Update loop range change status.
 	void updateSampleLoop(samplv1_sample *pSample, bool bDirty = false);
 
+	// Update scheduled controllers param/knob widgets.
+	void updateSchedParam(samplv1::ParamIndex index, float fValue);
+
 	// Preset status updater.
 	void updateLoadPreset(const QString& sPreset);
 
