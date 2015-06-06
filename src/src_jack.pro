@@ -34,6 +34,7 @@ HEADERS = \
 	samplv1widget_status.h \
 	samplv1widget_programs.h \
 	samplv1widget_controls.h \
+	samplv1widget_control.h \
 	samplv1widget_config.h \
 	samplv1widget_jack.h
 
@@ -59,11 +60,13 @@ SOURCES = \
 	samplv1widget_status.cpp \
 	samplv1widget_programs.cpp \
 	samplv1widget_controls.cpp \
+	samplv1widget_control.cpp \
 	samplv1widget_config.cpp \
 	samplv1widget_jack.cpp
 
 FORMS = \
 	samplv1widget.ui \
+	samplv1widget_control.ui \
 	samplv1widget_config.ui
 
 
