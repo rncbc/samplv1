@@ -231,11 +231,12 @@ void samplv1_config::loadControls ( samplv1_controls *pControls )
 		const QString& sKey = '/' + iter.next();
 		const QStringList& clist = sKey.split('_');
 		if (clist.at(0) == controlPrefix()) {
-			const unsigned short channel = clist.at(1).toInt() - 1;
+			const unsigned short channel
+				= clist.at(1).toInt();
 			const samplv1_controls::Type ctype
 				= samplv1_controls::typeFromText(clist.at(2));
 			samplv1_controls::Key key;
-			key.status = ctype | (channel & 0x0f);
+			key.status = ctype | (channel & 0x1f);
 			key.param = clist.at(3).toInt();
 			pControls->add_control(key, QSettings::value(sKey).toInt());
 		}
@@ -257,9 +258,8 @@ void samplv1_config::saveControls ( samplv1_controls *pControls )
 	for ( ; iter != iter_end; ++iter) {
 		const samplv1_controls::Key& key = iter.key();
 		QString sKey = controlPrefix();
-		sKey += '_' + QString::number((key.status & 0x0f) + 1);
-		sKey += '_' + samplv1_controls::textFromType(
-			samplv1_controls::Type(key.status & 0xf0));
+		sKey += '_' + QString::number(key.channel());
+		sKey += '_' + samplv1_controls::textFromType(key.type());
 		sKey += '_' + QString::number(key.param);
 		QSettings::setValue(sKey, iter.value());
 	}
