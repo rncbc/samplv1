@@ -26,6 +26,7 @@
 #include "samplv1_sched.h"
 
 #include "samplv1widget_config.h"
+#include "samplv1widget_control.h"
 
 #include <QMessageBox>
 #include <QDir>
@@ -544,6 +545,12 @@ void samplv1widget::setParamKnob ( samplv1::ParamIndex index, samplv1widget_knob
 	QObject::connect(pKnob,
 		SIGNAL(valueChanged(float)),
 		SLOT(paramChanged(float)));
+
+	pKnob->setContextMenuPolicy(Qt::CustomContextMenu);
+
+	QObject::connect(pKnob,
+		SIGNAL(customContextMenuRequested(const QPoint&)),
+		SLOT(paramContextMenu(const QPoint&)));
 }
 
 samplv1widget_knob *samplv1widget::paramKnob ( samplv1::ParamIndex index ) const
@@ -1198,6 +1205,36 @@ void samplv1widget::updateDirtyPreset ( bool bDirtyPreset )
 {
 	m_ui.StatusBar->setModified(bDirtyPreset);
 	m_ui.Preset->setDirtyPreset(bDirtyPreset);
+}
+
+
+// Param knob context menu.
+void samplv1widget::paramContextMenu ( const QPoint& pos )
+{
+	samplv1widget_knob *pKnob
+		= qobject_cast<samplv1widget_knob *> (sender());
+	if (pKnob == NULL)
+		return;
+
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi == NULL)
+		return;
+
+	samplv1_controls *pControls = pSamplUi->controls();
+	if (pControls == NULL)
+		return;
+
+	QMenu menu(this);
+
+	QAction *pAction = menu.addAction(
+		QIcon(":/images/samplv1_preset.png"),
+		tr("MIDI &Controller..."));
+
+	if (menu.exec(pKnob->mapToGlobal(pos)) == pAction) {
+		const samplv1::ParamIndex index = m_knobParams.value(pKnob);
+		const QString& sTitle = pKnob->toolTip();
+		samplv1widget_control::showInstance(pControls, index, sTitle, this);
+	}
 }
 
 

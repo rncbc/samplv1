@@ -164,6 +164,9 @@ protected:
 	// Dirty flag (overridable virtual) methods.
 	virtual void updateDirtyPreset(bool bDirtyPreset);
 
+	// Param knob context menu.
+	void paramContextMenu(const QPoint& pos);
+
 private:
 
 	// Instance variables.

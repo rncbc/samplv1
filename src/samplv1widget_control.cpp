@@ -22,6 +22,8 @@
 #include "samplv1widget_control.h"
 #include "samplv1widget_controls.h"
 
+#include "samplv1_config.h"
+
 #include <QMessageBox>
 #include <QPushButton>
 #include <QLineEdit>
@@ -115,13 +117,14 @@ samplv1widget_control *samplv1widget_control::getInstance (void)
 // Pseudo-constructor.
 void samplv1widget_control::showInstance (
 	samplv1_controls *pControls, samplv1::ParamIndex index,
-	QWidget *pParent, Qt::WindowFlags wflags )
+	const QString& sTitle, QWidget *pParent, Qt::WindowFlags wflags )
 {
 	samplv1widget_control *pInstance = samplv1widget_control::getInstance();
 	if (pInstance)
 		pInstance->close();
 
 	pInstance = new samplv1widget_control(pParent, wflags);
+	pInstance->setWindowTitle(sTitle);
 	pInstance->setControls(pControls, index);
 	pInstance->show();
 }
@@ -131,15 +134,28 @@ void samplv1widget_control::showInstance (
 void samplv1widget_control::setControls (
 	samplv1_controls *pControls, samplv1::ParamIndex index )
 {
+	++m_iDirtySetup;
+
 	m_pControls = pControls;
 	m_index = index;
 
-	const QString sParamName = samplv1_param::paramName(m_index);
-	QDialog::setWindowTitle(sParamName + " - " + tr("MIDI Controller"));
+	samplv1_controls::Key key;
+	key.status = samplv1_controls::CC;
 
-	++m_iDirtySetup;
+	if (m_pControls) {
+		const samplv1_controls::Map& map = m_pControls->map();
+		samplv1_controls::Map::ConstIterator iter = map.constBegin();
+		const samplv1_controls::Map::ConstIterator& iter_end
+			= map.constEnd();
+		for ( ; iter != iter_end; ++iter) {
+			if (samplv1::ParamIndex(iter.value()) == m_index) {
+				key = iter.key();
+				break;
+			}
+		}
+	}
 
-	setControlKey(controlKey());
+	setControlKey(key);
 
 	--m_iDirtySetup;
 
@@ -177,6 +193,11 @@ void samplv1widget_control::setControlKey ( const samplv1_controls::Key& key )
 	setControlParam(key.param);
 
 	m_ui.ControlChannelSpinBox->setValue(key.channel());
+
+	QPushButton *pResetButton
+		= m_ui.DialogButtonBox->button(QDialogButtonBox::Reset);
+	if (pResetButton && m_pControls)
+		pResetButton->setEnabled(m_pControls->find_control(key) >= 0);
 }
 
 
@@ -184,18 +205,11 @@ samplv1_controls::Key samplv1widget_control::controlKey (void) const
 {
 	samplv1_controls::Key key;
 
-	if (m_pControls) {
-		const samplv1_controls::Map& map = m_pControls->map();
-		samplv1_controls::Map::ConstIterator iter = map.constBegin();
-		const samplv1_controls::Map::ConstIterator& iter_end
-			= map.constEnd();
-		for ( ; iter != iter_end; ++iter) {
-			if (samplv1::ParamIndex(iter.value()) == m_index) {
-				key = iter.key();
-				break;
-			}
-		}
-	}
+	const samplv1_controls::Type ctype = controlType();
+	const unsigned short channel = controlChannel();
+
+	key.status = ctype | (channel & 0x1f);
+	key.param = controlParam();
 
 	return key;
 }
@@ -217,6 +231,52 @@ void samplv1widget_control::changed (void)
 }
 
 
+// Reset settings (action button slot).
+void samplv1widget_control::clicked ( QAbstractButton *pButton )
+{
+#ifdef CONFIG_DEBUG_0
+	qDebug("samplv1widget_control::clicked(%p)", pButton);
+#endif
+
+	QDialogButtonBox::ButtonRole role
+		= m_ui.DialogButtonBox->buttonRole(pButton);
+	if ((role & QDialogButtonBox::ResetRole) == QDialogButtonBox::ResetRole)
+		reset();
+}
+
+
+// Reset settings (Reset button slot).
+void samplv1widget_control::reset (void)
+{
+	if (m_pControls == NULL)
+		return;
+
+#ifdef CONFIG_DEBUG_0
+	qDebug("samplv1widget_control::reset()");
+#endif
+
+	// Get map settings...
+	const samplv1_controls::Key& key = controlKey();
+
+	// Unmap the existing controller....
+	const int iIndex = m_pControls->find_control(key);
+	if (iIndex >= 0)
+		m_pControls->remove_control(key);
+
+	// Save controls...
+	samplv1_config *pConfig = samplv1_config::getInstance();
+	if (pConfig)
+		pConfig->saveControls(m_pControls);
+
+	// Aint't dirty no more...
+	m_iDirtyCount = 0;
+
+	// Bail out...
+	QDialog::accept();
+	QDialog::close();
+}
+
+
 // Accept settings (OK button slot).
 void samplv1widget_control::accept (void)
 {
@@ -228,12 +288,7 @@ void samplv1widget_control::accept (void)
 #endif
 
 	// Get map settings...
-	const samplv1_controls::Type ctype = controlType();
-	const unsigned short channel = controlChannel();
-
-	samplv1_controls::Key key;
-	key.status = ctype | (channel & 0x1f);
-	key.param = controlParam();
+	const samplv1_controls::Key& key = controlKey();
 
 	// Check if already mapped to someone else...
 	const int iIndex = m_pControls->find_control(key);
@@ -253,6 +308,11 @@ void samplv1widget_control::accept (void)
 
 	// Map the damn controller....
 	m_pControls->add_control(key, m_index);
+
+	// Save controls...
+	samplv1_config *pConfig = samplv1_config::getInstance();
+	if (pConfig)
+		pConfig->saveControls(m_pControls);
 
 	// Aint't dirty no more...
 	m_iDirtyCount = 0;

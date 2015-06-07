@@ -409,7 +409,7 @@ void samplv1widget_config::accept (void)
 	samplv1_config *pConfig = samplv1_config::getInstance();
 
 	if (m_iDirtyControls > 0 && pConfig && m_pControls) {
-		// Save programs...
+		// Save controls...
 		m_ui.ControlsTreeWidget->saveControls(m_pControls);
 		pConfig->saveControls(m_pControls);
 		// Reset dirty flag.
