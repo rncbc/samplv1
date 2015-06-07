@@ -514,7 +514,8 @@ private:
 //
 
 samplv1_controls::samplv1_controls ( samplv1 *pSampl )
-	: m_pImpl(new samplv1_controls::Impl()), m_sched(pSampl)
+	: m_pImpl(new samplv1_controls::Impl()),
+		m_sched(pSampl), m_control_sched(pSampl)
 {
 }
 
@@ -556,8 +557,10 @@ void samplv1_controls::process_dequeue (void)
 void samplv1_controls::process_event ( const Event& event )
 {
 	Key key(event.key);
-	int iIndex = find_control(key);
 
+	m_control_sched.schedule_key(key);
+
+	int iIndex = find_control(key);
 	if (iIndex < 0 && key.channel() > 0) {
 		key.status = key.type(); // channel: 0=Auto
 		iIndex = find_control(key);
@@ -617,6 +620,13 @@ QString samplv1_controls::textFromType ( Type ctype )
 	}
 
 	return sText;
+}
+
+
+// current/last controller accessor.
+const samplv1_controls::Key& samplv1_controls::current_key (void) const
+{
+	return m_control_sched.current_key();
 }
 
 

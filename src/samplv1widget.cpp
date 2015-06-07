@@ -1107,6 +1107,15 @@ void samplv1widget::updateSchedNotify ( int stype, int sid )
 #endif
 
 	switch (samplv1_sched::Type(stype)) {
+	case samplv1_sched::Controller: {
+		samplv1widget_control *pInstance
+			= samplv1widget_control::getInstance();
+		if (pInstance) {
+			samplv1_controls *pControls = pSamplUi->controls();
+			pInstance->setControlKey(pControls->current_key());
+		}
+		break;
+	}
 	case samplv1_sched::Controls: {
 		const samplv1::ParamIndex index = samplv1::ParamIndex(sid);
 		updateSchedParam(index, pSamplUi->paramValue(index));
