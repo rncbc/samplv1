@@ -682,7 +682,7 @@ void samplv1widget_controls::loadControls ( samplv1_controls *pControls )
 {
 	QTreeWidget::clear();
 
-	const QIcon icon(":/images/samplv1_preset.png");
+	const QIcon icon(":/images/samplv1_control.png");
 	QList<QTreeWidgetItem *> items;
 	const samplv1_controls::Map& map = pControls->map();
 	samplv1_controls::Map::ConstIterator iter = map.constBegin();
@@ -746,7 +746,7 @@ void samplv1widget_controls::addControlItem (void)
 QTreeWidgetItem *samplv1widget_controls::newControlItem (void)
 {
 	QTreeWidgetItem *pItem = new QTreeWidgetItem();
-	const QIcon icon(":/images/samplv1_preset.png");
+	const QIcon icon(":/images/samplv1_control.png");
 	const samplv1_controls::Type ctype = samplv1_controls::CC;
 //	pItem->setIcon(0, icon);
 	pItem->setText(0, tr("Auto"));
