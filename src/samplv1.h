@@ -41,15 +41,15 @@ class samplv1
 {
 public:
 
-	samplv1(uint16_t iChannels = 2, uint32_t iSampleRate = 44100);
+	samplv1(uint16_t nchannels = 2, float srate = 44100.0f);
 
 	~samplv1();
 
-	void setChannels(uint16_t iChannels);
+	void setChannels(uint16_t nchannels);
 	uint16_t channels() const;
 
-	void setSampleRate(uint32_t iSampleRate);
-	uint32_t sampleRate() const;
+	void setSampleRate(float srate);
+	float sampleRate() const;
 
 	void setSampleFile(const char *pszSampleFile);
 	const char *sampleFile() const;

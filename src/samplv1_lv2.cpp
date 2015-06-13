@@ -39,7 +39,7 @@
 
 samplv1_lv2::samplv1_lv2 (
 	double sample_rate, const LV2_Feature *const *host_features )
-	: samplv1(2, uint32_t(sample_rate))
+	: samplv1(2, float(sample_rate))
 {
 	m_urid_map = NULL;
 	m_atom_sequence = NULL;

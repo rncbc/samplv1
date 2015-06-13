@@ -283,7 +283,7 @@ void samplv1_jack::open ( const char *client_id )
 		return;
 
 	// set sample rate
-	samplv1::setSampleRate(jack_get_sample_rate(m_client));
+	samplv1::setSampleRate(float(jack_get_sample_rate(m_client)));
 //	samplv1::reset();
 
 	// register audio ports & buffers

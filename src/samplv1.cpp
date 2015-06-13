@@ -717,15 +717,15 @@ class samplv1_impl
 {
 public:
 
-	samplv1_impl(samplv1 *pSampl, uint16_t iChannels, uint32_t iSampleRate);
+	samplv1_impl(samplv1 *pSampl, uint16_t nchannels, float srate);
 
 	~samplv1_impl();
 
-	void setChannels(uint16_t iChannels);
+	void setChannels(uint16_t nchannels);
 	uint16_t channels() const;
 
-	void setSampleRate(uint32_t iSampleRate);
-	uint32_t sampleRate() const;
+	void setSampleRate(float srate);
+	float sampleRate() const;
 
 	void setSampleFile(const char *pszSampleFile);
 	const char *sampleFile() const;
@@ -780,8 +780,8 @@ private:
 	samplv1_controls m_controls;
 	samplv1_programs m_programs;
 
-	uint16_t m_iChannels;
-	uint32_t m_iSampleRate;
+	uint16_t m_nchannels;
+	float    m_srate;
 
 	samplv1_ctl m_ctl;
 
@@ -841,7 +841,7 @@ samplv1_voice::samplv1_voice ( samplv1_impl *pImpl ) :
 // engine constructor
 
 samplv1_impl::samplv1_impl (
-	samplv1 *pSampl, uint16_t iChannels, uint32_t iSampleRate )
+	samplv1 *pSampl, uint16_t nchannels, float srate )
 	: gen1_sample(pSampl), m_controls(pSampl), m_programs(pSampl)
 {
 	// null sample.
@@ -885,14 +885,14 @@ samplv1_impl::samplv1_impl (
 	m_config.loadPrograms(&m_programs);
 
 	// number of channels
-	setChannels(iChannels);
+	setChannels(nchannels);
 
 	// parameters
 	for (int i = 0; i < int(samplv1::NUM_PARAMS); ++i)
 		setParamPort(samplv1::ParamIndex(i));
 
 	// set default sample rate
-	setSampleRate(iSampleRate);
+	setSampleRate(srate);
 
 	// reset all voices
 	allControllersOff();
@@ -924,9 +924,9 @@ samplv1_impl::~samplv1_impl (void)
 }
 
 
-void samplv1_impl::setChannels ( uint16_t iChannels )
+void samplv1_impl::setChannels ( uint16_t nchannels )
 {
-	m_iChannels = iChannels;
+	m_nchannels = nchannels;
 
 	// deallocate flangers
 	if (m_flanger) {
@@ -956,33 +956,33 @@ void samplv1_impl::setChannels ( uint16_t iChannels )
 
 uint16_t samplv1_impl::channels (void) const
 {
-	return m_iChannels;
+	return m_nchannels;
 }
 
 
-void samplv1_impl::setSampleRate ( uint32_t iSampleRate )
+void samplv1_impl::setSampleRate ( float srate )
 {
 	// set internal sample rate
-	m_iSampleRate = iSampleRate;
+	m_srate = srate;
 
 	// update waves sample rate
-	gen1_sample.setSampleRate(m_iSampleRate);
-	lfo1_wave.setSampleRate(m_iSampleRate);
+	gen1_sample.setSampleRate(m_srate);
+	lfo1_wave.setSampleRate(m_srate);
 
 	updateEnvTimes();
 }
 
 
-uint32_t samplv1_impl::sampleRate (void) const
+float samplv1_impl::sampleRate (void) const
 {
-	return m_iSampleRate;
+	return m_srate;
 }
 
 
 void samplv1_impl::updateEnvTimes (void)
 {
 	// update envelope range times in frames
-	const float srate_ms = 0.001f * float(m_iSampleRate);
+	const float srate_ms = 0.001f * m_srate;
 
 	float envtime_msecs = 10000.0f * m_gen1.envtime0;
 	if (envtime_msecs < MIN_ENV_MSECS)
@@ -1296,9 +1296,9 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 			// lfos
 			pv->lfo1_sample = pv->lfo1.start();
 			// glides (portamentoa)
-			const float srate = float(m_iSampleRate);
-			float frames = uint32_t(*m_gen1.glide * *m_gen1.glide * srate);
-			pv->gen1_glide.reset(frames, pv->gen1_freq);
+			const float nframes
+				= uint32_t(*m_gen1.glide * *m_gen1.glide * m_srate);
+			pv->gen1_glide.reset(nframes, pv->gen1_freq);
 			// sustain
 			pv->sustain = false;
 			// allocated
@@ -1394,20 +1394,20 @@ void samplv1_impl::allControllersOff (void)
 
 void samplv1_impl::allSoundOff (void)
 {
-	m_chorus.setSampleRate(m_iSampleRate);
+	m_chorus.setSampleRate(m_srate);
 	m_chorus.reset();
 
-	for (uint16_t k = 0; k < m_iChannels; ++k) {
-		m_phaser[k].setSampleRate(m_iSampleRate);
-		m_delay[k].setSampleRate(m_iSampleRate);
-		m_comp[k].setSampleRate(m_iSampleRate);
+	for (uint16_t k = 0; k < m_nchannels; ++k) {
+		m_phaser[k].setSampleRate(m_srate);
+		m_delay[k].setSampleRate(m_srate);
+		m_comp[k].setSampleRate(m_srate);
 		m_flanger[k].reset();
 		m_phaser[k].reset();
 		m_delay[k].reset();
 		m_comp[k].reset();
 	}
 
-	m_reverb.setSampleRate(m_iSampleRate);
+	m_reverb.setSampleRate(m_srate);
 	m_reverb.reset();
 }
 
@@ -1469,19 +1469,19 @@ void samplv1_impl::reset (void)
 
 	// flangers
 	if (m_flanger == 0)
-		m_flanger = new samplv1_fx_flanger [m_iChannels];
+		m_flanger = new samplv1_fx_flanger [m_nchannels];
 
 	// phasers
 	if (m_phaser == 0)
-		m_phaser = new samplv1_fx_phaser [m_iChannels];
+		m_phaser = new samplv1_fx_phaser [m_nchannels];
 
 	// delays
 	if (m_delay == 0)
-		m_delay = new samplv1_fx_delay [m_iChannels];
+		m_delay = new samplv1_fx_delay [m_nchannels];
 
 	// compressors
 	if (m_comp == 0)
-		m_comp = new samplv1_fx_comp [m_iChannels];
+		m_comp = new samplv1_fx_comp [m_nchannels];
 
 	// reverbs
 	m_reverb.reset();
@@ -1512,13 +1512,13 @@ samplv1_programs *samplv1_impl::programs (void)
 
 void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 {
-	float *v_outs[m_iChannels];
+	float *v_outs[m_nchannels];
 
 	// buffer i/o transfer
 
 	uint16_t k;
 
-	for (k = 0; k < m_iChannels; ++k)
+	for (k = 0; k < m_nchannels; ++k)
 		::memcpy(outs[k], ins[k], nframes * sizeof(float));
 
 	// channel indexes
@@ -1562,7 +1562,7 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 
 		// output buffers
 
-		for (k = 0; k < m_iChannels; ++k)
+		for (k = 0; k < m_nchannels; ++k)
 			v_outs[k] = outs[k];
 
 		uint32_t nblock = nframes;
@@ -1634,7 +1634,7 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 				const float out2
 					= vol1 * (mid1 - sid1 * wid1) * m_pan1.value(j, 1);
 
-				for (k = 0; k < m_iChannels; ++k)
+				for (k = 0; k < m_nchannels; ++k)
 					*v_outs[k]++ += (k & 1 ? out2 : out1);
 
 				if (j == 0) {
@@ -1680,13 +1680,13 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 
 
 	// chorus
-	if (m_iChannels > 1) {
+	if (m_nchannels > 1) {
 		m_chorus.process(outs[0], outs[1], nframes, *m_cho.wet,
 			*m_cho.delay, *m_cho.feedb, *m_cho.rate, *m_cho.mod);
 	}
 
 	// effects
-	for (k = 0; k < m_iChannels; ++k) {
+	for (k = 0; k < m_nchannels; ++k) {
 		float *in = outs[k];
 		// flanger
 		m_flanger[k].process(in, nframes, *m_fla.wet,
@@ -1700,13 +1700,13 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 	}
 
 	// reverb
-	if (m_iChannels > 1) {
+	if (m_nchannels > 1) {
 		m_reverb.process(outs[0], outs[1], nframes, *m_rev.wet,
 			*m_rev.feedb, *m_rev.room, *m_rev.damp, *m_rev.width);
 	}
 
 	// dynamics
-	for (k = 0; k < m_iChannels; ++k) {
+	for (k = 0; k < m_nchannels; ++k) {
 		float *in = outs[k];
 		// compressor
 		if (int(*m_dyn.compress) > 0)
@@ -1732,9 +1732,9 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 // samplv1 - decl.
 //
 
-samplv1::samplv1 ( uint16_t iChannels, uint32_t iSampleRate )
+samplv1::samplv1 ( uint16_t nchannels, float srate )
 {
-	m_pImpl = new samplv1_impl(this, iChannels, iSampleRate);
+	m_pImpl = new samplv1_impl(this, nchannels, srate);
 }
 
 
@@ -1744,9 +1744,9 @@ samplv1::~samplv1 (void)
 }
 
 
-void samplv1::setChannels ( uint16_t iChannels )
+void samplv1::setChannels ( uint16_t nchannels )
 {
-	m_pImpl->setChannels(iChannels);
+	m_pImpl->setChannels(nchannels);
 }
 
 
@@ -1756,13 +1756,13 @@ uint16_t samplv1::channels (void) const
 }
 
 
-void samplv1::setSampleRate ( uint32_t iSampleRate )
+void samplv1::setSampleRate ( float srate )
 {
-	m_pImpl->setSampleRate(iSampleRate);
+	m_pImpl->setSampleRate(srate);
 }
 
 
-uint32_t samplv1::sampleRate (void) const
+float samplv1::sampleRate (void) const
 {
 	return m_pImpl->sampleRate();
 }
