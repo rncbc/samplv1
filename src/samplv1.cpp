@@ -1296,9 +1296,9 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 			// lfos
 			pv->lfo1_sample = pv->lfo1.start();
 			// glides (portamentoa)
-			const float nframes
+			const float frames
 				= uint32_t(*m_gen1.glide * *m_gen1.glide * m_srate);
-			pv->gen1_glide.reset(nframes, pv->gen1_freq);
+			pv->gen1_glide.reset(frames, pv->gen1_freq);
 			// sustain
 			pv->sustain = false;
 			// allocated
