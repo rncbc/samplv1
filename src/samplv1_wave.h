@@ -49,10 +49,10 @@ public:
 		{ return m_width; }
 
 	// sample rate.
-	void setSampleRate(uint32_t iSampleRate)
-		{ m_srate = float(iSampleRate); }
+	void setSampleRate(float srate)
+		{ m_srate = srate; }
 	float sampleRate() const
-		{ return uint32_t(m_srate); }
+		{ return m_srate; }
 
 	// init.
 	void reset(Shape shape, float width);
