@@ -1217,10 +1217,6 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 		const int ch = int(*m_def.channel);
 		const int on = (ch == 0 || ch == channel);
 
-		// non control change flush
-		if (status != 0xb0)
-			m_controls.process_flush();
-
 		// all system common/real-time ignored
 		if (status == 0xf0)
 			continue;
@@ -1382,7 +1378,7 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 				allNotesOff();
 				break;
 			}
-			// process controller...
+			// process controllers...
 			m_controls.process_enqueue(channel, key, value);
 		}
 		// pitch bend
@@ -1391,9 +1387,10 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 			m_ctl.pitchbend = samplv1_pow2f(*m_def.pitchbend * pitchbend);
 		}
 
-		// process pending controllers...
-		m_controls.process_dequeue();
 	}
+
+	// process pending controllers...
+	m_controls.process_dequeue();
 }
 
 
