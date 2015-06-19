@@ -1736,6 +1736,8 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 	m_wid1.process(nframes);
 	m_pan1.process(nframes);
 	m_vol1.process(nframes);
+
+	m_controls.process(nframes);
 }
 
 

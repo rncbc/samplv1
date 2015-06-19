@@ -517,6 +517,8 @@ samplv1_controls::samplv1_controls ( samplv1 *pSampl )
 	: m_pImpl(new samplv1_controls::Impl()),
 		m_sched(pSampl), m_control_sched(pSampl)
 {
+	m_timeout = (unsigned int) (0.2f * pSampl->sampleRate()); // 200ms.
+	m_nframes = 0;
 }
 
 
@@ -543,13 +545,13 @@ void samplv1_controls::process_enqueue (
 
 void samplv1_controls::process_dequeue (void)
 {
-	m_pImpl->flush();
-
 	while (m_pImpl->is_pending()) {
 		Event event;
 		if (m_pImpl->dequeue(event))
 			process_event(event);
 	}
+
+	m_nframes = 0;
 }
 
 
@@ -575,6 +577,18 @@ void samplv1_controls::process_event ( const Event& event )
 
 	const samplv1::ParamIndex index = samplv1::ParamIndex(iIndex);
 	m_sched.schedule_event(index, samplv1_param::paramValue(index, fValue));
+}
+
+
+// process timer counter.
+void samplv1_controls::process ( unsigned int nframes )
+{
+	m_nframes += nframes;
+
+	if (m_nframes > m_timeout) {
+		m_pImpl->flush();
+		m_nframes = 0;
+	}
 }
 
 
