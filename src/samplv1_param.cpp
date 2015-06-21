@@ -265,7 +265,7 @@ void samplv1_param::loadPreset ( samplv1 *pSampl, const QString& sFilename )
 	static QHash<QString, samplv1::ParamIndex> s_hash;
 	if (s_hash.isEmpty()) {
 		for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
-			samplv1::ParamIndex index = samplv1::ParamIndex(i);
+			const samplv1::ParamIndex index = samplv1::ParamIndex(i);
 			s_hash.insert(samplv1_param::paramName(index), index);
 		}
 	}
@@ -346,7 +346,7 @@ void samplv1_param::savePreset ( samplv1 *pSampl, const QString& sFilename )
 	QDomElement eParams = doc.createElement("params");
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
 		QDomElement eParam = doc.createElement("param");
-		samplv1::ParamIndex index = samplv1::ParamIndex(i);
+		const samplv1::ParamIndex index = samplv1::ParamIndex(i);
 		eParam.setAttribute("index", QString::number(i));
 		eParam.setAttribute("name", samplv1_param::paramName(index));
 		const float fValue = pSampl->paramValue(index);

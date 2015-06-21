@@ -272,7 +272,7 @@ void samplv1_jack::open ( const char *client_id )
 {
 	// init param ports
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
-		samplv1::ParamIndex index = samplv1::ParamIndex(i);
+		const samplv1::ParamIndex index = samplv1::ParamIndex(i);
 		m_params[i] = samplv1_param::paramDefaultValue(index);
 		samplv1::setParamPort(index, &m_params[i]);
 	}

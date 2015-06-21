@@ -599,7 +599,7 @@ void samplv1widget::paramChanged ( float fValue )
 
 	samplv1widget_knob *pKnob = qobject_cast<samplv1widget_knob *> (sender());
 	if (pKnob) {
-		samplv1::ParamIndex index = m_knobParams.value(pKnob);
+		const samplv1::ParamIndex index = m_knobParams.value(pKnob);
 		updateParam(index, fValue);
 		updateParamEx(index, fValue);
 		m_ui.StatusBar->showMessage(QString("%1: %2")
@@ -682,7 +682,7 @@ void samplv1widget::resetParams (void)
 	resetSwapParams();
 
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
-		samplv1::ParamIndex index = samplv1::ParamIndex(i);
+		const samplv1::ParamIndex index = samplv1::ParamIndex(i);
 		float fValue = samplv1_param::paramDefaultValue(index);
 		samplv1widget_knob *pKnob = paramKnob(index);
 		if (pKnob)
@@ -709,7 +709,7 @@ void samplv1widget::swapParams ( bool bOn )
 //	resetParamKnobs();
 
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
-		samplv1::ParamIndex index = samplv1::ParamIndex(i);
+		const samplv1::ParamIndex index = samplv1::ParamIndex(i);
 		samplv1widget_knob *pKnob = paramKnob(index);
 		if (pKnob) {
 			const float fOldValue = pKnob->value();
@@ -743,7 +743,7 @@ void samplv1widget::updateParamValues (void)
 	samplv1_ui *pSamplUi = ui_instance();
 
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
-		samplv1::ParamIndex index = samplv1::ParamIndex(i);
+		const samplv1::ParamIndex index = samplv1::ParamIndex(i);
 		const float fValue = (pSamplUi
 			? pSamplUi->paramValue(index)
 			: samplv1_param::paramDefaultValue(index));
@@ -761,7 +761,7 @@ void samplv1widget::resetParamValues (void)
 	resetSwapParams();
 
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
-		samplv1::ParamIndex index = samplv1::ParamIndex(i);
+		const samplv1::ParamIndex index = samplv1::ParamIndex(i);
 		const float fValue = samplv1_param::paramDefaultValue(index);
 		setParamValue(index, fValue, true);
 		updateParam(index, fValue);
