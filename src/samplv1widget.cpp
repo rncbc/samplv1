@@ -1129,6 +1129,10 @@ void samplv1widget::updateSchedNotify ( int stype, int sid )
 	}
 	case samplv1_sched::Sample:
 		updateSample(pSamplUi->sample());
+		if (sid > 0) {
+			updateParamValues();
+			updateDirtyPreset(false);
+		}
 		// Fall thru...
 	default:
 		break;
