@@ -1192,7 +1192,7 @@ void samplv1_impl::setParamValue ( samplv1::ParamIndex index, float fValue )
 {
 	float *pfParamPort = paramPort(index);
 	if (pfParamPort)
-		*pfParamPort = fValue;
+		*pfParamPort = fValue; // LV2:BUG?
 }
 
 
