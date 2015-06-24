@@ -109,6 +109,7 @@ private:
 	samplv1_controls *m_pControls;
 
 	// Target subject.
+	samplv1_controls::Key m_key;
 	samplv1::ParamIndex m_index;
 
 	// Instance variables.

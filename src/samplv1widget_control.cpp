@@ -86,6 +86,12 @@ samplv1widget_control::samplv1widget_control (
 	QObject::connect(m_ui.ControlChannelSpinBox,
 		SIGNAL(valueChanged(int)),
 		SLOT(changed()));
+	QObject::connect(m_ui.ControlLogarithmicCheckBox,
+		SIGNAL(toggled(bool)),
+		SLOT(changed()));
+	QObject::connect(m_ui.ControlInvertCheckBox,
+		SIGNAL(toggled(bool)),
+		SLOT(changed()));
 	QObject::connect(m_ui.DialogButtonBox,
 		SIGNAL(clicked(QAbstractButton *)),
 		SLOT(clicked(QAbstractButton *)));
@@ -138,9 +144,9 @@ void samplv1widget_control::setControls (
 
 	m_pControls = pControls;
 	m_index = index;
+	m_key.status = samplv1_controls::CC;
 
-	samplv1_controls::Key key;
-	key.status = samplv1_controls::CC;
+	unsigned int flags = 0;
 
 	if (m_pControls) {
 		const samplv1_controls::Map& map = m_pControls->map();
@@ -148,14 +154,21 @@ void samplv1widget_control::setControls (
 		const samplv1_controls::Map::ConstIterator& iter_end
 			= map.constEnd();
 		for ( ; iter != iter_end; ++iter) {
-			if (samplv1::ParamIndex(iter.value()) == m_index) {
-				key = iter.key();
+			const samplv1_controls::Data& data = iter.value();
+			if (samplv1::ParamIndex(data.index) == m_index) {
+				flags = data.flags;
+				m_key = iter.key();
 				break;
 			}
 		}
 	}
 
-	setControlKey(key);
+	setControlKey(m_key);
+
+	m_ui.ControlLogarithmicCheckBox->setChecked(
+		flags & samplv1_controls::Logarithmic);
+	m_ui.ControlInvertCheckBox->setChecked(
+		flags & samplv1_controls::Invert);
 
 	--m_iDirtySetup;
 
@@ -255,13 +268,12 @@ void samplv1widget_control::reset (void)
 	qDebug("samplv1widget_control::reset()");
 #endif
 
-	// Get map settings...
-	const samplv1_controls::Key& key = controlKey();
+	const int iIndex = m_pControls->find_control(m_key);
+	if (iIndex < 0)
+		return;
 
 	// Unmap the existing controller....
-	const int iIndex = m_pControls->find_control(key);
-	if (iIndex >= 0)
-		m_pControls->remove_control(key);
+	m_pControls->remove_control(m_key);
 
 	// Save controls...
 	samplv1_config *pConfig = samplv1_config::getInstance();
@@ -287,11 +299,16 @@ void samplv1widget_control::accept (void)
 	qDebug("samplv1widget_control::accept()");
 #endif
 
-	// Get map settings...
-	const samplv1_controls::Key& key = controlKey();
+	// Unmap the existing controller....
+	int iIndex = m_pControls->find_control(m_key);
+	if (iIndex >= 0)
+		m_pControls->remove_control(m_key);
+
+	// Get new map settings...
+	m_key = controlKey();
 
 	// Check if already mapped to someone else...
-	const int iIndex = m_pControls->find_control(key);
+	iIndex = m_pControls->find_control(m_key);
 	if (iIndex >= 0 && samplv1::ParamIndex(iIndex) != m_index) {
 		if (QMessageBox::warning(this,
 			QDialog::windowTitle(),
@@ -304,10 +321,21 @@ void samplv1widget_control::accept (void)
 
 	// Unmap the existing controller....
 	if (iIndex >= 0)
-		m_pControls->remove_control(key);
+		m_pControls->remove_control(m_key);
+
+	// Reset controller flags all te way...
+	unsigned int flags = 0;
+	if (m_ui.ControlLogarithmicCheckBox->isChecked())
+		flags |= samplv1_controls::Logarithmic;
+	if (m_ui.ControlInvertCheckBox->isChecked())
+		flags |= samplv1_controls::Invert;
 
 	// Map the damn controller....
-	m_pControls->add_control(key, m_index);
+	samplv1_controls::Data data;
+	data.index = m_index;
+	data.flags = flags;
+
+	m_pControls->add_control(m_key, data);
 
 	// Save controls...
 	samplv1_config *pConfig = samplv1_config::getInstance();
