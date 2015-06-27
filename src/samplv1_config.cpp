@@ -20,6 +20,7 @@
 *****************************************************************************/
 
 #include "samplv1_config.h"
+
 #include "samplv1_programs.h"
 #include "samplv1_controls.h"
 
@@ -149,11 +150,15 @@ void samplv1_config::loadPrograms ( samplv1_programs *pPrograms )
 	}
 
 	QSettings::endGroup();
+
+	pPrograms->enabled(bProgramsEnabled);
 }
 
 
 void samplv1_config::savePrograms ( samplv1_programs *pPrograms )
 {
+	bProgramsEnabled = pPrograms->enabled();
+
 	clearPrograms();
 
 	QSettings::beginGroup(programsGroup());
@@ -249,11 +254,15 @@ void samplv1_config::loadControls ( samplv1_controls *pControls )
 	}
 
 	QSettings::endGroup();
+
+	pControls->enabled(bControlsEnabled);
 }
 
 
 void samplv1_config::saveControls ( samplv1_controls *pControls )
 {
+	bControlsEnabled = pControls->enabled();
+
 	clearControls();
 
 	QSettings::beginGroup(controlsGroup());
@@ -302,6 +311,8 @@ void samplv1_config::load (void)
 	sPresetDir = QSettings::value("/PresetDir").toString();
 	sSampleDir = QSettings::value("/SampleDir").toString();
 	iKnobDialMode = QSettings::value("/KnobDialMode", 0).toInt();
+	bControlsEnabled = QSettings::value("/ControlsEnabled", true).toBool();
+	bProgramsEnabled = QSettings::value("/ProgramsEnabled", true).toBool();
 	QSettings::endGroup();
 
 	QSettings::beginGroup("/Dialogs");
@@ -328,6 +339,8 @@ void samplv1_config::save (void)
 	QSettings::setValue("/PresetDir", sPresetDir);
 	QSettings::setValue("/SampleDir", sSampleDir);
 	QSettings::setValue("/KnobDialMode", iKnobDialMode);
+	QSettings::setValue("/ControlsEnabled", bControlsEnabled);
+	QSettings::setValue("/ProgramsEnabled", bProgramsEnabled);
 	QSettings::endGroup();
 
 	QSettings::beginGroup("/Dialogs");

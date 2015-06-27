@@ -28,7 +28,7 @@
 
 // ctor.
 samplv1_programs::samplv1_programs ( samplv1 *pSampl )
-	: m_sched(new Sched(pSampl)),
+	: m_mode(0), m_sched(pSampl),
 		m_bank_msb(0), m_bank_lsb(0), m_bank(0), m_prog(0)
 {
 }
@@ -38,8 +38,6 @@ samplv1_programs::samplv1_programs ( samplv1 *pSampl )
 samplv1_programs::~samplv1_programs (void)
 {
 	clear_banks();
-
-	delete m_sched;
 }
 
 
@@ -164,7 +162,8 @@ void samplv1_programs::prog_change ( uint16_t prog_id )
 
 void samplv1_programs::select_program ( uint16_t bank_id, uint16_t prog_id )
 {
-	m_sched->select_program(bank_id, prog_id);
+	if (enabled())
+		m_sched.select_program(bank_id, prog_id);
 }
 
 

@@ -65,6 +65,8 @@ public:
 	int iKnobDialMode;
 
 	// Special persistent options.
+	bool bControlsEnabled;
+	bool bProgramsEnabled;
 	bool bProgramsPreview;
 	bool bUseNativeDialogs;
 	// Run-time special non-persistent options.

@@ -23,6 +23,9 @@
 #include "samplv1_config.h"
 #include "samplv1_param.h"
 
+#include "samplv1_programs.h"
+#include "samplv1_controls.h"
+
 #include <jack/midiport.h>
 
 #include <stdio.h>
@@ -162,6 +165,9 @@ samplv1_jack::samplv1_jack (void) : samplv1(2)
 #endif
 
 	m_bpm = 0.0f;
+
+	samplv1::programs()->enabled(true);
+	samplv1::controls()->enabled(true);
 
 	open(SAMPLV1_TITLE);
 	activate();

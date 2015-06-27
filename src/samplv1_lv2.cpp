@@ -23,6 +23,9 @@
 
 #include "samplv1_sched.h"
 
+#include "samplv1_programs.h"
+#include "samplv1_controls.h"
+
 #include "lv2/lv2plug.in/ns/ext/midi/midi.h"
 #include "lv2/lv2plug.in/ns/ext/time/time.h"
 #include "lv2/lv2plug.in/ns/ext/atom/util.h"
@@ -70,6 +73,9 @@ samplv1_lv2::samplv1_lv2 (
 	m_outs = new float * [nchannels];
 	for (uint16_t k = 0; k < nchannels; ++k)
 		m_ins[k] = m_outs[k] = NULL;
+
+	samplv1::programs()->optional(true);
+	samplv1::controls()->optional(true);
 }
 
 

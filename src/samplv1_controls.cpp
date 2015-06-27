@@ -514,7 +514,7 @@ private:
 //
 
 samplv1_controls::samplv1_controls ( samplv1 *pSampl )
-	: m_pImpl(new samplv1_controls::Impl()),
+	: m_pImpl(new samplv1_controls::Impl()), m_mode(0),
 		m_sched(pSampl), m_control_sched(pSampl),
 		m_timeout(0), m_timein(0)
 {
@@ -531,6 +531,9 @@ samplv1_controls::~samplv1_controls (void)
 void samplv1_controls::process_enqueue (
 	unsigned short channel, unsigned short param, unsigned short value )
 {
+	if (!enabled())
+		return;
+
 	Event event;
 
 	event.key.status = CC | (channel & 0x1f);
