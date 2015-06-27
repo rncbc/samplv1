@@ -304,8 +304,8 @@ void samplv1_param::loadPreset ( samplv1 *pSampl, const QString& sFilename )
 									continue;
 								index = s_hash.value(sName);
 							}
-							float fValue = eParam.text().toFloat();
-						#if 1//--legacy support < 0.3.0.4
+							const float fValue = eParam.text().toFloat();
+						#if 0//--legacy support < 0.3.0.4
 							if (index == samplv1::DEL1_BPM && fValue < 3.6f)
 								fValue *= 100.0f;
 						#endif
