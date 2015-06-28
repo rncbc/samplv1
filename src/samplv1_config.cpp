@@ -311,8 +311,8 @@ void samplv1_config::load (void)
 	sPresetDir = QSettings::value("/PresetDir").toString();
 	sSampleDir = QSettings::value("/SampleDir").toString();
 	iKnobDialMode = QSettings::value("/KnobDialMode", 0).toInt();
-	bControlsEnabled = QSettings::value("/ControlsEnabled", true).toBool();
-	bProgramsEnabled = QSettings::value("/ProgramsEnabled", true).toBool();
+	bControlsEnabled = QSettings::value("/ControlsEnabled", false).toBool();
+	bProgramsEnabled = QSettings::value("/ProgramsEnabled", false).toBool();
 	QSettings::endGroup();
 
 	QSettings::beginGroup("/Dialogs");
