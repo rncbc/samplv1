@@ -140,11 +140,9 @@ protected:
 	void resetParamValues();
 	void resetParamKnobs();
 
-	// Param port methods.
-	virtual void updateParam(samplv1::ParamIndex index, float fValue) const = 0;
-
-	// Update local tied widgets.
-	void updateParamEx(samplv1::ParamIndex index, float fValue);
+	// (En|Dis)able all param/knobs.
+	void activateParamKnobs(bool bEnabled);
+	void activateParamKnobsGroupBox(QGroupBox *pGroupBox, bool bEnable);
 
 	// Sample file clearance.
 	void clearSampleFile();
@@ -157,6 +155,12 @@ protected:
 
 	// Update loop range change status.
 	void updateSampleLoop(samplv1_sample *pSample, bool bDirty = false);
+
+	// Param port methods.
+	virtual void updateParam(samplv1::ParamIndex index, float fValue) const = 0;
+
+	// Update local tied widgets.
+	void updateParamEx(samplv1::ParamIndex index, float fValue);
 
 	// Update scheduled controllers param/knob widgets.
 	void updateSchedParam(samplv1::ParamIndex index, float fValue);

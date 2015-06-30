@@ -922,11 +922,13 @@ void samplv1widget::updateSample ( samplv1_sample *pSample, bool bDirty )
 		const uint32_t iLoopEnd = pSample->loopEnd();
 		m_ui.Gen1Sample->setLoopStart(iLoopStart);
 		m_ui.Gen1Sample->setLoopEnd(iLoopEnd);
+		activateParamKnobs(true);
 		updateSampleLoop(pSample);
 	} else {
 		m_ui.Gen1Sample->setLoop(false);
 		m_ui.Gen1Sample->setLoopStart(0);
 		m_ui.Gen1Sample->setLoopEnd(0);
+		activateParamKnobs(false);
 		updateSampleLoop(NULL);
 	}
 	--m_iUpdate;
@@ -1035,6 +1037,30 @@ void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1LoopEndSpinBox->setMaximum(0);
 		m_ui.Gen1LoopEndSpinBox->setValue(0);
 	}
+}
+
+
+// (En|Dis)able all param/knobs.
+void samplv1widget::activateParamKnobs ( bool bEnabled )
+{
+	activateParamKnobsGroupBox(m_ui.Gen1GroupBox, bEnabled);
+	activateParamKnobsGroupBox(m_ui.Dcf1GroupBox, bEnabled);
+	activateParamKnobsGroupBox(m_ui.Lfo1GroupBox, bEnabled);
+	activateParamKnobsGroupBox(m_ui.Dca1GroupBox, bEnabled);
+	activateParamKnobsGroupBox(m_ui.Out1GroupBox, bEnabled);
+
+	m_ui.Gen1Sample->setEnabled(true);
+}
+
+
+void samplv1widget::activateParamKnobsGroupBox (
+	QGroupBox *pGroupBox, bool bEnabled )
+{
+	const QList<QWidget *>& children
+		= pGroupBox->findChildren<QWidget *> ();
+	QListIterator<QWidget *> iter(children);
+	while (iter.hasNext())
+		iter.next()->setEnabled(bEnabled);
 }
 
 
