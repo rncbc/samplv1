@@ -922,7 +922,7 @@ void samplv1widget::updateSample ( samplv1_sample *pSample, bool bDirty )
 		const uint32_t iLoopEnd = pSample->loopEnd();
 		m_ui.Gen1Sample->setLoopStart(iLoopStart);
 		m_ui.Gen1Sample->setLoopEnd(iLoopEnd);
-		activateParamKnobs(true);
+		activateParamKnobs(pSample->filename() != NULL);
 		updateSampleLoop(pSample);
 	} else {
 		m_ui.Gen1Sample->setLoop(false);
