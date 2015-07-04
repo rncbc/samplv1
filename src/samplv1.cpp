@@ -783,7 +783,7 @@ private:
 	uint16_t m_nchannels;
 	float    m_srate;
 
-	samplv1_ctl m_ctl;
+	samplv1_ctl m_ctl1;
 
 	samplv1_gen m_gen1;
 	samplv1_dcf m_dcf1;
@@ -1103,6 +1103,30 @@ void samplv1_impl::setParamPort ( samplv1::ParamIndex index, float *pfParam )
 	case samplv1::DYN1_LIMITER:   m_dyn.limiter      = pfParam; break;
 	default: break;
 	}
+
+	// reset ramps after port (re)connection.
+	switch (index) {
+	case samplv1::OUT1_VOLUME:
+	case samplv1::DCA1_VOLUME:
+		m_vol1.reset(
+			m_out1.volume,
+			m_dca1.volume,
+			&m_ctl1.volume,
+			&m_aux1.volume);
+		break;
+	case samplv1::OUT1_WIDTH:
+		m_wid1.reset(
+			m_out1.width);
+		break;
+	case samplv1::OUT1_PANNING:
+		m_pan1.reset(
+			m_out1.panning,
+			&m_ctl1.panning,
+			&m_aux1.panning);
+		break;
+	default:
+		break;
+	}
 }
 
 
@@ -1235,7 +1259,7 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 
 		// channel aftertouch
 		if (status == 0xd0) {
-			if (on) m_ctl.pressure = float(key) / 127.0f;
+			if (on) m_ctl1.pressure = float(key) / 127.0f;
 			continue;
 		}
 
@@ -1266,7 +1290,7 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 				}
 			}
 			pv = m_notes[key];
-			if (pv && pv->note >= 0/* && !m_ctl.sustain*/) {
+			if (pv && pv->note >= 0/* && !m_ctl1.sustain*/) {
 				// retrigger fast release
 				m_dcf1.env.note_off_fast(&pv->dcf1_env);
 				m_lfo1.env.note_off_fast(&pv->lfo1_env);
@@ -1285,7 +1309,7 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 				pv->vel = samplv1_velocity(vel * vel, *m_def.velocity);
 				// pressure/after-touch
 				pv->pre = 0.0f;
-				pv->dca1_pre.reset(m_def.pressure, &m_ctl.pressure, &pv->pre);
+				pv->dca1_pre.reset(m_def.pressure, &m_ctl1.pressure, &pv->pre);
 				// generate
 				pv->gen1.start();
 				// frequencies
@@ -1319,7 +1343,7 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 		else if (status == 0x80 || (status == 0x90 && value == 0)) {
 			samplv1_voice *pv = m_notes[key];
 			if (pv && pv->note >= 0) {
-				if (m_ctl.sustain)
+				if (m_ctl1.sustain)
 					pv->sustain = true;
 				else
 				if (pv->dca1_env.stage != samplv1_env::Release) {
@@ -1345,15 +1369,15 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 				break;
 			case 0x01:
 				// modulation wheel (cc#1)
-				m_ctl.modwheel = *m_def.modwheel * float(value) / 127.0f;
+				m_ctl1.modwheel = *m_def.modwheel * float(value) / 127.0f;
 				break;
 			case 0x07:
 				// channel volume (cc#7)
-				m_ctl.volume = float(value) / 127.0f;
+				m_ctl1.volume = float(value) / 127.0f;
 				break;
 			case 0x0a:
 				// channel panning (cc#10)
-				m_ctl.panning = float(value - 64) / 64.0f;
+				m_ctl1.panning = float(value - 64) / 64.0f;
 				break;
 			case 0x20:
 				// bank-select LSB (cc#32)
@@ -1361,9 +1385,9 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 				break;
 			case 0x40:
 				// sustain/damper pedal (cc#64)
-				if (m_ctl.sustain && value <  64)
+				if (m_ctl1.sustain && value <  64)
 					allSustainOff();
-				m_ctl.sustain = bool(value >= 64);
+				m_ctl1.sustain = bool(value >= 64);
 				break;
 			case 0x78:
 				// all sound off (cc#120)
@@ -1384,7 +1408,7 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 		// pitch bend
 		else if (status == 0xe0) {
 			const float pitchbend = float(key + (value << 7) - 0x2000) / 8192.0f;
-			m_ctl.pitchbend = samplv1_pow2f(*m_def.pitchbend * pitchbend);
+			m_ctl1.pitchbend = samplv1_pow2f(*m_def.pitchbend * pitchbend);
 		}
 
 	}
@@ -1398,7 +1422,7 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 
 void samplv1_impl::allControllersOff (void)
 {
-	m_ctl.reset();
+	m_ctl1.reset();
 }
 
 
@@ -1475,8 +1499,8 @@ void samplv1_impl::reset (void)
 	m_del.bpmsync0 = 0.0f;
 	m_del.bpm0 = m_del.bpm;
 
-	m_vol1.reset(m_out1.volume, m_dca1.volume, &m_ctl.volume, &m_aux1.volume);
-	m_pan1.reset(m_out1.panning, &m_ctl.panning, &m_aux1.panning);
+	m_vol1.reset(m_out1.volume, m_dca1.volume, &m_ctl1.volume, &m_aux1.volume);
+	m_pan1.reset(m_out1.panning, &m_ctl1.panning, &m_aux1.panning);
 	m_wid1.reset(m_out1.width);
 
 	// flangers
@@ -1546,7 +1570,7 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 		= LFO_FREQ_MIN + lfo1_rate * (LFO_FREQ_MAX - LFO_FREQ_MIN);
 
 	const float modwheel1
-		= m_ctl.modwheel + PITCH_SCALE * *m_lfo1.pitch;
+		= m_ctl1.modwheel + PITCH_SCALE * *m_lfo1.pitch;
 
 	if (m_gen1.sample0 != *m_gen1.sample) {
 		m_gen1.sample0  = *m_gen1.sample;
@@ -1605,7 +1629,7 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 				const float lfo1 = pv->lfo1_sample * lfo1_env;
 
 				pv->gen1.next(pv->gen1_freq
-					* (m_ctl.pitchbend + modwheel1 * lfo1)
+					* (m_ctl1.pitchbend + modwheel1 * lfo1)
 					+ pv->gen1_glide.tick());
 
 				float gen1 = pv->gen1.value(k11);
