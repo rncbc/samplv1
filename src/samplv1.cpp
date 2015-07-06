@@ -1104,6 +1104,10 @@ void samplv1_impl::setParamPort ( samplv1::ParamIndex index, float *pfParam )
 	default: break;
 	}
 
+	// check null connections.
+	if (pfParam == &s_fDummy)
+		return;
+
 	// reset ramps after port (re)connection.
 	switch (index) {
 	case samplv1::OUT1_VOLUME:
