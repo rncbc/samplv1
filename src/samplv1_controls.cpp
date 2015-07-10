@@ -567,14 +567,13 @@ void samplv1_controls::process_event ( const Event& event )
 
 	m_sched_in.schedule_key(key);
 
-	Data data;
-	int iIndex = get_control(key, data);
-	if (iIndex < 0 && key.channel() > 0) {
+	Data& data = m_map[key];
+	if (data.index < 0 && key.channel() > 0) {
 		key.status = key.type(); // channel=0 (Auto)
-		iIndex = get_control(key, data);
+		data = m_map[key];
 	}
 
-	if (iIndex < 0)
+	if (data.index < 0)
 		return;
 
 	// process controller event...
@@ -593,8 +592,27 @@ void samplv1_controls::process_event ( const Event& event )
 	if (data.flags & Logarithmic)
 		fValue *= (fValue * fValue);
 
-	const samplv1::ParamIndex index = samplv1::ParamIndex(data.index);
-	m_sched_out.schedule_event(index, samplv1_param::paramValue(index, fValue));
+	const samplv1::ParamIndex index
+		= samplv1::ParamIndex(data.index);
+
+	// normalize value...
+	fValue = samplv1_param::paramValue(index, fValue);
+
+	// catch-up testing begin...
+	bool bSync = (data.flags & Hook);
+
+	if (!bSync) {
+		const float v0 = data.val;
+		const float v1 = m_sched_in.instance()->paramValue(index);
+		if ((fValue > v0 && v1 >= v0 && fValue >= v1) ||
+			(fValue < v0 && v0 >= v1 && v1 >= fValue))
+			bSync = true;
+	}
+
+	if (bSync)
+		m_sched_out.schedule_event(index, fValue);
+
+	data.val = fValue;
 }
 
 
