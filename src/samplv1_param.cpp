@@ -238,6 +238,13 @@ void samplv1_param::saveSamples (
 }
 
 
+bool samplv1_param::paramTypeFloat ( samplv1::ParamIndex index )
+{
+	return (samplv1_params[index].type == PARAM_FLOAT);
+}
+
+
+
 // Preset serialization methods.
 void samplv1_param::loadPreset ( samplv1 *pSampl, const QString& sFilename )
 {

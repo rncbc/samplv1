@@ -168,12 +168,19 @@ void samplv1widget_control::setControls (
 
 	setControlKey(m_key);
 
+	const bool bFloat = samplv1_param::paramTypeFloat(m_index);
+
 	m_ui.ControlLogarithmicCheckBox->setChecked(
-		flags & samplv1_controls::Logarithmic);
+		(flags & samplv1_controls::Logarithmic) && bFloat);
+	m_ui.ControlLogarithmicCheckBox->setEnabled(bFloat);
+
 	m_ui.ControlInvertCheckBox->setChecked(
-		flags & samplv1_controls::Invert);
+		(flags & samplv1_controls::Invert));
+	m_ui.ControlInvertCheckBox->setEnabled(true);
+
 	m_ui.ControlHookCheckBox->setChecked(
-		flags & samplv1_controls::Hook);
+		(flags & samplv1_controls::Hook) || !bFloat);
+	m_ui.ControlHookCheckBox->setEnabled(bFloat);
 
 	--m_iDirtySetup;
 
@@ -330,11 +337,17 @@ void samplv1widget_control::accept (void)
 
 	// Reset controller flags all te way...
 	unsigned int flags = 0;
-	if (m_ui.ControlLogarithmicCheckBox->isChecked())
+
+	if (m_ui.ControlLogarithmicCheckBox->isEnabled() &&
+		m_ui.ControlLogarithmicCheckBox->isChecked())
 		flags |= samplv1_controls::Logarithmic;
-	if (m_ui.ControlInvertCheckBox->isChecked())
+
+	if (m_ui.ControlInvertCheckBox->isEnabled() &&
+		m_ui.ControlInvertCheckBox->isChecked())
 		flags |= samplv1_controls::Invert;
-	if (m_ui.ControlHookCheckBox->isChecked())
+
+	if (m_ui.ControlHookCheckBox->isEnabled() &&
+		m_ui.ControlHookCheckBox->isChecked())
 		flags |= samplv1_controls::Hook;
 
 	// Map the damn controller....

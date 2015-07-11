@@ -53,6 +53,7 @@ namespace samplv1_param
 	const char *paramName(samplv1::ParamIndex index);
 	float paramDefaultValue(samplv1::ParamIndex index);
 	float paramValue(samplv1::ParamIndex index, float fValue);
+	bool paramTypeFloat(samplv1::ParamIndex index);
 };
 
 
