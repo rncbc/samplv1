@@ -52,8 +52,9 @@ namespace samplv1_param
 	// Default parameter name/value helpers.
 	const char *paramName(samplv1::ParamIndex index);
 	float paramDefaultValue(samplv1::ParamIndex index);
-	float paramValue(samplv1::ParamIndex index, float fValue);
-	bool paramTypeFloat(samplv1::ParamIndex index);
+	float paramValue(samplv1::ParamIndex index, float fScale);
+	float paramScale(samplv1::ParamIndex index, float fValue);
+	bool paramFloat(samplv1::ParamIndex index);
 };
 
 

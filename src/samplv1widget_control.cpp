@@ -168,7 +168,7 @@ void samplv1widget_control::setControls (
 
 	setControlKey(m_key);
 
-	const bool bFloat = samplv1_param::paramTypeFloat(m_index);
+	const bool bFloat = samplv1_param::paramFloat(m_index);
 
 	m_ui.ControlLogarithmicCheckBox->setChecked(
 		(flags & samplv1_controls::Logarithmic) && bFloat);

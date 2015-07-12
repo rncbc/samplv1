@@ -135,14 +135,14 @@ float samplv1_param::paramDefaultValue ( samplv1::ParamIndex index )
 }
 
 
-float samplv1_param::paramValue ( samplv1::ParamIndex index, float fValue )
+float samplv1_param::paramValue ( samplv1::ParamIndex index, float fScale )
 {
 	const ParamInfo& param = samplv1_params[index];
 
 	if (param.type == PARAM_BOOL)
-		return (fValue > 0.5f ? 1.0f : 0.0f);
+		return (fScale > 0.5f ? 1.0f : 0.0f);
 
-	fValue = param.min + fValue * (param.max - param.min);
+	const float fValue = param.min + fScale * (param.max - param.min);
 
 	if (param.type == PARAM_INT)
 		return ::rintf(fValue);
@@ -238,7 +238,23 @@ void samplv1_param::saveSamples (
 }
 
 
-bool samplv1_param::paramTypeFloat ( samplv1::ParamIndex index )
+float samplv1_param::paramScale ( samplv1::ParamIndex index, float fValue )
+{
+	const ParamInfo& param = samplv1_params[index];
+
+	if (param.type == PARAM_BOOL)
+		return (fValue > 0.5f ? 1.0f : 0.0f);
+
+	const float fScale = (fValue - param.min) / (param.max - param.min);
+
+	if (param.type == PARAM_INT)
+		return ::rintf(fScale);
+	else
+		return fScale;
+}
+
+
+bool samplv1_param::paramFloat ( samplv1::ParamIndex index )
 {
 	return (samplv1_params[index].type == PARAM_FLOAT);
 }
