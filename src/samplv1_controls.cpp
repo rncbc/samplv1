@@ -649,7 +649,7 @@ void samplv1_controls::reset (void)
 		if (data.flags & Hook)
 			continue;
 		const samplv1::ParamIndex index
-			= samplv1::ParamIndex(index);
+			= samplv1::ParamIndex(data.index);
 		data.val = samplv1_param::paramScale(index,
 			m_sched_in.instance()->paramValue(index));
 	}
