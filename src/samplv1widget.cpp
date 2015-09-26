@@ -145,6 +145,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 
 	// Special values
 	const QString& sOff = states.first();
+	m_ui.Gen1GlideKnob->setSpecialValueText(sOff);
 	m_ui.Cho1WetKnob->setSpecialValueText(sOff);
 	m_ui.Fla1WetKnob->setSpecialValueText(sOff);
 	m_ui.Pha1WetKnob->setSpecialValueText(sOff);
