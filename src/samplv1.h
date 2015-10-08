@@ -66,6 +66,9 @@ public:
 	uint32_t loopStart() const;
 	uint32_t loopEnd() const;
 
+	void setBufferSize(uint32_t nsize);
+	uint32_t bufferSize() const;
+
 	enum ParamIndex	 {
 
 		GEN1_SAMPLE = 0,
@@ -104,6 +107,7 @@ public:
 		DCA1_RELEASE,
 		OUT1_WIDTH,
 		OUT1_PANNING,
+		OUT1_FXSEND,
 		OUT1_VOLUME,
 
 		DEF1_PITCHBEND,

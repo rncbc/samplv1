@@ -389,6 +389,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	// OUT1
 	setParamKnob(samplv1::OUT1_WIDTH,   m_ui.Out1WidthKnob);
 	setParamKnob(samplv1::OUT1_PANNING, m_ui.Out1PanningKnob);
+	setParamKnob(samplv1::OUT1_FXSEND,  m_ui.Out1FxSendKnob);
 	setParamKnob(samplv1::OUT1_VOLUME,  m_ui.Out1VolumeKnob);
 
 

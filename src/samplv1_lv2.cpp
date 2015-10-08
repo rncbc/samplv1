@@ -32,6 +32,10 @@
 
 #include "lv2/lv2plug.in/ns/ext/state/state.h"
 
+#include "lv2/lv2plug.in/ns/ext/options/options.h"
+#include "lv2/lv2plug.in/ns/ext/buf-size/buf-size.h"
+
+#include <stdlib.h>
 #include <stdlib.h>
 #include <math.h>
 
@@ -47,6 +51,8 @@ samplv1_lv2::samplv1_lv2 (
 	m_urid_map = NULL;
 	m_atom_sequence = NULL;
 
+	const LV2_Options_Option *const *host_options = NULL;
+
 	for (int i = 0; host_features && host_features[i]; ++i) {
 		if (::strcmp(host_features[i]->URI, LV2_URID_MAP_URI) == 0) {
 			m_urid_map = (LV2_URID_Map *) host_features[i]->data;
@@ -57,16 +63,33 @@ samplv1_lv2::samplv1_lv2 (
 					m_urid_map->handle, LV2_ATOM__Object);
 				m_urids.atom_Float = m_urid_map->map(
 					m_urid_map->handle, LV2_ATOM__Float);
+				m_urids.atom_Int = m_urid_map->map(
+					m_urid_map->handle, LV2_ATOM__Int);
 				m_urids.time_Position = m_urid_map->map(
 					m_urid_map->handle, LV2_TIME__Position);
 				m_urids.time_beatsPerMinute = m_urid_map->map(
 					m_urid_map->handle, LV2_TIME__beatsPerMinute);
 				m_urids.midi_MidiEvent = m_urid_map->map(
 					m_urid_map->handle, LV2_MIDI__MidiEvent);
-				break;
+				m_urids.bufsz_maxBlockLength = m_urid_map->map(
+					m_urid_map->handle, LV2_BUF_SIZE__maxBlockLength);
 			}
 		}
+		else
+		if (::strcmp(host_features[i]->URI, LV2_OPTIONS__options) == 0)
+			host_options = (const LV2_Options_Option *const *) host_features[i]->data;
 	}
+
+	uint32_t block_length = 0;
+
+	for (int i = 0; host_options && host_options[i]; ++i) {
+		const LV2_Options_Option *host_option = host_options[i];
+		if (host_option->key == m_urids.bufsz_maxBlockLength
+			&& host_option->type == m_urids.atom_Int)
+			block_length = *(int *) host_option->value;
+ 	}
+ 
+	samplv1::setBufferSize(block_length);
 
 	const uint16_t nchannels = samplv1::channels();
 	m_ins  = new float * [nchannels];

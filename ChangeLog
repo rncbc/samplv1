@@ -6,6 +6,7 @@ ChangeLog
 
 GIT HEAD
 
+- Introducing brand new OUT FX Send parameter per engine.
 - Special value (0=Off) added to GEN Glide knob spin-box.
 
 

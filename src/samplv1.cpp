@@ -383,6 +383,7 @@ struct samplv1_out
 {
 	float *width;
 	float *panning;
+	float *fxsend;
 	float *volume;
 };
 
@@ -730,6 +731,9 @@ public:
 	void setSampleFile(const char *pszSampleFile);
 	const char *sampleFile() const;
 
+	void setBufferSize(uint32_t nsize);
+	uint32_t bufferSize() const;
+
 	void setParamPort(samplv1::ParamIndex index, float *pfParam = 0);
 	float *paramPort(samplv1::ParamIndex index) const;
 
@@ -774,6 +778,8 @@ protected:
 		m_free_list.append(pv);
 	}
 
+	void alloc_sfxs(uint32_t nsize);
+
 private:
 
 	samplv1_config   m_config;
@@ -811,6 +817,9 @@ private:
 	samplv1_ramp1 m_wid1;
 	samplv1_pan   m_pan1;
 	samplv1_ramp4 m_vol1;
+
+	float  **m_sfxs;
+	uint32_t m_nsize;
 
 	samplv1_fx_chorus   m_chorus;
 	samplv1_fx_flanger *m_flanger;
@@ -863,6 +872,10 @@ samplv1_impl::samplv1_impl (
 
 	for (int note = 0; note < MAX_NOTES; ++note)
 		m_notes[note] = 0;
+
+	// local buffers none yet
+	m_sfxs = NULL;
+	m_nsize = 0;
 
 	// flangers none yet
 	m_flanger = 0;
@@ -921,6 +934,9 @@ samplv1_impl::~samplv1_impl (void)
 
 	// deallocate channels
 	setChannels(0);
+
+	// deallocate local buffers
+	alloc_sfxs(0);
 }
 
 
@@ -976,6 +992,39 @@ void samplv1_impl::setSampleRate ( float srate )
 float samplv1_impl::sampleRate (void) const
 {
 	return m_srate;
+}
+
+
+void samplv1_impl::setBufferSize ( uint32_t nsize )
+{
+	// set nominal buffer size
+	if (m_nsize < nsize) alloc_sfxs(nsize);
+}
+
+
+uint32_t samplv1_impl::bufferSize (void) const
+{
+	return m_nsize;
+}
+
+
+// allocate local buffers
+void samplv1_impl::alloc_sfxs ( uint32_t nsize )
+{
+	if (m_sfxs) {
+		for (uint16_t k = 0; k < m_nchannels; ++k)
+			delete [] m_sfxs[k];
+		delete [] m_sfxs;
+		m_sfxs = NULL;
+		m_nsize = 0;
+	}
+
+	if (m_nsize < nsize) {
+		m_nsize = nsize;
+		m_sfxs = new float * [m_nchannels];
+		for (uint16_t k = 0; k < m_nchannels; ++k)
+			m_sfxs[k] = new float [m_nsize];
+	}
 }
 
 
@@ -1067,6 +1116,7 @@ void samplv1_impl::setParamPort ( samplv1::ParamIndex index, float *pfParam )
 	case samplv1::DCA1_RELEASE:   m_dca1.env.release = pfParam; break;
 	case samplv1::OUT1_WIDTH:     m_out1.width       = pfParam; break;
 	case samplv1::OUT1_PANNING:   m_out1.panning     = pfParam; break;
+	case samplv1::OUT1_FXSEND:    m_out1.fxsend      = pfParam; break;
 	case samplv1::OUT1_VOLUME:    m_out1.volume      = pfParam; break;
 	case samplv1::DEF1_PITCHBEND: m_def.pitchbend    = pfParam; break;
 	case samplv1::DEF1_MODWHEEL:  m_def.modwheel     = pfParam; break;
@@ -1175,6 +1225,7 @@ float *samplv1_impl::paramPort ( samplv1::ParamIndex index ) const
 	case samplv1::DCA1_RELEASE:   pfParam = m_dca1.env.release; break;
 	case samplv1::OUT1_WIDTH:     pfParam = m_out1.width;       break;
 	case samplv1::OUT1_PANNING:   pfParam = m_out1.panning;     break;
+	case samplv1::OUT1_FXSEND:    pfParam = m_out1.fxsend;      break;
 	case samplv1::OUT1_VOLUME:    pfParam = m_out1.volume;      break;
 	case samplv1::DEF1_PITCHBEND: pfParam = m_def.pitchbend;    break;
 	case samplv1::DEF1_MODWHEEL:  pfParam = m_def.modwheel;     break;
@@ -1556,13 +1607,17 @@ samplv1_programs *samplv1_impl::programs (void)
 void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 {
 	float *v_outs[m_nchannels];
+	float *v_sfxs[m_nchannels];
 
 	// buffer i/o transfer
+	if (m_nsize < nframes) alloc_sfxs(nframes);
 
 	uint16_t k;
 
-	for (k = 0; k < m_nchannels; ++k)
-		::memcpy(outs[k], ins[k], nframes * sizeof(float));
+	for (k = 0; k < m_nchannels; ++k) {
+		::memcpy(m_sfxs[k], ins[k], nframes * sizeof(float));
+		::memset(outs[k], 0, nframes * sizeof(float));
+	}
 
 	// channel indexes
 
@@ -1578,6 +1633,8 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 
 	const float modwheel1
 		= m_ctl1.modwheel + PITCH_SCALE * *m_lfo1.pitch;
+
+	const float fxsend1 = *m_out1.fxsend * *m_out1.fxsend;
 
 	if (m_gen1.sample0 != *m_gen1.sample) {
 		m_gen1.sample0  = *m_gen1.sample;
@@ -1605,8 +1662,10 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 
 		// output buffers
 
-		for (k = 0; k < m_nchannels; ++k)
+		for (k = 0; k < m_nchannels; ++k) {
 			v_outs[k] = outs[k];
+			v_sfxs[k] = m_sfxs[k];
+		}
 
 		uint32_t nblock = nframes;
 
@@ -1677,8 +1736,12 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 				const float out2
 					= vol1 * (mid1 - sid1 * wid1) * m_pan1.value(j, 1);
 
-				for (k = 0; k < m_nchannels; ++k)
-					*v_outs[k]++ += (k & 1 ? out2 : out1);
+				for (k = 0; k < m_nchannels; ++k) {
+					const float dry = (k & 1 ? out2 : out1);
+					const float wet = fxsend1 * dry;
+					*v_outs[k]++ += dry - wet;
+					*v_sfxs[k]++ += wet;
+				}
 
 				if (j == 0) {
 					m_aux1.panning = lfo1 * *m_lfo1.panning;
@@ -1724,13 +1787,13 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 
 	// chorus
 	if (m_nchannels > 1) {
-		m_chorus.process(outs[0], outs[1], nframes, *m_cho.wet,
+		m_chorus.process(m_sfxs[0], m_sfxs[1], nframes, *m_cho.wet,
 			*m_cho.delay, *m_cho.feedb, *m_cho.rate, *m_cho.mod);
 	}
 
 	// effects
 	for (k = 0; k < m_nchannels; ++k) {
-		float *in = outs[k];
+		float *in = m_sfxs[k];
 		// flanger
 		m_flanger[k].process(in, nframes, *m_fla.wet,
 			*m_fla.delay, *m_fla.feedb, *m_fla.daft * float(k));
@@ -1744,20 +1807,27 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 
 	// reverb
 	if (m_nchannels > 1) {
-		m_reverb.process(outs[0], outs[1], nframes, *m_rev.wet,
+		m_reverb.process(m_sfxs[0], m_sfxs[1], nframes, *m_rev.wet,
 			*m_rev.feedb, *m_rev.room, *m_rev.damp, *m_rev.width);
 	}
 
-	// dynamics
+	// output mix-down
 	for (k = 0; k < m_nchannels; ++k) {
-		float *in = outs[k];
+		uint32_t n;
+		// fx sends
+		float *in  = m_sfxs[k];
+		float *out = outs[k];
+		for (n = 0; n < nframes; ++n)
+			*out++ += *in++;
+		// dynamics
+		in = outs[k];
 		// compressor
 		if (int(*m_dyn.compress) > 0)
 			m_comp[k].process(in, nframes);
 		// limiter
 		if (int(*m_dyn.limiter) > 0) {
-			float *out = in;
-			for (uint32_t n = 0; n < nframes; ++n)
+			out = in;
+			for (n = 0; n < nframes; ++n)
 				*out++ = samplv1_sigmoid(*in++);
 		}
 	}
@@ -1866,6 +1936,18 @@ uint32_t samplv1::loopStart (void) const
 uint32_t samplv1::loopEnd (void) const
 {
 	return m_pImpl->gen1_sample.loopEnd();
+}
+
+
+void samplv1::setBufferSize ( uint32_t nsize )
+{
+	m_pImpl->setBufferSize(nsize);
+}
+
+
+uint32_t samplv1::bufferSize (void) const
+{
+	return m_pImpl->bufferSize();
 }
 
 
