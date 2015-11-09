@@ -28,6 +28,8 @@
 
 #include "samplv1_list.h"
 
+#include "samplv1_filter.h"
+
 #include "samplv1_fx.h"
 #include "samplv1_reverb.h"
 
@@ -457,139 +459,6 @@ struct samplv1_dyn
 };
 
 
-// (Hal Chamberlin's state variable) filter
-
-class samplv1_filter1
-{
-public:
-
-	enum Type { Low = 0, Band, High, Notch };
-
-	samplv1_filter1(Type type = Low, uint16_t nover = 2)
-		{ reset(type, nover); }
-
-	Type type() const
-		{ return m_type; }
-
-	void reset(Type type = Low, uint16_t nover = 2)
-	{
-		m_type  = type;
-		m_nover = nover;
-
-		m_low   = 0.0f;
-		m_band  = 0.0f;
-		m_high  = 0.0f;
-		m_notch = 0.0f;
-
-		switch (m_type) {
-		case Notch:
-			m_out = &m_notch;
-			break;
-		case High:
-			m_out = &m_high;
-			break;
-		case Band:
-			m_out = &m_band;
-			break;
-		case Low:
-		default:
-			m_out = &m_low;
-			break;
-		}
-	}
-
-	float output(float input, float cutoff, float reso)
-	{
-		const float q = (1.0f - reso);
-
-		for (uint16_t i = 0; i < m_nover; ++i) {
-			m_low  += cutoff * m_band;
-			m_high  = input - m_low - q * m_band;
-			m_band += cutoff * m_high;
-			m_notch = m_high + m_low;
-		}
-
-		return *m_out;
-	}
-
-private:
-
-	Type     m_type;
-
-	uint16_t m_nover;
-
-	float    m_low;
-	float    m_band;
-	float    m_high;
-	float    m_notch;
-
-	float   *m_out;
-};
-
-
-// (Stilson/Smith Moog 24dB/oct) filter
-
-class samplv1_filter2
-{
-public:
-
-	enum Type { Low = 0, Band, High, Notch };
-
-	samplv1_filter2(Type type = Low) { reset(type); }
-
-	Type type() const
-		{ return m_type; }
-
-	void reset(Type type = Low)
-	{
-		m_type = type;
-
-		m_b0 = m_b1 = m_b2 = m_b3 = m_b4 = 0.0f;
-		m_t1 = m_t2 = m_t3 = 0.0f;
-		m_f  = m_p  = m_q  = 0.0f;
-	}
-
-	float output(float input, float cutoff, float reso)
-	{
-		m_q = 1.0f - cutoff;
-		m_p = cutoff + 0.8f * cutoff * m_q;
-		m_f = m_p + m_p - 1.0f;
-		m_q = reso * (1.0f + 0.5f * m_q * (1.0f - m_q + 5.6f * m_q * m_q));
-
-		input -= m_q * m_b4;	// feedback
-
-		m_t1 = m_b1; m_b1 = (input + m_b0) * m_p - m_b1 * m_f;
-		m_t2 = m_b2; m_b2 = (m_b1 + m_t1) * m_p - m_b2 * m_f;
-		m_t1 = m_b3; m_b3 = (m_b2 + m_t2) * m_p - m_b3 * m_f;
-
-		m_b4 = (m_b3 + m_t1) * m_p - m_b4 * m_f;
-		m_b4 = m_b4 - m_b4 * m_b4 * m_b4 * 0.166667f;	// clipping
-
-		m_b0 = input;
-
-		switch (m_type) {
-		case Notch:
-			return 3.0f * (m_b3 - m_b4) - input;
-		case High:
-			return input - m_b4;
-		case Band:
-			return 3.0f * (m_b3 - m_b4);
-		case Low:
-		default:
-			return m_b4;
-		}
-	}
-
-private:
-
-	Type   m_type;
-
-	float  m_b0, m_b1, m_b2, m_b3, m_b4;
-	float  m_t1, m_t2, m_t3;
-	float  m_f,  m_p,  m_q;
-};
-
-
 // glide (portamento)
 
 struct samplv1_glide
@@ -699,6 +568,7 @@ struct samplv1_voice : public samplv1_list<samplv1_voice>
 
 	samplv1_filter1 dcf11, dcf12;				// filters
 	samplv1_filter2 dcf13, dcf14;
+	samplv1_filter3 dcf15, dcf16;
 
 	samplv1_env::State dca1_env;				// envelope states
 	samplv1_env::State dcf1_env;
@@ -1378,6 +1248,8 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 				pv->dcf12.reset(samplv1_filter1::Type(type1));
 				pv->dcf13.reset(samplv1_filter2::Type(type1));
 				pv->dcf14.reset(samplv1_filter2::Type(type1));
+				pv->dcf15.reset(samplv1_filter3::Type(type1));
+				pv->dcf16.reset(samplv1_filter3::Type(type1));
 				// envelopes
 				m_dcf1.env.start(&pv->dcf1_env);
 				m_lfo1.env.start(&pv->lfo1_env);
@@ -1713,12 +1585,20 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 				const float reso1 = samplv1_sigmoid_1(*m_dcf1.reso
 					* env1 * (1.0f + *m_lfo1.reso * lfo1));
 
-				if (int(*m_dcf1.slope) > 0) { // 24db/octave
+				switch (int(*m_dcf1.slope)) {
+				case 2: // RBJ/bi-quad
+					gen1 = pv->dcf15.output(gen1, cutoff1, reso1);
+					gen2 = pv->dcf16.output(gen2, cutoff1, reso1);
+					break;
+				case 1: // 24db/octave
 					gen1 = pv->dcf13.output(gen1, cutoff1, reso1);
 					gen2 = pv->dcf14.output(gen2, cutoff1, reso1);
-				} else { // 12db/octave
+					break;
+				case 0: // 12db/octave
+				default:
 					gen1 = pv->dcf11.output(gen1, cutoff1, reso1);
 					gen2 = pv->dcf12.output(gen2, cutoff1, reso1);
+					break;
 				}
 
 				// volumes

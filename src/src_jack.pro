@@ -13,6 +13,7 @@ HEADERS = \
 	samplv1_ui.h \
 	samplv1_jack.h \
 	samplv1_config.h \
+	samplv1_filter.h \
 	samplv1_sample.h \
 	samplv1_wave.h \
 	samplv1_ramp.h \
