@@ -14,6 +14,7 @@ HEADERS = \
 	samplv1_jack.h \
 	samplv1_config.h \
 	samplv1_filter.h \
+	samplv1_formant.h \
 	samplv1_sample.h \
 	samplv1_wave.h \
 	samplv1_ramp.h \
@@ -43,6 +44,7 @@ SOURCES = \
 	samplv1.cpp \
 	samplv1_ui.cpp \
 	samplv1_config.cpp \
+	samplv1_formant.cpp \
 	samplv1_jack.cpp \
 	samplv1_sample.cpp \
 	samplv1_wave.cpp \

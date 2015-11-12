@@ -11,6 +11,7 @@ headers = \
 	src/$(name).h \
 	src/$(name)_fx.h \
 	src/$(name)_filter.h \
+	src/$(name)_formant.h \
 	src/$(name)_reverb.h \
 	src/$(name)_ramp.h \
 	src/$(name)_sample.h \
@@ -27,6 +28,7 @@ sources = \
 	src/$(name)_sample.cpp \
 	src/$(name)_wave.cpp \
 	src/$(name)_config.cpp \
+	src/$(name)_formant.cpp \
 	src/$(name)_param.cpp \
 	src/$(name)_sched.cpp \
 	src/$(name)_programs.cpp \

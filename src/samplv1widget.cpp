@@ -129,7 +129,8 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	QStringList slopes;
 	slopes << tr("12dB/oct");
 	slopes << tr("24dB/oct");
-	slopes << tr("RBJ");
+	slopes << tr("Biquad");
+	slopes << tr("Formant");
 
 	m_ui.Dcf1SlopeKnob->insertItems(0, slopes);
 
@@ -631,6 +632,9 @@ void samplv1widget::updateParamEx ( samplv1::ParamIndex index, float fValue )
 		break;
 	}
 #endif
+	case samplv1::DCF1_SLOPE:
+		m_ui.Dcf1TypeKnob->setEnabled(int(fValue) != 3); // !Formant
+		break;
 	case samplv1::GEN1_LOOP: {
 		const bool bLoop = bool(fValue > 0.0f);
 		pSamplUi->setLoop(bLoop);

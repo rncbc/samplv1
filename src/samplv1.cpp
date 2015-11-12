@@ -29,6 +29,7 @@
 #include "samplv1_list.h"
 
 #include "samplv1_filter.h"
+#include "samplv1_formant.h"
 
 #include "samplv1_fx.h"
 #include "samplv1_reverb.h"
@@ -569,6 +570,7 @@ struct samplv1_voice : public samplv1_list<samplv1_voice>
 	samplv1_filter1 dcf11, dcf12;				// filters
 	samplv1_filter2 dcf13, dcf14;
 	samplv1_filter3 dcf15, dcf16;
+	samplv1_formant dcf17, dcf18;
 
 	samplv1_env::State dca1_env;				// envelope states
 	samplv1_env::State dcf1_env;
@@ -856,6 +858,12 @@ void samplv1_impl::setSampleRate ( float srate )
 	lfo1_wave.setSampleRate(m_srate);
 
 	updateEnvTimes();
+
+	for (int i = 0; i < MAX_VOICES; ++i) {
+		samplv1_voice *pv = m_voices[i];
+		pv->dcf17.setSampleRate(m_srate);
+		pv->dcf18.setSampleRate(m_srate);
+	}
 }
 
 
@@ -1586,7 +1594,11 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 					* env1 * (1.0f + *m_lfo1.reso * lfo1));
 
 				switch (int(*m_dcf1.slope)) {
-				case 2: // RBJ/bi-quad
+				case 3: // Formant
+					gen1 = pv->dcf17.output(gen1, cutoff1, reso1);
+					gen2 = pv->dcf18.output(gen2, cutoff1, reso1);
+					break;
+				case 2: // Biquad
 					gen1 = pv->dcf15.output(gen1, cutoff1, reso1);
 					gen2 = pv->dcf16.output(gen2, cutoff1, reso1);
 					break;
