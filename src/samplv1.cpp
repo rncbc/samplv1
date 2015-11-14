@@ -1258,6 +1258,8 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 				pv->dcf14.reset(samplv1_filter2::Type(type1));
 				pv->dcf15.reset(samplv1_filter3::Type(type1));
 				pv->dcf16.reset(samplv1_filter3::Type(type1));
+				pv->dcf17.reset_filters();
+				pv->dcf18.reset_filters();
 				// envelopes
 				m_dcf1.env.start(&pv->dcf1_env);
 				m_lfo1.env.start(&pv->lfo1_env);
