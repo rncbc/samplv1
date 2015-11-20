@@ -625,6 +625,8 @@ public:
 
 	float gen1_last;
 
+	samplv1_formant::Impl dcf1_formant;
+
 protected:
 
 	void updateEnvTimes();
@@ -713,6 +715,8 @@ samplv1_voice::samplv1_voice ( samplv1_impl *pImpl ) :
 	lfo1(&pImpl->lfo1_wave),
 	gen1_freq(0.0f),
 	lfo1_sample(0.0f),
+	dcf17(&pImpl->dcf1_formant),
+	dcf18(&pImpl->dcf1_formant),
 	gen1_glide(pImpl->gen1_last),
 	sustain(false)
 {
@@ -859,11 +863,7 @@ void samplv1_impl::setSampleRate ( float srate )
 
 	updateEnvTimes();
 
-	for (int i = 0; i < MAX_VOICES; ++i) {
-		samplv1_voice *pv = m_voices[i];
-		pv->dcf17.setSampleRate(m_srate);
-		pv->dcf18.setSampleRate(m_srate);
-	}
+	dcf1_formant.setSampleRate(m_srate);
 }
 
 
