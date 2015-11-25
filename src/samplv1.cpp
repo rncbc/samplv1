@@ -345,6 +345,7 @@ struct samplv1_lfo
 	float *shape;
 	float *width;
 	float *rate;
+	float *sync;
 	float *sweep;
 	float *pitch;
 	float *cutoff;
@@ -544,6 +545,32 @@ protected:
 };
 
 
+// common phasor (LFO sync)
+
+class samplv1_phasor
+{
+public:
+
+	samplv1_phasor(uint32_t nsize = 128)
+		: m_nsize(nsize), m_nframes(0) {}
+
+	void process(uint32_t nframes)
+	{
+		m_nframes += nframes;
+		while (m_nframes >= m_nsize)
+			m_nframes -= m_nsize;
+	}
+
+	float pshift() const
+		{ return float(m_nframes) / float(m_nsize); }
+
+private:
+
+	uint32_t m_nsize;
+	uint32_t m_nframes;
+};
+
+
 // forward decl.
 
 class samplv1_impl;
@@ -702,6 +729,7 @@ private:
 	samplv1_fx_comp    *m_comp;
 
 	samplv1_reverb m_reverb;
+	samplv1_phasor m_phasor;
 };
 
 
@@ -977,6 +1005,7 @@ void samplv1_impl::setParamPort ( samplv1::ParamIndex index, float *pfParam )
 	case samplv1::LFO1_SHAPE:     m_lfo1.shape       = pfParam; break;
 	case samplv1::LFO1_WIDTH:     m_lfo1.width       = pfParam; break;
 	case samplv1::LFO1_RATE:      m_lfo1.rate        = pfParam; break;
+	case samplv1::LFO1_SYNC:      m_lfo1.sync        = pfParam; break;
 	case samplv1::LFO1_SWEEP:     m_lfo1.sweep       = pfParam; break;
 	case samplv1::LFO1_PITCH:     m_lfo1.pitch       = pfParam; break;
 	case samplv1::LFO1_CUTOFF:    m_lfo1.cutoff      = pfParam; break;
@@ -1086,6 +1115,7 @@ float *samplv1_impl::paramPort ( samplv1::ParamIndex index ) const
 	case samplv1::LFO1_SHAPE:     pfParam = m_lfo1.shape;       break;
 	case samplv1::LFO1_WIDTH:     pfParam = m_lfo1.width;       break;
 	case samplv1::LFO1_RATE:      pfParam = m_lfo1.rate;        break;
+	case samplv1::LFO1_SYNC:      pfParam = m_lfo1.sync;        break;
 	case samplv1::LFO1_SWEEP:     pfParam = m_lfo1.sweep;       break;
 	case samplv1::LFO1_PITCH:     pfParam = m_lfo1.pitch;       break;
 	case samplv1::LFO1_CUTOFF:    pfParam = m_lfo1.cutoff;      break;
@@ -1265,7 +1295,9 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 				m_lfo1.env.start(&pv->lfo1_env);
 				m_dca1.env.start(&pv->dca1_env);
 				// lfos
-				pv->lfo1_sample = pv->lfo1.start();
+				const float pshift1
+					= (*m_lfo1.sync > 0.0f ? m_phasor.pshift() : 0.0f);
+				pv->lfo1_sample = pv->lfo1.start(pshift1);
 				// glides (portamentoa)
 				const float frames
 					= uint32_t(*m_gen1.glide * *m_gen1.glide * m_srate);
@@ -1727,6 +1759,7 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 	}
 
 	// post-processing
+	m_phasor.process(nframes);
 
 	m_wid1.process(nframes);
 	m_pan1.process(nframes);

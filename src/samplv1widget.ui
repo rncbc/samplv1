@@ -589,6 +589,26 @@
              </widget>
             </item>
             <item>
+             <widget class="samplv1widget_combo" name="Lfo1SyncKnob">
+              <property name="toolTip">
+               <string>LFO1 Sync</string>
+              </property>
+              <property name="text">
+               <string>Sync</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="samplv1widget_combo" name="Lfo2SyncKnob">
+              <property name="toolTip">
+               <string>LFO2 Sync</string>
+              </property>
+              <property name="text">
+               <string>Sync</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <spacer>
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
