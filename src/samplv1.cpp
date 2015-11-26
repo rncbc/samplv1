@@ -354,6 +354,8 @@ struct samplv1_lfo
 	float *volume;
 
 	samplv1_env env;
+
+	float *bpmsync;
 };
 
 
@@ -364,6 +366,8 @@ struct samplv1_dca
 	float *volume;
 
 	samplv1_env env;
+
+	float *bpmsync;
 };
 
 
@@ -1011,6 +1015,7 @@ void samplv1_impl::setParamPort ( samplv1::ParamIndex index, float *pfParam )
 	case samplv1::LFO1_DECAY:     m_lfo1.env.decay   = pfParam; break;
 	case samplv1::LFO1_SUSTAIN:   m_lfo1.env.sustain = pfParam; break;
 	case samplv1::LFO1_RELEASE:   m_lfo1.env.release = pfParam; break;
+	case samplv1::LFO1_BPMSYNC:   m_lfo1.bpmsync     = pfParam; break;
 	case samplv1::DCA1_VOLUME:    m_dca1.volume      = pfParam; break;
 	case samplv1::DCA1_ATTACK:    m_dca1.env.attack  = pfParam; break;
 	case samplv1::DCA1_DECAY:     m_dca1.env.decay   = pfParam; break;
@@ -1120,6 +1125,7 @@ float *samplv1_impl::paramPort ( samplv1::ParamIndex index ) const
 	case samplv1::LFO1_DECAY:     pfParam = m_lfo1.env.decay;   break;
 	case samplv1::LFO1_SUSTAIN:   pfParam = m_lfo1.env.sustain; break;
 	case samplv1::LFO1_RELEASE:   pfParam = m_lfo1.env.release; break;
+	case samplv1::LFO1_BPMSYNC:   pfParam = m_lfo1.bpmsync;     break;
 	case samplv1::DCA1_VOLUME:    pfParam = m_dca1.volume;      break;
 	case samplv1::DCA1_ATTACK:    pfParam = m_dca1.env.attack;  break;
 	case samplv1::DCA1_DECAY:     pfParam = m_dca1.env.decay;   break;
@@ -1922,6 +1928,15 @@ samplv1_programs *samplv1::programs (void) const
 void samplv1::reset (void)
 {
 	m_pImpl->reset();
+}
+
+
+// scalar converter helpers (static)
+
+float samplv1::lfo_rate_bpm ( float bpm )
+{
+	const float freq_bpm = ::fmaxf(LFO_FREQ_MIN, (bpm / 60.f));
+	return ::sqrtf((freq_bpm - LFO_FREQ_MIN) / (LFO_FREQ_MAX - LFO_FREQ_MIN));
 }
 
 

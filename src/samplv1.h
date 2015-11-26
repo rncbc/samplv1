@@ -101,6 +101,7 @@ public:
 		LFO1_DECAY,
 		LFO1_SUSTAIN,
 		LFO1_RELEASE,
+		LFO1_BPMSYNC,
 		DCA1_VOLUME,
 		DCA1_ATTACK,
 		DCA1_DECAY,
@@ -161,6 +162,8 @@ public:
 
 	void process_midi(uint8_t *data, uint32_t size);
 	void process(float **ins, float **outs, uint32_t nframes);
+
+	static float lfo_rate_bpm(float bpm);
 
 private:
 

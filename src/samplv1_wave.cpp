@@ -223,7 +223,7 @@ void samplv1_wave::reset_normalize (void)
 	pmax = 0.0f;
 	for (i = 0; i < m_nsize; ++i) {
 		m_table[i] -= pmid;
-		const float p = ::fabs(m_table[i]);
+		const float p = ::fabsf(m_table[i]);
 		if (pmax < p)
 			pmax = p;
 	}

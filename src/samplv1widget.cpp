@@ -158,6 +158,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 
 	const QString& sAuto = tr("Auto");
 	m_ui.Gen1EnvTimeKnob->setSpecialValueText(sAuto);
+	m_ui.Lfo1RateKnob->setSpecialValueText(sAuto);
 	m_ui.Del1BpmKnob->setSpecialValueText(sAuto);
 
 	// Wave integer widths.
@@ -348,6 +349,10 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 		m_ui.Lfo1ReleaseKnob, SIGNAL(valueChanged(float)),
 		m_ui.Lfo1Env, SLOT(setRelease(float)));
 
+	QObject::connect(m_ui.Lfo1RateKnob,
+		SIGNAL(valueChanged(float)),
+		SLOT(lfo1BpmSyncChanged()));
+
 	// DCA1
 	setParamKnob(samplv1::DCA1_VOLUME,  m_ui.Dca1VolumeKnob);
 	setParamKnob(samplv1::DCA1_ATTACK,  m_ui.Dca1AttackKnob);
@@ -423,7 +428,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 
 	QObject::connect(m_ui.Del1BpmKnob,
 		SIGNAL(valueChanged(float)),
-		SLOT(bpmSyncChanged()));
+		SLOT(del1BpmSyncChanged()));
 
 	// Reverb
 	setParamKnob(samplv1::REV1_WET,   m_ui.Rev1WetKnob);
@@ -648,6 +653,10 @@ void samplv1widget::updateParamEx ( samplv1::ParamIndex index, float fValue )
 		updateSampleLoop(pSamplUi->sample());
 		break;
 	}
+	case samplv1::LFO1_BPMSYNC:
+		if (fValue > 0.0f)
+			m_ui.Lfo1RateKnob->setValue(0.0f);
+		break;
 	case samplv1::DEL1_BPMSYNC:
 		if (fValue > 0.0f)
 			m_ui.Del1BpmKnob->setValue(0.0f);
@@ -1074,8 +1083,9 @@ void samplv1widget::activateParamKnobsGroupBox (
 }
 
 
-// Delay BPM change.
-void samplv1widget::bpmSyncChanged (void)
+// Common BPM sync change.
+void samplv1widget::bpmSyncChanged (
+	samplv1widget_spin *pKnob, samplv1::ParamIndex index )
 {
 	if (m_iUpdate > 0)
 		return;
@@ -1083,12 +1093,26 @@ void samplv1widget::bpmSyncChanged (void)
 	++m_iUpdate;
 	samplv1_ui *pSamplUi = ui_instance();
 	if (pSamplUi) {
-		const bool bBpmSync0 = (pSamplUi->paramValue(samplv1::DEL1_BPMSYNC) > 0.0f);
-		const bool bBpmSync1 = m_ui.Del1BpmKnob->isSpecialValue();
+		const bool bBpmSync0 = (pSamplUi->paramValue(index) > 0.0f);
+		const bool bBpmSync1 = pKnob->isSpecialValue();
 		if ((bBpmSync1 && !bBpmSync0) || (!bBpmSync1 && bBpmSync0))
-			pSamplUi->setParamValue(samplv1::DEL1_BPMSYNC, (bBpmSync1 ? 1.0f : 0.0f));
+			pSamplUi->setParamValue(index, (bBpmSync1 ? 1.0f : 0.0f));
 	}
 	--m_iUpdate;
+}
+
+
+// LFO1 BPM sync change.
+void samplv1widget::lfo1BpmSyncChanged (void)
+{
+	bpmSyncChanged(m_ui.Lfo1RateKnob, samplv1::LFO1_BPMSYNC);
+}
+
+
+// Delay BPM sync change.
+void samplv1widget::del1BpmSyncChanged (void)
+{
+	bpmSyncChanged(m_ui.Del1BpmKnob, samplv1::DEL1_BPMSYNC);
 }
 
 
