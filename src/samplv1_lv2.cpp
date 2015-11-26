@@ -174,11 +174,11 @@ void samplv1_lv2::run ( uint32_t nframes )
 					if (atom && atom->type == m_urids.atom_Float) {
 						const float bpm_sync = samplv1::paramValue(samplv1::DEL1_BPMSYNC);
 						if (bpm_sync > 0.0f) {
-							const float bpm_host = samplv1::paramValue(samplv1::DEL1_BPMHOST);
-							if (bpm_host > 0.0f) {
-								const float bpm	= ((LV2_Atom_Float *) atom)->body;
+							const float bpm = samplv1::paramValue(samplv1::DEL1_BPM);
+							if (bpm > 0.0f) {
+								const float bpm_host = ((LV2_Atom_Float *) atom)->body;
 								if (::fabs(bpm_host - bpm) > 0.01f)
-									samplv1::setParamValue(samplv1::DEL1_BPMHOST, bpm);
+									samplv1::setParamValue(samplv1::DEL1_BPM, bpm_host);
 							}
 						}
 					}
