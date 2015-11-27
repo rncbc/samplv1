@@ -508,7 +508,7 @@ private:
 
 
 //-------------------------------------------------------------------------
-// samplv1_fx_allpass_delay - All-pass delay implementation.
+// samplv1_fx_allpass - All-pass delay implementation.
 
 class samplv1_fx_allpass
 {
