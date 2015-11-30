@@ -237,9 +237,9 @@
 		lv2:minimum 0.0 ;
 		lv2:maximum 1.0 ;
 		lv2pg:group samplv1_lv2:103_LFO1 ;
- 	], [
- 		a lv2:InputPort, lv2:ControlPort ;
- 		lv2:index 23 ;
+	], [
+		a lv2:InputPort, lv2:ControlPort ;
+		lv2:index 23 ;
 		lv2:symbol "LFO1_BPM" ;
 		lv2:name "LFO1 BPM" ;
 		lv2:default 180.0 ;
@@ -255,9 +255,9 @@
 		lv2:minimum 0.0 ;
 		lv2:maximum 1.0 ;
 		lv2pg:group samplv1_lv2:103_LFO1 ;
- 	], [
- 		a lv2:InputPort, lv2:ControlPort ;
- 		lv2:index 25 ;
+	], [
+		a lv2:InputPort, lv2:ControlPort ;
+		lv2:index 25 ;
 		lv2:symbol "LFO1_SYNC" ;
 		lv2:name "LFO1 Sync" ;
 		lv2:portProperty lv2:toggled ;

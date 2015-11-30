@@ -307,6 +307,9 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	// LFO1
 	setParamKnob(samplv1::LFO1_SHAPE,   m_ui.Lfo1ShapeKnob);
 	setParamKnob(samplv1::LFO1_WIDTH,   m_ui.Lfo1WidthKnob);
+#if 1//LFO_BPMRATEX
+	setParamKnob(samplv1::LFO1_BPM,     m_ui.Lfo1BpmKnob);
+#endif
 	setParamKnob(samplv1::LFO1_RATE,    m_ui.Lfo1RateKnob);
 	setParamKnob(samplv1::LFO1_SYNC,    m_ui.Lfo1SyncKnob);
 	setParamKnob(samplv1::LFO1_PANNING, m_ui.Lfo1PanningKnob);
@@ -319,9 +322,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	setParamKnob(samplv1::LFO1_DECAY,   m_ui.Lfo1DecayKnob);
 	setParamKnob(samplv1::LFO1_SUSTAIN, m_ui.Lfo1SustainKnob);
 	setParamKnob(samplv1::LFO1_RELEASE, m_ui.Lfo1ReleaseKnob);
-#if 1//LFO_BPMRATEX
-	setParamKnob(samplv1::LFO1_BPM,     m_ui.Lfo1BpmKnob);
-#endif
+
 	QObject::connect(
 		m_ui.Lfo1ShapeKnob, SIGNAL(valueChanged(float)),
 		m_ui.Lfo1Wave, SLOT(setWaveShape(float)));
