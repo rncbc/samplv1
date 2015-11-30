@@ -344,6 +344,7 @@ struct samplv1_lfo
 {
 	float *shape;
 	float *width;
+	float *bpm;
 	float *rate;
 	float *sync;
 	float *sweep;
@@ -1003,6 +1004,7 @@ void samplv1_impl::setParamPort ( samplv1::ParamIndex index, float *pfParam )
 	case samplv1::DCF1_RELEASE:   m_dcf1.env.release = pfParam; break;
 	case samplv1::LFO1_SHAPE:     m_lfo1.shape       = pfParam; break;
 	case samplv1::LFO1_WIDTH:     m_lfo1.width       = pfParam; break;
+	case samplv1::LFO1_BPM:       m_lfo1.bpm         = pfParam; break;
 	case samplv1::LFO1_RATE:      m_lfo1.rate        = pfParam; break;
 	case samplv1::LFO1_SYNC:      m_lfo1.sync        = pfParam; break;
 	case samplv1::LFO1_SWEEP:     m_lfo1.sweep       = pfParam; break;
@@ -1113,6 +1115,7 @@ float *samplv1_impl::paramPort ( samplv1::ParamIndex index ) const
 	case samplv1::DCF1_RELEASE:   pfParam = m_dcf1.env.release; break;
 	case samplv1::LFO1_SHAPE:     pfParam = m_lfo1.shape;       break;
 	case samplv1::LFO1_WIDTH:     pfParam = m_lfo1.width;       break;
+	case samplv1::LFO1_BPM:       pfParam = m_lfo1.bpm;         break;
 	case samplv1::LFO1_RATE:      pfParam = m_lfo1.rate;        break;
 	case samplv1::LFO1_SYNC:      pfParam = m_lfo1.sync;        break;
 	case samplv1::LFO1_SWEEP:     pfParam = m_lfo1.sweep;       break;
@@ -1535,11 +1538,14 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 
 	// controls
 
+#if 1//LFO_BPMRATEX
+	const float lfo1_freq
+		= *m_lfo1.bpm / (60.0f * (*m_lfo1.rate + 0.001f));
+#else
 	const float lfo1_rate = *m_lfo1.rate * *m_lfo1.rate;
-
 	const float lfo1_freq
 		= LFO_FREQ_MIN + lfo1_rate * (LFO_FREQ_MAX - LFO_FREQ_MIN);
-
+#endif
 	const float modwheel1
 		= m_ctl1.modwheel + PITCH_SCALE * *m_lfo1.pitch;
 

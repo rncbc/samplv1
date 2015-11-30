@@ -158,7 +158,11 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 
 	const QString& sAuto = tr("Auto");
 	m_ui.Gen1EnvTimeKnob->setSpecialValueText(sAuto);
+#if 1//LFO_BPMRATEX
+	m_ui.Lfo1BpmKnob->setSpecialValueText(sAuto);
+#else
 	m_ui.Lfo1RateKnob->setSpecialValueText(sAuto);
+#endif
 	m_ui.Del1BpmKnob->setSpecialValueText(sAuto);
 
 	// Wave integer widths.
@@ -193,6 +197,14 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	m_ui.Lfo1PanningKnob->setMaximum(+1.0f);
 	m_ui.Lfo1VolumeKnob->setMinimum(-1.0f);
 	m_ui.Lfo1VolumeKnob->setMaximum(+1.0f);
+#if 1//LFO_BPMRATEX
+	m_ui.Lfo1BpmKnob->setScale(1.0f);
+	m_ui.Lfo1BpmKnob->setMinimum(3.6f);
+	m_ui.Lfo1BpmKnob->setMaximum(360.0f);
+	m_ui.Lfo1BpmKnob->setSingleStep(1.0f);
+#else
+	m_ui.Lfo1BpmKnob->hide();
+#endif
 
 	// Channel filters
 	QStringList channels;
@@ -307,7 +319,9 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	setParamKnob(samplv1::LFO1_DECAY,   m_ui.Lfo1DecayKnob);
 	setParamKnob(samplv1::LFO1_SUSTAIN, m_ui.Lfo1SustainKnob);
 	setParamKnob(samplv1::LFO1_RELEASE, m_ui.Lfo1ReleaseKnob);
-
+#if 1//LFO_BPMRATEX
+	setParamKnob(samplv1::LFO1_BPM,     m_ui.Lfo1BpmKnob);
+#endif
 	QObject::connect(
 		m_ui.Lfo1ShapeKnob, SIGNAL(valueChanged(float)),
 		m_ui.Lfo1Wave, SLOT(setWaveShape(float)));
@@ -349,9 +363,15 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 		m_ui.Lfo1ReleaseKnob, SIGNAL(valueChanged(float)),
 		m_ui.Lfo1Env, SLOT(setRelease(float)));
 
+#if 1//LFO_BPMRATEX
+	QObject::connect(m_ui.Lfo1BpmKnob,
+		SIGNAL(valueChanged(float)),
+		SLOT(lfo1BpmSyncChanged()));
+#else
 	QObject::connect(m_ui.Lfo1RateKnob,
 		SIGNAL(valueChanged(float)),
 		SLOT(lfo1BpmSyncChanged()));
+#endif
 
 	// DCA1
 	setParamKnob(samplv1::DCA1_VOLUME,  m_ui.Dca1VolumeKnob);
@@ -654,8 +674,13 @@ void samplv1widget::updateParamEx ( samplv1::ParamIndex index, float fValue )
 		break;
 	}
 	case samplv1::LFO1_BPMSYNC:
+	#if 1//LFO_BPMRATEX
+		if (fValue > 0.0f)
+			m_ui.Lfo1BpmKnob->setValue(0.0f);
+	#else
 		if (fValue > 0.0f)
 			m_ui.Lfo1RateKnob->setValue(0.0f);
+	#endif
 		break;
 	case samplv1::DEL1_BPMSYNC:
 		if (fValue > 0.0f)
@@ -1105,7 +1130,11 @@ void samplv1widget::bpmSyncChanged (
 // LFO1 BPM sync change.
 void samplv1widget::lfo1BpmSyncChanged (void)
 {
+#if 1//LFO_BPMRATEX
+	bpmSyncChanged(m_ui.Lfo1BpmKnob, samplv1::LFO1_BPMSYNC);
+#else
 	bpmSyncChanged(m_ui.Lfo1RateKnob, samplv1::LFO1_BPMSYNC);
+#endif
 }
 
 

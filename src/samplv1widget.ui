@@ -513,6 +513,16 @@
           <item>
            <layout class="QHBoxLayout">
             <item>
+             <widget class="samplv1widget_spin" name="Lfo1BpmKnob">
+              <property name="toolTip">
+               <string>LFO1 BPM</string>
+              </property>
+              <property name="text">
+               <string>BPM</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="samplv1widget_spin" name="Lfo1RateKnob">
               <property name="toolTip">
                <string>LFO Rate</string>
