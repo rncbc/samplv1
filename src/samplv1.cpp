@@ -1538,7 +1538,7 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 
 	// controls
 
-#if 1//LFO_BPMRATEX
+#ifdef CONFIG_LFO_BPMRATEX
 	const float lfo1_freq
 		= *m_lfo1.bpm / (60.0f * (*m_lfo1.rate + 0.001f));
 #else
