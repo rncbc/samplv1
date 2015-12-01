@@ -515,7 +515,7 @@
             <item>
              <widget class="samplv1widget_spin" name="Lfo1BpmKnob">
               <property name="toolTip">
-               <string>LFO1 BPM</string>
+               <string>LFO BPM</string>
               </property>
               <property name="text">
                <string>BPM</string>
@@ -535,7 +535,7 @@
             <item>
              <widget class="samplv1widget_combo" name="Lfo1SyncKnob">
               <property name="toolTip">
-               <string>LFO1 Sync</string>
+               <string>LFO Sync</string>
               </property>
               <property name="text">
                <string>Sync</string>
