@@ -1539,21 +1539,15 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 	const uint16_t k12 = (gen1_sample.channels() > 1 ? 1 : 0);
 
 	// controls
-
 #ifdef CONFIG_LFO_BPMRATEX_0
 	const float lfo1_rate2 = *m_lfo1.rate * *m_lfo1.rate;
 	const float lfo1_freq
 		= LFO_FREQ_MIN + lfo1_rate2 * (LFO_FREQ_MAX - LFO_FREQ_MIN);
 #else
-	const float lfo1_rate = *m_lfo1.rate;
-//	const float lfo1_freq
-//		= *m_lfo1.bpm / (60.0f * (lfo1_rate + 0.001f));
-	const float lfo1_freq = *m_lfo1.bpm
-		* (1.0f + lfo1_rate * lfo1_rate) / (60.0f + 45.0f * lfo1_rate);
+	const float lfo1_freq
+		= *m_lfo1.bpm / (60.01f - *m_lfo1.rate * 60.0f);
 #endif
-	const float modwheel1
-		= m_ctl1.modwheel + PITCH_SCALE * *m_lfo1.pitch;
-
+	const float modwheel1 = m_ctl1.modwheel + PITCH_SCALE * *m_lfo1.pitch;
 	const float fxsend1 = *m_out1.fxsend * *m_out1.fxsend;
 
 	if (m_gen1.sample0 != *m_gen1.sample) {
