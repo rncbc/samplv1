@@ -174,15 +174,15 @@ void samplv1_lv2::run ( uint32_t nframes )
 					if (atom && atom->type == m_urids.atom_Float) {
 						const float host_bpm = ((LV2_Atom_Float *) atom)->body;
 						if (samplv1::paramValue(samplv1::LFO1_BPMSYNC) > 0.0f) {
-						#ifdef CONFIG_LFO_BPMRATEX
-							const float bpm = samplv1::paramValue(samplv1::LFO1_BPM);
-							if (::fabsf(host_bpm - bpm) > 0.01f)
-								samplv1::setParamValue(samplv1::LFO1_BPM, host_bpm);
-						#else
+						#ifdef CONFIG_LFO_BPMRATEX_0
 							const float rate_bpm = samplv1::lfo_rate_bpm(host_bpm);
 							const float rate = samplv1::paramValue(samplv1::LFO1_RATE);
 							if (::fabsf(rate_bpm - rate) > 0.01f)
 								samplv1::setParamValue(samplv1::LFO1_RATE, rate_bpm);
+						#else
+							const float bpm = samplv1::paramValue(samplv1::LFO1_BPM);
+							if (::fabsf(host_bpm - bpm) > 0.01f)
+								samplv1::setParamValue(samplv1::LFO1_BPM, host_bpm);
 						#endif
 						}
 						if (samplv1::paramValue(samplv1::DEL1_BPMSYNC) > 0.0f) {
