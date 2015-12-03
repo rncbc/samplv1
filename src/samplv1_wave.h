@@ -37,7 +37,7 @@ public:
 	enum Shape { Pulse = 0, Saw, Sine, Rand, Noise };
 
 	// ctor.
-	samplv1_wave(uint32_t nsize = 1024, uint16_t nover = 24);
+	samplv1_wave(uint32_t nsize = 4096, uint16_t nover = 24);
 
 	// dtor.
 	~samplv1_wave();
@@ -53,6 +53,10 @@ public:
 		{ m_srate = srate; }
 	float sampleRate() const
 		{ return m_srate; }
+
+	// table size (in frames)
+	uint32_t size() const
+		{ return m_nsize; }
 
 	// init.
 	void reset(Shape shape, float width);
@@ -172,7 +176,7 @@ class samplv1_wave_lf : public samplv1_wave
 public:
 
 	// ctor.
-	samplv1_wave_lf(uint32_t nsize = 128)
+	samplv1_wave_lf(uint32_t nsize = 1024)
 		: samplv1_wave(nsize, 0) {}
 };
 

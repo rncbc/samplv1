@@ -557,7 +557,7 @@ class samplv1_phasor
 {
 public:
 
-	samplv1_phasor(uint32_t nsize = 128)
+	samplv1_phasor(uint32_t nsize = 1024)
 		: m_nsize(nsize), m_nframes(0) {}
 
 	void process(uint32_t nframes)
@@ -761,7 +761,8 @@ samplv1_voice::samplv1_voice ( samplv1_impl *pImpl ) :
 
 samplv1_impl::samplv1_impl (
 	samplv1 *pSampl, uint16_t nchannels, float srate )
-	: gen1_sample(pSampl), m_controls(pSampl), m_programs(pSampl)
+	: gen1_sample(pSampl),
+		m_controls(pSampl), m_programs(pSampl), m_phasor(lfo1_wave.size())
 {
 	// null sample.
 	m_gen1.sample0 = 0.0f;
