@@ -761,8 +761,7 @@ samplv1_voice::samplv1_voice ( samplv1_impl *pImpl ) :
 
 samplv1_impl::samplv1_impl (
 	samplv1 *pSampl, uint16_t nchannels, float srate )
-	: gen1_sample(pSampl),
-		m_controls(pSampl), m_programs(pSampl), m_phasor(lfo1_wave.size())
+	: gen1_sample(pSampl), m_controls(pSampl), m_programs(pSampl)
 {
 	// null sample.
 	m_gen1.sample0 = 0.0f;
