@@ -364,7 +364,7 @@
 		lv2:default 0.0 ;
 		lv2:minimum 0.0 ;
 		lv2:maximum 1.0 ;
-		lv2pg:group synthv1_lv2:103_LFO1 ;
+		lv2pg:group samplv1_lv2:103_LFO1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
 		lv2:index 37 ;
