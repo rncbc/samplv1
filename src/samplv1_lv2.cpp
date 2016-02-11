@@ -71,15 +71,14 @@ samplv1_lv2::samplv1_lv2 (
 					m_urid_map->handle, LV2_TIME__beatsPerMinute);
 				m_urids.midi_MidiEvent = m_urid_map->map(
 					m_urid_map->handle, LV2_MIDI__MidiEvent);
- 					urid_map->handle, LV2_TIME__beatsPerMinute);
- 				m_urids.midi_MidiEvent = urid_map->map(
- 					urid_map->handle, LV2_MIDI__MidiEvent);
-				m_urids.bufsz_minBlockLength = urid_map->map(
-					urid_map->handle, LV2_BUF_SIZE__minBlockLength);
- 				m_urids.bufsz_maxBlockLength = urid_map->map(
- 					urid_map->handle, LV2_BUF_SIZE__maxBlockLength);
-				m_urids.bufsz_nominalBlockLength = urid_map->map(
-					urid_map->handle, LV2_BUF_SIZE__nominalBlockLength);
+ 				m_urids.midi_MidiEvent = m_urid_map->map(
+ 					m_urid_map->handle, LV2_MIDI__MidiEvent);
+				m_urids.bufsz_minBlockLength = m_urid_map->map(
+					m_urid_map->handle, LV2_BUF_SIZE__minBlockLength);
+ 				m_urids.bufsz_maxBlockLength = m_urid_map->map(
+ 					m_urid_map->handle, LV2_BUF_SIZE__maxBlockLength);
+				m_urids.bufsz_nominalBlockLength = m_urid_map->map(
+					m_urid_map->handle, LV2_BUF_SIZE__nominalBlockLength);
 			}
 		}
 		else
