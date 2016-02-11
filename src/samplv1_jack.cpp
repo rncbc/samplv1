@@ -1,7 +1,7 @@
 // samplv1_jack.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2015, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2016, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -104,12 +104,22 @@ private:
 
 
 //-------------------------------------------------------------------------
-// jack process callback.
+// JACK process callback.
 
 static
 int samplv1_jack_process ( jack_nframes_t nframes, void *arg )
 {
 	return static_cast<samplv1_jack *> (arg)->process(nframes);
+}
+
+//----------------------------------------------------------------------
+// JACK buffer-size change callback.
+
+static int samplv1_jack_buffer_size ( jack_nframes_t nframes, void *arg )
+{
+	static_cast<samplv1_jack *> (arg)->setBufferSize(nframes);
+
+	return 0;
 }
 
 
@@ -347,8 +357,11 @@ void samplv1_jack::open ( const char *client_id )
 	}
 #endif	// CONFIG_ALSA_MIDI
 
-	// setup any local buffers
+	// setup any local, initial buffers...
 	samplv1::setBufferSize(::jack_get_buffer_size(m_client));
+
+	jack_set_buffer_size_callback(m_client,
+		samplv1_jack_buffer_size, this);
 
 	// set process callbacks...
 	::jack_set_process_callback(m_client,
