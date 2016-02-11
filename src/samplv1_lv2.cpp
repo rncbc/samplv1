@@ -51,11 +51,12 @@ samplv1_lv2::samplv1_lv2 (
 	m_urid_map = NULL;
 	m_atom_sequence = NULL;
 
-	const LV2_Options_Option *const *host_options = NULL;
+	const LV2_Options_Option *host_options = NULL;
 
 	for (int i = 0; host_features && host_features[i]; ++i) {
-		if (::strcmp(host_features[i]->URI, LV2_URID_MAP_URI) == 0) {
-			m_urid_map = (LV2_URID_Map *) host_features[i]->data;
+		const LV2_Feature *host_feature = host_features[i];
+		if (::strcmp(host_feature->URI, LV2_URID_MAP_URI) == 0) {
+			m_urid_map = (LV2_URID_Map *) host_feature->data;
 			if (m_urid_map) {
 				m_urids.atom_Blank = m_urid_map->map(
 					m_urid_map->handle, LV2_ATOM__Blank);
@@ -82,14 +83,14 @@ samplv1_lv2::samplv1_lv2 (
 			}
 		}
 		else
-		if (::strcmp(host_features[i]->URI, LV2_OPTIONS__options) == 0)
-			host_options = (const LV2_Options_Option *const *) host_features[i]->data;
+		if (::strcmp(host_feature->URI, LV2_OPTIONS__options) == 0)
+			host_options = (const LV2_Options_Option *) host_feature->data;
 	}
 
 	uint32_t buffer_size = 1024; // safe default?
 
-	for (int i = 0; host_options && host_options[i]; ++i) {
-		const LV2_Options_Option *host_option = host_options[i];
+	for (int i = 0; host_options && host_options[i].key; ++i) {
+		const LV2_Options_Option *host_option = &host_options[i];
 		if (host_option->type == m_urids.atom_Int) {
 			uint32_t block_length = 0;
 			if (host_option->key == m_urids.bufsz_minBlockLength)
