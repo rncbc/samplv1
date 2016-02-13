@@ -219,7 +219,8 @@ void samplv1_lv2::run ( uint32_t nframes )
 	//	m_atom_sequence = NULL;
 	}
 
-	samplv1::process(ins, outs, nframes - ndelta);
+	if (nframes > ndelta)
+		samplv1::process(ins, outs, nframes - ndelta);
 }
 
 

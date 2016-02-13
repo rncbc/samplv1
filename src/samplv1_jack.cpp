@@ -241,16 +241,18 @@ int samplv1_jack::process ( jack_nframes_t nframes )
 		for (uint32_t n = 0; n < nevents; ++n) {
 			jack_midi_event_t event;
 			::jack_midi_event_get(&event, midi_in, n);
-			uint32_t nread = event.time - ndelta;
-			if (nread > 0) {
-				samplv1::process(ins, outs, nread);
-				for (uint16_t k = 0; k < nchannels; ++k) {
-					ins[k]  += nread;
-					outs[k] += nread;
+			if (event.time > ndelta) {
+				const uint32_t nread = event.time - ndelta;
+				if (nread > 0) {
+					samplv1::process(ins, outs, nread);
+					for (uint16_t k = 0; k < nchannels; ++k) {
+						ins[k]  += nread;
+						outs[k] += nread;
+					}
 				}
+				ndelta = event.time;
+				samplv1::process_midi(event.buffer, event.size);
 			}
-			ndelta = event.time;
-			samplv1::process_midi(event.buffer, event.size);
 		}
 	}
 #endif
@@ -285,7 +287,8 @@ int samplv1_jack::process ( jack_nframes_t nframes )
 	}
 #endif // CONFIG_ALSA_MIDI
 
-	samplv1::process(ins, outs, nframes - ndelta);
+	if (nframes > ndelta)
+		samplv1::process(ins, outs, nframes - ndelta);
 
 	return 0;
 }
