@@ -4,9 +4,12 @@ samplv1 - an old-school polyphonic sampler
 ChangeLog
 
 
-GIT HEAD
+0.7.3  2016-02-22  The ninth official beta.
 
-- Avoid out-of-bound MIDI events as much as possible.
+- Avoid out-of-bound MIDI events as much as possible, coping
+  with LV2 plug-in hosts that feed/run them in on border line
+  circumstances (as reported by Thorsten Wilms, on suspected
+  Ardour looping crash/bug, probably fixed already, thanks).
 
 - Tentatively safe defaults are being introduced to internal
   OUT FX buffer-sizes, as read from JACK buffer-size changes
