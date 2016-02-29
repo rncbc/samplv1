@@ -6,6 +6,8 @@ ChangeLog
 
 GIT HEAD
 
+- Fixed the DCF Format filter voice initialization reset.
+
 - French translation updated (by Olivier Humbert, thanks).
 
 
