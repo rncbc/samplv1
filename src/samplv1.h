@@ -28,6 +28,7 @@
 
 // forward declarations
 class samplv1_impl;
+class samplv1_port;
 class samplv1_sample;
 class samplv1_controls;
 class samplv1_programs;
@@ -151,9 +152,9 @@ public:
 	};
 
 	void setParamPort(ParamIndex index, float *pfParam);
-	float *paramPort(ParamIndex index) const;
+	samplv1_port *paramPort(ParamIndex index) const;
 
-	void setParamValue(ParamIndex index, float fValue);
+	void setParamValue(ParamIndex index, float fValue, bool bCache = false);
 	float paramValue(ParamIndex index) const;
 
 	void reset();

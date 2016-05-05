@@ -482,17 +482,6 @@ void samplv1_jack::close (void)
 }
 
 
-void samplv1_jack::setParamValue ( samplv1::ParamIndex index, float fValue )
-{
-	m_params[index] = fValue;
-}
-
-float samplv1_jack::paramValue ( samplv1::ParamIndex index ) const
-{
-	return m_params[index];
-}
-
-
 #ifdef CONFIG_ALSA_MIDI
 
 // alsa sequencer client.
