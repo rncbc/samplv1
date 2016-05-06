@@ -1,7 +1,7 @@
 // samplv1_param.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2015, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2016, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -331,10 +331,6 @@ void samplv1_param::loadPreset ( samplv1 *pSampl, const QString& sFilename )
 								index = s_hash.value(sName);
 							}
 							const float fValue = eParam.text().toFloat();
-						#if 0//--legacy support < 0.3.0.4
-							if (index == samplv1::DEL1_BPM && fValue < 3.6f)
-								fValue *= 100.0f;
-						#endif
 							pSampl->setParamValue(index, fValue);
 						}
 					}

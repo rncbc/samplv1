@@ -286,6 +286,3 @@ private:
 
 
 // end of samplv1_filter.h
-
-
-
