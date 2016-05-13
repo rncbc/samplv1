@@ -141,39 +141,90 @@ inline float samplv1_freq ( float note )
 }
 
 
-// parameter port
+// parameter port (basic)
 
 class samplv1_port
 {
 public:
 
-	samplv1_port() : m_port(NULL), m_cache(false), m_value(0.0f) {}
+	samplv1_port() : m_port(NULL), m_value(0.0f) {}
 
 	void set_port(float *port)
-		{ m_port = port; m_cache = false; }
+		{ m_port = port; }
 	float *port() const
 		{ return m_port; }
 
-	void set_value(float value, bool cache)
-		{ m_value = value; m_cache = cache; if (!cache) set_port_value(value); }
-	float value() const
-		{ return (m_cache ? m_value : port_value()); }
+	void set_value(float value, bool cache = false)
+		{ m_value = value; if (!cache) update(); }
 
-	float operator *() const
-		{ return value(); }
+	virtual float value(uint32_t /*nstep*/ = 1)
+	{
+		if (changed())
+			set_value(*m_port, true);
+
+		return m_value;
+	}
+
+	float operator *() { return value(1); }
 
 protected:
 
-	void  set_port_value(float value)
-		{ if (m_port) *m_port = value; }
-	float port_value() const
-		{ return (m_port ? *m_port : m_value); }
+	bool changed() const
+		{ return (m_port && ::fabsf(*m_port - m_value) > 0.001f); }
+
+	void update()
+		{ if (m_port) *m_port = m_value; }
+
+	float *m_port;
+	float  m_value;
+};
+
+
+// parameter port (smoothed)
+
+class samplv1_port2 : public samplv1_port
+{
+public:
+
+	samplv1_port2() : m_vstep(0.0f), m_nstep(0) {}
+
+	void set_value(float value, bool cache = false)
+	{
+		if (cache) {
+			m_nstep = NSTEP;
+			m_vstep = (value - m_value) / float(m_nstep);
+		} else {
+			m_nstep = 0;
+			m_value = value;
+			update();
+		}
+	}
+
+	float value(uint32_t nstep = NSTEP)
+	{
+		if (m_nstep == 0 && changed())
+			set_value(*m_port, true);
+
+		if (m_nstep > 0) {
+			if (m_nstep >= nstep) {
+				m_value += m_vstep * float(nstep);
+				m_nstep -= nstep;
+			} else {
+				m_value += m_vstep * float(m_nstep);
+				m_nstep  = 0;
+			}
+			update();
+		}
+
+		return m_value;
+	}
 
 private:
 
-	float *m_port;
-	bool   m_cache;
-	float  m_value;
+	static const uint32_t NSTEP = 32;
+
+	float    m_vstep;
+	uint32_t m_nstep;
 };
 
 
@@ -347,13 +398,13 @@ struct samplv1_aux
 
 struct samplv1_gen
 {
-	samplv1_port sample;
-	samplv1_port reverse;
-	samplv1_port loop;
-	samplv1_port octave;
-	samplv1_port tuning;
-	samplv1_port glide;
-	samplv1_port envtime;
+	samplv1_port  sample;
+	samplv1_port  reverse;
+	samplv1_port  loop;
+	samplv1_port2 octave;
+	samplv1_port2 tuning;
+	samplv1_port2 glide;
+	samplv1_port  envtime;
 
 	float sample0, envtime0;
 };
@@ -363,11 +414,11 @@ struct samplv1_gen
 
 struct samplv1_dcf
 {
-	samplv1_port cutoff;
-	samplv1_port reso;
-	samplv1_port type;
-	samplv1_port slope;
-	samplv1_port envelope;
+	samplv1_port2 cutoff;
+	samplv1_port2 reso;
+	samplv1_port  type;
+	samplv1_port  slope;
+	samplv1_port2 envelope;
 
 	samplv1_env env;
 };
@@ -377,21 +428,20 @@ struct samplv1_dcf
 
 struct samplv1_lfo
 {
-	samplv1_port shape;
-	samplv1_port width;
-	samplv1_port bpm;
-	samplv1_port rate;
-	samplv1_port sync;
-	samplv1_port sweep;
-	samplv1_port pitch;
-	samplv1_port cutoff;
-	samplv1_port reso;
-	samplv1_port panning;
-	samplv1_port volume;
+	samplv1_port  shape;
+	samplv1_port2 width;
+	samplv1_port2 bpm;
+	samplv1_port  bpmsync;
+	samplv1_port2 rate;
+	samplv1_port  sync;
+	samplv1_port2 sweep;
+	samplv1_port2 pitch;
+	samplv1_port2 cutoff;
+	samplv1_port2 reso;
+	samplv1_port2 panning;
+	samplv1_port2 volume;
 
 	samplv1_env env;
-
-	samplv1_port bpmsync;
 };
 
 
@@ -399,7 +449,7 @@ struct samplv1_lfo
 
 struct samplv1_dca
 {
-	samplv1_port volume;
+	samplv1_port2 volume;
 
 	samplv1_env env;
 };
@@ -423,10 +473,10 @@ struct samplv1_def
 
 struct samplv1_out
 {
-	samplv1_port width;
-	samplv1_port panning;
-	samplv1_port fxsend;
-	samplv1_port volume;
+	samplv1_port2 width;
+	samplv1_port2 panning;
+	samplv1_port2 fxsend;
+	samplv1_port2 volume;
 };
 
 
@@ -434,11 +484,11 @@ struct samplv1_out
 
 struct samplv1_cho
 {
-	samplv1_port wet;
-	samplv1_port delay;
-	samplv1_port feedb;
-	samplv1_port rate;
-	samplv1_port mod;
+	samplv1_port2 wet;
+	samplv1_port2 delay;
+	samplv1_port2 feedb;
+	samplv1_port2 rate;
+	samplv1_port2 mod;
 };
 
 
@@ -446,10 +496,10 @@ struct samplv1_cho
 
 struct samplv1_fla
 {
-	samplv1_port wet;
-	samplv1_port delay;
-	samplv1_port feedb;
-	samplv1_port daft;
+	samplv1_port2 wet;
+	samplv1_port2 delay;
+	samplv1_port2 feedb;
+	samplv1_port2 daft;
 };
 
 
@@ -457,11 +507,11 @@ struct samplv1_fla
 
 struct samplv1_pha
 {
-	samplv1_port wet;
-	samplv1_port rate;
-	samplv1_port feedb;
-	samplv1_port depth;
-	samplv1_port daft;
+	samplv1_port2 wet;
+	samplv1_port2 rate;
+	samplv1_port2 feedb;
+	samplv1_port2 depth;
+	samplv1_port2 daft;
 };
 
 
@@ -469,11 +519,11 @@ struct samplv1_pha
 
 struct samplv1_del
 {
-	samplv1_port wet;
-	samplv1_port delay;
-	samplv1_port feedb;
-	samplv1_port bpm;
-	samplv1_port bpmsync;
+	samplv1_port2 wet;
+	samplv1_port2 delay;
+	samplv1_port2 feedb;
+	samplv1_port2 bpm;
+	samplv1_port  bpmsync;
 };
 
 
@@ -481,11 +531,11 @@ struct samplv1_del
 
 struct samplv1_rev
 {
-	samplv1_port wet;
-	samplv1_port room;
-	samplv1_port damp;
-	samplv1_port feedb;
-	samplv1_port width;
+	samplv1_port2 wet;
+	samplv1_port2 room;
+	samplv1_port2 damp;
+	samplv1_port2 feedb;
+	samplv1_port2 width;
 };
 
 
