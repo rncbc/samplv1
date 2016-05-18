@@ -182,7 +182,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 
 	// LFO parameter limits.
 	m_ui.Lfo1BpmKnob->setScale(1.0f);
-	m_ui.Lfo1BpmKnob->setMinimum(3.6f);
+	m_ui.Lfo1BpmKnob->setMinimum(0.0f);
 	m_ui.Lfo1BpmKnob->setMaximum(360.0f);
 	m_ui.Lfo1BpmKnob->setSingleStep(1.0f);
 	m_ui.Lfo1SweepKnob->setMinimum(-1.0f);
@@ -219,7 +219,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 
 	// Effects (delay BPM)
 	m_ui.Del1BpmKnob->setScale(1.0f);
-	m_ui.Del1BpmKnob->setMinimum(3.6f);
+	m_ui.Del1BpmKnob->setMinimum(0.0f);
 	m_ui.Del1BpmKnob->setMaximum(360.0f);
 	m_ui.Del1BpmKnob->setSingleStep(1.0f);
 
@@ -354,10 +354,6 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 		m_ui.Lfo1ReleaseKnob, SIGNAL(valueChanged(float)),
 		m_ui.Lfo1Env, SLOT(setRelease(float)));
 
-	QObject::connect(m_ui.Lfo1BpmKnob,
-		SIGNAL(valueChanged(float)),
-		SLOT(lfo1BpmSyncChanged()));
-
 	// DCA1
 	setParamKnob(samplv1::DCA1_VOLUME,  m_ui.Dca1VolumeKnob);
 	setParamKnob(samplv1::DCA1_ATTACK,  m_ui.Dca1AttackKnob);
@@ -430,10 +426,6 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	setParamKnob(samplv1::DEL1_DELAY, m_ui.Del1DelayKnob);
 	setParamKnob(samplv1::DEL1_FEEDB, m_ui.Del1FeedbKnob);
 	setParamKnob(samplv1::DEL1_BPM,   m_ui.Del1BpmKnob);
-
-	QObject::connect(m_ui.Del1BpmKnob,
-		SIGNAL(valueChanged(float)),
-		SLOT(del1BpmSyncChanged()));
 
 	// Reverb
 	setParamKnob(samplv1::REV1_WET,   m_ui.Rev1WetKnob);
@@ -658,14 +650,6 @@ void samplv1widget::updateParamEx ( samplv1::ParamIndex index, float fValue )
 		updateSampleLoop(pSamplUi->sample());
 		break;
 	}
-	case samplv1::LFO1_BPMSYNC:
-		if (fValue > 0.0f)
-			m_ui.Lfo1BpmKnob->setValue(0.0f);
-		break;
-	case samplv1::DEL1_BPMSYNC:
-		if (fValue > 0.0f)
-			m_ui.Del1BpmKnob->setValue(0.0f);
-		// Fall thru...
 	default:
 		break;
 	}
@@ -1085,39 +1069,6 @@ void samplv1widget::activateParamKnobsGroupBox (
 	QListIterator<QWidget *> iter(children);
 	while (iter.hasNext())
 		iter.next()->setEnabled(bEnabled);
-}
-
-
-// Common BPM sync change.
-void samplv1widget::bpmSyncChanged (
-	samplv1widget_spin *pKnob, samplv1::ParamIndex index )
-{
-	if (m_iUpdate > 0)
-		return;
-
-	++m_iUpdate;
-	samplv1_ui *pSamplUi = ui_instance();
-	if (pSamplUi) {
-		const bool bBpmSync0 = (pSamplUi->paramValue(index) > 0.0f);
-		const bool bBpmSync1 = pKnob->isSpecialValue();
-		if ((bBpmSync1 && !bBpmSync0) || (!bBpmSync1 && bBpmSync0))
-			pSamplUi->setParamValue(index, (bBpmSync1 ? 1.0f : 0.0f));
-	}
-	--m_iUpdate;
-}
-
-
-// LFO1 BPM sync change.
-void samplv1widget::lfo1BpmSyncChanged (void)
-{
-	bpmSyncChanged(m_ui.Lfo1BpmKnob, samplv1::LFO1_BPMSYNC);
-}
-
-
-// Delay BPM sync change.
-void samplv1widget::del1BpmSyncChanged (void)
-{
-	bpmSyncChanged(m_ui.Del1BpmKnob, samplv1::DEL1_BPMSYNC);
 }
 
 

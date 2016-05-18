@@ -110,12 +110,6 @@ protected slots:
 	void loopStartChanged();
 	void loopEndChanged();
 
-	// LFO1 BPM sync change.
-	void lfo1BpmSyncChanged();
-
-	// Delay BPM sync change.
-	void del1BpmSyncChanged();
-
 	// Notification updater.
 	void updateSchedNotify(int stype, int sid);
 
@@ -173,9 +167,6 @@ protected:
 
 	// Dirty flag (overridable virtual) methods.
 	virtual void updateDirtyPreset(bool bDirtyPreset);
-
-	// Common BPM sync change.
-	void bpmSyncChanged(samplv1widget_spin *pKnob, samplv1::ParamIndex index);
 
 private:
 

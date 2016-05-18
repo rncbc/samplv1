@@ -380,7 +380,6 @@ struct samplv1_lfo
 	samplv1_port shape;
 	samplv1_port width;
 	samplv1_port bpm;
-	samplv1_port bpmsync;
 	samplv1_port rate;
 	samplv1_port sync;
 	samplv1_port sweep;
@@ -472,7 +471,6 @@ struct samplv1_del
 	samplv1_port delay;
 	samplv1_port feedb;
 	samplv1_port bpm;
-	samplv1_port bpmsync;
 };
 
 
@@ -668,6 +666,9 @@ public:
 	void setBufferSize(uint32_t nsize);
 	uint32_t bufferSize() const;
 
+	void setTempo(float bpm);
+	float tempo() const;
+
 	void setParamPort(samplv1::ParamIndex index, float *pfParam);
 	samplv1_port *paramPort(samplv1::ParamIndex index);
 
@@ -698,6 +699,9 @@ protected:
 	void allNotesOff();
 	void allSustainOff();
 
+	float get_bpm ( float bpm ) const
+		{ return (bpm > 0.0f ? bpm : m_bpm); }
+
 	samplv1_voice *alloc_voice ()
 	{
 		samplv1_voice *pv = m_free_list.next();
@@ -724,6 +728,7 @@ private:
 
 	uint16_t m_nchannels;
 	float    m_srate;
+	float    m_bpm;
 
 	samplv1_ctl m_ctl1;
 
@@ -790,7 +795,7 @@ samplv1_voice::samplv1_voice ( samplv1_impl *pImpl ) :
 
 samplv1_impl::samplv1_impl (
 	samplv1 *pSampl, uint16_t nchannels, float srate )
-	: gen1_sample(pSampl), m_controls(pSampl), m_programs(pSampl)
+	: gen1_sample(pSampl), m_controls(pSampl), m_programs(pSampl), m_bpm(180.0f)
 {
 	// null sample.
 	m_gen1.sample0 = 0.0f;
@@ -941,6 +946,19 @@ uint32_t samplv1_impl::bufferSize (void) const
 }
 
 
+void samplv1_impl::setTempo ( float bpm )
+{
+	// set nominal tempo (BPM)
+	m_bpm = bpm;
+}
+
+
+float samplv1_impl::tempo (void) const
+{
+	return m_bpm;
+}
+
+
 // allocate local buffers
 void samplv1_impl::alloc_sfxs ( uint32_t nsize )
 {
@@ -1082,7 +1100,6 @@ samplv1_port *samplv1_impl::paramPort ( samplv1::ParamIndex index )
 	case samplv1::LFO1_DECAY:     pParamPort = &m_lfo1.env.decay;   break;
 	case samplv1::LFO1_SUSTAIN:   pParamPort = &m_lfo1.env.sustain; break;
 	case samplv1::LFO1_RELEASE:   pParamPort = &m_lfo1.env.release; break;
-	case samplv1::LFO1_BPMSYNC:   pParamPort = &m_lfo1.bpmsync;     break;
 	case samplv1::DCA1_VOLUME:    pParamPort = &m_dca1.volume;      break;
 	case samplv1::DCA1_ATTACK:    pParamPort = &m_dca1.env.attack;  break;
 	case samplv1::DCA1_DECAY:     pParamPort = &m_dca1.env.decay;   break;
@@ -1116,7 +1133,6 @@ samplv1_port *samplv1_impl::paramPort ( samplv1::ParamIndex index )
 	case samplv1::DEL1_DELAY:     pParamPort = &m_del.delay;        break;
 	case samplv1::DEL1_FEEDB:     pParamPort = &m_del.feedb;        break;
 	case samplv1::DEL1_BPM:       pParamPort = &m_del.bpm;          break;
-	case samplv1::DEL1_BPMSYNC:   pParamPort = &m_del.bpmsync;      break;
 	case samplv1::REV1_WET:       pParamPort = &m_rev.wet;          break;
 	case samplv1::REV1_ROOM:      pParamPort = &m_rev.room;         break;
 	case samplv1::REV1_DAMP:      pParamPort = &m_rev.damp;         break;
@@ -1501,7 +1517,7 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 
 	// controls
 	const float lfo1_freq
-		= *m_lfo1.bpm / (60.01f - *m_lfo1.rate * 60.0f);
+		= get_bpm(*m_lfo1.bpm) / (60.01f - *m_lfo1.rate * 60.0f);
 
 	const float modwheel1 = m_ctl1.modwheel + PITCH_SCALE * *m_lfo1.pitch;
 	const float fxsend1 = *m_out1.fxsend * *m_out1.fxsend;
@@ -1677,7 +1693,7 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 			*m_pha.rate, *m_pha.feedb, *m_pha.depth, *m_pha.daft * float(k));
 		// delay
 		m_delay[k].process(in, nframes, *m_del.wet,
-			*m_del.delay, *m_del.feedb, *m_del.bpm);
+			*m_del.delay, *m_del.feedb, get_bpm(*m_del.bpm));
 	}
 
 	// reverb
@@ -1824,6 +1840,18 @@ void samplv1::setBufferSize ( uint32_t nsize )
 uint32_t samplv1::bufferSize (void) const
 {
 	return m_pImpl->bufferSize();
+}
+
+
+void samplv1::setTempo ( float bpm )
+{
+	m_pImpl->setTempo(bpm);
+}
+
+
+float samplv1::tempo (void) const
+{
+	return m_pImpl->tempo();
 }
 
 

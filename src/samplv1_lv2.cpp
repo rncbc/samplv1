@@ -197,16 +197,8 @@ void samplv1_lv2::run ( uint32_t nframes )
 						m_urids.time_beatsPerMinute, &atom, NULL);
 					if (atom && atom->type == m_urids.atom_Float) {
 						const float host_bpm = ((LV2_Atom_Float *) atom)->body;
-						if (samplv1::paramValue(samplv1::LFO1_BPMSYNC) > 0.0f) {
-							const float bpm = samplv1::paramValue(samplv1::LFO1_BPM);
-							if (::fabsf(host_bpm - bpm) > 0.01f)
-								samplv1::setParamValue(samplv1::LFO1_BPM, host_bpm, true); // Cached!
-						}
-						if (samplv1::paramValue(samplv1::DEL1_BPMSYNC) > 0.0f) {
-							const float bpm = samplv1::paramValue(samplv1::DEL1_BPM);
-							if (bpm > 0.0f && ::fabsf(host_bpm - bpm) > 0.01f)
-								samplv1::setParamValue(samplv1::DEL1_BPM, host_bpm, true); // Cached!
-						}
+						if (::fabsf(host_bpm - samplv1::tempo()) > 0.001f)
+							samplv1::setTempo(host_bpm);
 					}
 				}
 			}

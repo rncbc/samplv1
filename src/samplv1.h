@@ -70,6 +70,9 @@ public:
 	void setBufferSize(uint32_t nsize);
 	uint32_t bufferSize() const;
 
+	void setTempo(float bpm);
+	float tempo() const;
+
 	enum ParamIndex	 {
 
 		GEN1_SAMPLE = 0,
@@ -103,7 +106,6 @@ public:
 		LFO1_DECAY,
 		LFO1_SUSTAIN,
 		LFO1_RELEASE,
-		LFO1_BPMSYNC,
 		DCA1_VOLUME,
 		DCA1_ATTACK,
 		DCA1_DECAY,
@@ -139,7 +141,6 @@ public:
 		DEL1_DELAY,
 		DEL1_FEEDB,
 		DEL1_BPM,
-		DEL1_BPMSYNC,
 		REV1_WET,
 		REV1_ROOM,
 		REV1_DAMP,
