@@ -93,7 +93,7 @@ uint32_t samplv1_ui::loopEnd (void) const
 
 void samplv1_ui::setParamValue ( samplv1::ParamIndex index, float fValue )
 {
-	m_pSampl->setParamValue(index, fValue);
+	m_pSampl->setParamValue(index, fValue, true); // Cached!
 }
 
 float samplv1_ui::paramValue ( samplv1::ParamIndex index ) const
