@@ -98,12 +98,15 @@ private:
 		LV2_URID bufsz_nominalBlockLength;
 		LV2_URID patch_Get;
 		LV2_URID patch_Set;
+		LV2_URID patch_Put;
+		LV2_URID patch_body;
 		LV2_URID patch_property;
 		LV2_URID patch_value;
 
 	} m_urids;
 
 	LV2_Atom_Forge m_forge;
+	LV2_Atom_Forge_Frame m_notify_frame;
 
 	LV2_Atom_Sequence *m_atom_in;
 	LV2_Atom_Sequence *m_atom_out;

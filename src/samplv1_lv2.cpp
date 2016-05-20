@@ -96,7 +96,11 @@ samplv1_lv2::samplv1_lv2 (
 				m_urids.patch_Get = m_urid_map->map(
  					m_urid_map->handle, LV2_PATCH__Get);
 				m_urids.patch_Set = m_urid_map->map(
- 					m_urid_map->handle, LV2_PATCH__Set);
+					m_urid_map->handle, LV2_PATCH__Set);
+				m_urids.patch_Put = m_urid_map->map(
+					m_urid_map->handle, LV2_PATCH__Put);
+				m_urids.patch_body = m_urid_map->map(
+					m_urid_map->handle, LV2_PATCH__body);
 				m_urids.patch_property = m_urid_map->map(
  					m_urid_map->handle, LV2_PATCH__property);
 				m_urids.patch_value = m_urid_map->map(
@@ -189,8 +193,11 @@ void samplv1_lv2::run ( uint32_t nframes )
 		outs[k] = m_outs[k];
 	}
 
-	const uint32_t capacity = m_atom_out->atom.size;
-	lv2_atom_forge_set_buffer(&m_forge, (uint8_t *) m_atom_out, capacity);
+	if (m_atom_out) {
+		const uint32_t capacity = m_atom_out->atom.size;
+		lv2_atom_forge_set_buffer(&m_forge, (uint8_t *) m_atom_out, capacity);
+		lv2_atom_forge_sequence_head(&m_forge, &m_notify_frame, 0);
+	}
 
 	uint32_t ndelta = 0;
 
@@ -282,26 +289,24 @@ void samplv1_lv2::run ( uint32_t nframes )
 						sample_path = sample->filename();
 					if (sample && sample_path) {
 						lv2_atom_forge_frame_time(&m_forge, ndelta);
-						LV2_Atom_Forge_Frame frame;
-						lv2_atom_forge_object(&m_forge, &frame, 0, m_urids.patch_Set);
-						lv2_atom_forge_key(&m_forge, m_urids.patch_property);
-						lv2_atom_forge_urid(&m_forge, m_urids.gen1_sample);
-						lv2_atom_forge_key(&m_forge, m_urids.patch_value);
-						lv2_atom_forge_path(&m_forge, sample_path, ::strlen(sample_path));
-						lv2_atom_forge_key(&m_forge, m_urids.patch_property);
-						lv2_atom_forge_urid(&m_forge, m_urids.gen1_loop_start);
-						lv2_atom_forge_key(&m_forge, m_urids.patch_value);
+						LV2_Atom_Forge_Frame pframe;
+						lv2_atom_forge_object(&m_forge, &pframe, 0, m_urids.patch_Put);
+						lv2_atom_forge_key(&m_forge, m_urids.patch_body);
+						LV2_Atom_Forge_Frame bframe;
+						lv2_atom_forge_object(&m_forge, &bframe, 0, 0);
+						lv2_atom_forge_key(&m_forge, m_urids.gen1_sample);
+						lv2_atom_forge_path(&m_forge, sample_path, ::strlen(sample_path) + 1);
+						lv2_atom_forge_key(&m_forge, m_urids.gen1_loop_start);
 						lv2_atom_forge_int(&m_forge, sample->loopStart());
-						lv2_atom_forge_key(&m_forge, m_urids.patch_property);
-						lv2_atom_forge_urid(&m_forge, m_urids.gen1_loop_end);
-						lv2_atom_forge_key(&m_forge, m_urids.patch_value);
+						lv2_atom_forge_key(&m_forge, m_urids.gen1_loop_end);
 						lv2_atom_forge_int(&m_forge, sample->loopEnd());
-						lv2_atom_forge_pop(&m_forge, &frame);
+						lv2_atom_forge_pop(&m_forge, &bframe);
+						lv2_atom_forge_pop(&m_forge, &pframe);
 					}
 				}
 			}
 		}
-	//	m_atom_sequence = NULL;
+	//	m_atom_in = NULL;
 	}
 
 	if (nframes > ndelta)
