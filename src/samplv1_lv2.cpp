@@ -22,6 +22,7 @@
 #include "samplv1_lv2.h"
 
 #include "samplv1_sched.h"
+#include "samplv1_sample.h"
 
 #include "samplv1_programs.h"
 #include "samplv1_controls.h"
@@ -31,6 +32,7 @@
 #include "lv2/lv2plug.in/ns/ext/atom/util.h"
 
 #include "lv2/lv2plug.in/ns/ext/state/state.h"
+#include "lv2/lv2plug.in/ns/ext/patch/patch.h"
 
 #include "lv2/lv2plug.in/ns/ext/options/options.h"
 #include "lv2/lv2plug.in/ns/ext/buf-size/buf-size.h"
@@ -49,7 +51,8 @@ samplv1_lv2::samplv1_lv2 (
 	: samplv1(2, float(sample_rate))
 {
 	m_urid_map = NULL;
-	m_atom_sequence = NULL;
+	m_atom_in  = NULL;
+	m_atom_out = NULL;
 
 	const LV2_Options_Option *host_options = NULL;
 
@@ -58,6 +61,12 @@ samplv1_lv2::samplv1_lv2 (
 		if (::strcmp(host_feature->URI, LV2_URID_MAP_URI) == 0) {
 			m_urid_map = (LV2_URID_Map *) host_feature->data;
 			if (m_urid_map) {
+ 				m_urids.gen1_sample = m_urid_map->map(
+ 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_SAMPLE");
+ 				m_urids.gen1_loop_start = m_urid_map->map(
+ 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_LOOP_START");
+ 				m_urids.gen1_loop_end = m_urid_map->map(
+ 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_LOOP_END");
 				m_urids.atom_Blank = m_urid_map->map(
 					m_urid_map->handle, LV2_ATOM__Blank);
 				m_urids.atom_Object = m_urid_map->map(
@@ -66,6 +75,8 @@ samplv1_lv2::samplv1_lv2 (
 					m_urid_map->handle, LV2_ATOM__Float);
 				m_urids.atom_Int = m_urid_map->map(
 					m_urid_map->handle, LV2_ATOM__Int);
+				m_urids.atom_Path = m_urid_map->map(
+					m_urid_map->handle, LV2_ATOM__Path);
 				m_urids.time_Position = m_urid_map->map(
 					m_urid_map->handle, LV2_TIME__Position);
 				m_urids.time_beatsPerMinute = m_urid_map->map(
@@ -82,6 +93,14 @@ samplv1_lv2::samplv1_lv2 (
 				m_urids.bufsz_nominalBlockLength = m_urid_map->map(
 					m_urid_map->handle, LV2_BUF_SIZE__nominalBlockLength);
 			#endif
+				m_urids.patch_Get = m_urid_map->map(
+ 					m_urid_map->handle, LV2_PATCH__Get);
+				m_urids.patch_Set = m_urid_map->map(
+ 					m_urid_map->handle, LV2_PATCH__Set);
+				m_urids.patch_property = m_urid_map->map(
+ 					m_urid_map->handle, LV2_PATCH__property);
+				m_urids.patch_value = m_urid_map->map(
+ 					m_urid_map->handle, LV2_PATCH__value);
 			}
 		}
 		else
@@ -113,6 +132,8 @@ samplv1_lv2::samplv1_lv2 (
  
 	samplv1::setBufferSize(buffer_size);
 
+	lv2_atom_forge_init(&m_forge, m_urid_map);
+
 	const uint16_t nchannels = samplv1::channels();
 	m_ins  = new float * [nchannels];
 	m_outs = new float * [nchannels];
@@ -135,7 +156,10 @@ void samplv1_lv2::connect_port ( uint32_t port, void *data )
 {
 	switch(PortIndex(port)) {
 	case MidiIn:
-		m_atom_sequence = (LV2_Atom_Sequence *) data;
+		m_atom_in = (LV2_Atom_Sequence *) data;
+		break;
+	case Notify:
+		m_atom_out = (LV2_Atom_Sequence *) data;
 		break;
 	case AudioInL:
 		m_ins[0] = (float *) data;
@@ -165,10 +189,13 @@ void samplv1_lv2::run ( uint32_t nframes )
 		outs[k] = m_outs[k];
 	}
 
+	const uint32_t capacity = m_atom_out->atom.size;
+	lv2_atom_forge_set_buffer(&m_forge, (uint8_t *) m_atom_out, capacity);
+
 	uint32_t ndelta = 0;
 
-	if (m_atom_sequence) {
-		LV2_ATOM_SEQUENCE_FOREACH(m_atom_sequence, event) {
+	if (m_atom_in) {
+		LV2_ATOM_SEQUENCE_FOREACH(m_atom_in, event) {
 			if (event == NULL)
 				continue;
 			if (event->body.type == m_urids.midi_MidiEvent) {
@@ -199,6 +226,77 @@ void samplv1_lv2::run ( uint32_t nframes )
 						const float host_bpm = ((LV2_Atom_Float *) atom)->body;
 						if (::fabsf(host_bpm - samplv1::tempo()) > 0.001f)
 							samplv1::setTempo(host_bpm);
+					}
+				}
+				else 
+				if (object->body.otype == m_urids.patch_Set) {
+					// Get the property and value of the patch_set message
+					const LV2_Atom *property = NULL;
+					const LV2_Atom *value = NULL;
+					lv2_atom_object_get(object,
+						m_urids.patch_property, &property,
+						m_urids.patch_value, &value, 0);
+					if (property && value && property->type == m_forge.URID) {
+						const uint32_t key = ((const LV2_Atom_URID *) property)->body;
+						const LV2_URID type = value->type;
+						if (key == m_urids.gen1_sample
+							&& type == m_urids.atom_Path) {
+							samplv1_sample *sample = samplv1::sample();
+							if (sample) {
+								const char *sample_path
+									= (const char *) LV2_ATOM_BODY_CONST(value);
+								// TODO: schedule loading new sample...
+								// sample->setSampleFile(sample_path);
+							}
+						}
+						else
+						if (key == m_urids.gen1_loop_start
+							&& type == m_urids.atom_Int) {
+							samplv1_sample *sample = samplv1::sample();
+							if (sample) {
+								const uint32_t loop_start
+									= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
+								const uint32_t loop_end = sample->loopEnd();
+								sample->setLoopRange(loop_start, loop_end);
+							}
+						}
+						else
+						if (key == m_urids.gen1_loop_end
+							&& type == m_urids.atom_Int) {
+							samplv1_sample *sample = samplv1::sample();
+							if (sample) {
+								const uint32_t loop_start = sample->loopStart();
+								const uint32_t loop_end
+									= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
+								sample->setLoopRange(loop_start, loop_end);
+							}
+						}
+					}
+				}
+				else
+				if (object->body.otype == m_urids.patch_Get) {
+					// Received a get message, emit our state (probably to UI)
+					samplv1_sample *sample = samplv1::sample();
+					const char *sample_path = NULL;
+					if (sample)
+						sample_path = sample->filename();
+					if (sample && sample_path) {
+						lv2_atom_forge_frame_time(&m_forge, ndelta);
+						LV2_Atom_Forge_Frame frame;
+						lv2_atom_forge_object(&m_forge, &frame, 0, m_urids.patch_Set);
+						lv2_atom_forge_key(&m_forge, m_urids.patch_property);
+						lv2_atom_forge_urid(&m_forge, m_urids.gen1_sample);
+						lv2_atom_forge_key(&m_forge, m_urids.patch_value);
+						lv2_atom_forge_path(&m_forge, sample_path, ::strlen(sample_path));
+						lv2_atom_forge_key(&m_forge, m_urids.patch_property);
+						lv2_atom_forge_urid(&m_forge, m_urids.gen1_loop_start);
+						lv2_atom_forge_key(&m_forge, m_urids.patch_value);
+						lv2_atom_forge_int(&m_forge, sample->loopStart());
+						lv2_atom_forge_key(&m_forge, m_urids.patch_property);
+						lv2_atom_forge_urid(&m_forge, m_urids.gen1_loop_end);
+						lv2_atom_forge_key(&m_forge, m_urids.patch_value);
+						lv2_atom_forge_int(&m_forge, sample->loopEnd());
+						lv2_atom_forge_pop(&m_forge, &frame);
 					}
 				}
 			}

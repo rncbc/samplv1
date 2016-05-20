@@ -27,6 +27,7 @@
 #include "lv2.h"
 #include "lv2/lv2plug.in/ns/ext/urid/urid.h"
 #include "lv2/lv2plug.in/ns/ext/atom/atom.h"
+#include "lv2/lv2plug.in/ns/ext/atom/forge.h"
 
 #define SAMPLV1_LV2_URI "http://samplv1.sourceforge.net/lv2"
 #define SAMPLV1_LV2_PREFIX SAMPLV1_LV2_URI "#"
@@ -53,6 +54,7 @@ public:
 	enum PortIndex {
 
 		MidiIn = 0,
+		Notify,
 		AudioInL,
 		AudioInR,
 		AudioOutL,
@@ -80,20 +82,31 @@ private:
 
 	struct lv2_urids
 	{
+		LV2_URID gen1_sample;
+		LV2_URID gen1_loop_start;
+		LV2_URID gen1_loop_end;
 		LV2_URID atom_Blank;
 		LV2_URID atom_Object;
 		LV2_URID atom_Float;
 		LV2_URID atom_Int;
+		LV2_URID atom_Path;
 		LV2_URID time_Position;
 		LV2_URID time_beatsPerMinute;
 		LV2_URID midi_MidiEvent;
 		LV2_URID bufsz_minBlockLength;
 		LV2_URID bufsz_maxBlockLength;
 		LV2_URID bufsz_nominalBlockLength;
+		LV2_URID patch_Get;
+		LV2_URID patch_Set;
+		LV2_URID patch_property;
+		LV2_URID patch_value;
 
 	} m_urids;
 
-	LV2_Atom_Sequence *m_atom_sequence;
+	LV2_Atom_Forge m_forge;
+
+	LV2_Atom_Sequence *m_atom_in;
+	LV2_Atom_Sequence *m_atom_out;
 
 	float **m_ins;
 	float **m_outs;
