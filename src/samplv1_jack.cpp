@@ -596,6 +596,12 @@ void samplv1_jack::sessionEvent ( void *pvSessionArg )
 #endif	// CONFIG_JACK_SESSION
 
 
+void samplv1_jack::updateSample (void)
+{
+	// nothing to do...
+}
+
+
 //-------------------------------------------------------------------------
 // samplv1_jack_application -- Singleton application instance.
 //

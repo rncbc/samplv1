@@ -46,6 +46,13 @@
 // samplv1_lv2 - impl.
 //
 
+// atom-like message used internally with worker/schedule
+typedef struct {
+	LV2_Atom atom;
+	const char *sample_path;
+} samplv1_lv2_worker_message;
+
+
 samplv1_lv2::samplv1_lv2 (
 	double sample_rate, const LV2_Feature *const *host_features )
 	: samplv1(2, float(sample_rate))
@@ -70,6 +77,8 @@ samplv1_lv2::samplv1_lv2 (
  					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_LOOP_START");
  				m_urids.gen1_loop_end = m_urid_map->map(
  					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_LOOP_END");
+				m_urids.gen1_update = m_urid_map->map(
+					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_UPDATE");
 				m_urids.atom_Blank = m_urid_map->map(
 					m_urid_map->handle, LV2_ATOM__Blank);
 				m_urids.atom_Object = m_urid_map->map(
@@ -256,13 +265,14 @@ void samplv1_lv2::run ( uint32_t nframes )
 							&& type == m_urids.atom_Path) {
 							samplv1_sample *pSample = samplv1::sample();
 							if (pSample && m_schedule) {
-								const char *pszSampleFile
+								samplv1_lv2_worker_message mesg;
+								mesg.atom.type = key;
+								mesg.atom.size = sizeof(mesg.sample_path);
+								mesg.sample_path
 									= (const char *) LV2_ATOM_BODY_CONST(value);
 								// schedule loading new sample
 								m_schedule->schedule_work(
-									m_schedule->handle,
-									::strlen(pszSampleFile) + 1,
-									pszSampleFile);
+									m_schedule->handle, sizeof(mesg), &mesg);
 							}
 						}
 						else
@@ -532,6 +542,19 @@ void samplv1_lv2::select_program ( uint32_t bank, uint32_t program )
 #endif	// CONFIG_LV2_PROGRAMS
 
 
+void samplv1_lv2::updateSample (void)
+{
+	if (m_schedule) {
+		samplv1_lv2_worker_message mesg;
+		mesg.atom.type = m_urids.gen1_update;
+		mesg.atom.size = sizeof(mesg.sample_path);
+		mesg.sample_path = samplv1::sampleFile();
+		m_schedule->schedule_work(
+			m_schedule->handle, sizeof(mesg), &mesg);
+	}
+}
+
+
 bool samplv1_lv2::patch_put ( uint32_t ndelta )
 {
 	samplv1_sample *pSample = samplv1::sample();
@@ -566,19 +589,25 @@ bool samplv1_lv2::patch_put ( uint32_t ndelta )
 
 bool samplv1_lv2::worker_work ( const void *data, uint32_t /*size*/ )
 {
-	const char *pszSampleFile = (const char *) data;
-	if (pszSampleFile == NULL)
-		return false;
+	const samplv1_lv2_worker_message *mesg
+		= (const samplv1_lv2_worker_message *) data;
 
-	samplv1::setSampleFile(pszSampleFile);
+	if (mesg->atom.type == m_urids.gen1_update)
+		return true;
+	else
+	if (mesg->atom.type == m_urids.gen1_sample) {
+		samplv1::setSampleFile(mesg->sample_path);
+		samplv1_sched::sync_notify(this, samplv1_sched::Sample, 0);
+		return true;
+	}
 
-	samplv1_sched::sync_notify(this, samplv1_sched::Sample, 0);
-	return true;
+	return false;
 }
 
 
 bool samplv1_lv2::worker_response ( const void */*data*/, uint32_t /*size*/ )
 {
+	// update all propeties...
 	return patch_put(m_ndelta);
 }
 

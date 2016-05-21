@@ -67,6 +67,8 @@ public:
 	void sessionEvent(void *pvSessionArg);
 #endif
 
+	void updateSample();
+
 private:
 
 	jack_client_t *m_client;

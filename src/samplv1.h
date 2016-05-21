@@ -44,7 +44,7 @@ public:
 
 	samplv1(uint16_t nchannels = 2, float srate = 44100.0f);
 
-	~samplv1();
+	virtual ~samplv1();
 
 	void setChannels(uint16_t nchannels);
 	uint16_t channels() const;
@@ -165,6 +165,8 @@ public:
 
 	void process_midi(uint8_t *data, uint32_t size);
 	void process(float **ins, float **outs, uint32_t nframes);
+
+	virtual void updateSample() = 0;
 
 private:
 

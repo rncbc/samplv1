@@ -1851,6 +1851,8 @@ float samplv1::sampleRate (void) const
 void samplv1::setSampleFile ( const char *pszSampleFile )
 {
 	m_pImpl->setSampleFile(pszSampleFile);
+
+	updateSample();
 }
 
 
@@ -1891,6 +1893,8 @@ bool samplv1::isLoop (void) const
 void samplv1::setLoopRange ( uint32_t iLoopStart, uint32_t iLoopEnd )
 {
 	m_pImpl->gen1_sample.setLoopRange(iLoopStart, iLoopEnd);
+
+	updateSample();
 }
 
 uint32_t samplv1::loopStart (void) const

@@ -1,7 +1,7 @@
 // samplv1_lv2ui.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2015, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2016, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -33,9 +33,9 @@
 // samplv1_lv2ui - impl.
 //
 
-samplv1_lv2ui::samplv1_lv2ui ( samplv1_lv2 *pSynth,
+samplv1_lv2ui::samplv1_lv2ui ( samplv1_lv2 *pSampl,
 	LV2UI_Controller controller, LV2UI_Write_Function write_function )
-	: samplv1_ui(pSynth)
+	: samplv1_ui(pSampl)
 {
 	m_controller = controller;
 	m_write_function = write_function;
