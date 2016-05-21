@@ -29,6 +29,8 @@
 #include "lv2/lv2plug.in/ns/ext/atom/atom.h"
 #include "lv2/lv2plug.in/ns/ext/atom/forge.h"
 
+#include "lv2/lv2plug.in/ns/ext/worker/worker.h"
+
 #define SAMPLV1_LV2_URI "http://samplv1.sourceforge.net/lv2"
 #define SAMPLV1_LV2_PREFIX SAMPLV1_LV2_URI "#"
 
@@ -76,6 +78,11 @@ public:
 	void select_program(uint32_t bank, uint32_t program);
 #endif
 
+	bool patch_put(uint32_t ndelta);
+
+	bool worker_work(const void *data, uint32_t size);
+	bool worker_response(const void *data, uint32_t size);
+
 private:
 
 	LV2_URID_Map *m_urid_map;
@@ -107,6 +114,10 @@ private:
 
 	LV2_Atom_Forge m_forge;
 	LV2_Atom_Forge_Frame m_notify_frame;
+
+	LV2_Worker_Schedule *m_schedule;
+
+	uint32_t m_ndelta;
 
 	LV2_Atom_Sequence *m_atom_in;
 	LV2_Atom_Sequence *m_atom_out;

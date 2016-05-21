@@ -53,6 +53,9 @@ samplv1_lv2::samplv1_lv2 (
 	m_urid_map = NULL;
 	m_atom_in  = NULL;
 	m_atom_out = NULL;
+	m_schedule = NULL;
+
+	m_ndelta = 0;
 
 	const LV2_Options_Option *host_options = NULL;
 
@@ -107,6 +110,9 @@ samplv1_lv2::samplv1_lv2 (
  					m_urid_map->handle, LV2_PATCH__value);
 			}
 		}
+		else
+		if (::strcmp(host_feature->URI, LV2_WORKER__schedule) == 0)
+			m_schedule = (LV2_Worker_Schedule *) host_feature->data;
 		else
 		if (::strcmp(host_feature->URI, LV2_OPTIONS__options) == 0)
 			host_options = (const LV2_Options_Option *) host_feature->data;
@@ -237,7 +243,7 @@ void samplv1_lv2::run ( uint32_t nframes )
 				}
 				else 
 				if (object->body.otype == m_urids.patch_Set) {
-					// Get the property and value of the patch_set message
+					// set property value
 					const LV2_Atom *property = NULL;
 					const LV2_Atom *value = NULL;
 					lv2_atom_object_get(object,
@@ -248,64 +254,50 @@ void samplv1_lv2::run ( uint32_t nframes )
 						const LV2_URID type = value->type;
 						if (key == m_urids.gen1_sample
 							&& type == m_urids.atom_Path) {
-							samplv1_sample *sample = samplv1::sample();
-							if (sample) {
-								const char *sample_path
+							samplv1_sample *pSample = samplv1::sample();
+							if (pSample && m_schedule) {
+								const char *pszSampleFile
 									= (const char *) LV2_ATOM_BODY_CONST(value);
-								// TODO: schedule loading new sample...
-								// sample->setSampleFile(sample_path);
+								// schedule loading new sample
+								m_schedule->schedule_work(
+									m_schedule->handle,
+									::strlen(pszSampleFile) + 1,
+									pszSampleFile);
 							}
 						}
 						else
 						if (key == m_urids.gen1_loop_start
 							&& type == m_urids.atom_Int) {
-							samplv1_sample *sample = samplv1::sample();
-							if (sample) {
+							samplv1_sample *pSample = samplv1::sample();
+							if (pSample) {
 								const uint32_t loop_start
 									= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
-								const uint32_t loop_end = sample->loopEnd();
-								sample->setLoopRange(loop_start, loop_end);
+								const uint32_t loop_end = pSample->loopEnd();
+								pSample->setLoopRange(loop_start, loop_end);
 							}
 						}
 						else
 						if (key == m_urids.gen1_loop_end
 							&& type == m_urids.atom_Int) {
-							samplv1_sample *sample = samplv1::sample();
-							if (sample) {
-								const uint32_t loop_start = sample->loopStart();
+							samplv1_sample *pSample = samplv1::sample();
+							if (pSample) {
+								const uint32_t loop_start = pSample->loopStart();
 								const uint32_t loop_end
 									= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
-								sample->setLoopRange(loop_start, loop_end);
+								pSample->setLoopRange(loop_start, loop_end);
 							}
 						}
 					}
 				}
 				else
 				if (object->body.otype == m_urids.patch_Get) {
-					// Received a get message, emit our state (probably to UI)
-					samplv1_sample *sample = samplv1::sample();
-					const char *sample_path = NULL;
-					if (sample)
-						sample_path = sample->filename();
-					if (sample && sample_path) {
-						lv2_atom_forge_frame_time(&m_forge, ndelta);
-						LV2_Atom_Forge_Frame pframe;
-						lv2_atom_forge_object(&m_forge, &pframe, 0, m_urids.patch_Put);
-						lv2_atom_forge_key(&m_forge, m_urids.patch_body);
-						LV2_Atom_Forge_Frame bframe;
-						lv2_atom_forge_object(&m_forge, &bframe, 0, 0);
-						lv2_atom_forge_key(&m_forge, m_urids.gen1_sample);
-						lv2_atom_forge_path(&m_forge, sample_path, ::strlen(sample_path) + 1);
-						lv2_atom_forge_key(&m_forge, m_urids.gen1_loop_start);
-						lv2_atom_forge_int(&m_forge, sample->loopStart());
-						lv2_atom_forge_key(&m_forge, m_urids.gen1_loop_end);
-						lv2_atom_forge_int(&m_forge, sample->loopEnd());
-						lv2_atom_forge_pop(&m_forge, &bframe);
-						lv2_atom_forge_pop(&m_forge, &pframe);
-					}
+					// put property values (probably to UI)
+					patch_put(ndelta);
 				}
 			}
 		}
+		// remember last time for worker response
+		m_ndelta = ndelta;
 	//	m_atom_in = NULL;
 	}
 
@@ -540,6 +532,57 @@ void samplv1_lv2::select_program ( uint32_t bank, uint32_t program )
 #endif	// CONFIG_LV2_PROGRAMS
 
 
+bool samplv1_lv2::patch_put ( uint32_t ndelta )
+{
+	samplv1_sample *pSample = samplv1::sample();
+	if (pSample == NULL)
+		return false;
+
+	const char *pszSampleFile = pSample->filename();
+	if (pszSampleFile == NULL)
+		return false;
+
+	lv2_atom_forge_frame_time(&m_forge, ndelta);
+
+	LV2_Atom_Forge_Frame patch_frame;
+	lv2_atom_forge_object(&m_forge, &patch_frame, 0, m_urids.patch_Put);
+	lv2_atom_forge_key(&m_forge, m_urids.patch_body);
+
+	LV2_Atom_Forge_Frame body_frame;
+	lv2_atom_forge_object(&m_forge, &body_frame, 0, 0);
+	lv2_atom_forge_key(&m_forge, m_urids.gen1_sample);
+	lv2_atom_forge_path(&m_forge, pszSampleFile, ::strlen(pszSampleFile) + 1);
+	lv2_atom_forge_key(&m_forge, m_urids.gen1_loop_start);
+	lv2_atom_forge_int(&m_forge, pSample->loopStart());
+	lv2_atom_forge_key(&m_forge, m_urids.gen1_loop_end);
+	lv2_atom_forge_int(&m_forge, pSample->loopEnd());
+
+	lv2_atom_forge_pop(&m_forge, &body_frame);
+	lv2_atom_forge_pop(&m_forge, &patch_frame);
+
+	return true;
+}
+
+
+bool samplv1_lv2::worker_work ( const void *data, uint32_t /*size*/ )
+{
+	const char *pszSampleFile = (const char *) data;
+	if (pszSampleFile == NULL)
+		return false;
+
+	samplv1::setSampleFile(pszSampleFile);
+
+	samplv1_sched::sync_notify(this, samplv1_sched::Sample, 0);
+	return true;
+}
+
+
+bool samplv1_lv2::worker_response ( const void */*data*/, uint32_t /*size*/ )
+{
+	return patch_put(m_ndelta);
+}
+
+
 //-------------------------------------------------------------------------
 // samplv1_lv2 - LV2 desc.
 //
@@ -621,17 +664,54 @@ static const LV2_Programs_Interface samplv1_lv2_programs_interface =
 
 #endif	// CONFIG_LV2_PROGRAMS
 
+
+static LV2_Worker_Status samplv1_lv2_worker_work (
+	LV2_Handle instance, LV2_Worker_Respond_Function respond,
+	LV2_Worker_Respond_Handle handle, uint32_t size, const void *data )
+{
+	samplv1_lv2 *pSampl = static_cast<samplv1_lv2 *> (instance);
+	if (pSampl && pSampl->worker_work(data, size)) {
+		respond(handle, size, data);
+		return LV2_WORKER_SUCCESS;
+	}
+
+	return LV2_WORKER_ERR_UNKNOWN;
+}
+
+
+static LV2_Worker_Status samplv1_lv2_worker_response (
+	LV2_Handle instance, uint32_t size, const void *data )
+{
+	samplv1_lv2 *pSampl = static_cast<samplv1_lv2 *> (instance);
+	if (pSampl && pSampl->worker_response(data, size))
+		return LV2_WORKER_SUCCESS;
+	else
+		return LV2_WORKER_SUCCESS;
+}
+
+
+static const LV2_Worker_Interface samplv1_lv2_worker_interface =
+{
+	samplv1_lv2_worker_work,
+	samplv1_lv2_worker_response,
+	NULL
+};
+
+
 static const void *samplv1_lv2_extension_data ( const char *uri )
 {
 #ifdef CONFIG_LV2_PROGRAMS
 	if (::strcmp(uri, LV2_PROGRAMS__Interface) == 0)
-		return (void *) &samplv1_lv2_programs_interface;
+		return &samplv1_lv2_programs_interface;
 	else
 #endif
-	if (::strcmp(uri, LV2_STATE__interface))
-		return NULL;
+	if (::strcmp(uri, LV2_WORKER__interface) == 0)
+		return &samplv1_lv2_worker_interface;
+	else
+	if (::strcmp(uri, LV2_STATE__interface) == 0)
+		return &samplv1_lv2_state_interface;
 
-	return &samplv1_lv2_state_interface;
+	return NULL;
 }
 
 
