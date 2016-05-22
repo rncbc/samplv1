@@ -78,12 +78,14 @@ public:
 	void select_program(uint32_t bank, uint32_t program);
 #endif
 
+	bool worker_work(const void *data, uint32_t size);
+	bool worker_response(const void *data, uint32_t size);
+
+protected:
+
 	void updateSample();
 
 	bool patch_put(uint32_t ndelta);
-
-	bool worker_work(const void *data, uint32_t size);
-	bool worker_response(const void *data, uint32_t size);
 
 private:
 

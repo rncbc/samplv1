@@ -166,6 +166,8 @@ public:
 	void process_midi(uint8_t *data, uint32_t size);
 	void process(float **ins, float **outs, uint32_t nframes);
 
+protected:
+
 	virtual void updateSample() = 0;
 
 private:

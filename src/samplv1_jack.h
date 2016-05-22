@@ -67,6 +67,8 @@ public:
 	void sessionEvent(void *pvSessionArg);
 #endif
 
+protected:
+
 	void updateSample();
 
 private:
