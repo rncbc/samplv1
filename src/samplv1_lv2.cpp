@@ -596,7 +596,6 @@ bool samplv1_lv2::worker_work ( const void *data, uint32_t /*size*/ )
 	else
 	if (mesg->atom.type == m_urids.gen1_sample) {
 		samplv1::setSampleFile(mesg->sample_path);
-		samplv1_sched::sync_notify(this, samplv1_sched::Sample, 0);
 		return true;
 	}
 
@@ -606,7 +605,9 @@ bool samplv1_lv2::worker_work ( const void *data, uint32_t /*size*/ )
 
 bool samplv1_lv2::worker_response ( const void */*data*/, uint32_t /*size*/ )
 {
-	// update all propeties...
+	// update all properties, and eventually, any observers...
+	samplv1_sched::sync_notify(this, samplv1_sched::Sample, 0);
+
 	return patch_put(m_ndelta);
 }
 
