@@ -6,6 +6,9 @@ ChangeLog
 
 GIT HEAD
 
+- LV2 Patch property parameters and Worker/Schedule support
+  are now finally in place, allowing for sample file path
+  selections from generic user interfaces. (EXPERIMENTAL)
 - All changes to most continuous parameter values are now
   smoothed to a fast but finite slew rate. (EXPERIMENTAL)
 - All BPM sync options to current transport (Auto) have been
