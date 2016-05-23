@@ -1,7 +1,7 @@
 // samplv1_sample.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2015, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2016, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -69,9 +69,9 @@ private:
 
 // ctor.
 samplv1_sample::samplv1_sample ( samplv1 *pSampl, float srate )
-	: m_srate(srate), m_filename(0), m_nchannels(0),
+	: m_srate(srate), m_filename(NULL), m_nchannels(0),
 		m_rate0(0.0f), m_freq0(1.0f), m_ratio(0.0f),
-		m_nframes(0), m_pframes(0), m_reverse(false),
+		m_nframes(0), m_pframes(NULL), m_reverse(false),
 		m_loop(false), m_loop_start(0), m_loop_end(0)
 {
 	m_reverse_sched = new samplv1_reverse_sched(pSampl, this);
@@ -90,7 +90,7 @@ samplv1_sample::~samplv1_sample (void)
 // init.
 bool samplv1_sample::open ( const char *filename, float freq0 )
 {
-	if (!filename)
+	if (filename == NULL)
 		return false;
 
 	close();
@@ -101,7 +101,7 @@ bool samplv1_sample::open ( const char *filename, float freq0 )
 	::memset(&info, 0, sizeof(info));
 
 	SNDFILE *file = ::sf_open(m_filename, SFM_READ, &info);
-	if (!file)
+	if (file == NULL)
 		return false;
 
 	m_nchannels = info.channels;
@@ -147,7 +147,7 @@ void samplv1_sample::close (void)
 		for (uint16_t k = 0; k < m_nchannels; ++k)
 			delete [] m_pframes[k];
 		delete [] m_pframes;
-		m_pframes = 0;
+		m_pframes = NULL;
 	}
 
 	m_nframes   = 0;
@@ -158,7 +158,7 @@ void samplv1_sample::close (void)
 
 	if (m_filename) {
 		::free(m_filename);
-		m_filename = 0;
+		m_filename = NULL;
 	}
 
 	setLoopRange(0, 0);

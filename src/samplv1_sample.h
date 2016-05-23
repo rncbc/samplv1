@@ -1,7 +1,7 @@
 // samplv1_sample.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2015, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2016, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -190,7 +190,7 @@ class samplv1_generator
 public:
 
 	// ctor.
-	samplv1_generator(samplv1_sample *sample = 0) { reset(sample); }
+	samplv1_generator(samplv1_sample *sample = NULL) { reset(sample); }
 
 	// sample accessor.
 	samplv1_sample *sample() const
@@ -326,7 +326,7 @@ protected:
 	}
 
 	// zero-crossing aliasing (median).
-	uint32_t zero_crossing ( uint32_t i, int *slope = 0 ) const
+	uint32_t zero_crossing ( uint32_t i, int *slope = NULL ) const
 	{
 		const uint16_t nchannels = m_sample->channels();
 

@@ -263,8 +263,7 @@ void samplv1_lv2::run ( uint32_t nframes )
 						const LV2_URID type = value->type;
 						if (key == m_urids.gen1_sample
 							&& type == m_urids.atom_Path) {
-							samplv1_sample *pSample = samplv1::sample();
-							if (pSample && m_schedule) {
+							if (m_schedule) {
 								samplv1_lv2_worker_message mesg;
 								mesg.atom.type = key;
 								mesg.atom.size = sizeof(mesg.sample_path);
@@ -283,7 +282,7 @@ void samplv1_lv2::run ( uint32_t nframes )
 								const uint32_t loop_start
 									= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
 								const uint32_t loop_end = pSample->loopEnd();
-								pSample->setLoopRange(loop_start, loop_end);
+								setLoopRange(loop_start, loop_end);
 							}
 						}
 						else
@@ -294,7 +293,7 @@ void samplv1_lv2::run ( uint32_t nframes )
 								const uint32_t loop_start = pSample->loopStart();
 								const uint32_t loop_end
 									= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
-								pSample->setLoopRange(loop_start, loop_end);
+								setLoopRange(loop_start, loop_end);
 							}
 						}
 					}
