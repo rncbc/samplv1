@@ -165,7 +165,6 @@ public:
 			m_changed = 0;
 		}
 		else ++m_changed;
-
 	}
 
 	float value() const
