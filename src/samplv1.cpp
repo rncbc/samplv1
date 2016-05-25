@@ -149,55 +149,53 @@ public:
 
 	samplv1_port() : m_port(NULL), m_value(0.0f), m_changed(0) {}
 
+	virtual ~samplv1_port() {}
+
 	void set_port(float *port)
 		{ m_port = port; }
 	float *port() const
 		{ return m_port; }
 
-	virtual void set_value(float value, bool cache)
+	virtual void set_value(float value, bool cached)
 	{
 		m_value = value;
 
-		if (cache)
-			++m_changed;
-		else
-			update_port();
+		if (!cached && m_port) {
+			*m_port = m_value;
+			m_changed = 0;
+		}
+		else ++m_changed;
+
 	}
 
 	float value() const
 		{ return m_value; }
 
-	virtual float tick(uint32_t /*nstep*/)
-		{ probe_port(); return value(); }
+	virtual float tick(uint32_t /*nstep*/ = 1)
+	{
+		if (m_port) {
+			if (m_changed > 0) {
+				*m_port = m_value;
+				m_changed = 0;
+			}
+			else
+			if (::fabsf(*m_port - m_value) > 0.001f) {
+				set_value(*m_port, true);
+				m_changed = 0;
+			}
+		}
+
+		return m_value;
+	}
 
 	float operator *()
 		{ return tick(1); }
-
-protected:
-
-	void update_port()
-	{
-		if (m_port) {
-			*m_port = m_value;
-			m_changed = 0;
-		}
-	}
-
-	void probe_port()
-	{
-		if (m_changed > 0)
-			update_port();
-		else
-		if (m_port && ::fabsf(*m_port - m_value) > 0.001f)
-			set_value(*m_port, true);
-	}
 
 private:
 
 	float   *m_port;
 	float    m_value;
 	uint32_t m_changed;
-
 };
 
 
@@ -209,11 +207,11 @@ public:
 
 	samplv1_port2() : m_vtick(0.0f), m_vstep(0.0f), m_nstep(0) {}
 
-	void set_value(float value, bool cache)
+	void set_value(float value, bool cached)
 	{
 		m_vtick = samplv1_port::value();
 
-		if (cache) {
+		if (cached) {
 			m_nstep = NSTEP;
 			m_vstep = (value - m_vtick) / float(m_nstep);
 		} else {
@@ -221,10 +219,10 @@ public:
 			m_vstep = 0.0f;
 		}
 
-		samplv1_port::set_value(value, cache);
+		samplv1_port::set_value(value, cached);
 	}
 
-	float tick(uint32_t nstep)
+	float tick(uint32_t nstep = NSTEP)
 	{
 		if (m_nstep == 0)
 			return samplv1_port::tick(nstep);
