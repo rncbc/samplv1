@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT(samplv1, 0.7.4.11, rncbc@rncbc.org)
+AC_INIT(samplv1, 0.7.4.12, rncbc@rncbc.org)
 
 AC_CONFIG_SRCDIR(src/samplv1.cpp)
 AC_CONFIG_HEADERS(src/config.h)
