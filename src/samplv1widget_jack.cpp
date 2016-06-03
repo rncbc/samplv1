@@ -146,7 +146,7 @@ void samplv1widget_jack::closeEvent ( QCloseEvent *pCloseEvent )
 	// Let's be sure about that...
 	if (queryClose()) {
 		pCloseEvent->accept();
-	//	QApplication::quit();
+		QApplication::quit();
 	} else {
 		pCloseEvent->ignore();
 	}

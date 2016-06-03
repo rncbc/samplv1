@@ -702,11 +702,11 @@ bool samplv1_jack_application::setup (void)
 
 	if (m_bGui) {
 		m_pWidget = new samplv1widget_jack(m_pSampl);
+		m_pWidget->show();
 		if (m_presets.isEmpty())
 			m_pWidget->initPreset();
 		else
 			m_pWidget->loadPreset(m_presets.first());
-		m_pWidget->show();
 	}
 	else
 	if (!m_presets.isEmpty())
