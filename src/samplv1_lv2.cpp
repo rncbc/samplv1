@@ -312,6 +312,10 @@ void samplv1_lv2::run ( uint32_t nframes )
 
 	if (nframes > ndelta)
 		samplv1::process(ins, outs, nframes - ndelta);
+
+	// test for current sample loop change
+	if (samplv1::sampleLoopTest())
+		updateSample();
 }
 
 

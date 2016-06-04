@@ -745,13 +745,15 @@ public:
 	void setParamValue(samplv1::ParamIndex index, float fValue, bool bCache);
 	float paramValue(samplv1::ParamIndex index);
 
+	void reset();
+
 	samplv1_controls *controls();
 	samplv1_programs *programs();
 
 	void process_midi(uint8_t *data, uint32_t size);
 	void process(float **ins, float **outs, uint32_t nframes);
 
-	void reset();
+	bool sampleLoopTest();
 
 	samplv1_sample  gen1_sample;
 	samplv1_wave_lf lfo1_wave;
@@ -1603,8 +1605,6 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 	}
 
 	gen1_sample.reverse_test(*m_gen1.reverse > 0.5f);
-	gen1_sample.loop_test(*m_gen1.loop > 0.5f);
-
 	lfo1_wave.reset_test(
 		samplv1_wave::Shape(*m_lfo1.shape), *m_lfo1.width);
 
@@ -1804,6 +1804,11 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 }
 
 
+bool samplv1_impl::sampleLoopTest (void)
+{
+	return gen1_sample.loop_test(*m_gen1.loop > 0.5f);
+}
+
 
 //-------------------------------------------------------------------------
 // samplv1 - decl.
@@ -1991,6 +1996,12 @@ samplv1_programs *samplv1::programs (void) const
 void samplv1::reset (void)
 {
 	m_pImpl->reset();
+}
+
+
+bool samplv1::sampleLoopTest (void) const
+{
+	return m_pImpl->sampleLoopTest();
 }
 
 

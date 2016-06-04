@@ -69,9 +69,8 @@ public:
 	void reverse_test(bool reverse)
 	{
 		if (( m_reverse && !reverse) ||
-			(!m_reverse &&  reverse)) {
+			(!m_reverse &&  reverse))
 			reverse_sched(reverse);
-		}
 	}
 
 	void reverse_sched(bool reverse);
@@ -91,11 +90,13 @@ public:
 		{ return m_loop && (m_loop_start < m_loop_end); }
 
 	// loop change.
-	void loop_test(bool loop)
+	bool loop_test(bool loop)
 	{
-		if (( m_loop && !loop) ||
-			(!m_loop &&  loop)) {
+		if ((m_loop && !loop) || (!m_loop && loop)) {
 			setLoop(loop);
+			return true;
+		} else {
+			return false;
 		}
 	}
 
