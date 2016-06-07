@@ -155,7 +155,7 @@ public:
 	void setParamPort(ParamIndex index, float *pfParam);
 	samplv1_port *paramPort(ParamIndex index) const;
 
-	void setParamValue(ParamIndex index, float fValue, bool bCache = false);
+	void setParamValue(ParamIndex index, float fValue);
 	float paramValue(ParamIndex index) const;
 
 	void reset();
