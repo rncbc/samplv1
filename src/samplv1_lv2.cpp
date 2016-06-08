@@ -158,6 +158,9 @@ samplv1_lv2::samplv1_lv2 (
 	m_outs = new float * [nchannels];
 	for (uint16_t k = 0; k < nchannels; ++k)
 		m_ins[k] = m_outs[k] = NULL;
+
+	samplv1::programs()->optional(true);
+	samplv1::controls()->optional(true);
 }
 
 
