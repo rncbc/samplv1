@@ -151,8 +151,8 @@ public:
 
 	virtual ~samplv1_port() {}
 
-	void set_port(float *port)
-		{ m_port = port; }
+	void set_port(float *port, bool update = false)
+		{ m_port = port; if (update) update_port(); }
 	float *port() const
 		{ return m_port; }
 
@@ -400,13 +400,13 @@ struct samplv1_aux
 
 struct samplv1_gen
 {
-	samplv1_port  sample;
-	samplv1_port  reverse;
-	samplv1_port  loop;
-	samplv1_port2 octave;
-	samplv1_port2 tuning;
-	samplv1_port2 glide;
-	samplv1_port  envtime;
+	samplv1_port sample;
+	samplv1_port reverse;
+	samplv1_port loop;
+	samplv1_port octave;
+	samplv1_port tuning;
+	samplv1_port glide;
+	samplv1_port envtime;
 
 	float sample0, envtime0;
 };
@@ -431,7 +431,7 @@ struct samplv1_dcf
 struct samplv1_lfo
 {
 	samplv1_port  shape;
-	samplv1_port2 width;
+	samplv1_port  width;
 	samplv1_port2 bpm;
 	samplv1_port2 rate;
 	samplv1_port  sync;
