@@ -151,13 +151,13 @@ public:
 
 	virtual ~samplv1_port() {}
 
-	void set_port(float *port, bool update = false)
-		{ m_port = port; if (update) update_port(); }
+	void set_port(float *port)
+		{ m_port = port; }
 	float *port() const
 		{ return m_port; }
 
 	virtual void set_value(float value)
-		{ m_value = value; update_port(); }
+		{ m_value = value; if (m_port) m_vport = *m_port; }
 
 	float value() const
 		{ return m_value; }
@@ -172,11 +172,6 @@ public:
 
 	float operator *()
 		{ return tick(1); }
-
-protected:
-
-	void update_port()
-		{ if (m_port) m_vport = *m_port; }
 
 private:
 
