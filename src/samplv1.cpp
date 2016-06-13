@@ -161,6 +161,8 @@ public:
 
 	float value() const
 		{ return m_value; }
+	float *value_ptr()
+		{ return &m_value; }
 
 	virtual float tick(uint32_t /*nstep*/ = 1)
 	{
@@ -1093,18 +1095,18 @@ void samplv1_impl::setParamPort ( samplv1::ParamIndex index, float *pfParam )
 	case samplv1::OUT1_VOLUME:
 	case samplv1::DCA1_VOLUME:
 		m_vol1.reset(
-			m_out1.volume.port(),
-			m_dca1.volume.port(),
+			m_out1.volume.value_ptr(),
+			m_dca1.volume.value_ptr(),
 			&m_ctl1.volume,
 			&m_aux1.volume);
 		break;
 	case samplv1::OUT1_WIDTH:
 		m_wid1.reset(
-			m_out1.width.port());
+			m_out1.width.value_ptr());
 		break;
 	case samplv1::OUT1_PANNING:
 		m_pan1.reset(
-			m_out1.panning.port(),
+			m_out1.panning.value_ptr(),
 			&m_ctl1.panning,
 			&m_aux1.panning);
 		break;
@@ -1295,7 +1297,7 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 				// pressure/after-touch
 				pv->pre = 0.0f;
 				pv->dca1_pre.reset(
-					m_def.pressure.port(),
+					m_def.pressure.value_ptr(),
 					&m_ctl1.pressure, &pv->pre);
 				// generate
 				pv->gen1.start();
@@ -1487,16 +1489,16 @@ void samplv1_impl::allSustainOff (void)
 void samplv1_impl::reset (void)
 {
 	m_vol1.reset(
-		m_out1.volume.port(),
-		m_dca1.volume.port(),
+		m_out1.volume.value_ptr(),
+		m_dca1.volume.value_ptr(),
 		&m_ctl1.volume,
 		&m_aux1.volume);
 	m_pan1.reset(
-		m_out1.panning.port(),
+		m_out1.panning.value_ptr(),
 		&m_ctl1.panning,
 		&m_aux1.panning);
 	m_wid1.reset(
-		m_out1.width.port());
+		m_out1.width.value_ptr());
 
 	// flangers
 	if (m_flanger == NULL)
