@@ -162,7 +162,7 @@ public:
 	float value() const
 		{ return m_value; }
 	float *value_ptr()
-		{ return &m_value; }
+		{ tick(); return &m_value; }
 
 	virtual float tick(uint32_t /*nstep*/ = 1)
 	{
@@ -1774,6 +1774,11 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 
 	// post-processing
 	m_phasor.process(nframes);
+
+	m_dca1.volume.tick(nframes);
+	m_out1.width.tick(nframes);
+	m_out1.panning.tick(nframes);
+	m_out1.volume.tick(nframes);
 
 	m_wid1.process(nframes);
 	m_pan1.process(nframes);
