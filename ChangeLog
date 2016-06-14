@@ -4,7 +4,7 @@ samplv1 - an old-school polyphonic sampler
 ChangeLog
 
 
-GIT HEAD
+0.7.5  2016-06-16  The Tenth official beta.
 
 - LV2 Patch property parameters and Worker/Schedule support
   are now finally in place, allowing for sample file path
