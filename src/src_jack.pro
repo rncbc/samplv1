@@ -9,9 +9,8 @@ include(src_jack.pri)
 
 HEADERS = \
 	config.h \
-	samplv1.h \
-	samplv1_jack.h \
 	samplv1_nsm.h \
+	samplv1_jack.h \
 	samplv1widget.h \
 	samplv1widget_env.h \
 	samplv1widget_filt.h \
@@ -27,8 +26,8 @@ HEADERS = \
 	samplv1widget_jack.h
 
 SOURCES = \
-	samplv1_jack.cpp \
 	samplv1_nsm.cpp \
+	samplv1_jack.cpp \
 	samplv1widget.cpp \
 	samplv1widget_env.cpp \
 	samplv1widget_filt.cpp \

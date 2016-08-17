@@ -10,7 +10,6 @@ include(src_lv2.pri)
 
 HEADERS = \
 	config.h \
-	samplv1_lv2.h \
 	samplv1_lv2ui.h \
 	samplv1widget.h \
 	samplv1widget_env.h \
