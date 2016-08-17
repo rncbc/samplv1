@@ -10,22 +10,8 @@ include(src_jack.pri)
 HEADERS = \
 	config.h \
 	samplv1.h \
-	samplv1_ui.h \
 	samplv1_jack.h \
-	samplv1_config.h \
-	samplv1_filter.h \
-	samplv1_formant.h \
-	samplv1_sample.h \
-	samplv1_wave.h \
-	samplv1_ramp.h \
-	samplv1_list.h \
-	samplv1_fx.h \
 	samplv1_nsm.h \
-	samplv1_reverb.h \
-	samplv1_param.h \
-	samplv1_sched.h \
-	samplv1_programs.h \
-	samplv1_controls.h \
 	samplv1widget.h \
 	samplv1widget_env.h \
 	samplv1widget_filt.h \
@@ -41,18 +27,8 @@ HEADERS = \
 	samplv1widget_jack.h
 
 SOURCES = \
-	samplv1.cpp \
-	samplv1_ui.cpp \
-	samplv1_config.cpp \
-	samplv1_formant.cpp \
 	samplv1_jack.cpp \
-	samplv1_sample.cpp \
-	samplv1_wave.cpp \
 	samplv1_nsm.cpp \
-	samplv1_param.cpp \
-	samplv1_sched.cpp \
-	samplv1_programs.cpp \
-	samplv1_controls.cpp \
 	samplv1widget.cpp \
 	samplv1widget_env.cpp \
 	samplv1widget_filt.cpp \
@@ -116,10 +92,11 @@ unix {
 
 	mimetypes_scalable.path = $${DATADIR}/icons/hicolor/scalable/mimetypes
 	mimetypes_scalable.files += mimetypes/application-x-$${NAME}-preset.svg
+
+	LIBS += -L. -l$${NAME}
 }
 
 QT += xml
-
 
 # QT5 support
 !lessThan(QT_MAJOR_VERSION, 5) {

@@ -2,7 +2,7 @@
 #
 NAME = samplv1
 
-TARGET = $${NAME}
+TARGET = $${NAME}_lv2
 TEMPLATE = lib
 CONFIG += shared plugin
 
@@ -11,34 +11,10 @@ include(src_lv2.pri)
 HEADERS = \
 	config.h \
 	samplv1.h \
-	samplv1_ui.h \
-	samplv1_lv2.h \
-	samplv1_config.h \
-	samplv1_filter.h \
-	samplv1_formant.h \
-	samplv1_sample.h \
-	samplv1_wave.h \
-	samplv1_ramp.h \
-	samplv1_list.h \
-	samplv1_fx.h \
-	samplv1_reverb.h \
-	samplv1_param.h \
-	samplv1_sched.h \
-	samplv1_programs.h \
-	samplv1_controls.h
+	samplv1_lv2.h
 
 SOURCES = \
-	samplv1.cpp \
-	samplv1_ui.cpp \
-	samplv1_lv2.cpp \
-	samplv1_config.cpp \
-	samplv1_formant.cpp \
-	samplv1_sample.cpp \
-	samplv1_wave.cpp \
-	samplv1_param.cpp \
-	samplv1_sched.cpp \
-	samplv1_programs.cpp \
-	samplv1_controls.cpp
+	samplv1_lv2.cpp
 
 
 unix {
@@ -61,13 +37,13 @@ unix {
 		}
 	}
 
-	TARGET_LV2 = $${NAME}.lv2/$${TARGET}
+	TARGET_LV2 = $${NAME}.lv2/$${NAME}
 
 	!exists($${TARGET_LV2}.so) {
 		system(touch $${TARGET_LV2}.so)
 	}
 
-	TARGET_LIB = $${NAME}.lv2/lib$${TARGET}.a
+	TARGET_LIB = $${NAME}.lv2/lib$${NAME}.a
 
 	!exists($${TARGET_LIB}) {
 		system(touch $${TARGET_LIB})
@@ -85,6 +61,8 @@ unix {
 		$${NAME}.lv2/manifest.ttl
 
 	QMAKE_CLEAN += $${TARGET_LV2}.so $${TARGET_LIB}
+
+	LIBS += -L. -l$${NAME}
 }
 
 QT -= gui
