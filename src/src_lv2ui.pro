@@ -10,6 +10,11 @@ include(src_lv2.pri)
 
 HEADERS = \
 	config.h \
+	samplv1_ui.h \
+	samplv1_config.h \
+	samplv1_param.h \
+	samplv1_programs.h \
+	samplv1_controls.h \
 	samplv1_lv2ui.h \
 	samplv1widget.h \
 	samplv1widget_env.h \
@@ -45,7 +50,6 @@ FORMS = \
 	samplv1widget.ui \
 	samplv1widget_control.ui \
 	samplv1widget_config.ui
-
 
 RESOURCES += samplv1.qrc
 
