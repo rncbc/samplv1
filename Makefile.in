@@ -1,6 +1,7 @@
 prefix    = @ac_prefix@
 
 name      = samplv1
+
 name_lv2  = $(name)_lv2
 name_jack = $(name)_jack
 
