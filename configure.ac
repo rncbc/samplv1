@@ -327,6 +327,14 @@ AC_CHECK_LIB(m, main)
 AC_CHECK_LIB(X11, main)
 AC_CHECK_LIB(Xext, main)
 
+# Check for core sndfile library.
+AC_CHECK_LIB(sndfile, main, [ac_sndfile="yes"], [ac_sndfile="no"])
+if test "x$ac_sndfile" = "xno"; then
+   AC_MSG_ERROR([*** sndfile library not found.])
+else
+   ac_libs="$ac_libs -lsndfile"
+fi
+
 ac_jack_libs="$ac_libs"
 ac_lv2_libs="$ac_libs"
 
@@ -363,15 +371,6 @@ if test "x$ac_jack" = "xyes"; then
    fi
 fi
 
-# Check for sndfile library.
-AC_CHECK_LIB(sndfile, main, [ac_sndfile="yes"], [ac_sndfile="no"])
-if test "x$ac_sndfile" = "xno"; then
-   AC_MSG_ERROR([*** sndfile library not found.])
-else
-   ac_jack_libs="$ac_jack_libs -lsndfile"
-   ac_lv2_libs="$ac_lv2_libs -lsndfile"
-fi
-
 # Check for optional liblo library.
 if test "x$ac_liblo" = "xyes"; then
    AC_CHECK_LIB(lo, main, [ac_liblo="yes"], [ac_liblo="no"])
@@ -387,6 +386,7 @@ else
    ac_nsm="no"
 fi
 
+AC_SUBST(ac_libs)
 AC_SUBST(ac_jack_libs)
 AC_SUBST(ac_lv2_libs)
 
@@ -548,6 +548,7 @@ AC_SUBST(ac_install_targets)
 AC_SUBST(ac_uninstall_targets)
 AC_SUBST(ac_clean_targets)
 
+AC_SUBST(ac_incpath)
 AC_SUBST(ac_jack_incpath)
 AC_SUBST(ac_lv2_incpath)
 
