@@ -1019,11 +1019,10 @@ void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
 {
 	if (pSample) {
 		const bool bLoop = pSample->isLoop();
-		m_ui.Gen1Sample->setLoop(bLoop);
-		m_ui.Gen1LoopRangeFrame->setEnabled(bLoop);
 		const uint32_t iLoopStart = pSample->loopStart();
 		const uint32_t iLoopEnd = pSample->loopEnd();
 		const uint32_t nframes = pSample->length();
+		m_ui.Gen1LoopRangeFrame->setEnabled(bLoop);
 		m_ui.Gen1LoopStartSpinBox->setMinimum(0);
 		m_ui.Gen1LoopStartSpinBox->setMaximum(
 		    iLoopEnd > 0 ? iLoopEnd : 0);
@@ -1032,13 +1031,15 @@ void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1LoopEndSpinBox->setMaximum(nframes);
 		m_ui.Gen1LoopStartSpinBox->setValue(iLoopStart);
 		m_ui.Gen1LoopEndSpinBox->setValue(iLoopEnd);
+		m_ui.Gen1Sample->setLoopStart(iLoopStart);
+		m_ui.Gen1Sample->setLoopEnd(iLoopEnd);
+		m_ui.Gen1Sample->setLoop(bLoop);
 		if (bDirty) {
 			m_ui.StatusBar->showMessage(tr("Loop start: %1, end: %2")
 				.arg(iLoopStart).arg(iLoopEnd), 5000);
 			updateDirtyPreset(true);
 		}
 	} else {
-		m_ui.Gen1Sample->setLoop(false);
 		m_ui.Gen1LoopRangeFrame->setEnabled(false);
 		m_ui.Gen1LoopStartSpinBox->setMinimum(0);
 		m_ui.Gen1LoopStartSpinBox->setMaximum(0);
@@ -1046,6 +1047,9 @@ void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1LoopEndSpinBox->setMinimum(0);
 		m_ui.Gen1LoopEndSpinBox->setMaximum(0);
 		m_ui.Gen1LoopEndSpinBox->setValue(0);
+		m_ui.Gen1Sample->setLoopStart(0);
+		m_ui.Gen1Sample->setLoopEnd(0);
+		m_ui.Gen1Sample->setLoop(false);
 	}
 }
 
