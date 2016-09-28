@@ -762,9 +762,11 @@ static const void *samplv1_lv2_extension_data ( const char *uri )
 		return &samplv1_lv2_programs_interface;
 	else
 #endif
+#ifdef CONFIG_LV2_PATCH
 	if (::strcmp(uri, LV2_WORKER__interface) == 0)
 		return &samplv1_lv2_worker_interface;
 	else
+#endif
 	if (::strcmp(uri, LV2_STATE__interface) == 0)
 		return &samplv1_lv2_state_interface;
 
