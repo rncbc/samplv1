@@ -718,6 +718,8 @@ static const LV2_Programs_Interface samplv1_lv2_programs_interface =
 #endif	// CONFIG_LV2_PROGRAMS
 
 
+#ifdef CONFIG_LV2_PATCH
+
 static LV2_Worker_Status samplv1_lv2_worker_work (
 	LV2_Handle instance, LV2_Worker_Respond_Function respond,
 	LV2_Worker_Respond_Handle handle, uint32_t size, const void *data )
@@ -749,6 +751,8 @@ static const LV2_Worker_Interface samplv1_lv2_worker_interface =
 	samplv1_lv2_worker_response,
 	NULL
 };
+
+#endif	// CONFIG_LV2_PATCH
 
 
 static const void *samplv1_lv2_extension_data ( const char *uri )
