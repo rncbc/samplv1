@@ -559,10 +559,9 @@ void samplv1_lv2::select_program ( uint32_t bank, uint32_t program )
 #endif	// CONFIG_LV2_PROGRAMS
 
 
-#ifdef CONFIG_LV2_PATCH
-
 void samplv1_lv2::updateSample (void)
 {
+#ifdef CONFIG_LV2_PATCH
 	if (m_schedule) {
 		samplv1_lv2_worker_message mesg;
 		mesg.atom.type = m_urids.gen1_update;
@@ -571,8 +570,11 @@ void samplv1_lv2::updateSample (void)
 		m_schedule->schedule_work(
 			m_schedule->handle, sizeof(mesg), &mesg);
 	}
+#endif
 }
 
+
+#ifdef CONFIG_LV2_PATCH
 
 bool samplv1_lv2::patch_put ( uint32_t ndelta )
 {

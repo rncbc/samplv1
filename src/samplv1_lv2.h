@@ -85,8 +85,9 @@ public:
 	
 protected:
 
-#ifdef CONFIG_LV2_PATCH
 	void updateSample();
+
+#ifdef CONFIG_LV2_PATCH
 	bool patch_put(uint32_t ndelta);
 #endif
 
