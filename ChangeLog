@@ -6,6 +6,7 @@ ChangeLog
 
 GIT HEAD
 
+- Fixed input MIDI RPN/NRPN running status processing.
 - Once forgotten, loop on/off setting is now consequential.
 - Almost complete overhaul on the configure script command
   line options, wrt. installation directories specification,
