@@ -677,8 +677,12 @@ bool samplv1_jack_application::parse_args (void)
 		}
 		else
 		if (sArg == "-v" || sArg == "-V" || sArg == "--version") {
-			out << QObject::tr("Qt: %1\n").arg(qVersion());
-			out << QObject::tr(SAMPLV1_TITLE ": %1\n").arg(SAMPLV1_VERSION);
+			out << QObject::tr("Qt: %1\n")
+				.arg(qVersion());
+			out << QObject::tr("%1: %2  (%3)\n")
+				.arg(SAMPLV1_TITLE)
+				.arg(SAMPLV1_VERSION)
+				.arg(CONFIG_BUILD_DATE);
 			return false;
 		}
 	}

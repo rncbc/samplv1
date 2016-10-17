@@ -1206,7 +1206,7 @@ void samplv1widget::helpAbout (void)
 	sText += "<b>" SAMPLV1_TITLE "</b> - " + tr(SAMPLV1_SUBTITLE) + "<br />\n";
 	sText += "<br />\n";
 	sText += tr("Version") + ": <b>" SAMPLV1_VERSION "</b><br />\n";
-	sText += "<small>" + tr("Build") + ": " __DATE__ " " __TIME__ "</small><br />\n";
+	sText += "<small>" + tr("Build") + ": " CONFIG_BUILD_DATE "</small><br />\n";
 	QStringListIterator iter(list);
 	while (iter.hasNext()) {
 		sText += "<small><font color=\"red\">";

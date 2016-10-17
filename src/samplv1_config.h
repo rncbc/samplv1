@@ -24,14 +24,14 @@
 
 #include "config.h"
 
-#define SAMPLV1_TITLE	PACKAGE_NAME
-#define SAMPLV1_VERSION	PACKAGE_VERSION
+#define SAMPLV1_TITLE       PACKAGE_NAME
+#define SAMPLV1_VERSION     PACKAGE_VERSION
 
-#define SAMPLV1_SUBTITLE     "an old-school polyphonic sampler."
-#define SAMPLV1_WEBSITE      "http://samplv1.sourceforge.net"
-#define SAMPLV1_COPYRIGHT    "Copyright (C) 2012-2016, rncbc aka Rui Nuno Capela. All rights reserved."
+#define SAMPLV1_SUBTITLE    "an old-school polyphonic sampler."
+#define SAMPLV1_WEBSITE     "http://samplv1.sourceforge.net"
+#define SAMPLV1_COPYRIGHT   "Copyright (C) 2012-2016, rncbc aka Rui Nuno Capela. All rights reserved."
 
-#define SAMPLV1_DOMAIN	"rncbc.org"
+#define SAMPLV1_DOMAIN      "rncbc.org"
 
 
 //-------------------------------------------------------------------------
