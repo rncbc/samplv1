@@ -78,10 +78,8 @@ public:
 	void select_program(uint32_t bank, uint32_t program);
 #endif
 
-#ifdef CONFIG_LV2_PATCH
 	bool worker_work(const void *data, uint32_t size);
 	bool worker_response(const void *data, uint32_t size);
-#endif
 
 	void state_changed();
 
@@ -99,12 +97,10 @@ private:
 
 	struct lv2_urids
 	{
-	#ifdef CONFIG_LV2_PATCH
 		LV2_URID gen1_sample;
 		LV2_URID gen1_loop_start;
 		LV2_URID gen1_loop_end;
 		LV2_URID gen1_update;
-	#endif
 		LV2_URID atom_Blank;
 		LV2_URID atom_Object;
 		LV2_URID atom_Float;
@@ -116,6 +112,7 @@ private:
 		LV2_URID bufsz_minBlockLength;
 		LV2_URID bufsz_maxBlockLength;
 		LV2_URID bufsz_nominalBlockLength;
+		LV2_URID state_StateChanged;
 	#ifdef CONFIG_LV2_PATCH
 		LV2_URID patch_Get;
 		LV2_URID patch_Set;
@@ -124,17 +121,14 @@ private:
 		LV2_URID patch_property;
 		LV2_URID patch_value;
 	#endif
-		LV2_URID state_StateChanged;
-
 	} m_urids;
 
 	LV2_Atom_Forge m_forge;
 	LV2_Atom_Forge_Frame m_notify_frame;
 
-#ifdef CONFIG_LV2_PATCH
 	LV2_Worker_Schedule *m_schedule;
+
 	uint32_t m_ndelta;
-#endif
 
 	LV2_Atom_Sequence *m_atom_in;
 	LV2_Atom_Sequence *m_atom_out;

@@ -74,13 +74,13 @@ samplv1_lv2::samplv1_lv2 (
 	double sample_rate, const LV2_Feature *const *host_features )
 	: samplv1(2, float(sample_rate))
 {
+	::memset(&m_urids, 0, sizeof(m_urids));
+
 	m_urid_map = NULL;
 	m_atom_in  = NULL;
 	m_atom_out = NULL;
-#ifdef CONFIG_LV2_PATCH
 	m_schedule = NULL;
-	m_ndelta = 0;
-#endif
+	m_ndelta   = 0;
 
 	const LV2_Options_Option *host_options = NULL;
 
@@ -89,7 +89,6 @@ samplv1_lv2::samplv1_lv2 (
 		if (::strcmp(host_feature->URI, LV2_URID_MAP_URI) == 0) {
 			m_urid_map = (LV2_URID_Map *) host_feature->data;
 			if (m_urid_map) {
-			#ifdef CONFIG_LV2_PATCH
  				m_urids.gen1_sample = m_urid_map->map(
  					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_SAMPLE");
  				m_urids.gen1_loop_start = m_urid_map->map(
@@ -98,7 +97,6 @@ samplv1_lv2::samplv1_lv2 (
  					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_LOOP_END");
 				m_urids.gen1_update = m_urid_map->map(
 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_UPDATE");
-			#endif
 				m_urids.atom_Blank = m_urid_map->map(
 					m_urid_map->handle, LV2_ATOM__Blank);
 				m_urids.atom_Object = m_urid_map->map(
@@ -125,6 +123,8 @@ samplv1_lv2::samplv1_lv2 (
 				m_urids.bufsz_nominalBlockLength = m_urid_map->map(
 					m_urid_map->handle, LV2_BUF_SIZE__nominalBlockLength);
 			#endif
+				m_urids.state_StateChanged = m_urid_map->map(
+					m_urid_map->handle, LV2_STATE__StateChanged);
 			#ifdef CONFIG_LV2_PATCH
 				m_urids.patch_Get = m_urid_map->map(
  					m_urid_map->handle, LV2_PATCH__Get);
@@ -139,15 +139,11 @@ samplv1_lv2::samplv1_lv2 (
 				m_urids.patch_value = m_urid_map->map(
  					m_urid_map->handle, LV2_PATCH__value);
 			#endif
-				m_urids.state_StateChanged = m_urid_map->map(
-					m_urid_map->handle, LV2_STATE__StateChanged);
 			}
 		}
-	#ifdef CONFIG_LV2_PATCH
 		else
 		if (::strcmp(host_feature->URI, LV2_WORKER__schedule) == 0)
 			m_schedule = (LV2_Worker_Schedule *) host_feature->data;
-	#endif
 		else
 		if (::strcmp(host_feature->URI, LV2_OPTIONS__options) == 0)
 			host_options = (const LV2_Options_Option *) host_feature->data;
@@ -333,10 +329,8 @@ void samplv1_lv2::run ( uint32_t nframes )
 			#endif	// CONFIG_LV2_PATCH
 			}
 		}
-	#ifdef CONFIG_LV2_PATCH
 		// remember last time for worker response
 		m_ndelta = ndelta;
-	#endif
 	//	m_atom_in = NULL;
 	}
 
@@ -499,7 +493,7 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 	uint32_t loop_start = 0;
 	uint32_t loop_end   = 0;
 
-	uint32_t int_type = pPlugin->urid_map(LV2_ATOM__Int);
+	const uint32_t int_type = pPlugin->urid_map(LV2_ATOM__Int);
 	if (int_type) {
 		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_START");
 		if (key) {
@@ -577,7 +571,6 @@ void samplv1_lv2::select_program ( uint32_t bank, uint32_t program )
 
 void samplv1_lv2::updateSample (void)
 {
-#ifdef CONFIG_LV2_PATCH
 	if (m_schedule) {
 		samplv1_lv2_worker_message mesg;
 		mesg.atom.type = m_urids.gen1_update;
@@ -586,7 +579,46 @@ void samplv1_lv2::updateSample (void)
 		m_schedule->schedule_work(
 			m_schedule->handle, sizeof(mesg), &mesg);
 	}
+}
+
+
+bool samplv1_lv2::worker_work ( const void *data, uint32_t /*size*/ )
+{
+	const samplv1_lv2_worker_message *mesg
+		= (const samplv1_lv2_worker_message *) data;
+
+	if (mesg->atom.type == m_urids.gen1_update)
+		return true;
+	else
+	if (mesg->atom.type == m_urids.gen1_sample) {
+		samplv1::setSampleFile(mesg->sample_path);
+		return true;
+	}
+
+	return false;
+}
+
+
+bool samplv1_lv2::worker_response ( const void */*data*/, uint32_t /*size*/ )
+{
+	// update all properties, and eventually, any observers...
+	samplv1_sched::sync_notify(this, samplv1_sched::Sample, 0);
+
+#ifdef CONFIG_LV2_PATCH
+	return patch_put(m_ndelta);
+#else
+	return true;
 #endif
+}
+
+
+void samplv1_lv2::state_changed (void)
+{
+	lv2_atom_forge_frame_time(&m_forge, m_ndelta);
+
+	LV2_Atom_Forge_Frame frame;
+	lv2_atom_forge_object(&m_forge, &frame, 0, m_urids.state_StateChanged);
+	lv2_atom_forge_pop(&m_forge, &frame);
 }
 
 
@@ -623,43 +655,7 @@ bool samplv1_lv2::patch_put ( uint32_t ndelta )
 	return true;
 }
 
-
-bool samplv1_lv2::worker_work ( const void *data, uint32_t /*size*/ )
-{
-	const samplv1_lv2_worker_message *mesg
-		= (const samplv1_lv2_worker_message *) data;
-
-	if (mesg->atom.type == m_urids.gen1_update)
-		return true;
-	else
-	if (mesg->atom.type == m_urids.gen1_sample) {
-		samplv1::setSampleFile(mesg->sample_path);
-		return true;
-	}
-
-	return false;
-}
-
-
-bool samplv1_lv2::worker_response ( const void */*data*/, uint32_t /*size*/ )
-{
-	// update all properties, and eventually, any observers...
-	samplv1_sched::sync_notify(this, samplv1_sched::Sample, 0);
-
-	return patch_put(m_ndelta);
-}
-
 #endif	// CONFIG_LV2_PATCH
-
-
-void samplv1_lv2::state_changed (void)
-{
-	lv2_atom_forge_frame_time(&m_forge, m_ndelta);
-
-	LV2_Atom_Forge_Frame frame;
-	lv2_atom_forge_object(&m_forge, &frame, 0, m_urids.state_StateChanged);
-	lv2_atom_forge_pop(&m_forge, &frame);
-}
 
 
 //-------------------------------------------------------------------------
@@ -744,8 +740,6 @@ static const LV2_Programs_Interface samplv1_lv2_programs_interface =
 #endif	// CONFIG_LV2_PROGRAMS
 
 
-#ifdef CONFIG_LV2_PATCH
-
 static LV2_Worker_Status samplv1_lv2_worker_work (
 	LV2_Handle instance, LV2_Worker_Respond_Function respond,
 	LV2_Worker_Respond_Handle handle, uint32_t size, const void *data )
@@ -778,8 +772,6 @@ static const LV2_Worker_Interface samplv1_lv2_worker_interface =
 	NULL
 };
 
-#endif	// CONFIG_LV2_PATCH
-
 
 static const void *samplv1_lv2_extension_data ( const char *uri )
 {
@@ -788,11 +780,9 @@ static const void *samplv1_lv2_extension_data ( const char *uri )
 		return &samplv1_lv2_programs_interface;
 	else
 #endif
-#ifdef CONFIG_LV2_PATCH
 	if (::strcmp(uri, LV2_WORKER__interface) == 0)
 		return &samplv1_lv2_worker_interface;
 	else
-#endif
 	if (::strcmp(uri, LV2_STATE__interface) == 0)
 		return &samplv1_lv2_state_interface;
 
