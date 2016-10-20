@@ -82,7 +82,9 @@ public:
 	bool worker_work(const void *data, uint32_t size);
 	bool worker_response(const void *data, uint32_t size);
 #endif
-	
+
+	void state_changed();
+
 protected:
 
 	void updateSample();
@@ -122,6 +124,8 @@ private:
 		LV2_URID patch_property;
 		LV2_URID patch_value;
 	#endif
+		LV2_URID state_StateChanged;
+
 	} m_urids;
 
 	LV2_Atom_Forge m_forge;

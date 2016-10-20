@@ -40,6 +40,20 @@
 #include "lv2/lv2plug.in/ns/ext/patch/patch.h"
 #endif
 
+#ifndef CONFIG_LV2_ATOM_FORGE_OBJECT
+#define lv2_atom_forge_object(forge, frame, id, otype) \
+		lv2_atom_forge_blank(forge, frame, id, otype)
+#endif
+
+#ifndef CONFIG_LV2_ATOM_FORGE_KEY
+#define lv2_atom_forge_key(forge, key) \
+		lv2_atom_forge_property_head(forge, key, 0)
+#endif
+
+#ifndef LV2_STATE__StateChanged
+#define LV2_STATE__StateChanged LV2_STATE_PREFIX "StateChanged"
+#endif
+
 #include <stdlib.h>
 #include <stdlib.h>
 #include <math.h>
@@ -125,6 +139,8 @@ samplv1_lv2::samplv1_lv2 (
 				m_urids.patch_value = m_urid_map->map(
  					m_urid_map->handle, LV2_PATCH__value);
 			#endif
+				m_urids.state_StateChanged = m_urid_map->map(
+					m_urid_map->handle, LV2_STATE__StateChanged);
 			}
 		}
 	#ifdef CONFIG_LV2_PATCH
@@ -634,6 +650,16 @@ bool samplv1_lv2::worker_response ( const void */*data*/, uint32_t /*size*/ )
 }
 
 #endif	// CONFIG_LV2_PATCH
+
+
+void samplv1_lv2::state_changed (void)
+{
+	lv2_atom_forge_frame_time(&m_forge, m_ndelta);
+
+	LV2_Atom_Forge_Frame frame;
+	lv2_atom_forge_object(&m_forge, &frame, 0, m_urids.state_StateChanged);
+	lv2_atom_forge_pop(&m_forge, &frame);
+}
 
 
 //-------------------------------------------------------------------------
