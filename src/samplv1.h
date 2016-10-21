@@ -168,6 +168,8 @@ public:
 
 	bool sampleLoopTest() const;
 
+	virtual void updatePreset(bool bDirty) = 0;
+
 protected:
 
 	virtual void updateSample() = 0;

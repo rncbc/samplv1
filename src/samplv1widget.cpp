@@ -1238,6 +1238,10 @@ void samplv1widget::helpAboutQt (void)
 // Dirty flag (overridable virtual) methods.
 void samplv1widget::updateDirtyPreset ( bool bDirtyPreset )
 {
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi)
+		pSamplUi->updatePreset(bDirtyPreset);
+
 	m_ui.StatusBar->setModified(bDirtyPreset);
 	m_ui.Preset->setDirtyPreset(bDirtyPreset);
 }

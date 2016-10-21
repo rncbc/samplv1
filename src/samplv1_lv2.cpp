@@ -569,6 +569,19 @@ void samplv1_lv2::select_program ( uint32_t bank, uint32_t program )
 #endif	// CONFIG_LV2_PROGRAMS
 
 
+void samplv1_lv2::updatePreset ( bool bDirty )
+{
+	if (m_schedule && bDirty) {
+		samplv1_lv2_worker_message mesg;
+		mesg.atom.type = m_urids.state_StateChanged;
+		mesg.atom.size = 0; // nothing else matters.
+		mesg.sample_path = NULL;
+		m_schedule->schedule_work(
+			m_schedule->handle, sizeof(mesg), &mesg);
+	}
+}
+
+
 void samplv1_lv2::updateSample (void)
 {
 	if (m_schedule) {
@@ -587,6 +600,9 @@ bool samplv1_lv2::worker_work ( const void *data, uint32_t /*size*/ )
 	const samplv1_lv2_worker_message *mesg
 		= (const samplv1_lv2_worker_message *) data;
 
+	if (mesg->atom.type == m_urids.state_StateChanged)
+		return true;
+	else
 	if (mesg->atom.type == m_urids.gen1_update)
 		return true;
 	else
@@ -599,8 +615,13 @@ bool samplv1_lv2::worker_work ( const void *data, uint32_t /*size*/ )
 }
 
 
-bool samplv1_lv2::worker_response ( const void */*data*/, uint32_t /*size*/ )
+bool samplv1_lv2::worker_response ( const void *data, uint32_t /*size*/ )
 {
+	const samplv1_lv2_worker_message *mesg
+		= (const samplv1_lv2_worker_message *) data;
+	if (mesg->atom.type == m_urids.state_StateChanged)
+		return state_changed();
+
 	// update all properties, and eventually, any observers...
 	samplv1_sched::sync_notify(this, samplv1_sched::Sample, 0);
 
@@ -612,13 +633,15 @@ bool samplv1_lv2::worker_response ( const void */*data*/, uint32_t /*size*/ )
 }
 
 
-void samplv1_lv2::state_changed (void)
+bool samplv1_lv2::state_changed (void)
 {
 	lv2_atom_forge_frame_time(&m_forge, m_ndelta);
 
 	LV2_Atom_Forge_Frame frame;
 	lv2_atom_forge_object(&m_forge, &frame, 0, m_urids.state_StateChanged);
 	lv2_atom_forge_pop(&m_forge, &frame);
+
+	return true;
 }
 
 

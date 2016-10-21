@@ -120,4 +120,10 @@ void samplv1_ui::reset (void)
 }
 
 
+void samplv1_ui::updatePreset ( bool bDirty )
+{
+	m_pSampl->updatePreset(bDirty);
+}
+
+
 // end of samplv1_ui.cpp

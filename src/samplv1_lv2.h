@@ -81,11 +81,12 @@ public:
 	bool worker_work(const void *data, uint32_t size);
 	bool worker_response(const void *data, uint32_t size);
 
-	void state_changed();
-
 protected:
 
+	void updatePreset(bool bDirty);
 	void updateSample();
+
+	bool state_changed();
 
 #ifdef CONFIG_LV2_PATCH
 	bool patch_put(uint32_t ndelta);

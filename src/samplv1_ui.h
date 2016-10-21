@@ -60,6 +60,8 @@ public:
 
 	void reset();
 
+	void updatePreset(bool bDirty);
+
 private:
 
 	samplv1 *m_pSampl;

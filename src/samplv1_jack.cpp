@@ -596,9 +596,15 @@ void samplv1_jack::sessionEvent ( void *pvSessionArg )
 #endif	// CONFIG_JACK_SESSION
 
 
+void samplv1_jack::updatePreset ( bool /*bDirty*/ )
+{
+	// nothing to do here...
+}
+
+
 void samplv1_jack::updateSample (void)
 {
-	// nothing to do...
+	// nothing to do here...
 }
 
 
