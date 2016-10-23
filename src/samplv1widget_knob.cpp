@@ -363,11 +363,13 @@ samplv1widget_spin::samplv1widget_spin ( QWidget *pParent )
 // Virtual accessors.
 void samplv1widget_spin::setValue ( float fValue, bool bDefault )
 {
+	const float fSpinValue = scaleFromValue(fValue);
+	if (::fabsf(fSpinValue - float(m_pSpinBox->value())) < 0.001f)
+		return;
+
 	const bool bSpinBlock = m_pSpinBox->blockSignals(true);
-
-	m_pSpinBox->setValue(scaleFromValue(fValue));
+	m_pSpinBox->setValue(fSpinValue);
 	samplv1widget_knob::setValue(fValue, bDefault);
-
 	m_pSpinBox->blockSignals(bSpinBlock);
 }
 
@@ -471,12 +473,13 @@ samplv1widget_combo::samplv1widget_combo ( QWidget *pParent )
 // Virtual accessors.
 void samplv1widget_combo::setValue ( float fValue, bool bDefault )
 {
+	const int iComboValue = iroundf(fValue);
+	if (iComboValue == m_pComboBox->currentIndex())
+		return;
+
 	const bool bComboBlock = m_pComboBox->blockSignals(true);
-
-	const int iValue = iroundf(fValue);
-	m_pComboBox->setCurrentIndex(iValue);
-	samplv1widget_knob::setValue(float(iValue), bDefault);
-
+	m_pComboBox->setCurrentIndex(iComboValue);
+	samplv1widget_knob::setValue(float(iComboValue), bDefault);
 	m_pComboBox->blockSignals(bComboBlock);
 }
 
