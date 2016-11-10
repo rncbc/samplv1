@@ -331,7 +331,7 @@ void samplv1_config::load (void)
 void samplv1_config::save (void)
 {
 	QSettings::beginGroup("/Program");
-	QSettings::setValue("/Version", SAMPLV1_VERSION);
+	QSettings::setValue("/Version", CONFIG_BUILD_VERSION);
 	QSettings::endGroup();
 
 	QSettings::beginGroup("/Default");

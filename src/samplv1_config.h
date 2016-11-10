@@ -25,7 +25,6 @@
 #include "config.h"
 
 #define SAMPLV1_TITLE       PACKAGE_NAME
-#define SAMPLV1_VERSION     PACKAGE_VERSION
 
 #define SAMPLV1_SUBTITLE    "an old-school polyphonic sampler."
 #define SAMPLV1_WEBSITE     "http://samplv1.sourceforge.net"

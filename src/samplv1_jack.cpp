@@ -687,7 +687,7 @@ bool samplv1_jack_application::parse_args (void)
 				.arg(qVersion());
 			out << QObject::tr("%1: %2  (%3)\n")
 				.arg(SAMPLV1_TITLE)
-				.arg(SAMPLV1_VERSION)
+				.arg(CONFIG_BUILD_VERSION)
 				.arg(CONFIG_BUILD_DATE);
 			return false;
 		}

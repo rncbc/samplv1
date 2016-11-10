@@ -357,7 +357,7 @@ void samplv1_param::savePreset ( samplv1 *pSampl, const QString& sFilename )
 	QDomDocument doc(SAMPLV1_TITLE);
 	QDomElement ePreset = doc.createElement("preset");
 	ePreset.setAttribute("name", fi.completeBaseName());
-	ePreset.setAttribute("version", SAMPLV1_VERSION);
+	ePreset.setAttribute("version", CONFIG_BUILD_VERSION);
 
 	QDomElement eSamples = doc.createElement("samples");
 	samplv1_param::saveSamples(pSampl, doc, eSamples);
