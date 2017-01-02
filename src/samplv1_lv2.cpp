@@ -1,7 +1,7 @@
 // samplv1_lv2.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2016, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2017, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -833,3 +833,4 @@ LV2_SYMBOL_EXPORT const LV2_Descriptor *lv2_descriptor ( uint32_t index )
 
 
 // end of samplv1_lv2.cpp
+

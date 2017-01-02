@@ -1,7 +1,7 @@
 // samplv1_config.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2016, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2017, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -28,7 +28,7 @@
 
 #define SAMPLV1_SUBTITLE    "an old-school polyphonic sampler."
 #define SAMPLV1_WEBSITE     "http://samplv1.sourceforge.net"
-#define SAMPLV1_COPYRIGHT   "Copyright (C) 2012-2016, rncbc aka Rui Nuno Capela. All rights reserved."
+#define SAMPLV1_COPYRIGHT   "Copyright (C) 2012-2017, rncbc aka Rui Nuno Capela. All rights reserved."
 
 #define SAMPLV1_DOMAIN      "rncbc.org"
 
@@ -122,3 +122,4 @@ private:
 #endif	// __samplv1_config_h
 
 // end of samplv1_config.h
+
