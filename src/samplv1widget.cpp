@@ -1,7 +1,7 @@
 // samplv1widget.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2016, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2017, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -689,10 +689,11 @@ void samplv1widget::resetParams (void)
 		const samplv1::ParamIndex index = samplv1::ParamIndex(i);
 		float fValue = samplv1_param::paramDefaultValue(index);
 		samplv1widget_knob *pKnob = paramKnob(index);
-		if (pKnob)
+		if (pKnob && pKnob->isDefaultValue())
 			fValue = pKnob->defaultValue();
 		setParamValue(index, fValue);
 		updateParam(index, fValue);
+	//	updateParamEx(index, fValue);
 		m_params_ab[i] = fValue;
 	}
 
