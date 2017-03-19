@@ -184,7 +184,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	m_ui.Lfo1BpmKnob->setScale(1.0f);
 	m_ui.Lfo1BpmKnob->setMinimum(0.0f);
 	m_ui.Lfo1BpmKnob->setMaximum(360.0f);
-	m_ui.Lfo1BpmKnob->setSingleStep(1.0f);
+//	m_ui.Lfo1BpmKnob->setSingleStep(1.0f);
 	m_ui.Lfo1SweepKnob->setMinimum(-1.0f);
 	m_ui.Lfo1SweepKnob->setMaximum(+1.0f);
 	m_ui.Lfo1CutoffKnob->setMinimum(-1.0f);
@@ -221,7 +221,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	m_ui.Del1BpmKnob->setScale(1.0f);
 	m_ui.Del1BpmKnob->setMinimum(0.0f);
 	m_ui.Del1BpmKnob->setMaximum(360.0f);
-	m_ui.Del1BpmKnob->setSingleStep(1.0f);
+//	m_ui.Del1BpmKnob->setSingleStep(1.0f);
 
 	// Reverb (stereo-)width limits.
 	m_ui.Rev1WidthKnob->setMinimum(-1.0f);
