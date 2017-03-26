@@ -541,8 +541,6 @@ void samplv1widget::initSchedNotifier (void)
 	QObject::connect(m_sched_notifier,
 		SIGNAL(notify(int, int)),
 		SLOT(updateSchedNotify(int, int)));
-
-	pSamplUi->midiInCountOn(true);
 }
 
 
