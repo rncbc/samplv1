@@ -30,6 +30,7 @@
 
 #include <QMessageBox>
 #include <QDir>
+#include <QTimer>
 
 
 //-------------------------------------------------------------------------
@@ -510,7 +511,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	// QWidget::adjustSize();
 
 	m_ui.StatusBar->showMessage(tr("Ready"), 5000);
-	m_ui.StatusBar->setModified(false);
+	m_ui.StatusBar->modified(false);
 	m_ui.Preset->setDirtyPreset(false);
 }
 
@@ -540,6 +541,8 @@ void samplv1widget::initSchedNotifier (void)
 	QObject::connect(m_sched_notifier,
 		SIGNAL(notify(int, int)),
 		SLOT(updateSchedNotify(int, int)));
+
+	pSamplUi->midiInCountOn(true);
 }
 
 
@@ -1130,6 +1133,12 @@ void samplv1widget::updateSchedNotify ( int stype, int sid )
 #endif
 
 	switch (samplv1_sched::Type(stype)) {
+	case samplv1_sched::MidiIn:
+		if (pSamplUi->midiInCount() > 0) {
+			m_ui.StatusBar->midiInLed(true);
+			QTimer::singleShot(200, this, SLOT(midiInLedTimeout()));
+		}
+		break;
 	case samplv1_sched::Controller: {
 		samplv1widget_control *pInstance
 			= samplv1widget_control::getInstance();
@@ -1160,6 +1169,13 @@ void samplv1widget::updateSchedNotify ( int stype, int sid )
 	default:
 		break;
 	}
+}
+
+
+// MIDI In LED timeout.
+void samplv1widget::midiInLedTimeout (void)
+{
+	m_ui.StatusBar->midiInLed(false);
 }
 
 
@@ -1242,7 +1258,7 @@ void samplv1widget::updateDirtyPreset ( bool bDirtyPreset )
 	if (pSamplUi)
 		pSamplUi->updatePreset(bDirtyPreset);
 
-	m_ui.StatusBar->setModified(bDirtyPreset);
+	m_ui.StatusBar->modified(bDirtyPreset);
 	m_ui.Preset->setDirtyPreset(bDirtyPreset);
 }
 

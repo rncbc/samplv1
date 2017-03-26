@@ -38,6 +38,8 @@
 #include "samplv1_controls.h"
 #include "samplv1_programs.h"
 
+#include "samplv1_sched.h"
+
 
 #ifdef CONFIG_DEBUG_0
 #include <stdio.h>
@@ -1544,6 +1546,7 @@ samplv1_programs *samplv1_impl::programs (void)
 }
 
 
+
 // synthesize
 
 void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
@@ -1793,7 +1796,6 @@ bool samplv1_impl::sampleLoopTest (void)
 	return gen1_sample.loop_test(*m_gen1.loop > 0.5f);
 }
 
-
 //-------------------------------------------------------------------------
 // samplv1 - decl.
 //
@@ -1801,6 +1803,9 @@ bool samplv1_impl::sampleLoopTest (void)
 samplv1::samplv1 ( uint16_t nchannels, float srate )
 {
 	m_pImpl = new samplv1_impl(this, nchannels, srate);
+
+	// MIDI input event count...
+	midiInCountOn(false);
 }
 
 
@@ -1950,6 +1955,10 @@ void samplv1::process_midi ( uint8_t *data, uint32_t size )
 #endif
 
 	m_pImpl->process_midi(data, size);
+
+	// rogue MIDi input count...
+	if (m_midiInCountOn && ++m_midiInCount < 2)
+		samplv1_sched::sync_notify(this, samplv1_sched::MidiIn, 0);
 }
 
 
@@ -1986,6 +1995,22 @@ void samplv1::reset (void)
 bool samplv1::sampleLoopTest (void) const
 {
 	return m_pImpl->sampleLoopTest();
+}
+
+
+// MIDI input event count
+
+void samplv1::midiInCountOn ( bool bMidiInCountOn )
+{
+	m_midiInCountOn = bMidiInCountOn;
+	m_midiInCount = 0;
+}
+
+uint32_t samplv1::midiInCount (void)
+{
+	const uint32_t ret = m_midiInCount;
+	m_midiInCount = 0;
+	return ret;
 }
 
 
