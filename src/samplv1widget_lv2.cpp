@@ -48,6 +48,9 @@ samplv1widget_lv2::samplv1widget_lv2 ( samplv1_lv2 *pSampl,
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i)
 		m_params_def[i] = true;
 
+	// May initialize the scheduler/work notifier.
+	openSchedNotifier();
+
 	// Initial update, always...
 	if (m_pSamplUi->sampleFile())
 		updateSample(m_pSamplUi->sample());

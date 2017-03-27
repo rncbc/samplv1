@@ -72,6 +72,9 @@ samplv1widget_jack::samplv1widget_jack ( samplv1_jack *pSampl )
 	// Initialize (user) interface stuff...
 	m_pSamplUi = new samplv1_ui(m_pSampl);
 
+	// May initialize the scheduler/work notifier.
+	openSchedNotifier();
+
 	// Initialize preset stuff...
 	// initPreset();
 	updateSample(m_pSamplUi->sample());

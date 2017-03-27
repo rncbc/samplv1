@@ -530,6 +530,9 @@ samplv1widget::~samplv1widget (void)
 // Open/close the scheduler/work notifier.
 void samplv1widget::openSchedNotifier (void)
 {
+	if (m_sched_notifier)
+		return;
+
 	samplv1_ui *pSamplUi = ui_instance();
 	if (pSamplUi == NULL)
 		return;
