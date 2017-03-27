@@ -72,23 +72,16 @@ samplv1widget_jack::samplv1widget_jack ( samplv1_jack *pSampl )
 	// Initialize (user) interface stuff...
 	m_pSamplUi = new samplv1_ui(m_pSampl);
 
-	// May initialize the scheduler/work notifier.
-	initSchedNotifier();
-
 	// Initialize preset stuff...
 	// initPreset();
 	updateSample(m_pSamplUi->sample());
 	updateParamValues();
-
-	m_pSamplUi->midiInCountOn(true);
 }
 
 
 // Destructor.
 samplv1widget_jack::~samplv1widget_jack (void)
 {
-	m_pSamplUi->midiInCountOn(false);
-
 	delete m_pSamplUi;
 }
 

@@ -32,6 +32,9 @@
 #include <QDir>
 #include <QTimer>
 
+#include <QShowEvent>
+#include <QHideEvent>
+
 
 //-------------------------------------------------------------------------
 // samplv1widget - impl.
@@ -524,14 +527,9 @@ samplv1widget::~samplv1widget (void)
 }
 
 
-// Create/initialize the scheduler/work notifier.
-void samplv1widget::initSchedNotifier (void)
+// Open/close the scheduler/work notifier.
+void samplv1widget::openSchedNotifier (void)
 {
-	if (m_sched_notifier) {
-		delete m_sched_notifier;
-		m_sched_notifier = NULL;
-	}
-
 	samplv1_ui *pSamplUi = ui_instance();
 	if (pSamplUi == NULL)
 		return;
@@ -541,6 +539,38 @@ void samplv1widget::initSchedNotifier (void)
 	QObject::connect(m_sched_notifier,
 		SIGNAL(notify(int, int)),
 		SLOT(updateSchedNotify(int, int)));
+
+	pSamplUi->midiInCountOn(true);
+}
+
+
+void samplv1widget::closeSchedNotifier (void)
+{
+	if (m_sched_notifier) {
+		delete m_sched_notifier;
+		m_sched_notifier = NULL;
+	}
+
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi)
+		pSamplUi->midiInCountOn(false);
+}
+
+
+// Show/hide widget handlers.
+void samplv1widget::showEvent ( QShowEvent *pShowEvent )
+{
+	QWidget::showEvent(pShowEvent);
+
+	openSchedNotifier();
+}
+
+
+void samplv1widget::hideEvent ( QHideEvent *pHideEvent )
+{
+	closeSchedNotifier();
+
+	QWidget::hideEvent(pHideEvent);
 }
 
 

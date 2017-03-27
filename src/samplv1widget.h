@@ -50,8 +50,9 @@ public:
 	// Destructor.
 	virtual ~samplv1widget();
 
-	// Create/initialize the scheduler/work notifier.
-	void initSchedNotifier();
+	// Open/close the scheduler/work notifier.
+	void openSchedNotifier();
+	void closeSchedNotifier();
 
 	// Param port accessors.
 	void setParamValue(
@@ -170,6 +171,10 @@ protected:
 
 	// Dirty flag (overridable virtual) methods.
 	virtual void updateDirtyPreset(bool bDirtyPreset);
+
+	// Show/hide dget handlers.
+	void showEvent(QShowEvent *pShowEvent);
+	void hideEvent(QHideEvent *pHideEvent);
 
 private:
 
