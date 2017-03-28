@@ -63,7 +63,6 @@ public:
 	void updatePreset(bool bDirty);
 
 	void midiInEnabled(bool bEnabled);
-	bool midiInNote(int note) const;
 	uint32_t midiInCount();
 
 private:

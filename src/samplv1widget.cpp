@@ -1165,7 +1165,7 @@ void samplv1widget::updateSchedNotify ( int stype, int sid )
 
 	switch (samplv1_sched::Type(stype)) {
 	case samplv1_sched::MidiIn:
-		if (sid < 0 && pSamplUi->midiInCount() > 0) {
+		if (pSamplUi->midiInCount() > 0) {
 			m_ui.StatusBar->midiInLed(true);
 			QTimer::singleShot(200, this, SLOT(midiInLedTimeout()));
 		}

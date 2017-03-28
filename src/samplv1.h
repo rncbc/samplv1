@@ -171,7 +171,6 @@ public:
 	virtual void updatePreset(bool bDirty) = 0;
 
 	void midiInEnabled(bool on);
-	bool midiInNote(int note) const;
 	uint32_t midiInCount();
 
 protected:
@@ -187,4 +186,3 @@ private:
 #endif// __samplv1_h
 
 // end of samplv1.h
-

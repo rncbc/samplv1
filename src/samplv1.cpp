@@ -770,7 +770,6 @@ public:
 	void reset();
 
 	void midiInEnabled(bool on);
-	bool midiInNote(int note) const;
 	uint32_t midiInCount();
 
 	samplv1_sample  gen1_sample;
@@ -1593,10 +1592,6 @@ void samplv1_impl::midiInEnabled ( bool on )
 	m_midi_in.enabled(on);
 }
 
-bool samplv1_impl::midiInNote ( int note ) const
-{
-	return (m_notes[note] != NULL);
-}
 
 uint32_t samplv1_impl::midiInCount (void)
 {
@@ -2055,10 +2050,6 @@ void samplv1::midiInEnabled ( bool on )
 	m_pImpl->midiInEnabled(on);
 }
 
-bool samplv1::midiInNote ( int note ) const
-{
-	return m_pImpl->midiInNote(note);
-}
 
 uint32_t samplv1::midiInCount (void)
 {
@@ -2067,4 +2058,3 @@ uint32_t samplv1::midiInCount (void)
 
 
 // end of samplv1.cpp
-
