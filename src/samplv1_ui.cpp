@@ -126,9 +126,14 @@ void samplv1_ui::updatePreset ( bool bDirty )
 }
 
 
-void samplv1_ui::midiInCountOn ( bool bMidiInCountOn )
+void samplv1_ui::midiInEnabled ( bool bEnabled )
 {
-	m_pSampl->midiInCountOn(bMidiInCountOn);
+	m_pSampl->midiInEnabled(bEnabled);
+}
+
+bool samplv1_ui::midiInNote ( int note ) const
+{
+	return m_pSampl->midiInNote(note);
 }
 
 uint32_t samplv1_ui::midiInCount (void)

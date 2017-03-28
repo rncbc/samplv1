@@ -543,7 +543,7 @@ void samplv1widget::openSchedNotifier (void)
 		SIGNAL(notify(int, int)),
 		SLOT(updateSchedNotify(int, int)));
 
-	pSamplUi->midiInCountOn(true);
+	pSamplUi->midiInEnabled(true);
 }
 
 
@@ -556,7 +556,7 @@ void samplv1widget::closeSchedNotifier (void)
 
 	samplv1_ui *pSamplUi = ui_instance();
 	if (pSamplUi)
-		pSamplUi->midiInCountOn(false);
+		pSamplUi->midiInEnabled(false);
 }
 
 
@@ -1165,7 +1165,7 @@ void samplv1widget::updateSchedNotify ( int stype, int sid )
 
 	switch (samplv1_sched::Type(stype)) {
 	case samplv1_sched::MidiIn:
-		if (pSamplUi->midiInCount() > 0) {
+		if (sid < 0 && pSamplUi->midiInCount() > 0) {
 			m_ui.StatusBar->midiInLed(true);
 			QTimer::singleShot(200, this, SLOT(midiInLedTimeout()));
 		}

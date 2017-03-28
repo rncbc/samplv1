@@ -56,8 +56,6 @@ samplv1widget_lv2::samplv1widget_lv2 ( samplv1_lv2 *pSampl,
 		updateSample(m_pSamplUi->sample());
 //	else
 //		initPreset();
-
-	m_pSamplUi->midiInCountOn(true);
 }
 
 

@@ -696,6 +696,38 @@ struct samplv1_voice : public samplv1_list<samplv1_voice>
 };
 
 
+// MIDI input asynchronous status notification
+
+class samplv1_midi_in : public samplv1_sched
+{
+public:
+
+	samplv1_midi_in (samplv1 *pSampl)
+		: samplv1_sched(pSampl, MidiIn),
+			m_enabled(false), m_count(0) {}
+
+	void schedule_event()
+		{ if (m_enabled && ++m_count < 2) schedule(-1); }
+
+	void process(int) {}
+
+	void enabled(bool on)
+		{ m_enabled = on; m_count = 0; }
+
+	uint32_t count()
+	{
+		const uint32_t ret = m_count;
+		m_count = 0;
+		return ret;
+	}
+
+private:
+
+	bool     m_enabled;
+	uint32_t m_count;
+};
+
+
 // polyphonic synth implementation
 
 class samplv1_impl
@@ -727,8 +759,6 @@ public:
 	void setParamValue(samplv1::ParamIndex index, float fValue);
 	float paramValue(samplv1::ParamIndex index);
 
-	void reset();
-
 	samplv1_controls *controls();
 	samplv1_programs *programs();
 
@@ -736,6 +766,12 @@ public:
 	void process(float **ins, float **outs, uint32_t nframes);
 
 	bool sampleLoopTest();
+
+	void reset();
+
+	void midiInEnabled(bool on);
+	bool midiInNote(int note) const;
+	uint32_t midiInCount();
 
 	samplv1_sample  gen1_sample;
 	samplv1_wave_lf lfo1_wave;
@@ -779,6 +815,7 @@ private:
 	samplv1_config   m_config;
 	samplv1_controls m_controls;
 	samplv1_programs m_programs;
+	samplv1_midi_in  m_midi_in;
 
 	uint16_t m_nchannels;
 	float    m_srate;
@@ -848,8 +885,8 @@ samplv1_voice::samplv1_voice ( samplv1_impl *pImpl ) :
 // engine constructor
 
 samplv1_impl::samplv1_impl (
-	samplv1 *pSampl, uint16_t nchannels, float srate )
-	: gen1_sample(pSampl), m_controls(pSampl), m_programs(pSampl), m_bpm(180.0f)
+	samplv1 *pSampl, uint16_t nchannels, float srate ) : gen1_sample(pSampl),
+		m_controls(pSampl), m_programs(pSampl), m_midi_in(pSampl), m_bpm(180.0f)
 {
 	// null sample.
 	m_gen1.sample0 = 0.0f;
@@ -1415,6 +1452,9 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 
 	// process pending controllers...
 	m_controls.process_dequeue();
+
+	// asynchronous event notification...
+	m_midi_in.schedule_event();
 }
 
 
@@ -1486,6 +1526,22 @@ void samplv1_impl::allSustainOff (void)
 }
 
 
+// controllers accessor
+
+samplv1_controls *samplv1_impl::controls (void)
+{
+	return &m_controls;
+}
+
+
+// programs accessor
+
+samplv1_programs *samplv1_impl::programs (void)
+{
+	return &m_programs;
+}
+
+
 // all reset clear
 
 void samplv1_impl::reset (void)
@@ -1530,23 +1586,24 @@ void samplv1_impl::reset (void)
 }
 
 
-// controllers accessor
+// MIDI input asynchronous status notification accessors
 
-samplv1_controls *samplv1_impl::controls (void)
+void samplv1_impl::midiInEnabled ( bool on )
 {
-	return &m_controls;
+	m_midi_in.enabled(on);
 }
 
-
-// programs accessor
-
-samplv1_programs *samplv1_impl::programs (void)
+bool samplv1_impl::midiInNote ( int note ) const
 {
-	return &m_programs;
+	return (m_notes[note] != NULL);
 }
 
+uint32_t samplv1_impl::midiInCount (void)
+{
+	return m_midi_in.count();
+}
 
-
+ 
 // synthesize
 
 void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
@@ -1803,9 +1860,6 @@ bool samplv1_impl::sampleLoopTest (void)
 samplv1::samplv1 ( uint16_t nchannels, float srate )
 {
 	m_pImpl = new samplv1_impl(this, nchannels, srate);
-
-	// MIDI input event count...
-	midiInCountOn(false);
 }
 
 
@@ -1955,10 +2009,6 @@ void samplv1::process_midi ( uint8_t *data, uint32_t size )
 #endif
 
 	m_pImpl->process_midi(data, size);
-
-	// rogue MIDi input count...
-	if (m_midiInCountOn && ++m_midiInCount < 2)
-		samplv1_sched::sync_notify(this, samplv1_sched::MidiIn, 0);
 }
 
 
@@ -1998,19 +2048,21 @@ bool samplv1::sampleLoopTest (void) const
 }
 
 
-// MIDI input event count
+// MIDI input asynchronous status notification accessors
 
-void samplv1::midiInCountOn ( bool bMidiInCountOn )
+void samplv1::midiInEnabled ( bool on )
 {
-	m_midiInCountOn = bMidiInCountOn;
-	m_midiInCount = 0;
+	m_pImpl->midiInEnabled(on);
+}
+
+bool samplv1::midiInNote ( int note ) const
+{
+	return m_pImpl->midiInNote(note);
 }
 
 uint32_t samplv1::midiInCount (void)
 {
-	const uint32_t ret = m_midiInCount;
-	m_midiInCount = 0;
-	return ret;
+	return m_pImpl->midiInCount();
 }
 
 
