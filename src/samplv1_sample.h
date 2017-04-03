@@ -63,9 +63,10 @@ public:
 	void reverse_test(bool reverse)
 	{
 		if (( m_reverse && !reverse) ||
-			(!m_reverse &&  reverse))
+			(!m_reverse &&  reverse)) {
 			m_reverse = reverse;
 			reverse_sched();
+		}
 	}
 
 	// reverse sample buffer.
