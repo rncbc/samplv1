@@ -1,7 +1,7 @@
 // samplv1_sample.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2016, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2017, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -54,13 +54,7 @@ public:
 
 	// reverse mode.
 	void setReverse(bool reverse)
-	{
-		if (( m_reverse && !reverse) ||
-			(!m_reverse &&  reverse)) {
-			m_reverse = reverse;
-			reverse_sample();
-		}
-	}
+		{ reverse_test(reverse); }
 
 	bool isReverse() const
 		{ return m_reverse; }
@@ -70,10 +64,13 @@ public:
 	{
 		if (( m_reverse && !reverse) ||
 			(!m_reverse &&  reverse))
-			reverse_sched(reverse);
+			m_reverse = reverse;
+			reverse_sched();
 	}
 
-	void reverse_sched(bool reverse);
+	// reverse sample buffer.
+	void reverse_sched();
+	void reverse_sync();
 
 	// loop mode.
 	void setLoop(bool loop)
@@ -157,11 +154,6 @@ public:
 	// predicate.
 	bool isOver(uint32_t frame) const
 		{ return !m_pframes || (frame >= m_nframes); }
-
-protected:
-
-	// reverse sample buffer.
-	void reverse_sample();
 
 private:
 

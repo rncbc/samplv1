@@ -1,7 +1,7 @@
 // samplv1_sample.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2016, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2017, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -37,29 +37,16 @@ public:
 
 	// ctor.
 	samplv1_reverse_sched (samplv1 *pSampl, samplv1_sample *sample)
-		: samplv1_sched(pSampl, Sample),
-			m_sample(sample), m_reverse(false) {}
-
-	// schedule reverse.
-	void reverse_sched(bool reverse)
-	{
-		m_reverse = reverse;
-
-		schedule();
-	}
+		: samplv1_sched(pSampl, Sample), m_sample(sample) {}
 
 	// process reverse (virtual).
 	void process(int)
-	{
-		m_sample->setReverse(m_reverse);
-	}
+		{ m_sample->reverse_sync(); }
 
 private:
 
 	// instance variables.
 	samplv1_sample *m_sample;
-
-	bool m_reverse;
 };
 
 
@@ -132,7 +119,7 @@ bool samplv1_sample::open ( const char *filename, float freq0 )
 	::sf_close(file);
 
 	if (m_reverse)
-		reverse_sample();
+		reverse_sync();
 
 	reset(freq0);
 
@@ -166,14 +153,14 @@ void samplv1_sample::close (void)
 
 
 // schedule sample reverse.
-void samplv1_sample::reverse_sched ( bool reverse )
+void samplv1_sample::reverse_sched (void)
 {
-	m_reverse_sched->reverse_sched(reverse);
+	m_reverse_sched->schedule();
 }
 
 
 // reverse sample buffer.
-void samplv1_sample::reverse_sample (void)
+void samplv1_sample::reverse_sync (void)
 {
 	if (m_nframes > 0 && m_pframes) {
 		const uint32_t nsize1 = (m_nframes - 1);
