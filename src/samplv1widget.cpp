@@ -578,7 +578,7 @@ void samplv1widget::hideEvent ( QHideEvent *pHideEvent )
 
 
 // Param kbob (widget) map accesors.
-void samplv1widget::setParamKnob ( samplv1::ParamIndex index, samplv1widget_knob *pKnob )
+void samplv1widget::setParamKnob ( samplv1::ParamIndex index, samplv1widget_param *pKnob )
 {
 	pKnob->setDefaultValue(samplv1_param::paramDefaultValue(index));
 
@@ -596,7 +596,7 @@ void samplv1widget::setParamKnob ( samplv1::ParamIndex index, samplv1widget_knob
 		SLOT(paramContextMenu(const QPoint&)));
 }
 
-samplv1widget_knob *samplv1widget::paramKnob ( samplv1::ParamIndex index ) const
+samplv1widget_param *samplv1widget::paramKnob ( samplv1::ParamIndex index ) const
 {
 	return m_paramKnobs.value(index, NULL);
 }
@@ -608,7 +608,7 @@ void samplv1widget::setParamValue (
 {
 	++m_iUpdate;
 
-	samplv1widget_knob *pKnob = paramKnob(index);
+	samplv1widget_param *pKnob = paramKnob(index);
 	if (pKnob)
 		pKnob->setValue(fValue, bDefault);
 
@@ -621,7 +621,7 @@ float samplv1widget::paramValue ( samplv1::ParamIndex index ) const
 {
 	float fValue = 0.0f;
 
-	samplv1widget_knob *pKnob = paramKnob(index);
+	samplv1widget_param *pKnob = paramKnob(index);
 	if (pKnob) {
 		fValue = pKnob->value();
 	} else {
@@ -640,7 +640,7 @@ void samplv1widget::paramChanged ( float fValue )
 	if (m_iUpdate > 0)
 		return;
 
-	samplv1widget_knob *pKnob = qobject_cast<samplv1widget_knob *> (sender());
+	samplv1widget_param *pKnob = qobject_cast<samplv1widget_param *> (sender());
 	if (pKnob) {
 		const samplv1::ParamIndex index = m_knobParams.value(pKnob);
 		updateParam(index, fValue);
@@ -693,7 +693,7 @@ void samplv1widget::updateSchedParam ( samplv1::ParamIndex index, float fValue )
 {
 	++m_iUpdate;
 
-	samplv1widget_knob *pKnob = paramKnob(index);
+	samplv1widget_param *pKnob = paramKnob(index);
 	if (pKnob) {
 		pKnob->setValue(fValue, false);
 		updateParam(index, fValue);
@@ -722,7 +722,7 @@ void samplv1widget::resetParams (void)
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
 		const samplv1::ParamIndex index = samplv1::ParamIndex(i);
 		float fValue = samplv1_param::paramDefaultValue(index);
-		samplv1widget_knob *pKnob = paramKnob(index);
+		samplv1widget_param *pKnob = paramKnob(index);
 		if (pKnob && pKnob->isDefaultValue())
 			fValue = pKnob->defaultValue();
 		setParamValue(index, fValue);
@@ -749,7 +749,7 @@ void samplv1widget::swapParams ( bool bOn )
 
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
 		const samplv1::ParamIndex index = samplv1::ParamIndex(i);
-		samplv1widget_knob *pKnob = paramKnob(index);
+		samplv1widget_param *pKnob = paramKnob(index);
 		if (pKnob) {
 			const float fOldValue = pKnob->value();
 			const float fNewValue = m_params_ab[i];
@@ -814,7 +814,7 @@ void samplv1widget::resetParamValues (void)
 void samplv1widget::resetParamKnobs (void)
 {
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
-		samplv1widget_knob *pKnob = paramKnob(samplv1::ParamIndex(i));
+		samplv1widget_param *pKnob = paramKnob(samplv1::ParamIndex(i));
 		if (pKnob)
 			pKnob->resetDefaultValue();
 	}
@@ -1160,7 +1160,7 @@ void samplv1widget::updateSchedNotify ( int stype, int sid )
 		return;
 
 #ifdef CONFIG_DEBUG
-	qDebug("samplv1widget::updateSchedNotify(%d, %d)", stype, sid);
+	qDebug("samplv1widget::updateSchedNotify(%d, 0x%04x)", stype, sid);
 #endif
 
 	switch (samplv1_sched::Type(stype)) {
@@ -1297,8 +1297,8 @@ void samplv1widget::updateDirtyPreset ( bool bDirtyPreset )
 // Param knob context menu.
 void samplv1widget::paramContextMenu ( const QPoint& pos )
 {
-	samplv1widget_knob *pKnob
-		= qobject_cast<samplv1widget_knob *> (sender());
+	samplv1widget_param *pKnob
+		= qobject_cast<samplv1widget_param *> (sender());
 	if (pKnob == NULL)
 		return;
 

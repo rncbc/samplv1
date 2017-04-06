@@ -60,8 +60,8 @@ public:
 	float paramValue(samplv1::ParamIndex index) const;
 
 	// Param kbob (widget) mapper.
-	void setParamKnob(samplv1::ParamIndex index, samplv1widget_knob *pKnob);
-	samplv1widget_knob *paramKnob(samplv1::ParamIndex index) const;
+	void setParamKnob(samplv1::ParamIndex index, samplv1widget_param *pKnob);
+	samplv1widget_param *paramKnob(samplv1::ParamIndex index) const;
 
 	// MIDI note/octave name helper.
 	static QString noteName(int note);
@@ -183,8 +183,8 @@ private:
 
 	samplv1widget_sched *m_sched_notifier;
 
-	QHash<samplv1::ParamIndex, samplv1widget_knob *> m_paramKnobs;
-	QHash<samplv1widget_knob *, samplv1::ParamIndex> m_knobParams;
+	QHash<samplv1::ParamIndex, samplv1widget_param *> m_paramKnobs;
+	QHash<samplv1widget_param *, samplv1::ParamIndex> m_knobParams;
 
 	float m_params_ab[samplv1::NUM_PARAMS];
 

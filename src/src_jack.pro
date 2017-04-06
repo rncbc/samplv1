@@ -22,7 +22,7 @@ HEADERS = \
 	samplv1widget_filt.h \
 	samplv1widget_sample.h \
 	samplv1widget_wave.h \
-	samplv1widget_knob.h \
+	samplv1widget_param.h \
 	samplv1widget_preset.h \
 	samplv1widget_status.h \
 	samplv1widget_programs.h \
@@ -39,7 +39,7 @@ SOURCES = \
 	samplv1widget_filt.cpp \
 	samplv1widget_sample.cpp \
 	samplv1widget_wave.cpp \
-	samplv1widget_knob.cpp \
+	samplv1widget_param.cpp \
 	samplv1widget_preset.cpp \
 	samplv1widget_status.cpp \
 	samplv1widget_programs.cpp \

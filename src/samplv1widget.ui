@@ -1341,12 +1341,12 @@
   <customwidget>
    <class>samplv1widget_spin</class>
    <extends>QDial</extends>
-   <header>samplv1widget_knob.h</header>
+   <header>samplv1widget_param.h</header>
   </customwidget>
   <customwidget>
    <class>samplv1widget_combo</class>
    <extends>QDial</extends>
-   <header>samplv1widget_knob.h</header>
+   <header>samplv1widget_param.h</header>
   </customwidget>
   <customwidget>
    <class>samplv1widget_env</class>

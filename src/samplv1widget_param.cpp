@@ -1,4 +1,4 @@
-// samplv1widget_knob.cpp
+// samplv1widget_param.cpp
 //
 /****************************************************************************
    Copyright (C) 2012-2017, rncbc aka Rui Nuno Capela. All rights reserved.
@@ -19,7 +19,7 @@
 
 *****************************************************************************/
 
-#include "samplv1widget_knob.h"
+#include "samplv1widget_param.h"
 
 #include <QLabel>
 #include <QSpinBox>
@@ -136,11 +136,11 @@ void samplv1widget_dial::mouseReleaseEvent ( QMouseEvent *pMouseEvent )
 
 
 //-------------------------------------------------------------------------
-// samplv1widget_knob - Custom composite widget.
+// samplv1widget_param - Custom composite widget.
 //
 
 // Constructor.
-samplv1widget_knob::samplv1widget_knob ( QWidget *pParent ) : QWidget(pParent)
+samplv1widget_param::samplv1widget_param ( QWidget *pParent ) : QWidget(pParent)
 {
 	const QFont& font = QWidget::font();
 	const QFont font2(font.family(), font.pointSize() - 2);
@@ -173,19 +173,19 @@ samplv1widget_knob::samplv1widget_knob ( QWidget *pParent ) : QWidget(pParent)
 }
 
 
-void samplv1widget_knob::setText ( const QString& sText )
+void samplv1widget_param::setText ( const QString& sText )
 {
 	m_pLabel->setText(sText);
 }
 
 
-QString samplv1widget_knob::text (void) const
+QString samplv1widget_param::text (void) const
 {
 	return m_pLabel->text();
 }
 
 
-void samplv1widget_knob::setValue ( float fValue, bool bDefault )
+void samplv1widget_param::setValue ( float fValue, bool bDefault )
 {
 	QPalette pal;
 
@@ -214,82 +214,82 @@ void samplv1widget_knob::setValue ( float fValue, bool bDefault )
 }
 
 
-float samplv1widget_knob::value (void) const
+float samplv1widget_param::value (void) const
 {
 	return m_fValue;
 }
 
 
-QString samplv1widget_knob::valueText (void) const
+QString samplv1widget_param::valueText (void) const
 {
 	return QString::number(value());
 }
 
 
-void samplv1widget_knob::setMaximum ( float fMaximum )
+void samplv1widget_param::setMaximum ( float fMaximum )
 {
 	m_pDial->setMaximum(scaleFromValue(fMaximum));
 }
 
 
-float samplv1widget_knob::maximum (void) const
+float samplv1widget_param::maximum (void) const
 {
 	return valueFromScale(m_pDial->maximum());
 }
 
 
-void samplv1widget_knob::setMinimum ( float fMinimum )
+void samplv1widget_param::setMinimum ( float fMinimum )
 {
 	m_pDial->setMinimum(scaleFromValue(fMinimum));
 }
 
 
-float samplv1widget_knob::minimum (void) const
+float samplv1widget_param::minimum (void) const
 {
 	return valueFromScale(m_pDial->minimum());
 }
 
 
-void samplv1widget_knob::resetDefaultValue (void)
+void samplv1widget_param::resetDefaultValue (void)
 {
 	m_fDefaultValue = 0.0f;
 	m_iDefaultValue = 0;
 }
 
 
-bool samplv1widget_knob::isDefaultValue (void) const
+bool samplv1widget_param::isDefaultValue (void) const
 {
 	return (m_iDefaultValue > 0);
 }
 
 
-void samplv1widget_knob::setDefaultValue ( float fDefaultValue )
+void samplv1widget_param::setDefaultValue ( float fDefaultValue )
 {
 	m_fDefaultValue = fDefaultValue;
 	m_iDefaultValue++;
 }
 
 
-float samplv1widget_knob::defaultValue (void) const
+float samplv1widget_param::defaultValue (void) const
 {
 	return m_fDefaultValue;
 }
 
 
-void samplv1widget_knob::setSingleStep ( float fSingleStep )
+void samplv1widget_param::setSingleStep ( float fSingleStep )
 {
 	m_pDial->setSingleStep(scaleFromValue(fSingleStep));
 }
 
 
-float samplv1widget_knob::singleStep (void) const
+float samplv1widget_param::singleStep (void) const
 {
 	return valueFromScale(m_pDial->singleStep());
 }
 
 
 // Mouse behavior event handler.
-void samplv1widget_knob::mousePressEvent ( QMouseEvent *pMouseEvent )
+void samplv1widget_param::mousePressEvent ( QMouseEvent *pMouseEvent )
 {
 	if (pMouseEvent->button() == Qt::MidButton) {
 		if (m_iDefaultValue < 1) {
@@ -304,33 +304,33 @@ void samplv1widget_knob::mousePressEvent ( QMouseEvent *pMouseEvent )
 
 
 // Scale multiplier accessors.
-void samplv1widget_knob::setScale ( float fScale )
+void samplv1widget_param::setScale ( float fScale )
 {
 	m_fScale = fScale;
 }
 
 
-float samplv1widget_knob::scale (void) const
+float samplv1widget_param::scale (void) const
 {
 	return m_fScale;
 }
 
 
 // Scale/value converters.
-float samplv1widget_knob::scaleFromValue ( float fValue ) const
+float samplv1widget_param::scaleFromValue ( float fValue ) const
 {
 	return (m_fScale * fValue);
 }
 
 
-float samplv1widget_knob::valueFromScale ( float fScale ) const
+float samplv1widget_param::valueFromScale ( float fScale ) const
 {
 	return (fScale / m_fScale);
 }
 
 
 // Dial change slot.
-void samplv1widget_knob::dialValueChanged ( int iDialValue )
+void samplv1widget_param::dialValueChanged ( int iDialValue )
 {
 	setValue(valueFromScale(iDialValue));
 }
@@ -342,17 +342,17 @@ void samplv1widget_knob::dialValueChanged ( int iDialValue )
 
 // Constructor.
 samplv1widget_spin::samplv1widget_spin ( QWidget *pParent )
-	: samplv1widget_knob(pParent)
+	: samplv1widget_param(pParent)
 {
 	m_pSpinBox = new QDoubleSpinBox();
 	m_pSpinBox->setAccelerated(true);
 	m_pSpinBox->setAlignment(Qt::AlignCenter);
 
-	const QFontMetrics fm(samplv1widget_knob::font());
+	const QFontMetrics fm(samplv1widget_param::font());
 	m_pSpinBox->setMaximumHeight(fm.height() + 6);
 
 	QGridLayout *pGridLayout
-		= static_cast<QGridLayout *> (samplv1widget_knob::layout());
+		= static_cast<QGridLayout *> (samplv1widget_param::layout());
 	pGridLayout->addWidget(m_pSpinBox, 2, 1, 1, 1);
 
 	setScale(100.0f);
@@ -372,7 +372,7 @@ samplv1widget_spin::samplv1widget_spin ( QWidget *pParent )
 void samplv1widget_spin::setValue ( float fValue, bool bDefault )
 {
 	const bool bSpinBlock = m_pSpinBox->blockSignals(true);
-	samplv1widget_knob::setValue(fValue, bDefault);
+	samplv1widget_param::setValue(fValue, bDefault);
 	m_pSpinBox->setValue(scaleFromValue(fValue));
 	m_pSpinBox->blockSignals(bSpinBlock);
 }
@@ -381,14 +381,14 @@ void samplv1widget_spin::setValue ( float fValue, bool bDefault )
 void samplv1widget_spin::setMaximum ( float fMaximum )
 {
 	m_pSpinBox->setMaximum(scaleFromValue(fMaximum));
-	samplv1widget_knob::setMaximum(fMaximum);
+	samplv1widget_param::setMaximum(fMaximum);
 }
 
 
 void samplv1widget_spin::setMinimum ( float fMinimum )
 {
 	m_pSpinBox->setMinimum(scaleFromValue(fMinimum));
-	samplv1widget_knob::setMinimum(fMinimum);
+	samplv1widget_param::setMinimum(fMinimum);
 }
 
 
@@ -401,7 +401,7 @@ QString samplv1widget_spin::valueText (void) const
 // Internal widget slots.
 void samplv1widget_spin::spinBoxValueChanged ( double spinValue )
 {
-	samplv1widget_knob::setValue(valueFromScale(float(spinValue)));
+	samplv1widget_param::setValue(valueFromScale(float(spinValue)));
 }
 
 
@@ -445,15 +445,15 @@ int samplv1widget_spin::decimals (void) const
 
 // Constructor.
 samplv1widget_combo::samplv1widget_combo ( QWidget *pParent )
-	: samplv1widget_knob(pParent)
+	: samplv1widget_param(pParent)
 {
 	m_pComboBox = new QComboBox();
 
-	const QFontMetrics fm(samplv1widget_knob::font());
+	const QFontMetrics fm(samplv1widget_param::font());
 	m_pComboBox->setMaximumHeight(fm.height() + 6);
 
 	QGridLayout *pGridLayout
-		= static_cast<QGridLayout *> (samplv1widget_knob::layout());
+		= static_cast<QGridLayout *> (samplv1widget_param::layout());
 	pGridLayout->addWidget(m_pComboBox, 2, 0, 1, 3);
 
 //	setScale(1.0f);
@@ -468,7 +468,7 @@ samplv1widget_combo::samplv1widget_combo ( QWidget *pParent )
 void samplv1widget_combo::setValue ( float fValue, bool bDefault )
 {
 	const bool bComboBlock = m_pComboBox->blockSignals(true);
-	samplv1widget_knob::setValue(fValue, bDefault);
+	samplv1widget_param::setValue(fValue, bDefault);
 	m_pComboBox->setCurrentIndex(iroundf(fValue));
 	m_pComboBox->blockSignals(bComboBlock);
 }
@@ -511,7 +511,7 @@ void samplv1widget_combo::clear (void)
 // Internal widget slots.
 void samplv1widget_combo::comboBoxValueChanged ( int iComboValue )
 {
-	samplv1widget_knob::setValue(float(iComboValue));
+	samplv1widget_param::setValue(float(iComboValue));
 }
 
 
@@ -532,4 +532,4 @@ void samplv1widget_combo::wheelEvent ( QWheelEvent *pWheelEvent )
 }
 
 
-// end of samplv1widget_knob.cpp
+// end of samplv1widget_param.cpp
