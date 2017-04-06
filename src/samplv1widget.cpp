@@ -142,7 +142,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	QStringList states;
 	states << tr("Off");
 	states << tr("On");
-
+#if 0
 	m_ui.Gen1ReverseKnob->insertItems(0, states);
 	m_ui.Gen1LoopKnob->insertItems(0, states);
 
@@ -150,7 +150,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 
 	m_ui.Dyn1CompressKnob->insertItems(0, states);
 	m_ui.Dyn1LimiterKnob->insertItems(0, states);
-
+#endif
 	// Special values
 	const QString& sOff = states.first();
 	m_ui.Gen1GlideKnob->setSpecialValueText(sOff);
@@ -209,10 +209,10 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 		channels << QString::number(iChannel + 1);
 
 	m_ui.Def1ChannelKnob->insertItems(0, channels);
-
+#if 0
 	// Mono switches
 	m_ui.Def1MonoKnob->insertItems(0, states);
-
+#endif
 	// Output (stereo-)width limits.
 	m_ui.Out1WidthKnob->setMinimum(-1.0f);
 	m_ui.Out1WidthKnob->setMaximum(+1.0f);

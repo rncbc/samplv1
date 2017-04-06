@@ -139,7 +139,7 @@
            </widget>
           </item>
           <item>
-           <widget class="samplv1widget_combo" name="Gen1ReverseKnob">
+           <widget class="samplv1widget_check" name="Gen1ReverseKnob">
             <property name="toolTip">
              <string>GEN Reverse</string>
             </property>
@@ -149,7 +149,7 @@
            </widget>
           </item>
           <item>
-           <widget class="samplv1widget_combo" name="Gen1LoopKnob">
+           <widget class="samplv1widget_check" name="Gen1LoopKnob">
             <property name="toolTip">
              <string>GEN Loop</string>
             </property>
@@ -341,7 +341,7 @@
              </widget>
             </item>
             <item>
-             <widget class="samplv1widget_combo" name="Dcf1TypeKnob">
+             <widget class="samplv1widget_radio" name="Dcf1TypeKnob">
               <property name="toolTip">
                <string>DCF Type</string>
               </property>
@@ -351,7 +351,7 @@
              </widget>
             </item>
             <item>
-             <widget class="samplv1widget_combo" name="Dcf1SlopeKnob">
+             <widget class="samplv1widget_radio" name="Dcf1SlopeKnob">
               <property name="toolTip">
                <string>DCF Slope</string>
               </property>
@@ -442,7 +442,7 @@
              </widget>
             </item>
             <item>
-             <widget class="samplv1widget_combo" name="Lfo1ShapeKnob">
+             <widget class="samplv1widget_radio" name="Lfo1ShapeKnob">
               <property name="toolTip">
                <string>LFO Wave Shape</string>
               </property>
@@ -533,7 +533,7 @@
              </widget>
             </item>
             <item>
-             <widget class="samplv1widget_combo" name="Lfo1SyncKnob">
+             <widget class="samplv1widget_check" name="Lfo1SyncKnob">
               <property name="toolTip">
                <string>LFO Sync</string>
               </property>
@@ -769,7 +769,7 @@
            </widget>
           </item>
           <item>
-           <widget class="samplv1widget_combo" name="Def1MonoKnob">
+           <widget class="samplv1widget_check" name="Def1MonoKnob">
             <property name="toolTip">
              <string>DEF1 Mono</string>
             </property>
@@ -1144,48 +1144,6 @@
          </layout>
         </widget>
        </item>
-       <item row="0" column="10" rowspan="2">
-        <widget class="QGroupBox" name="Dyn1GroupBox">
-         <property name="title">
-          <string>Dynamic</string>
-         </property>
-         <layout class="QVBoxLayout">
-          <item>
-           <widget class="samplv1widget_combo" name="Dyn1CompressKnob">
-            <property name="toolTip">
-             <string>Dynamic Compressor</string>
-            </property>
-            <property name="text">
-             <string>Compress</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint">
-             <size>
-              <width>8</width>
-              <height>4</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="samplv1widget_combo" name="Dyn1LimiterKnob">
-             <property name="toolTip">
-             <string>Dynamic Limiter</string>
-            </property>
-            <property name="text">
-             <string>Limiter</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
        <item row="0" column="11" rowspan="2">
         <spacer>
          <property name="orientation">
@@ -1271,6 +1229,35 @@
          </layout>
         </widget>
        </item>
+       <item row="2" column="6" colspan="4">
+        <widget class="QGroupBox" name="Dyn1GroupBox">
+         <property name="title">
+          <string>Dynamic</string>
+         </property>
+         <layout class="QHBoxLayout">
+          <item>
+           <widget class="samplv1widget_check" name="Dyn1CompressKnob">
+            <property name="toolTip">
+             <string>Dynamic Compressor</string>
+            </property>
+            <property name="text">
+             <string>Compress</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="samplv1widget_check" name="Dyn1LimiterKnob">
+             <property name="toolTip">
+             <string>Dynamic Limiter</string>
+            </property>
+            <property name="text">
+             <string>Limiter</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
        <item row="3" column="0" colspan="12">
         <spacer>
          <property name="orientation">
@@ -1345,6 +1332,16 @@
   </customwidget>
   <customwidget>
    <class>samplv1widget_combo</class>
+   <extends>QDial</extends>
+   <header>samplv1widget_param.h</header>
+  </customwidget>
+  <customwidget>
+   <class>samplv1widget_radio</class>
+   <extends>QDial</extends>
+   <header>samplv1widget_param.h</header>
+  </customwidget>
+  <customwidget>
+   <class>samplv1widget_check</class>
    <extends>QDial</extends>
    <header>samplv1widget_param.h</header>
   </customwidget>
