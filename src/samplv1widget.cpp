@@ -150,6 +150,8 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 
 	m_ui.Dyn1CompressKnob->insertItems(0, states);
 	m_ui.Dyn1LimiterKnob->insertItems(0, states);
+#else
+	m_ui.Lfo1SyncKnob->setAlignment(Qt::AlignHCenter | Qt::AlignBottom);
 #endif
 	// Special values
 	const QString& sOff = states.first();
@@ -212,6 +214,8 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 #if 0
 	// Mono switches
 	m_ui.Def1MonoKnob->insertItems(0, states);
+#else
+	m_ui.Def1MonoKnob->setAlignment(Qt::AlignHCenter | Qt::AlignBottom);
 #endif
 	// Output (stereo-)width limits.
 	m_ui.Out1WidthKnob->setMinimum(-1.0f);

@@ -766,10 +766,12 @@ samplv1widget_check::samplv1widget_check ( QWidget *pParent )
 	);
 #endif
 	m_pCheckBox = new QCheckBox();
+	m_alignment = Qt::AlignHCenter | Qt::AlignVCenter;
 
 	QGridLayout *pGridLayout
 		= static_cast<QGridLayout *> (samplv1widget_param::layout());
 	pGridLayout->addWidget(m_pCheckBox, 0, 0);
+	pGridLayout->setAlignment(m_pCheckBox, m_alignment);
 
 	samplv1widget_param::setMaximumSize(QSize(64, 72));
 
@@ -789,6 +791,22 @@ void samplv1widget_check::setText ( const QString& sText )
 QString samplv1widget_check::text (void) const
 {
 	return m_pCheckBox->text();
+}
+
+
+void samplv1widget_check::setAlignment ( Qt::Alignment alignment )
+{
+	m_alignment = alignment;
+
+	QLayout *pLayout = samplv1widget_param::layout();
+	if (pLayout)
+		pLayout->setAlignment(m_pCheckBox, m_alignment);
+}
+
+
+Qt::Alignment samplv1widget_check::alignment (void) const
+{
+	return m_alignment;
 }
 
 
