@@ -595,15 +595,12 @@ class samplv1widget_param_style : public QProxyStyle
 public:
 
 	// Constructor.
-	samplv1widget_param_style(samplv1widget_param *widget)
-		: QProxyStyle(widget->style())
+	samplv1widget_param_style() : QProxyStyle()
 	{
-		if (g_icon.isNull()) {
-			g_icon.addPixmap(
-				QPixmap(":/images/ledOff.png"), QIcon::Normal, QIcon::Off);
-			g_icon.addPixmap(
-				QPixmap(":/images/ledOn.png"), QIcon::Normal, QIcon::On);
-		}
+		m_icon.addPixmap(
+			QPixmap(":/images/ledOff.png"), QIcon::Normal, QIcon::Off);
+		m_icon.addPixmap(
+			QPixmap(":/images/ledOn.png"), QIcon::Normal, QIcon::On);
 	}
 
 
@@ -627,14 +624,14 @@ public:
 			const QRect& rect = option->rect;
 			if (option->state & State_Enabled) {
 				if (option->state & State_On)
-					g_icon.paint(painter, rect,
+					m_icon.paint(painter, rect,
 						Qt::AlignCenter, QIcon::Normal, QIcon::On);
 				else
 			//	if (option->state & State_Off)
-					g_icon.paint(painter, rect,
+					m_icon.paint(painter, rect,
 						Qt::AlignCenter, QIcon::Normal, QIcon::Off);
 			} else {
-				g_icon.paint(painter, rect,
+				m_icon.paint(painter, rect,
 					Qt::AlignCenter, QIcon::Disabled, QIcon::Off);
 			}
 		}
@@ -642,12 +639,26 @@ public:
 		QProxyStyle::drawPrimitive(element, option, painter, widget);
 	}
 
+	static void addRef ()
+		{ if (++g_iRefCount == 1) g_pStyle = new samplv1widget_param_style(); }
+
+	static void releaseRef ()
+		{ if (--g_iRefCount == 0) { delete g_pStyle; g_pStyle = NULL; } }
+
+	static samplv1widget_param_style *getRef ()
+		{ return g_pStyle; }
+
 private:
 
-	static QIcon g_icon;
+	QIcon m_icon;
+
+	static samplv1widget_param_style *g_pStyle;
+	static unsigned int g_iRefCount;
 };
 
-QIcon samplv1widget_param_style::g_icon;
+
+samplv1widget_param_style *samplv1widget_param_style::g_pStyle = NULL;
+unsigned int samplv1widget_param_style::g_iRefCount = 0;
 
 
 //-------------------------------------------------------------------------
@@ -658,7 +669,7 @@ QIcon samplv1widget_param_style::g_icon;
 samplv1widget_radio::samplv1widget_radio ( QWidget *pParent )
 	: samplv1widget_param(pParent), m_group(this)
 {
-	samplv1widget_param::setStyle(new samplv1widget_param_style(this));
+	samplv1widget_param_style::addRef();
 #if 0
 	samplv1widget_param::setStyleSheet(
 	//	"QRadioButton::indicator { width: 16px; height: 16px; }"
@@ -671,6 +682,13 @@ samplv1widget_radio::samplv1widget_radio ( QWidget *pParent )
 	QObject::connect(&m_group,
 		SIGNAL(buttonClicked(int)),
 		SLOT(radioGroupValueChanged(int)));
+}
+
+
+// Destructor.
+samplv1widget_radio::~samplv1widget_radio (void)
+{
+	samplv1widget_param_style::releaseRef();
 }
 
 
@@ -711,6 +729,7 @@ void samplv1widget_radio::insertItems ( int iIndex, const QStringList& items )
 	while (iter.hasNext()) {
 		const QString& sValueText = iter.next();
 		QRadioButton *pRadioButton = new QRadioButton(sValueText);
+		pRadioButton->setStyle(samplv1widget_param_style::getRef());
 		pGridLayout->addWidget(pRadioButton, iIndex, 0);
 		m_group.addButton(pRadioButton, iIndex);
 		++iIndex;
@@ -757,7 +776,7 @@ void samplv1widget_radio::radioGroupValueChanged ( int iRadioValue )
 samplv1widget_check::samplv1widget_check ( QWidget *pParent )
 	: samplv1widget_param(pParent)
 {
-	samplv1widget_param::setStyle(new samplv1widget_param_style(this));
+	samplv1widget_param_style::addRef();
 #if 0
 	samplv1widget_param::setStyleSheet(
 	//	"QCheckBox::indicator { width: 16px; height: 16px; }"
@@ -766,6 +785,8 @@ samplv1widget_check::samplv1widget_check ( QWidget *pParent )
 	);
 #endif
 	m_pCheckBox = new QCheckBox();
+	m_pCheckBox->setStyle(samplv1widget_param_style::getRef());
+
 	m_alignment = Qt::AlignHCenter | Qt::AlignVCenter;
 
 	QGridLayout *pGridLayout
@@ -778,6 +799,13 @@ samplv1widget_check::samplv1widget_check ( QWidget *pParent )
 	QObject::connect(m_pCheckBox,
 		SIGNAL(toggled(bool)),
 		SLOT(checkBoxValueChanged(bool)));
+}
+
+
+// Destructor.
+samplv1widget_check::~samplv1widget_check (void)
+{
+	samplv1widget_param_style::releaseRef();
 }
 
 

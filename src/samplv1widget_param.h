@@ -292,6 +292,9 @@ public:
 	// Constructor.
 	samplv1widget_radio(QWidget *pParent = 0);
 
+	// Desstructor.
+	~samplv1widget_radio();
+
 	// Virtual accessors.
 	QString valueText() const;
 
@@ -327,6 +330,9 @@ public:
 
 	// Constructor.
 	samplv1widget_check(QWidget *pParent = 0);
+
+	// Desstructor.
+	~samplv1widget_check();
 
 	// Accessors.
 	void setText(const QString& sText);
