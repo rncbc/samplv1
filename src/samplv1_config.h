@@ -60,8 +60,9 @@ public:
 	QString sPresetDir;
 	QString sSampleDir;
 
-	// Dial knob behavior mode.
+	// Knob behavior modes.
 	int iKnobDialMode;
+	int iKnobEditMode;
 
 	// Special persistent options.
 	bool bControlsEnabled;

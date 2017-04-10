@@ -512,6 +512,8 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	if (pConfig) {
 		samplv1widget_dial::setDialMode(
 			samplv1widget_dial::DialMode(pConfig->iKnobDialMode));
+		samplv1widget_edit::setEditMode(
+			samplv1widget_edit::EditMode(pConfig->iKnobEditMode));
 	}
 
 	// Epilog.

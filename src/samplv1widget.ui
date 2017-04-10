@@ -1342,7 +1342,7 @@
   </customwidget>
   <customwidget>
    <class>samplv1widget_check</class>
-   <extends>QDial</extends>
+   <extends>QCheckBox</extends>
    <header>samplv1widget_param.h</header>
   </customwidget>
   <customwidget>
