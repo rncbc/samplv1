@@ -958,6 +958,10 @@ void samplv1widget::loadSampleFile ( const QString& sFilename )
 // Sample updater (crude experimental stuff II).
 void samplv1widget::updateSample ( samplv1_sample *pSample, bool bDirty )
 {
+	samplv1_ui *pSamplUi = ui_instance();
+	if (m_ui.Gen1Sample->instance() == NULL)
+		m_ui.Gen1Sample->setInstance(pSamplUi);
+
 	m_ui.Gen1Sample->setSample(pSample);
 
 	++m_iUpdate;
@@ -981,6 +985,17 @@ void samplv1widget::updateSample ( samplv1_sample *pSample, bool bDirty )
 
 	if (pSample && bDirty)
 		updateDirtyPreset(true);
+}
+
+
+// Sample playback (direct note-on/off).
+void samplv1widget::playSample (void)
+{
+#ifdef CONFIG_DEBUG
+	qDebug("samplv1widget::playSample()");
+#endif
+
+	m_ui.Gen1Sample->directNoteOn();
 }
 
 
@@ -1133,6 +1148,10 @@ void samplv1widget::contextMenuRequest ( const QPoint& pos )
 	pAction = menu.addAction(
 		QIcon(":/images/fileOpen.png"),
 		tr("Open Sample..."), this, SLOT(openSample()));
+	pAction->setEnabled(pSamplUi != NULL);
+	pAction = menu.addAction(
+		QIcon(":/images/playSample.png"),
+		tr("Play"), this, SLOT(playSample()));
 	pAction->setEnabled(pSamplUi != NULL);
 	menu.addSeparator();
 	pAction = menu.addAction(

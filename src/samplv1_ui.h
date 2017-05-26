@@ -65,6 +65,8 @@ public:
 	void midiInEnabled(bool bEnabled);
 	uint32_t midiInCount();
 
+	void directNoteOn(int note, int vel);
+
 private:
 
 	samplv1 *m_pSampl;

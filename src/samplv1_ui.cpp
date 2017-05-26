@@ -138,4 +138,10 @@ uint32_t samplv1_ui::midiInCount (void)
 }
 
 
+void samplv1_ui::directNoteOn ( int note, int vel )
+{
+	m_pSampl->directNoteOn(note, vel);
+}
+
+
 // end of samplv1_ui.cpp

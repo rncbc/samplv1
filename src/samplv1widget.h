@@ -97,6 +97,9 @@ protected slots:
 	// Sample loader slot.
 	void loadSample(const QString& sFilename);
 
+	// Sample playback (direct note-on/off).
+	void playSample(void);
+
 	// Common context menu.
 	void contextMenuRequest(const QPoint& pos);
 

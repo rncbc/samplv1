@@ -1,7 +1,7 @@
 // samplv1widget_sample.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2015, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2017, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -28,6 +28,7 @@
 
 
 // Forward decl.
+class samplv1_ui;
 class samplv1_sample;
 
 class QDragEnterEvent;
@@ -48,6 +49,10 @@ public:
 	// Destructor.
 	~samplv1widget_sample();
 
+	// Settlers.
+	void setInstance(samplv1_ui *pSamplUi);
+	samplv1_ui *instance() const;
+
 	// Parameter accessors.
 	void setSample(samplv1_sample *pSample);
 	samplv1_sample *sample() const;
@@ -61,6 +66,9 @@ public:
 	// Loop point getters.
 	uint32_t loopStart() const;
 	uint32_t loopEnd() const;
+
+	// Direct note-on methods.
+	void directNoteOn();
 
 signals:
 
@@ -81,6 +89,11 @@ public slots:
 	// Loop point setters.
 	void setLoopStart(uint32_t iLoopStart);
 	void setLoopEnd(uint32_t iLoopEnd);
+
+protected slots:
+
+	// Direct note-off/timeout methods.
+	void directNoteOff();
 
 protected:
 
@@ -119,6 +132,8 @@ protected:
 private:
 
 	// Instance state.
+	samplv1_ui *m_pSamplUi;
+
 	samplv1_sample *m_pSample;
 	unsigned short m_iChannels;
 	QPolygon **m_ppPolyg;
@@ -137,6 +152,8 @@ private:
 	int m_iDragEndX;
 
 	samplv1_sample *m_pDragSample;
+
+	int m_iDirectNoteOn;
 
 	// Loop state.
 	bool     m_bLoop;

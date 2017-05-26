@@ -1,7 +1,7 @@
 // samplv1widget_sample.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2015, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2017, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -24,6 +24,8 @@
 #include "samplv1_config.h"
 #include "samplv1_sample.h"
 
+#include "samplv1_ui.h"
+
 #include <sndfile.h>
 
 #include <QPainter>
@@ -33,6 +35,7 @@
 #include <QMimeData>
 #include <QDrag>
 #include <QUrl>
+#include <QTimer>
 
 #include <QMouseEvent>
 #include <QDragEnterEvent>
@@ -47,7 +50,8 @@
 // Constructor.
 samplv1widget_sample::samplv1widget_sample (
 	QWidget *pParent, Qt::WindowFlags wflags )
-	: QFrame(pParent, wflags), m_pSample(0), m_iChannels(0), m_ppPolyg(0)
+	: QFrame(pParent, wflags), m_pSamplUi(NULL),
+		m_pSample(NULL), m_iChannels(0), m_ppPolyg(NULL)
 {
 	QFrame::setMouseTracking(true);
 	QFrame::setFocusPolicy(Qt::ClickFocus);
@@ -67,6 +71,8 @@ samplv1widget_sample::samplv1widget_sample (
 	m_dragCursor  = DragNone;
 	m_pDragSample = NULL;
 
+	m_iDirectNoteOn = -1;
+
 	resetDragState();
 }
 
@@ -75,6 +81,19 @@ samplv1widget_sample::samplv1widget_sample (
 samplv1widget_sample::~samplv1widget_sample (void)
 {
 	setSample(NULL);
+}
+
+
+// Settlers.
+void samplv1widget_sample::setInstance ( samplv1_ui *pSamplUi )
+{
+	m_pSamplUi = pSamplUi;
+}
+
+
+samplv1_ui *samplv1widget_sample::instance (void) const
+{
+	return m_pSamplUi;
 }
 
 
@@ -404,6 +423,8 @@ void samplv1widget_sample::mouseReleaseEvent ( QMouseEvent *pMouseEvent )
 		break;
 	}
 
+	directNoteOff();
+
 	m_pDragSample = NULL;
 	resetDragState();
 }
@@ -643,6 +664,35 @@ void samplv1widget_sample::updateToolTip (void)
 QSize samplv1widget_sample::sizeHint (void) const
 {
 	return QSize(480, 80);
+}
+
+
+// Direct note-on/off methods.
+void samplv1widget_sample::directNoteOn (void)
+{
+	if (m_pSamplUi == NULL || m_pSample == NULL)
+		return;
+
+	const int key = int(m_pSamplUi->paramValue(samplv1::GEN1_SAMPLE));
+	const float v = m_pSamplUi->paramValue(samplv1::DEF1_VELOCITY);
+	const int vel = int(79.375f * v + 47.625f) & 0x7f;
+	m_pSamplUi->directNoteOn(key, vel); // note-on!
+	m_iDirectNoteOn = key;
+
+	const float srate_ms = 0.001f * m_pSample->sampleRate();
+	const int timeout_ms = int(float(m_pSample->length()) / srate_ms);
+	QTimer::singleShot(timeout_ms, this, SLOT(directNoteOff()));
+}
+
+
+void samplv1widget_sample::directNoteOff (void)
+{
+	if (m_pSamplUi == NULL || m_iDirectNoteOn < 0)
+		return;
+
+	m_pSamplUi->directNoteOn(m_iDirectNoteOn, 0); // note-off!
+
+	m_iDirectNoteOn = -1;
 }
 
 

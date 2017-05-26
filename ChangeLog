@@ -4,6 +4,13 @@ samplv1 - an old-school polyphonic sampler
 ChangeLog
 
 
+GIT HEAD
+
+- Play (current sample) menu item has been added to sample
+  display right-click context-menu as for triggering it as
+  an internal MIDI note-on/off event. (EXPERIMENTAL)
+
+
 0.8.2  2017-05-02  Pre-LAC2017 release frenzy.
 
 - A custom knob/spin-box behavioral option have been added:
