@@ -772,6 +772,8 @@ public:
 	void midiInEnabled(bool on);
 	uint32_t midiInCount();
 
+	void directNoteOn(int note, int vel);
+
 	samplv1_sample  gen1_sample;
 	samplv1_wave_lf lfo1_wave;
 
@@ -860,6 +862,10 @@ private:
 
 	samplv1_reverb m_reverb;
 	samplv1_phasor m_phasor;
+
+	volatile int m_direct_chan;
+	volatile int m_direct_note;
+	volatile int m_direct_vel;
 };
 
 
@@ -1502,6 +1508,8 @@ void samplv1_impl::allNotesOff (void)
 	gen1_last = 0.0f;
 
 	m_aux1.reset();
+
+	m_direct_chan = m_direct_note = m_direct_vel = -1;
 }
 
 
@@ -1521,6 +1529,20 @@ void samplv1_impl::allSustainOff (void)
 			}
 		}
 		pv = pv->next();
+	}
+}
+
+
+// direct note-on triggered on next cycle...
+void samplv1_impl::directNoteOn ( int note, int vel )
+{
+	if (vel > 0) {
+		const int ch1 = int(*m_def.channel);
+		m_direct_chan = (ch1 > 0 ? ch1 - 1 : 0) & 0x0f;
+		m_direct_note = note;
+		m_direct_vel  = vel;
+	} else {
+		m_direct_vel  = 0;
 	}
 }
 
@@ -1614,6 +1636,20 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 	for (k = 0; k < m_nchannels; ++k) {
 		::memcpy(m_sfxs[k], ins[k], nframes * sizeof(float));
 		::memset(outs[k], 0, nframes * sizeof(float));
+	}
+
+	// process direct note on/off...
+	if (m_direct_chan >= 0 && m_direct_note >= 0 && m_direct_vel >= 0) {
+		struct note_data { uint8_t status, note, vel; } data;
+		data.status = (m_direct_vel > 0 ? 0x90 : 0x80) | m_direct_chan;
+		data.note = m_direct_note;
+		data.vel = m_direct_vel;
+		process_midi((uint8_t *) &data, sizeof(data));
+		if (m_direct_vel == 0) {
+			m_direct_chan = -1;
+			m_direct_note = -1;
+		}
+		m_direct_vel = -1;
 	}
 
 	// channel indexes
@@ -2054,6 +2090,14 @@ void samplv1::midiInEnabled ( bool on )
 uint32_t samplv1::midiInCount (void)
 {
 	return m_pImpl->midiInCount();
+}
+
+
+// MIDI direct note on/off triggering
+
+void samplv1::directNoteOn ( int note, int vel )
+{
+	m_pImpl->directNoteOn(note, vel);
 }
 
 
