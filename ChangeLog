@@ -4,13 +4,13 @@ samplv1 - an old-school polyphonic sampler
 ChangeLog
 
 
-GIT HEAD
+0.8.3  2017-06-21  A Summer'17 release.
 
-- Added StartupWMClass entry to desktop file. (EXPERIMENTAL)
+- Added StartupWMClass entry to desktop file.
 - Long overdue, some brand new and fundamental icons revamp.
 - Play (current sample) menu item has been added to sample
   display right-click context-menu as for triggering it as
-  an internal MIDI note-on/off event. (EXPERIMENTAL)
+  an internal MIDI note-on/off event.
 
 
 0.8.2  2017-05-02  Pre-LAC2017 release frenzy.
