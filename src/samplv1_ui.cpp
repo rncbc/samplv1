@@ -26,7 +26,8 @@
 // samplv1_ui - decl.
 //
 
-samplv1_ui::samplv1_ui ( samplv1 *pSampl ) : m_pSampl(pSampl)
+samplv1_ui::samplv1_ui ( samplv1 *pSampl, bool bPlugin )
+	: m_pSampl(pSampl), m_bPlugin(bPlugin)
 {
 }
 
@@ -34,6 +35,12 @@ samplv1_ui::samplv1_ui ( samplv1 *pSampl ) : m_pSampl(pSampl)
 samplv1 *samplv1_ui::instance (void) const
 {
 	return m_pSampl;
+}
+
+
+bool samplv1_ui::isPlugin (void) const
+{
+	return m_bPlugin;
 }
 
 

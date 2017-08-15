@@ -70,7 +70,7 @@ samplv1widget_jack::samplv1widget_jack ( samplv1_jack *pSampl )
 		QApplication::setStyle(QStyleFactory::create(pConfig->sCustomStyleTheme));
 
 	// Initialize (user) interface stuff...
-	m_pSamplUi = new samplv1_ui(m_pSampl);
+	m_pSamplUi = new samplv1_ui(m_pSampl, false);
 
 	// May initialize the scheduler/work notifier.
 	openSchedNotifier();

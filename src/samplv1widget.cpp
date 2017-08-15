@@ -28,6 +28,9 @@
 #include "samplv1widget_config.h"
 #include "samplv1widget_control.h"
 
+#include "samplv1_controls.h"
+#include "samplv1_programs.h"
+
 #include <QMessageBox>
 #include <QDir>
 #include <QTimer>
@@ -1245,8 +1248,7 @@ void samplv1widget::helpConfigure (void)
 	samplv1widget_config form(this);
 
 	// Set controllers&&programs database...
-	form.setControls(pSamplUi->controls());
-	form.setPrograms(pSamplUi->programs());
+	form.setInstance(pSamplUi);
 
 	form.exec();
 }

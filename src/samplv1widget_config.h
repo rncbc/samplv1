@@ -24,9 +24,11 @@
 
 #include "ui_samplv1widget_config.h"
 
-#include "samplv1_programs.h"
-#include "samplv1_controls.h"
 #include "samplv1_config.h"
+
+
+// forward decls.
+class samplv1_ui;
 
 
 //----------------------------------------------------------------------------
@@ -44,13 +46,9 @@ public:
 	// dtor.
 	~samplv1widget_config();
 
-	// controllers accessors.
-	void setControls(samplv1_controls *pControls);
-	samplv1_controls *controls() const;
-
-	// programs accessors.
-	void setPrograms(samplv1_programs *pPrograms);
-	samplv1_programs *programs() const;
+	// instance accessors.
+	void setInstance(samplv1_ui *pSamplUi);
+	samplv1_ui *instance() const;
 
 protected slots:
 
@@ -93,11 +91,8 @@ private:
 	// UI struct.
 	Ui::samplv1widget_config m_ui;
 
-	// Controllers database.
-	samplv1_controls *m_pControls;
-
-	// Programs database.
-	samplv1_programs *m_pPrograms;
+	// Instance reference.
+	samplv1_ui *m_pSamplUi;
 
 	// Dialog dirty flag.
 	int m_iDirtyControls;

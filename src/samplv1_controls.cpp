@@ -560,7 +560,7 @@ private:
 #include <math.h>
 
 samplv1_controls::samplv1_controls ( samplv1 *pSampl )
-	: m_pImpl(new samplv1_controls::Impl()), m_mode(0),
+	: m_pImpl(new samplv1_controls::Impl()), m_enabled(false),
 		m_sched_in(pSampl), m_sched_out(pSampl),
 		m_timeout(0), m_timein(0)
 {

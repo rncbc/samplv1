@@ -28,7 +28,7 @@
 
 // ctor.
 samplv1_programs::samplv1_programs ( samplv1 *pSampl )
-	: m_mode(0), m_sched(pSampl),
+	: m_enabled(false), m_sched(pSampl),
 		m_bank_msb(0), m_bank_lsb(0), m_bank(0), m_prog(0)
 {
 }

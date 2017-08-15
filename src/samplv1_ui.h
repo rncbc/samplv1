@@ -33,7 +33,11 @@ class samplv1_ui
 {
 public:
 
-	samplv1_ui(samplv1 *pSampl);
+	samplv1_ui(samplv1 *pSampl, bool bPlugin);
+
+	samplv1 *instance() const;
+
+	bool isPlugin() const;
 
 	void setSampleFile(const char *pszSampleFile);
 	const char *sampleFile() const;
@@ -49,8 +53,6 @@ public:
 	void setLoopRange(uint32_t iLoopStart, uint32_t iLoopEnd);
 	uint32_t loopStart() const;
 	uint32_t loopEnd() const;
-
-	samplv1 *instance() const;
 
 	void setParamValue(samplv1::ParamIndex index, float fValue);
 	float paramValue(samplv1::ParamIndex index) const;
@@ -70,6 +72,8 @@ public:
 private:
 
 	samplv1 *m_pSampl;
+
+	bool m_bPlugin;
 };
 
 

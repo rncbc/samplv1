@@ -35,7 +35,7 @@
 
 samplv1_lv2ui::samplv1_lv2ui ( samplv1_lv2 *pSampl,
 	LV2UI_Controller controller, LV2UI_Write_Function write_function )
-	: samplv1_ui(pSampl)
+	: samplv1_ui(pSampl, true)
 {
 	m_controller = controller;
 	m_write_function = write_function;

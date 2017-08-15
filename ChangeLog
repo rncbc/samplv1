@@ -6,7 +6,7 @@ ChangeLog
 
 GIT HEAD
 
-- Nothing special (TBD).
+- Disabled "Custom style theme" option on LV2 plug-in form.
 
 
 0.8.3  2017-06-21  A Summer'17 release.
