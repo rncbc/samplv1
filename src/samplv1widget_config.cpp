@@ -432,7 +432,7 @@ void samplv1widget_config::stabilize (void)
 	pItem = m_ui.ProgramsTreeWidget->currentItem();
 	bEnabled = (m_pSamplUi && m_pSamplUi->programs() != NULL);
 	m_ui.ProgramsPreviewCheckBox->setEnabled(
-		bEnabled && m_ui.ProgramsEnabledCheckBox->isEnabled());
+		bEnabled && m_ui.ProgramsEnabledCheckBox->isChecked());
 	m_ui.ProgramsAddBankToolButton->setEnabled(bEnabled);
 	m_ui.ProgramsAddItemToolButton->setEnabled(bEnabled);
 	bEnabled = bEnabled && (pItem != NULL);
