@@ -1245,12 +1245,7 @@ void samplv1widget::helpConfigure (void)
 	if (pSamplUi == NULL)
 		return;
 
-	samplv1widget_config form(this);
-
-	// Set controllers&&programs database...
-	form.setInstance(pSamplUi);
-
-	form.exec();
+	samplv1widget_config(pSamplUi, this).exec();
 }
 
 

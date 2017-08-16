@@ -41,14 +41,11 @@
 
 // ctor.
 samplv1widget_config::samplv1widget_config (
-	QWidget *pParent, Qt::WindowFlags wflags )
-	: QDialog(pParent, wflags)
+	samplv1_ui *pSamplUi, QWidget *pParent, Qt::WindowFlags wflags )
+	: QDialog(pParent, wflags), m_pSamplUi(pSamplUi)
 {
 	// Setup UI struct...
 	m_ui.setupUi(this);
-
-	// UI instance reference.
-	m_pSamplUi = NULL;
 
 	// Custom style themes...
 	//m_ui.CustomStyleThemeComboBox->clear();
@@ -57,7 +54,8 @@ samplv1widget_config::samplv1widget_config (
 
 	// Setup options...
 	samplv1_config *pConfig = samplv1_config::getInstance();
-	if (pConfig) {
+	if (pConfig && m_pSamplUi) {
+		const bool bPlugin = m_pSamplUi->isPlugin();
 		m_ui.ProgramsPreviewCheckBox->setChecked(pConfig->bProgramsPreview);
 		m_ui.UseNativeDialogsCheckBox->setChecked(pConfig->bUseNativeDialogs);
 		m_ui.KnobDialModeComboBox->setCurrentIndex(pConfig->iKnobDialMode);
@@ -67,6 +65,23 @@ samplv1widget_config::samplv1widget_config (
 			iCustomStyleTheme = m_ui.CustomStyleThemeComboBox->findText(
 				pConfig->sCustomStyleTheme);
 		m_ui.CustomStyleThemeComboBox->setCurrentIndex(iCustomStyleTheme);
+		m_ui.CustomStyleThemeTextLabel->setEnabled(!bPlugin);
+		m_ui.CustomStyleThemeComboBox->setEnabled(!bPlugin);
+		// Load controllers database...
+		samplv1_controls *pControls = m_pSamplUi->controls();
+		if (pControls) {
+			m_ui.ControlsTreeWidget->loadControls(pControls);
+			m_ui.ControlsEnabledCheckBox->setEnabled(bPlugin);
+			m_ui.ControlsEnabledCheckBox->setChecked(pControls->enabled());
+		}
+		// Load programs database...
+		samplv1_programs *pPrograms = m_pSamplUi->programs();
+		if (pPrograms) {
+			m_ui.ProgramsTreeWidget->loadPrograms(pPrograms);
+			m_ui.ProgramsEnabledCheckBox->setEnabled(bPlugin);
+			m_ui.ProgramsPreviewCheckBox->setEnabled(!bPlugin);
+			m_ui.ProgramsEnabledCheckBox->setChecked(pPrograms->enabled());
+		}
 	}
 
 	// Signal/slots connections...
@@ -170,43 +185,7 @@ samplv1widget_config::~samplv1widget_config (void)
 }
 
 
-// instance accessors.
-void samplv1widget_config::setInstance ( samplv1_ui *pSamplUi )
-{
-	m_pSamplUi = pSamplUi;
-
-	samplv1_config *pConfig = samplv1_config::getInstance();
-	if (pConfig && m_pSamplUi) {
-		const bool bOptional = m_pSamplUi->isPlugin();
-		// Load controllers database...
-		samplv1_controls *pControls = pSamplUi->controls();
-		if (pControls) {
-			m_ui.ControlsTreeWidget->loadControls(pControls);
-			m_ui.ControlsEnabledCheckBox->setEnabled(bOptional);
-			m_ui.ControlsEnabledCheckBox->setChecked(pControls->enabled());
-		}
-		// Load programs database...
-		samplv1_programs *pPrograms = pSamplUi->programs();
-		if (pPrograms) {
-			m_ui.ProgramsTreeWidget->loadPrograms(pPrograms);
-			m_ui.ProgramsEnabledCheckBox->setEnabled(bOptional);
-			m_ui.ProgramsPreviewCheckBox->setEnabled(!bOptional);
-			m_ui.ProgramsEnabledCheckBox->setChecked(pPrograms->enabled());
-		}
-		// Widget styles not available on plugin mode...
-		m_ui.CustomStyleThemeTextLabel->setEnabled(!bOptional);
-		m_ui.CustomStyleThemeComboBox->setEnabled(!bOptional);
-	}
-
-	// Reset dialog dirty flags.
-	m_iDirtyControls = 0;
-	m_iDirtyPrograms = 0;
-
-	stabilize();
-}
-
-
-samplv1_ui *samplv1widget_config::instance (void) const
+samplv1_ui *samplv1widget_config::ui_instance (void) const
 {
 	return m_pSamplUi;
 }

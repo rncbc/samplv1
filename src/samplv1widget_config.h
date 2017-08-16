@@ -41,14 +41,14 @@ class samplv1widget_config : public QDialog
 public:
 
 	// ctor.
-	samplv1widget_config(QWidget *pParent = 0, Qt::WindowFlags wflags = 0);
+	samplv1widget_config(samplv1_ui *pSamplUi,
+		QWidget *pParent = 0, Qt::WindowFlags wflags = 0);
 
 	// dtor.
 	~samplv1widget_config();
 
-	// instance accessors.
-	void setInstance(samplv1_ui *pSamplUi);
-	samplv1_ui *instance() const;
+	// UI instance accessors.
+	samplv1_ui *ui_instance() const;
 
 protected slots:
 
