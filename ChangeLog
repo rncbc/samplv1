@@ -4,7 +4,7 @@ samplv1 - an old-school polyphonic sampler
 ChangeLog
 
 
-GIT HEAD
+0.8.4  2017-08-22  A Late-Summer'17 release.
 
 - Disabled "Custom style theme" option on LV2 plug-in form.
 
