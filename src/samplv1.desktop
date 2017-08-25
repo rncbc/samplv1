@@ -11,4 +11,5 @@ Keywords=Audio;MIDI;ALSA;JACK;Synthesizer;Sampler;LV2;Qt;
 Terminal=false
 Type=Application
 StartupWMClass=samplv1_jack
+X-Window-Icon=samplv1
 X-SuSE-translate=true
