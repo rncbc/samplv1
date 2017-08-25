@@ -1,10 +1,10 @@
 [Desktop Entry]
-Name=@PACKAGE_NAME@
+Name=samplv1
 Version=1.0
 GenericName=MIDI
 Comment=samplv1 is an old school polyphonic sampler
 Comment[fr]=samplv1 est un échantillonneur polyphonique à l'ancienne
-Exec=@ac_prefix@/bin/samplv1_jack
+Exec=samplv1_jack
 Icon=samplv1
 Categories=Audio;AudioVideo;Midi;X-Alsa;X-Jack;Qt;
 Keywords=Audio;MIDI;ALSA;JACK;Synthesizer;Sampler;LV2;Qt;

@@ -3,7 +3,7 @@ AC_INIT(samplv1, 0.8.4, rncbc@rncbc.org)
 
 AC_CONFIG_SRCDIR(src/samplv1.cpp)
 AC_CONFIG_HEADERS(src/config.h)
-AC_CONFIG_FILES(Makefile samplv1.spec src/src_core.pri src/src_jack.pri src/src_lv2.pri src/samplv1.desktop)
+AC_CONFIG_FILES(Makefile samplv1.spec src/src_core.pri src/src_jack.pri src/src_lv2.pri)
 
 # Build version string.
 AC_CACHE_VAL([ac_cv_build_version], [
