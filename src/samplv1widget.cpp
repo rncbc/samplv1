@@ -214,12 +214,15 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 		channels << QString::number(iChannel + 1);
 
 	m_ui.Def1ChannelKnob->insertItems(0, channels);
-#if 0
-	// Mono switches
-	m_ui.Def1MonoKnob->insertItems(0, states);
-#else
-	m_ui.Def1MonoKnob->setAlignment(Qt::AlignHCenter | Qt::AlignBottom);
-#endif
+
+	// Mono switches.
+	QStringList modes;
+	modes << tr("Poly");
+	modes << tr("Mono");
+	modes << tr("Legato");
+
+	m_ui.Def1MonoKnob->insertItems(0, modes);
+
 	// Output (stereo-)width limits.
 	m_ui.Out1WidthKnob->setMinimum(-1.0f);
 	m_ui.Out1WidthKnob->setMaximum(+1.0f);
