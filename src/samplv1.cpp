@@ -1424,6 +1424,8 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 						m_dcf1.env.restart(&pv->dcf1_env, legato);
 						m_lfo1.env.restart(&pv->lfo1_env, legato);
 						m_dca1.env.restart(&pv->dca1_env, legato);
+						pv->gen1.setLoop(*m_gen1.loop > 0.0f);
+						if (!legato) pv->gen1.start();
 						m_notes[pv->note] = pv;
 					}
 				}
