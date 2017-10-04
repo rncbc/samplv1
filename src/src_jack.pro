@@ -4,6 +4,7 @@ NAME = samplv1
 
 TARGET = $${NAME}_jack
 TEMPLATE = app
+LIBS += -L.
 
 include(src_jack.pri)
 
@@ -111,7 +112,7 @@ unix {
 	mimetypes_scalable.path = $${DATADIR}/icons/hicolor/scalable/mimetypes
 	mimetypes_scalable.files += mimetypes/application-x-$${NAME}-preset.svg
 
-	LIBS += -L. -l$${NAME} -Wl,-rpath,$${LIBDIR}
+	LIBS += -l$${NAME} -Wl,-rpath,$${LIBDIR}
 }
 
 QT += xml
