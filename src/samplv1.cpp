@@ -1331,12 +1331,17 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 			samplv1_voice *pv;
 			// mono voice modes
 			if (*m_def.mono > 0.0f) {
+				int n = 0;
 				for (pv = m_play_list.next(); pv; pv = pv->next()) {
 					if (pv->note >= 0
 						&& pv->dca1_env.stage != samplv1_env::Release) {
 						m_dcf1.env.note_off_fast(&pv->dcf1_env);
 						m_lfo1.env.note_off_fast(&pv->lfo1_env);
 						m_dca1.env.note_off_fast(&pv->dca1_env);
+						if (++n > 1) { // there shall be only one
+							m_notes[pv->note] = NULL;
+							pv->note = -1;
+						}
 					}
 				}
 			}
