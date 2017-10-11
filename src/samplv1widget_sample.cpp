@@ -598,22 +598,28 @@ void samplv1widget_sample::openSample (void)
 
 	const QString& sTitle  = tr("Open Sample") + " - " SAMPLV1_TITLE;
 	const QString& sFilter = s_filters.join(";;");
-#if 1//QT_VERSION < 0x040400
+#if QT_VERSION < 0x040400
+	QWidget *pParentWidget = NULL;
+#else
+	QWidget *pParentWidget = nativeParentWidget();
+#endif
 	QFileDialog::Options options = 0;
-	if (pConfig->bDontUseNativeDialogs)
+	if (pConfig->bDontUseNativeDialogs) {
 		options |= QFileDialog::DontUseNativeDialog;
-	sFilename = QFileDialog::getOpenFileName(parentWidget(),
+		pParentWidget = parentWidget();
+	}
+#if 1//QT_VERSION < 0x040400
+	sFilename = QFileDialog::getOpenFileName(pParentWidget,
 		sTitle, pConfig->sSampleDir, sFilter, NULL, options);
 #else
-	QFileDialog fileDialog(nativeParentWidget(),
+	QFileDialog fileDialog(pParentWidget,
 		sTitle, pConfig->sSampleDir, sFilter);
 	fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
 	fileDialog.setFileMode(QFileDialog::ExistingFile);
 	QList<QUrl> urls(fileDialog.sidebarUrls());
 	urls.append(QUrl::fromLocalFile(pConfig->sSampleDir));
 	fileDialog.setSidebarUrls(urls);
-	if (pConfig->bDontUseNativeDialogs)
-		fileDialog.setOptions(QFileDialog::DontUseNativeDialog);
+	fileDialog.setOptions(options);
 	if (fileDialog.exec())
 		sFilename = fileDialog.selectedFiles().first();
 #endif
