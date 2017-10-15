@@ -21,6 +21,8 @@
 
 #include "samplv1_sample.h"
 
+#include "samplv1_resampler.h"
+
 #include <sndfile.h>
 
 
@@ -95,24 +97,48 @@ bool samplv1_sample::open ( const char *filename, float freq0 )
 	m_rate0     = float(info.samplerate);
 	m_nframes   = info.frames;
 
-	const uint32_t nsize = m_nframes + 4;
+	float *buffer = new float [m_nchannels * m_nframes];
 
+	const int nread = ::sf_readf_float(file, buffer, m_nframes);
+	if (nread > 0) {
+		// resample start...
+		const uint32_t ninp = uint32_t(nread);
+		const uint32_t rinp = uint32_t(m_rate0);
+		const uint32_t rout = uint32_t(m_srate);
+		if (rinp != rout) {
+			samplv1_resampler resampler;
+			const uint32_t nout = uint32_t(float(ninp) * m_srate / m_rate0);
+			const uint32_t FILTSIZE = 32; // resample medium quality
+			if (resampler.setup(rinp, rout, m_nchannels, FILTSIZE)) {
+				float *inpb = buffer;
+				float *outb = new float [m_nchannels * nout];
+				resampler.inp_count = ninp;
+				resampler.inp_data  = inpb;
+				resampler.out_count = nout;
+				resampler.out_data  = outb;
+				resampler.process();
+				buffer = outb;
+				delete [] inpb;
+				// identical rates now...
+				m_rate0 = float(rout);
+				m_nframes = nout;
+			}
+		}
+		else m_nframes = ninp;
+		// resample end.
+	}
+
+	const uint32_t nsize = m_nframes + 4;
 	m_pframes = new float * [m_nchannels];
 	for (uint16_t k = 0; k < m_nchannels; ++k) {
 		m_pframes[k] = new float [nsize];
 		::memset(m_pframes[k], 0, nsize * sizeof(float));
 	}
 
-	float *buffer = new float [m_nchannels * m_nframes];
-
-	const int nread = ::sf_readf_float(file, buffer, m_nframes);
-	if (nread > 0) {
-		const uint32_t n = uint32_t(nread);
-		uint32_t i = 0;
-		for (uint32_t j = 0; j < n; ++j) {
-			for (uint16_t k = 0; k < m_nchannels; ++k)
-				m_pframes[k][j] = buffer[i++];
-		}
+	uint32_t i = 0;
+	for (uint32_t j = 0; j < m_nframes; ++j) {
+		for (uint16_t k = 0; k < m_nchannels; ++k)
+			m_pframes[k][j] = buffer[i++];
 	}
 
 	delete [] buffer;
