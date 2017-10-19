@@ -880,7 +880,7 @@ void samplv1widget::loadPreset ( const QString& sFilename )
 
 	samplv1_ui *pSamplUi = ui_instance();
 	if (pSamplUi)
-		samplv1_param::loadPreset(pSamplUi->instance(), sFilename);
+		pSamplUi->loadPreset(sFilename);
 
 	updateLoadPreset(QFileInfo(sFilename).completeBaseName());
 }
@@ -894,7 +894,7 @@ void samplv1widget::savePreset ( const QString& sFilename )
 
 	samplv1_ui *pSamplUi = ui_instance();
 	if (pSamplUi)
-		samplv1_param::savePreset(pSamplUi->instance(), sFilename);
+		pSamplUi->savePreset(sFilename);
 
 	const QString& sPreset
 		= QFileInfo(sFilename).completeBaseName();
@@ -980,6 +980,11 @@ void samplv1widget::updateSample ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1Sample->setLoopEnd(iLoopEnd);
 		activateParamKnobs(pSample->filename() != NULL);
 		updateSampleLoop(pSample);
+		// Set current preset name if empty...
+		if (pSample->filename() && m_ui.Preset->preset().isEmpty()) {
+			m_ui.Preset->setPreset(
+				QFileInfo(pSample->filename()).completeBaseName());
+		}
 	} else {
 		m_ui.Gen1Sample->setLoop(false);
 		m_ui.Gen1Sample->setLoopStart(0);

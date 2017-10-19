@@ -44,10 +44,8 @@ namespace samplv1_param
 		QDomDocument& doc, QDomElement& eSamples);
 
 	// Preset serialization methods.
-	void loadPreset(samplv1 *pSampl,
-		const QString& sFilename);
-	void savePreset(samplv1 *pSampl,
-		const QString& sFilename);
+	bool loadPreset(samplv1 *pSampl, const QString& sFilename);
+	bool savePreset(samplv1 *pSampl, const QString& sFilename);
 
 	// Default parameter name/value helpers.
 	const char *paramName(samplv1::ParamIndex index);

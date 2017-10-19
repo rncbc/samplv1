@@ -21,6 +21,8 @@
 
 #include "samplv1_ui.h"
 
+#include "samplv1_param.h"
+
 
 //-------------------------------------------------------------------------
 // samplv1_ui - decl.
@@ -95,6 +97,17 @@ uint32_t samplv1_ui::loopStart (void) const
 uint32_t samplv1_ui::loopEnd (void) const
 {
 	return m_pSampl->loopEnd();
+}
+
+
+bool samplv1_ui::loadPreset ( const QString& sFilename )
+{
+	return samplv1_param::loadPreset(m_pSampl, sFilename);
+}
+
+bool samplv1_ui::savePreset ( const QString& sFilename )
+{
+	return samplv1_param::savePreset(m_pSampl, sFilename);
 }
 
 

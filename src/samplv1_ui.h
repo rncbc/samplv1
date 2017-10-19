@@ -24,6 +24,8 @@
 
 #include "samplv1.h"
 
+#include <QString>
+
 
 //-------------------------------------------------------------------------
 // samplv1_ui - decl.
@@ -53,6 +55,9 @@ public:
 	void setLoopRange(uint32_t iLoopStart, uint32_t iLoopEnd);
 	uint32_t loopStart() const;
 	uint32_t loopEnd() const;
+
+	bool loadPreset(const QString& sFilename);
+	bool savePreset(const QString& sFilename);
 
 	void setParamValue(samplv1::ParamIndex index, float fValue);
 	float paramValue(samplv1::ParamIndex index) const;

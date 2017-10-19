@@ -263,10 +263,10 @@ bool samplv1_param::paramFloat ( samplv1::ParamIndex index )
 
 
 // Preset serialization methods.
-void samplv1_param::loadPreset ( samplv1 *pSampl, const QString& sFilename )
+bool samplv1_param::loadPreset ( samplv1 *pSampl, const QString& sFilename )
 {
 	if (pSampl == NULL)
-		return;
+		return false;
 
 	QFileInfo fi(sFilename);
 	if (!fi.exists()) {
@@ -275,16 +275,16 @@ void samplv1_param::loadPreset ( samplv1 *pSampl, const QString& sFilename )
 			const QString& sPresetFile
 				= pConfig->presetFile(sFilename);
 			if (sPresetFile.isEmpty())
-				return;
+				return false;
 			fi.setFile(sPresetFile);
 			if (!fi.exists())
-				return;
+				return false;
 		}
 	}
 
 	QFile file(fi.filePath());
 	if (!file.open(QIODevice::ReadOnly))
-		return;
+		return false;
 
 	static QHash<QString, samplv1::ParamIndex> s_hash;
 	if (s_hash.isEmpty()) {
@@ -342,13 +342,15 @@ void samplv1_param::loadPreset ( samplv1 *pSampl, const QString& sFilename )
 	pSampl->reset();
 
 	QDir::setCurrent(currentDir.absolutePath());
+
+	return true;
 }
 
 
-void samplv1_param::savePreset ( samplv1 *pSampl, const QString& sFilename )
+bool samplv1_param::savePreset ( samplv1 *pSampl, const QString& sFilename )
 {
 	if (pSampl == NULL)
-		return;
+		return true;
 
 	const QFileInfo fi(sFilename);
 	const QDir currentDir(QDir::current());
@@ -377,12 +379,15 @@ void samplv1_param::savePreset ( samplv1 *pSampl, const QString& sFilename )
 	doc.appendChild(ePreset);
 
 	QFile file(fi.filePath());
-	if (file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-		QTextStream(&file) << doc.toString();
-		file.close();
-	}
+	if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
+		return false;
+
+	QTextStream(&file) << doc.toString();
+	file.close();
 
 	QDir::setCurrent(currentDir.absolutePath());
+
+	return true;
 }
 
 
