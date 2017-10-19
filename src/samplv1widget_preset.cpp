@@ -215,9 +215,9 @@ void samplv1widget_preset::loadPreset ( const QString& sPreset )
 void samplv1widget_preset::newPreset (void)
 {
 	if (queryPreset()) {
+		emit newPresetFile();
 		clearPreset();
 		refreshPreset();
-		emit newPresetFile();
 	}
 
 	stabilizePreset();
