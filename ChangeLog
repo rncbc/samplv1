@@ -6,6 +6,8 @@ ChangeLog
 
 GIT HEAD
 
+- Sample files are now saved as symlinks when saving to JACK
+  and/or NSM session directories/folders. (EXPERIMENTAL)
 - Opening multiple preset files is now possible, populating
   the preset drop-down listing, while only the first one is
   loaded effectively into the scene as usual. (EXPERIMENTAL)

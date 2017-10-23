@@ -177,7 +177,6 @@ void samplv1_param::loadSamples (
 				if (eChild.isNull())
 					continue;
 				if (eChild.tagName() == "filename") {
-				//	int index = eSample.attribute("index").toInt();
 					sFilename = eChild.text();
 				}
 				else
@@ -193,8 +192,8 @@ void samplv1_param::loadSamples (
 			if (sFilename.isEmpty())
 				sFilename = eSample.text();
 			// Done it.
-			sFilename = QFileInfo(sFilename).canonicalFilePath();
-			pSampl->setSampleFile(sFilename.toUtf8().constData());
+			pSampl->setSampleFile(
+				QFileInfo(sFilename).canonicalFilePath().toUtf8().constData());
 			// Set actual sample loop points...
 			pSampl->setLoopRange(iLoopStart, iLoopEnd);
 		}
@@ -203,7 +202,7 @@ void samplv1_param::loadSamples (
 
 
 void samplv1_param::saveSamples (
-	samplv1 *pSampl, QDomDocument& doc, QDomElement& eSamples )
+	samplv1 *pSampl, QDomDocument& doc, QDomElement& eSamples, bool bSymLink )
 {
 	if (pSampl == NULL)
 		return;
@@ -212,14 +211,20 @@ void samplv1_param::saveSamples (
 	if (pszSampleFile == NULL)
 		return;
 
+	QFileInfo fi(QString::fromUtf8(pszSampleFile));
+	if (bSymLink) {
+		const QString& sLinkname = fi.fileName();
+		QFile(fi.absoluteFilePath()).link(sLinkname);
+		fi.setFile(QDir::current(), sLinkname);
+	}
+
 	QDomElement eSample = doc.createElement("sample");
 	eSample.setAttribute("index", 0);
 	eSample.setAttribute("name", "GEN1_SAMPLE");
 
 	QDomElement eFilename = doc.createElement("filename");
 	eFilename.appendChild(doc.createTextNode(
-		QDir::current().relativeFilePath(
-			QString::fromUtf8(pszSampleFile))));
+		QDir::current().relativeFilePath(fi.absoluteFilePath())));
 	eSample.appendChild(eFilename);
 
 	const uint32_t iLoopStart = pSampl->loopStart();
@@ -263,7 +268,8 @@ bool samplv1_param::paramFloat ( samplv1::ParamIndex index )
 
 
 // Preset serialization methods.
-bool samplv1_param::loadPreset ( samplv1 *pSampl, const QString& sFilename )
+bool samplv1_param::loadPreset (
+	samplv1 *pSampl, const QString& sFilename )
 {
 	if (pSampl == NULL)
 		return false;
@@ -347,10 +353,11 @@ bool samplv1_param::loadPreset ( samplv1 *pSampl, const QString& sFilename )
 }
 
 
-bool samplv1_param::savePreset ( samplv1 *pSampl, const QString& sFilename )
+bool samplv1_param::savePreset (
+	samplv1 *pSampl, const QString& sFilename, bool bSymLink )
 {
 	if (pSampl == NULL)
-		return true;
+		return false;
 
 	const QFileInfo fi(sFilename);
 	const QDir currentDir(QDir::current());
@@ -362,7 +369,7 @@ bool samplv1_param::savePreset ( samplv1 *pSampl, const QString& sFilename )
 	ePreset.setAttribute("version", CONFIG_BUILD_VERSION);
 
 	QDomElement eSamples = doc.createElement("samples");
-	samplv1_param::saveSamples(pSampl, doc, eSamples);
+	samplv1_param::saveSamples(pSampl, doc, eSamples, bSymLink);
 	ePreset.appendChild(eSamples);
 
 	QDomElement eParams = doc.createElement("params");
