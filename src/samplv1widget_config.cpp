@@ -27,6 +27,7 @@
 #include "samplv1_controls.h"
 #include "samplv1_programs.h"
 
+#include "ui_samplv1widget_config.h"
 
 #include <QPushButton>
 #include <QMessageBox>
@@ -42,7 +43,8 @@
 // ctor.
 samplv1widget_config::samplv1widget_config (
 	samplv1_ui *pSamplUi, QWidget *pParent, Qt::WindowFlags wflags )
-	: QDialog(pParent, wflags), m_pSamplUi(pSamplUi)
+	: QDialog(pParent, wflags), p_ui(new Ui::samplv1widget_config), m_ui(*p_ui),
+		m_pSamplUi(pSamplUi)
 {
 	// Setup UI struct...
 	m_ui.setupUi(this);
@@ -182,6 +184,7 @@ samplv1widget_config::samplv1widget_config (
 // dtor.
 samplv1widget_config::~samplv1widget_config (void)
 {
+	delete p_ui;
 }
 
 

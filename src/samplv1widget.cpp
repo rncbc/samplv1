@@ -31,6 +31,8 @@
 #include "samplv1_controls.h"
 #include "samplv1_programs.h"
 
+#include "ui_samplv1widget.h"
+
 #include <QMessageBox>
 #include <QDir>
 #include <QTimer>
@@ -45,7 +47,7 @@
 
 // Constructor.
 samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
-	: QWidget(pParent, wflags)
+	: QWidget(pParent, wflags), p_ui(new Ui::samplv1widget), m_ui(*p_ui)
 {
 	Q_INIT_RESOURCE(samplv1);
 
@@ -536,6 +538,8 @@ samplv1widget::~samplv1widget (void)
 {
 	if (m_sched_notifier)
 		delete m_sched_notifier;
+
+	delete p_ui;
 }
 
 

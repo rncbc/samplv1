@@ -22,12 +22,14 @@
 #ifndef __samplv1widget_config_h
 #define __samplv1widget_config_h
 
-#include "ui_samplv1widget_config.h"
-
 #include "samplv1_config.h"
+
+#include <QDialog>
 
 
 // forward decls.
+namespace Ui { class samplv1widget_config; }
+
 class samplv1_ui;
 
 
@@ -89,7 +91,8 @@ protected:
 private:
 
 	// UI struct.
-	Ui::samplv1widget_config m_ui;
+	Ui::samplv1widget_config *p_ui;
+	Ui::samplv1widget_config& m_ui;
 
 	// Instance reference.
 	samplv1_ui *m_pSamplUi;

@@ -22,16 +22,21 @@
 #ifndef __samplv1widget_h
 #define __samplv1widget_h
 
-#include "ui_samplv1widget.h"
-
 #include "samplv1_config.h"
 #include "samplv1_sched.h"
 
 #include "samplv1_ui.h"
 
+#include <QWidget>
+
 
 // forward decls.
+namespace Ui { class samplv1widget; }
+
+class samplv1widget_param;
 class samplv1widget_sched;
+
+class QGroupBox;
 
 
 //-------------------------------------------------------------------------
@@ -182,7 +187,8 @@ protected:
 private:
 
 	// Instance variables.
-	Ui::samplv1widget m_ui;
+	Ui::samplv1widget *p_ui;
+	Ui::samplv1widget& m_ui;
 
 	samplv1widget_sched *m_sched_notifier;
 
