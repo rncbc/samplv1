@@ -11,11 +11,6 @@ include(src_lv2.pri)
 
 HEADERS = \
 	config.h \
-	samplv1.h \
-	samplv1_config.h \
-	samplv1_param.h \
-	samplv1_programs.h \
-	samplv1_controls.h \
 	samplv1_lv2.h
 
 SOURCES = \

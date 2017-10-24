@@ -11,20 +11,7 @@ include(src_lv2.pri)
 
 HEADERS = \
 	config.h \
-	samplv1_ui.h \
 	samplv1_lv2ui.h \
-	samplv1widget.h \
-	samplv1widget_env.h \
-	samplv1widget_filt.h \
-	samplv1widget_sample.h \
-	samplv1widget_wave.h \
-	samplv1widget_param.h \
-	samplv1widget_preset.h \
-	samplv1widget_status.h \
-	samplv1widget_programs.h \
-	samplv1widget_controls.h \
-	samplv1widget_control.h \
-	samplv1widget_config.h \
 	samplv1widget_lv2.h
 
 SOURCES = \

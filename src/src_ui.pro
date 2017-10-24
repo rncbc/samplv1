@@ -12,10 +12,6 @@ include(src_ui.pri)
 HEADERS = \
 	config.h \
 	samplv1_ui.h \
-	samplv1_config.h \
-	samplv1_param.h \
-	samplv1_programs.h \
-	samplv1_controls.h \
 	samplv1widget.h \
 	samplv1widget_env.h \
 	samplv1widget_filt.h \

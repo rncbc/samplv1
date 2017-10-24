@@ -10,26 +10,8 @@ include(src_jack.pri)
 
 HEADERS = \
 	config.h \
-	samplv1.h \
-	samplv1_ui.h \
-	samplv1_config.h \
-	samplv1_param.h \
-	samplv1_programs.h \
-	samplv1_controls.h \
 	samplv1_nsm.h \
 	samplv1_jack.h \
-	samplv1widget.h \
-	samplv1widget_env.h \
-	samplv1widget_filt.h \
-	samplv1widget_sample.h \
-	samplv1widget_wave.h \
-	samplv1widget_param.h \
-	samplv1widget_preset.h \
-	samplv1widget_status.h \
-	samplv1widget_programs.h \
-	samplv1widget_controls.h \
-	samplv1widget_control.h \
-	samplv1widget_config.h \
 	samplv1widget_jack.h
 
 SOURCES = \
