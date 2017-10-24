@@ -11,7 +11,6 @@ include(src_core.pri)
 HEADERS = \
 	config.h \
 	samplv1.h \
-	samplv1_ui.h \
 	samplv1_config.h \
 	samplv1_filter.h \
 	samplv1_formant.h \
@@ -29,7 +28,6 @@ HEADERS = \
 
 SOURCES = \
 	samplv1.cpp \
-	samplv1_ui.cpp \
 	samplv1_config.cpp \
 	samplv1_formant.cpp \
 	samplv1_resampler.cpp \
