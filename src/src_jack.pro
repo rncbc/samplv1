@@ -35,26 +35,7 @@ HEADERS = \
 SOURCES = \
 	samplv1_nsm.cpp \
 	samplv1_jack.cpp \
-	samplv1widget.cpp \
-	samplv1widget_env.cpp \
-	samplv1widget_filt.cpp \
-	samplv1widget_sample.cpp \
-	samplv1widget_wave.cpp \
-	samplv1widget_param.cpp \
-	samplv1widget_preset.cpp \
-	samplv1widget_status.cpp \
-	samplv1widget_programs.cpp \
-	samplv1widget_controls.cpp \
-	samplv1widget_control.cpp \
-	samplv1widget_config.cpp \
 	samplv1widget_jack.cpp
-
-FORMS = \
-	samplv1widget.ui \
-	samplv1widget_control.ui \
-	samplv1widget_config.ui
-
-RESOURCES += samplv1.qrc
 
 
 unix {
@@ -112,7 +93,7 @@ unix {
 	mimetypes_scalable.path = $${DATADIR}/icons/hicolor/scalable/mimetypes
 	mimetypes_scalable.files += mimetypes/application-x-$${NAME}-preset.svg
 
-	LIBS += -l$${NAME} -Wl,-rpath,$${LIBDIR}
+	LIBS += -l$${NAME} -l$${NAME}_ui -Wl,-rpath,$${LIBDIR}
 }
 
 QT += xml
