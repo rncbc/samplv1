@@ -508,9 +508,20 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 
     painter.fillRect(rect, rgbDark);
 
-	if (!m_sName.isEmpty()) {
+	QString sTitle = m_sName;
+	if (m_pSample && m_pSample->filename()) {
+		if (!sTitle.isEmpty()) {
+			sTitle += ' ';
+			sTitle += '-';
+			sTitle += ' ';
+		}
+		sTitle += QFileInfo(
+			QString::fromUtf8(m_pSample->filename())
+		).completeBaseName();
+	}
+	if (!sTitle.isEmpty()) {
 		painter.setPen(pal.midlight().color());
-		painter.drawText(rect.adjusted(2, 0, -2, -0), Qt::AlignLeft, m_sName);
+		painter.drawText(rect.adjusted(2, 0, -2, -0), Qt::AlignLeft, sTitle);
 	}
 
 	if (m_pSample && m_ppPolyg) {
