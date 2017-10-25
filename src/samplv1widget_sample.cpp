@@ -122,7 +122,7 @@ void samplv1widget_sample::setSample ( samplv1_sample *pSample )
 		const int w = width() & 0x7ffe; // force even.
 		const int w2 = (w >> 1);
 		const unsigned int nframes = m_pSample->length();
-		const unsigned int nperiod = nframes / w2;
+		const float period = float(nframes) / float(w2);
 		const int h0 = h / m_iChannels;
 		const float h1 = float(h0 >> 1);
 		int y0 = h1;
@@ -134,18 +134,18 @@ void samplv1widget_sample::setSample ( samplv1_sample *pSample )
 			float vmin = 0.0f;
 			int n = 0;
 			int x = 1;
-			unsigned int j = nperiod;
+			unsigned int j = 0;
 			for (unsigned int i = 0; i < nframes; ++i) {
 				const float v = *pframes++;
 				if (vmax < v)
 					vmax = v;
 				if (vmin > v)
 					vmin = v;
-				if (++j > nperiod) {
+				if (i > j) {
 					m_ppPolyg[k]->setPoint(n, x, y0 - int(vmax * h1));
 					m_ppPolyg[k]->setPoint(w - n - 1, x, y0 - int(vmin * h1));
-					j = 0; vmax = vmin = 0.0f;
-					++n; x += 2;
+					vmax = vmin = 0.0f;
+					++n; x += 2; j = (unsigned int) (float(n) * period);
 				}
 			}
 			while (n < w2) {
