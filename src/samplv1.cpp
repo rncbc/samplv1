@@ -58,7 +58,7 @@
 const uint16_t MAX_VOICES = 32;			// polyphony
 const uint8_t  MAX_NOTES  = 128;
 
-const float MIN_ENV_MSECS = 2.0f;		// min 2 msec per stage
+const float MIN_ENV_MSECS = 0.5f;		// min 500 usec per stage
 const float MAX_ENV_MSECS = 5000.0f;	// max 5 sec per stage (default)
 
 const float DETUNE_SCALE  = 0.5f;
@@ -272,14 +272,11 @@ struct samplv1_env
 		p->running = true;
 		p->stage = Attack;
 		p->frames = uint32_t(*attack * *attack * max_frames);
+		if (p->frames < min_frames1) // prevent click on too fast attack
+			p->frames = min_frames1;
 		p->phase = 0.0f;
-		if (p->frames > 0) {
-			p->delta = 1.0f / float(p->frames);
-			p->value = 0.0f;
-		} else {
-			p->delta = 0.0f;
-			p->value = 1.0f;
-		}
+		p->delta = 1.0f / float(p->frames);
+		p->value = 0.0f;
 		p->c1 = 1.0f;
 		p->c0 = 0.0f;
 	}
@@ -289,8 +286,8 @@ struct samplv1_env
 		if (p->stage == Attack) {
 			p->stage = Decay;
 			p->frames = uint32_t(*decay * *decay * max_frames);
-			if (p->frames < min_frames) // prevent click on too fast decay
-				p->frames = min_frames;
+			if (p->frames < min_frames2) // prevent click on too fast decay
+				p->frames = min_frames2;
 			p->phase = 0.0f;
 			p->delta = 1.0f / float(p->frames);
 			p->c1 = *sustain - 1.0f;
@@ -322,8 +319,8 @@ struct samplv1_env
 		p->running = true;
 		p->stage = Release;
 		p->frames = uint32_t(*release * *release * max_frames);
-		if (p->frames < min_frames) // prevent click on too fast release
-			p->frames = min_frames;
+		if (p->frames < min_frames2) // prevent click on too fast release
+			p->frames = min_frames2;
 		p->phase = 0.0f;
 		p->delta = 1.0f / float(p->frames);
 		p->c1 = -(p->value);
@@ -334,7 +331,7 @@ struct samplv1_env
 	{
 		p->running = true;
 		p->stage = Release;
-		p->frames = min_frames;
+		p->frames = min_frames2;
 		p->phase = 0.0f;
 		p->delta = 1.0f / float(p->frames);
 		p->c1 = -(p->value);
@@ -346,7 +343,7 @@ struct samplv1_env
 		p->running = true;
 		if (legato) {
 			p->stage = Decay;
-			p->frames = min_frames;
+			p->frames = min_frames2;
 			p->phase = 0.0f;
 			p->delta = 1.0f / float(p->frames);
 			p->c1 = *sustain - p->value;
@@ -354,9 +351,9 @@ struct samplv1_env
 		} else {
 			p->stage = Attack;
 			p->frames = uint32_t(*attack * *attack * max_frames);
+			if (p->frames < min_frames1)
+				p->frames = min_frames1;
 			p->phase = 0.0f;
-			if (p->frames < min_frames)
-				p->frames = min_frames;
 			p->delta = 1.0f / float(p->frames);
 			p->c1 = 1.0f;
 			p->c0 = 0.0f;
@@ -370,7 +367,8 @@ struct samplv1_env
 	samplv1_port sustain;
 	samplv1_port release;
 
-	uint32_t min_frames;
+	uint32_t min_frames1;
+	uint32_t min_frames2;
 	uint32_t max_frames;
 };
 
@@ -1106,19 +1104,23 @@ void samplv1_impl::updateEnvTimes (void)
 	if (envtime_msecs < MIN_ENV_MSECS)
 		envtime_msecs = (gen1_sample.length() >> 1) / srate_ms;
 	if (envtime_msecs < MIN_ENV_MSECS)
-		envtime_msecs = MIN_ENV_MSECS * 2.0f;
+		envtime_msecs = MIN_ENV_MSECS * 4.0f;
 
-	const uint32_t min_frames = uint32_t(srate_ms * MIN_ENV_MSECS);
-	const uint32_t max_frames = uint32_t(srate_ms * envtime_msecs);
+	const uint32_t min_frames1 = uint32_t(srate_ms * MIN_ENV_MSECS);
+	const uint32_t min_frames2 = (min_frames1 << 2);
+	const uint32_t max_frames  = uint32_t(srate_ms * envtime_msecs);
 
-	m_dcf1.env.min_frames = min_frames;
-	m_dcf1.env.max_frames = max_frames;
+	m_dcf1.env.min_frames1 = min_frames1;
+	m_dcf1.env.min_frames2 = min_frames2;
+	m_dcf1.env.max_frames  = max_frames;
 
-	m_lfo1.env.min_frames = min_frames;
-	m_lfo1.env.max_frames = max_frames;
+	m_lfo1.env.min_frames1 = min_frames1;
+	m_lfo1.env.min_frames2 = min_frames2;
+	m_lfo1.env.max_frames  = max_frames;
 
-	m_dca1.env.min_frames = min_frames;
-	m_dca1.env.max_frames = max_frames;
+	m_dca1.env.min_frames1 = min_frames1;
+	m_dca1.env.min_frames2 = min_frames2;
+	m_dca1.env.max_frames  = max_frames;
 }
 
 
