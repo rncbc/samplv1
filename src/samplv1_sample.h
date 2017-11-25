@@ -203,7 +203,6 @@ public:
 		m_loop   = false;
 		m_phase1 = 0.0f;
 		m_phase2 = 0.0f;
-		m_gain   = 1.0f;
 	}
 
 	// reset loop.
@@ -222,8 +221,6 @@ public:
 			m_phase1 = float(end - start);
 			m_phase2 = float(end);
 		}
-
-		m_gain = 1.0f;
 	}
 
 	// begin.
@@ -246,24 +243,10 @@ public:
 		m_alpha  = m_phase - float(m_index);
 		m_phase += delta;
 
-		if (m_loop) {
-			const float xtime = 32.0f; // frames.
-			const float xstep = 1.0f / xtime;
-			const float xfade = xtime * delta;
-			if (m_phase >= m_phase2 - xfade)
-				m_gain -= xstep;
-			else
-			if (m_gain < 1.0f)
-				m_gain += xstep;
-			if (m_phase >= m_phase2) {
-				m_phase -= m_phase1;
-				if (m_phase < 0.0f) {
-					m_phase = 0.0f;
-					m_gain = xstep;
-				} else {
-					m_gain = 0.0f;
-				}
-			}
+		if (m_loop && m_phase >= m_phase2) {
+			m_phase -= m_phase1;
+			if (m_phase < 0.0f)
+				m_phase = 0.0f;
 		}
 
 		if (m_frame < m_index)
@@ -289,7 +272,7 @@ public:
 		const float c3 = (x3 - x1) * 0.5f + b2 + b1;
 		const float c2 = (c3 + b2);
 
-		return m_gain * ((((c3 * m_alpha) - c2) * m_alpha + c1) * m_alpha + x1);
+		return (((c3 * m_alpha) - c2) * m_alpha + c1) * m_alpha + x1;
 	}
 
 	// predicate.
@@ -308,10 +291,10 @@ protected:
 		float v0 = frames[i];
 		for (++i; i < nframes; ++i) {
 			const float v1 = frames[i];
-			if ((0 >= s0 && v0 >= 0.0f && v1 < 0.0f) ||
-				(s0 >= 0 && v1 >= 0.0f && v0 < 0.0f)) {
+			if ((0 >= s0 && v0 >= 0.0f && 0.0f >= v1) ||
+				(s0 >= 0 && v1 >= 0.0f && 0.0f >= v0)) {
 				if (slope) *slope = (v1 < v0 ? -1 : +1);
-				return i;
+				return i - 1;
 			}
 			v0 = v1;
 		}
@@ -323,7 +306,7 @@ protected:
 	uint32_t zero_crossing ( uint32_t i, int *slope = NULL ) const
 	{
 		const uint16_t nchannels = m_sample->channels();
-
+ 
 		uint32_t sum = 0;
 		for (uint16_t k = 0; k < nchannels; ++k)
 			sum += zero_crossing_k(i, k, slope);
@@ -344,7 +327,6 @@ private:
 	bool     m_loop;
 	float    m_phase1;
 	float    m_phase2;
-	float    m_gain;
 };
 
 

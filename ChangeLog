@@ -6,6 +6,8 @@ ChangeLog
 
 GIT HEAD
 
+- Micro-fade-in/out that were stapled at the loop start/end
+  points respectively is now gone. (EXPERIMENTAL)
 - Set on a minimum attack time of 500usec as much to prevent
   audible clicking on low-pitched notes. (EXPERIMENTAL)
 
