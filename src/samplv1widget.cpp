@@ -88,7 +88,9 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 
 	// Loop range font.
 	const QFont& font = m_ui.Gen1LoopKnob->font();
-	m_ui.Gen1LoopRangeFrame->setFont(font);
+	m_ui.Gen1LoopRangeLabel->setFont(font);
+	m_ui.Gen1LoopStartSpinBox->setFont(font);
+	m_ui.Gen1LoopEndSpinBox->setFont(font);
 
 	const QFontMetrics fm(font);
 	m_ui.Gen1LoopStartSpinBox->setMaximumHeight(fm.height() + 6);
@@ -1093,10 +1095,12 @@ void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
 		const uint32_t iLoopStart = pSample->loopStart();
 		const uint32_t iLoopEnd = pSample->loopEnd();
 		const uint32_t nframes = pSample->length();
-		m_ui.Gen1LoopRangeFrame->setEnabled(bLoop);
+		m_ui.Gen1LoopRangeLabel->setEnabled(bLoop);
+		m_ui.Gen1LoopStartSpinBox->setEnabled(bLoop);
 		m_ui.Gen1LoopStartSpinBox->setMinimum(0);
 		m_ui.Gen1LoopStartSpinBox->setMaximum(
 		    iLoopEnd > 0 ? iLoopEnd : 0);
+		m_ui.Gen1LoopEndSpinBox->setEnabled(bLoop);
 		m_ui.Gen1LoopEndSpinBox->setMinimum(
 		    iLoopStart < nframes ? iLoopStart : nframes);
 		m_ui.Gen1LoopEndSpinBox->setMaximum(nframes);
@@ -1111,10 +1115,12 @@ void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
 			updateDirtyPreset(true);
 		}
 	} else {
-		m_ui.Gen1LoopRangeFrame->setEnabled(false);
+		m_ui.Gen1LoopRangeLabel->setEnabled(false);
+		m_ui.Gen1LoopStartSpinBox->setEnabled(false);
 		m_ui.Gen1LoopStartSpinBox->setMinimum(0);
 		m_ui.Gen1LoopStartSpinBox->setMaximum(0);
 		m_ui.Gen1LoopStartSpinBox->setValue(0);
+		m_ui.Gen1LoopEndSpinBox->setEnabled(false);
 		m_ui.Gen1LoopEndSpinBox->setMinimum(0);
 		m_ui.Gen1LoopEndSpinBox->setMaximum(0);
 		m_ui.Gen1LoopEndSpinBox->setValue(0);
