@@ -508,22 +508,6 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 
     painter.fillRect(rect, rgbDark);
 
-	QString sTitle = m_sName;
-	if (m_pSample && m_pSample->filename()) {
-		if (!sTitle.isEmpty()) {
-			sTitle += ' ';
-			sTitle += '-';
-			sTitle += ' ';
-		}
-		sTitle += QFileInfo(
-			QString::fromUtf8(m_pSample->filename())
-		).completeBaseName();
-	}
-	if (!sTitle.isEmpty()) {
-		painter.setPen(pal.midlight().color());
-		painter.drawText(rect.adjusted(2, 0, -2, -0), Qt::AlignLeft, sTitle);
-	}
-
 	if (m_pSample && m_ppPolyg) {
 		const int w2 = (w << 1);
 		painter.setRenderHint(QPainter::Antialiasing, true);
@@ -560,6 +544,22 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 		painter.setPen(pal.midlight().color());
 		painter.drawText(rect, Qt::AlignCenter,
 			tr("(double-click or drop to load new sample...)"));
+	}
+
+	QString sTitle = m_sName;
+	if (m_pSample && m_pSample->filename()) {
+		if (!sTitle.isEmpty()) {
+			sTitle += ' ';
+			sTitle += '-';
+			sTitle += ' ';
+		}
+		sTitle += QFileInfo(
+			QString::fromUtf8(m_pSample->filename())
+		).completeBaseName();
+	}
+	if (!sTitle.isEmpty()) {
+		painter.setPen(pal.midlight().color());
+		painter.drawText(rect.adjusted(2, 0, -2, -0), Qt::AlignLeft, sTitle);
 	}
 
 	painter.end();
