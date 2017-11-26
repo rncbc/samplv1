@@ -531,6 +531,16 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 			painter.fillRect(x1, 0, x2 - x1, h, grad1);
 			painter.drawLine(x1, 0, x1, h);
 			painter.drawLine(x2, 0, x2, h);
+			painter.setBrush(rgbLite);
+			QPolygon polyg(3);
+			polyg.putPoints(0, 3, x1 + 8, 0, x1, 8, x1, 0);
+			painter.drawPolygon(polyg);
+		//	polyg.putPoints(0, 3, x1 + 8, h, x1, h - 8, x1, h);
+		//	painter.drawPolygon(polyg);
+		//	polyg.putPoints(0, 3, x2 - 8, 0, x2, 8, x2, 0);
+		//	painter.drawPolygon(polyg);
+			polyg.putPoints(0, 3, x2 - 8, h, x2, h - 8, x2, h);
+			painter.drawPolygon(polyg);
 		}
 		QLinearGradient grad(0, 0, w2, h);
 		painter.setPen(bDark ? Qt::gray : Qt::darkGray);

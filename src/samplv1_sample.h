@@ -81,6 +81,7 @@ public:
 		if (m_loop && m_loop_start >= m_loop_end) {
 			m_loop_start = 0;
 			m_loop_end = m_nframes;
+			m_loop_phase1 = m_loop_phase2 = float(m_nframes);
 		}
 	}
 
@@ -109,10 +110,19 @@ public:
 
 		if (start < end) {
 			m_loop_start = start;
-			m_loop_end   = end;
+			m_loop_end = end;
+			int slope = 0;
+			end = zero_crossing(m_loop_end, &slope);
+			start = zero_crossing(m_loop_start, &slope);
+			if (start >= end) {
+				start = m_loop_start;
+				end = m_loop_end;
+			}
+			m_loop_phase1 = float(end - start);
+			m_loop_phase2 = float(end);
 		} else {
-			m_loop_start = 0;
-			m_loop_end   = 0;
+			m_loop_start = m_loop_end = 0;
+			m_loop_phase1 = m_loop_phase2 = 0.0f;
 		}
 	}
 
@@ -120,6 +130,11 @@ public:
 		{ return m_loop_start; }
 	uint32_t loopEnd (void) const
 		{ return m_loop_end; }
+
+	float loopPhase1 (void) const
+		{ return m_loop_phase1; }
+	float loopPhase2 (void) const
+		{ return m_loop_phase2; }
 
 	// init.
 	bool open(const char *filename, float freq0 = 1.0f);
@@ -156,6 +171,37 @@ public:
 	bool isOver(uint32_t frame) const
 		{ return !m_pframes || (frame >= m_nframes); }
 
+protected:
+
+	// zero-crossing aliasing (single channel).
+	uint32_t zero_crossing_k ( uint32_t i, uint16_t k, int *slope ) const
+	{
+		const float *frames = m_pframes[k];
+		const int s0 = (slope ? *slope : 0);
+
+		float v0 = frames[i];
+		for (++i; i < m_nframes; ++i) {
+			const float v1 = frames[i];
+			if ((0 >= s0 && v0 >= 0.0f && 0.0f >= v1) ||
+				(s0 >= 0 && v1 >= 0.0f && 0.0f >= v0)) {
+				if (slope) *slope = (v1 < v0 ? -1 : +1);
+				return i - 1;
+			}
+			v0 = v1;
+		}
+
+		return m_nframes;
+	}
+
+	// zero-crossing aliasing (median).
+	uint32_t zero_crossing ( uint32_t i, int *slope = NULL ) const
+	{
+		uint32_t sum = 0;
+		for (uint16_t k = 0; k < m_nchannels; ++k)
+			sum += zero_crossing_k(i, k, slope);
+		return (sum / m_nchannels);
+	}
+
 private:
 
 	// instance variables.
@@ -168,9 +214,12 @@ private:
 	uint32_t m_nframes;
 	float  **m_pframes;
 	bool     m_reverse;
+
 	bool     m_loop;
-	float    m_loop_start;
-	float    m_loop_end;
+	uint32_t m_loop_start;
+	uint32_t m_loop_end;
+	float    m_loop_phase1;
+	float    m_loop_phase2;
 
 	samplv1_reverse_sched *m_reverse_sched;
 };
@@ -195,14 +244,14 @@ public:
 	{
 		m_sample = sample;
 
-		m_phase  = 0.0f;
-		m_index  = 0;
-		m_alpha  = 0.0f;
-		m_frame  = 0;
+		m_phase = 0.0f;
+		m_index = 0;
+		m_alpha = 0.0f;
+		m_frame = 0;
 
-		m_loop   = false;
-		m_phase1 = 0.0f;
-		m_phase2 = 0.0f;
+		m_loop = false;
+		m_loop_phase1 = 0.0f;
+		m_loop_phase2 = 0.0f;
 	}
 
 	// reset loop.
@@ -211,15 +260,11 @@ public:
 		m_loop = loop;
 
 		if (m_loop) {
-			int slope = 0;
-			uint32_t end = zero_crossing(m_sample->loopEnd(), &slope);
-			uint32_t start = zero_crossing(m_sample->loopStart(), &slope);
-			if (start >= end) {
-				start = m_sample->loopStart();
-				end = m_sample->loopEnd();
-			}
-			m_phase1 = float(end - start);
-			m_phase2 = float(end);
+			m_loop_phase1 = m_sample->loopPhase1();
+			m_loop_phase2 = m_sample->loopPhase2();
+		} else {
+			m_loop_phase1 = 0.0f;
+			m_loop_phase2 = 0.0f;
 		}
 	}
 
@@ -243,8 +288,8 @@ public:
 		m_alpha  = m_phase - float(m_index);
 		m_phase += delta;
 
-		if (m_loop && m_phase >= m_phase2) {
-			m_phase -= m_phase1;
+		if (m_loop && m_phase >= m_loop_phase2) {
+			m_phase -= m_loop_phase1;
 			if (m_phase < 0.0f)
 				m_phase = 0.0f;
 		}
@@ -279,41 +324,6 @@ public:
 	bool isOver() const
 		{ return !m_loop && m_sample->isOver(m_frame); }
 
-protected:
-
-	// zero-crossing aliasing (single channel).
-	uint32_t zero_crossing_k ( uint32_t i, uint16_t k, int *slope ) const
-	{
-		const uint32_t nframes = m_sample->length();
-		const float *frames = m_sample->frames(k);
-		const int s0 = (slope ? *slope : 0);
-
-		float v0 = frames[i];
-		for (++i; i < nframes; ++i) {
-			const float v1 = frames[i];
-			if ((0 >= s0 && v0 >= 0.0f && 0.0f >= v1) ||
-				(s0 >= 0 && v1 >= 0.0f && 0.0f >= v0)) {
-				if (slope) *slope = (v1 < v0 ? -1 : +1);
-				return i - 1;
-			}
-			v0 = v1;
-		}
-
-		return nframes;
-	}
-
-	// zero-crossing aliasing (median).
-	uint32_t zero_crossing ( uint32_t i, int *slope = NULL ) const
-	{
-		const uint16_t nchannels = m_sample->channels();
- 
-		uint32_t sum = 0;
-		for (uint16_t k = 0; k < nchannels; ++k)
-			sum += zero_crossing_k(i, k, slope);
-
-		return (sum / nchannels);
-	}
-
 private:
 
 	// iterator variables.
@@ -325,8 +335,8 @@ private:
 	uint32_t m_frame;
 
 	bool     m_loop;
-	float    m_phase1;
-	float    m_phase2;
+	float    m_loop_phase1;
+	float    m_loop_phase2;
 };
 
 
