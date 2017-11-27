@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 // forward decls.
 class samplv1;
 class samplv1_reverse_sched;
@@ -179,13 +180,14 @@ protected:
 		const float *frames = m_pframes[k];
 		const int s0 = (slope ? *slope : 0);
 
+		if (i > 0) --i;
 		float v0 = frames[i];
 		for (++i; i < m_nframes; ++i) {
 			const float v1 = frames[i];
 			if ((0 >= s0 && v0 >= 0.0f && 0.0f >= v1) ||
 				(s0 >= 0 && v1 >= 0.0f && 0.0f >= v0)) {
-				if (slope) *slope = (v1 < v0 ? -1 : +1);
-				return i - 1;
+				if (slope && s0 == 0) *slope = (v1 < v0 ? -1 : +1);
+				return i;
 			}
 			v0 = v1;
 		}
