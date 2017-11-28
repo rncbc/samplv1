@@ -205,4 +205,65 @@ void samplv1_sample::reverse_sync (void)
 }
 
 
+// loop range.
+void samplv1_sample::setLoopRange ( uint32_t start, uint32_t end )
+{
+	if (start > m_nframes)
+		start = m_nframes;
+
+	if (end > m_nframes)
+		end = m_nframes;
+
+	if (start < end) {
+		m_loop_start = start;
+		m_loop_end = end;
+		int slope = 0;
+		end = zero_crossing(m_loop_end, &slope);
+		start = zero_crossing(m_loop_start, &slope);
+		if (start >= end) {
+			start = m_loop_start;
+			end = m_loop_end;
+		}
+		m_loop_phase1 = float(end - start);
+		m_loop_phase2 = float(end);
+	} else {
+		m_loop_start = m_loop_end = 0;
+		m_loop_phase1 = m_loop_phase2 = 0.0f;
+	}
+}
+
+
+// zero-crossing aliasing (single channel).
+uint32_t samplv1_sample::zero_crossing_k (
+	uint32_t i, uint16_t k, int *slope ) const
+{
+	const float *frames = m_pframes[k];
+	const int s0 = (slope ? *slope : 0);
+
+	if (i > 0) --i;
+	float v0 = frames[i];
+	for (++i; i < m_nframes; ++i) {
+		const float v1 = frames[i];
+		if ((0 >= s0 && v0 >= 0.0f && 0.0f >= v1) ||
+			(s0 >= 0 && v1 >= 0.0f && 0.0f >= v0)) {
+			if (slope && s0 == 0) *slope = (v1 < v0 ? -1 : +1);
+			return i;
+		}
+		v0 = v1;
+	}
+
+	return m_nframes;
+}
+
+
+// zero-crossing aliasing (median).
+uint32_t samplv1_sample::zero_crossing ( uint32_t i, int *slope ) const
+{
+	uint32_t sum = 0;
+	for (uint16_t k = 0; k < m_nchannels; ++k)
+		sum += zero_crossing_k(i, k, slope);
+	return (sum / m_nchannels);
+}
+
+
 // end of samplv1_sample.cpp
