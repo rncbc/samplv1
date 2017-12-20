@@ -4,12 +4,12 @@ samplv1 - an old-school polyphonic sampler
 ChangeLog
 
 
-GIT HEAD
+0.8.6  2017-12-20  The End of Autumn'17 release.
 
 - Micro-fade-in/out that were stapled at the loop start/end
-  points respectively is now gone. (EXPERIMENTAL)
+  points respectively is now gone.
 - Set on a minimum attack time of 500usec as much to prevent
-  audible clicking on low-pitched notes. (EXPERIMENTAL)
+  audible clicking on low-pitched notes.
 
 
 0.8.5  2017-10-29  An Autumn'17 release.
