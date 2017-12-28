@@ -29,6 +29,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QLineEdit>
+#include <QTime>
 
 
 //----------------------------------------------------------------------------
@@ -65,6 +66,9 @@ samplv1widget_control::samplv1widget_control (
 		int(samplv1_controls::CC14));
 
 	m_ui.ControlParamComboBox->setInsertPolicy(QComboBox::NoInsert);
+
+	// Anti-flooding guard timer.
+	m_pEventTimer = new QTime();
 
 	// Start clean.
 	m_iControlParamUpdate = 0;
@@ -115,6 +119,8 @@ samplv1widget_control::samplv1widget_control (
 // Destructor.
 samplv1widget_control::~samplv1widget_control (void)
 {
+	delete m_pEventTimer;
+
 	delete p_ui;
 }
 
@@ -185,6 +191,8 @@ void samplv1widget_control::setControls (
 		(flags & samplv1_controls::Hook) || !bFloat);
 	m_ui.ControlHookCheckBox->setEnabled(bFloat);
 
+	m_pEventTimer->start();
+
 	--m_iDirtySetup;
 
 	m_iDirtyCount = 0;
@@ -217,6 +225,10 @@ void samplv1widget_control::closeEvent ( QCloseEvent *pCloseEvent )
 // Process incoming controller key event.
 void samplv1widget_control::setControlKey ( const samplv1_controls::Key& key )
 {
+	// Anti-flooding guard timer < 3sec...
+	if (m_pEventTimer->elapsed() < 3000)
+		return;
+
 	setControlType(key.type());
 	setControlParam(key.param);
 
@@ -226,6 +238,8 @@ void samplv1widget_control::setControlKey ( const samplv1_controls::Key& key )
 		= m_ui.DialogButtonBox->button(QDialogButtonBox::Reset);
 	if (pResetButton && m_pControls)
 		pResetButton->setEnabled(m_pControls->find_control(key) >= 0);
+
+	m_pEventTimer->restart();
 }
 
 
@@ -252,6 +266,8 @@ void samplv1widget_control::changed (void)
 #ifdef CONFIG_DEBUG_0
 	qDebug("samplv1widget_control::changed()");
 #endif
+
+	m_pEventTimer->restart();
 
 	++m_iDirtyCount;
 
