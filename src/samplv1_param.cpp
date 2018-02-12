@@ -222,6 +222,7 @@ void samplv1_param::saveSamples (
 		QFile(sPath).link(sLink);
 		fi.setFile(QDir::current(), sLink);
 	}
+	else if (fi.isSymLink()) fi.setFile(fi.symLinkTarget());
 
 	QDomElement eSample = doc.createElement("sample");
 	eSample.setAttribute("index", 0);
