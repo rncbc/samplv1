@@ -192,8 +192,11 @@ void samplv1_param::loadSamples (
 			if (sFilename.isEmpty())
 				sFilename = eSample.text();
 			// Done it.
+			QFileInfo fi(sFilename);
+			if (fi.isSymLink())
+				fi.setFile(fi.symLinkTarget());
 			pSampl->setSampleFile(
-				QFileInfo(sFilename).canonicalFilePath().toUtf8().constData());
+				fi.canonicalFilePath().toUtf8().constData());
 			// Set actual sample loop points...
 			pSampl->setLoopRange(iLoopStart, iLoopEnd);
 		}
