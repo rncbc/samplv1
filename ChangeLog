@@ -6,6 +6,9 @@ ChangeLog
 
 GIT HEAD
 
+- Whether to use native file browser/requester dialogs is
+  now an effective option when launching under NSM session
+  management (was once disabled initially). (EXPERIMENTAL)
 - Initializing and/or requesting a New blank preset doesn't
   open a sample file picker dialog anymore as it was more
   than nagging while under on NSM sessions. (EXPERIMENTAL)

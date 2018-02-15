@@ -1,7 +1,7 @@
 // samplv1widget_jack.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2017, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2018, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -102,10 +102,6 @@ samplv1_ui *samplv1widget_jack::ui_instance (void) const
 void samplv1widget_jack::setNsmClient ( samplv1_nsm *pNsmClient )
 {
 	m_pNsmClient = pNsmClient;
-
-	samplv1_config *pConfig = samplv1_config::getInstance();
-	if (pConfig)
-		pConfig->bDontUseNativeDialogs = true;
 }
 
 samplv1_nsm *samplv1widget_jack::nsmClient (void) const
