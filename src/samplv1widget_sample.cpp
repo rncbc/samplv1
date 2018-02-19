@@ -621,10 +621,12 @@ void samplv1widget_sample::openSample (void)
 
 	const QString& sTitle  = tr("Open Sample") + " - " SAMPLV1_TITLE;
 	const QString& sFilter = s_filters.join(";;");
-	QWidget *pParentWidget = window();
+	QWidget *pParentWidget = NULL;
 	QFileDialog::Options options = 0;
-	if (pConfig->bDontUseNativeDialogs)
+	if (pConfig->bDontUseNativeDialogs) {
 		options |= QFileDialog::DontUseNativeDialog;
+		pParentWidget = QWidget::window();
+	}
 #if 1//QT_VERSION < 0x040400
 	sFilename = QFileDialog::getOpenFileName(pParentWidget,
 		sTitle, sFilename, sFilter, NULL, options);

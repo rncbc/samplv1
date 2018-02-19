@@ -233,10 +233,12 @@ void samplv1widget_preset::openPreset (void)
 	const QString& sTitle  = tr("Open Preset") + " - " SAMPLV1_TITLE;
 	const QString& sFilter = tr("Preset files (*.%1)").arg(sExt);
 
-	QWidget *pParentWidget = QWidget::window();
+	QWidget *pParentWidget = NULL;
 	QFileDialog::Options options = 0;
-	if (pConfig->bDontUseNativeDialogs)
+	if (pConfig->bDontUseNativeDialogs) {
 		options |= QFileDialog::DontUseNativeDialog;
+		pParentWidget = QWidget::window();
+	}
 #if 1//QT_VERSION < 0x040400
 	files = QFileDialog::getOpenFileNames(pParentWidget,
 		sTitle, pConfig->sPresetDir, sFilter, NULL, options);
@@ -293,16 +295,18 @@ void samplv1widget_preset::savePreset ( const QString& sPreset )
 	if (pConfig == NULL)
 		return;
 
-	QWidget *pParentWidget = QWidget::window();
 	const QString sExt(SAMPLV1_TITLE);
 	QFileInfo fi(QDir(pConfig->sPresetDir), sPreset + '.' + sExt);
 	QString sFilename = fi.absoluteFilePath();
 	if (!fi.exists()) {
 		const QString& sTitle  = tr("Save Preset") + " - " SAMPLV1_TITLE;
 		const QString& sFilter = tr("Preset files (*.%1)").arg(sExt);
+		QWidget *pParentWidget = NULL;
 		QFileDialog::Options options = 0;
-		if (pConfig->bDontUseNativeDialogs)
+		if (pConfig->bDontUseNativeDialogs) {
 			options |= QFileDialog::DontUseNativeDialog;
+			pParentWidget = QWidget::window();
+		}
 	#if 1//QT_VERSION < 0x040400
 		sFilename = QFileDialog::getSaveFileName(pParentWidget,
 			sTitle, sFilename, sFilter, NULL, options);
@@ -320,7 +324,7 @@ void samplv1widget_preset::savePreset ( const QString& sPreset )
 			sFilename = fileDialog.selectedFiles().first();
 	#endif
 	} else {
-		if (QMessageBox::warning(pParentWidget,
+		if (QMessageBox::warning(QWidget::window(),
 			tr("Warning") + " - " SAMPLV1_TITLE,
 			tr("About to replace preset:\n\n"
 			"\"%1\"\n\n"
@@ -356,9 +360,7 @@ void samplv1widget_preset::deletePreset (void)
 	samplv1_config *pConfig = samplv1_config::getInstance();
 	if (pConfig == NULL)
 		return;
-
-	QWidget *pParentWidget = QWidget::window();
-	if (QMessageBox::warning(pParentWidget,
+	if (QMessageBox::warning(QWidget::window(),
 		tr("Warning") + " - " SAMPLV1_TITLE,
 		tr("About to remove preset:\n\n"
 		"\"%1\"\n\n"
