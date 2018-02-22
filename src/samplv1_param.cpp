@@ -136,6 +136,25 @@ float samplv1_param::paramDefaultValue ( samplv1::ParamIndex index )
 }
 
 
+float samplv1_param::paramSafeValue ( samplv1::ParamIndex index, float fValue )
+{
+	const ParamInfo& param = samplv1_params[index];
+
+	if (param.type == PARAM_BOOL)
+		return (fValue > 0.5f ? 1.0f : 0.0f);
+
+	if (fValue < param.min)
+		return param.min;
+	if (fValue > param.max)
+		return param.max;
+
+	if (param.type == PARAM_INT)
+		return ::rintf(fValue);
+	else
+		return fValue;
+}
+
+
 float samplv1_param::paramValue ( samplv1::ParamIndex index, float fScale )
 {
 	const ParamInfo& param = samplv1_params[index];
@@ -275,7 +294,6 @@ bool samplv1_param::paramFloat ( samplv1::ParamIndex index )
 }
 
 
-
 // Preset serialization methods.
 bool samplv1_param::loadPreset (
 	samplv1 *pSampl, const QString& sFilename )
@@ -344,7 +362,8 @@ bool samplv1_param::loadPreset (
 								index = s_hash.value(sName);
 							}
 							const float fValue = eParam.text().toFloat();
-							pSampl->setParamValue(index, fValue);
+							pSampl->setParamValue(index,
+								samplv1_param::paramSafeValue(index, fValue));
 						}
 					}
 				}
