@@ -37,6 +37,7 @@
 #include "samplv1_config.h"
 #include "samplv1_controls.h"
 #include "samplv1_programs.h"
+#include "samplv1_tuning.h"
 
 #include "samplv1_sched.h"
 
@@ -787,6 +788,8 @@ public:
 	samplv1_controls *controls();
 	samplv1_programs *programs();
 
+	void updateTuning();
+
 	void process_midi(uint8_t *data, uint32_t size);
 	void process(float **ins, float **outs, uint32_t nframes);
 
@@ -937,10 +940,8 @@ samplv1_impl::samplv1_impl (
 		m_free_list.append(m_voices[i]);
 	}
 
-	for (int note = 0; note < MAX_NOTES; ++note) {
-		m_freqs[note] = samplv1_freq(note);
+	for (int note = 0; note < MAX_NOTES; ++note)
 		m_notes[note] = NULL;
-	}
 
 	// local buffers none yet
 	m_sfxs = NULL;
@@ -957,6 +958,9 @@ samplv1_impl::samplv1_impl (
 
 	// compressors none yet
 	m_comp = NULL;
+
+	// Micro-tuning support, if any...
+	updateTuning();
 
 	// load controllers & programs database...
 	m_config.loadControls(&m_controls);
@@ -1616,6 +1620,31 @@ samplv1_programs *samplv1_impl::programs (void)
 }
 
 
+// Micro-tuning support
+void samplv1_impl::updateTuning (void)
+{
+
+	if (m_config.bTuningEnabled) {
+		// Custom micro-tuning, possibly from Scala keymap and scale files...
+		samplv1_tuning tuning(
+			m_config.fTuningRefPitch,
+			m_config.iTuningRefNote);
+		if (!m_config.sTuningKeyMapFile.isEmpty())
+			tuning.loadKeyMapFile(m_config.sTuningKeyMapFile);
+		if (!m_config.sTuningScaleFile.isEmpty())
+			tuning.loadScaleFile(m_config.sTuningScaleFile);
+		for (int note = 0; note < MAX_NOTES; ++note)
+			m_freqs[note] = tuning.noteToPitch(note);
+		// Done custom tuning.
+	} else {
+		// Native tuning, 12-tone equal temperament western standard...
+		for (int note = 0; note < MAX_NOTES; ++note)
+			m_freqs[note] = samplv1_freq(note);
+		// Done native tuning.
+	}
+}
+
+
 // all reset clear
 
 void samplv1_impl::reset (void)
@@ -2150,6 +2179,13 @@ uint32_t samplv1::midiInCount (void)
 void samplv1::directNoteOn ( int note, int vel )
 {
 	m_pImpl->directNoteOn(note, vel);
+}
+
+
+// Micro-tuning support
+void samplv1::updateTuning (void)
+{
+	m_pImpl->updateTuning();
 }
 
 

@@ -175,6 +175,8 @@ public:
 
 	void directNoteOn(int note, int vel);
 
+	void updateTuning();
+
 protected:
 
 	virtual void updateSample() = 0;

@@ -52,9 +52,9 @@
 
 
 // Default ctor.
-samplv1_tuning::samplv1_tuning (void)
+samplv1_tuning::samplv1_tuning ( float refPitch, int refNote )
 {
-	reset();
+	reset(refPitch, refNote);
 }
 
 

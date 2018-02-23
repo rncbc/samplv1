@@ -75,6 +75,13 @@ public:
 	// Custom widget style theme.
 	QString sCustomStyleTheme;
 
+	// Micro-tuning options.
+	bool    bTuningEnabled;
+	float   fTuningRefPitch;
+	int     iTuningRefNote;
+	QString sTuningScaleFile;
+	QString sTuningKeyMapFile;
+
 	// Singleton instance accessor.
 	static samplv1_config *getInstance();
 
