@@ -23,6 +23,7 @@ HEADERS = \
 	samplv1_reverb.h \
 	samplv1_param.h \
 	samplv1_sched.h \
+	samplv1_tuning.h \
 	samplv1_programs.h \
 	samplv1_controls.h
 
@@ -35,6 +36,7 @@ SOURCES = \
 	samplv1_wave.cpp \
 	samplv1_param.cpp \
 	samplv1_sched.cpp \
+	samplv1_tuning.cpp \
 	samplv1_programs.cpp \
 	samplv1_controls.cpp
 
