@@ -32,6 +32,8 @@ namespace Ui { class samplv1widget_config; }
 
 class samplv1_ui;
 
+class QComboBox;
+
 
 //----------------------------------------------------------------------------
 // samplv1widget_config -- UI wrapper form.
@@ -51,6 +53,9 @@ public:
 
 	// UI instance accessors.
 	samplv1_ui *ui_instance() const;
+
+	// MIDI note/octave name helper (static).
+	static QString noteName(int note);
 
 protected slots:
 
@@ -75,6 +80,11 @@ protected slots:
 	void controlsEnabled(bool);
 	void programsEnabled(bool);
 
+	void tuningRefNoteClicked();
+	void tuningScaleFileClicked();
+	void tuningKeyMapFileClicked();
+
+	void tuningChanged();
 	void controlsChanged();
 	void programsChanged();
 	void optionsChanged();
@@ -84,6 +94,10 @@ protected slots:
 	void reject();
 
 protected:
+
+	// Combo box history persistence helper prototypes.
+	void loadComboBoxHistory(QComboBox *pComboBox, int iLimit = 8);
+	void saveComboBoxHistory(QComboBox *pComboBox, int iLimit = 8);
 
 	// stabilizer.
 	void stabilize();
@@ -98,6 +112,7 @@ private:
 	samplv1_ui *m_pSamplUi;
 
 	// Dialog dirty flag.
+	int m_iDirtyTuning;
 	int m_iDirtyControls;
 	int m_iDirtyPrograms;
 	int m_iDirtyOptions;
