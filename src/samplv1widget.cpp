@@ -105,7 +105,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	// Note names.
 	QStringList notes;
 	for (int note = 0; note < 128; ++note)
-		notes << noteName(note);
+		notes << samplv1_ui::noteName(note);
 
 	m_ui.Gen1SampleKnob->setScale(1000.0f);
 	m_ui.Gen1SampleKnob->insertItems(0, notes);
@@ -1013,15 +1013,6 @@ void samplv1widget::playSample (void)
 #endif
 
 	m_ui.Gen1Sample->directNoteOn();
-}
-
-
-// MIDI note/octave name helper (static).
-QString samplv1widget::noteName ( int note )
-{
-	static const char *notes[] =
-		{ "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
-	return QString("%1 %2").arg(notes[note % 12]).arg((note / 12) - 1);
 }
 
 

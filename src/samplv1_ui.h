@@ -76,6 +76,9 @@ public:
 
 	void updateTuning();
 
+	// MIDI note/octave name helper.
+	static QString noteName(int note);
+
 private:
 
 	samplv1 *m_pSampl;

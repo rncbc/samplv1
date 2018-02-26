@@ -68,9 +68,6 @@ public:
 	void setParamKnob(samplv1::ParamIndex index, samplv1widget_param *pKnob);
 	samplv1widget_param *paramKnob(samplv1::ParamIndex index) const;
 
-	// MIDI note/octave name helper.
-	static QString noteName(int note);
-
 	// Preset init.
 	void initPreset();
 	// Preset clear.
