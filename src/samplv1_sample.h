@@ -1,7 +1,7 @@
 // samplv1_sample.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2017, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2018, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -204,6 +204,8 @@ public:
 		m_loop = false;
 		m_loop_phase1 = 0.0f;
 		m_loop_phase2 = 0.0f;
+
+		m_gain = 1.0f;
 	}
 
 	// reset loop.
@@ -218,10 +220,12 @@ public:
 			m_loop_phase1 = 0.0f;
 			m_loop_phase2 = 0.0f;
 		}
+
+		m_gain = 1.0f;
 	}
 
 	// begin.
-	void start(void)
+	void start()
 	{
 		m_phase = 0.0f;
 		m_index = 0;
@@ -239,13 +243,33 @@ public:
 		m_index  = int(m_phase);
 		m_alpha  = m_phase - float(m_index);
 		m_phase += delta;
-
+	#if 1//XFADE_TEST
+		if (m_loop) {
+			const float xtime = 1.0f; // nframes.
+			const float xstep = 1.0f / xtime;
+			const float xfade = xtime * delta;
+			if (m_phase >= m_loop_phase2 - xfade)
+				m_gain -= xstep;
+			else
+			if (m_gain < 1.0f)
+				m_gain += xstep;
+			if (m_phase >= m_loop_phase2) {
+				m_phase -= m_loop_phase1;
+				if (m_phase < 0.0f) {
+					m_phase = 0.0f;
+					m_gain = xstep;
+				} else {
+					m_gain = 0.0f;
+				}
+			}
+		}
+	#else
 		if (m_loop && m_phase >= m_loop_phase2) {
 			m_phase -= m_loop_phase1;
 			if (m_phase < 0.0f)
 				m_phase = 0.0f;
 		}
-
+	#endif
 		if (m_frame < m_index)
 			m_frame = m_index;
 	}
@@ -269,7 +293,7 @@ public:
 		const float c3 = (x3 - x1) * 0.5f + b2 + b1;
 		const float c2 = (c3 + b2);
 
-		return (((c3 * m_alpha) - c2) * m_alpha + c1) * m_alpha + x1;
+		return m_gain * ((((c3 * m_alpha) - c2) * m_alpha + c1) * m_alpha + x1);
 	}
 
 	// predicate.
@@ -289,6 +313,8 @@ private:
 	bool     m_loop;
 	float    m_loop_phase1;
 	float    m_loop_phase2;
+
+	float    m_gain;
 };
 
 
