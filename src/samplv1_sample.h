@@ -245,7 +245,7 @@ public:
 		m_phase += delta;
 	#if 1//XFADE_TEST
 		if (m_loop) {
-			const float xtime = 1.0f; // nframes.
+			const float xtime = 32.0f; // nframes.
 			const float xstep = 1.0f / xtime;
 			const float xfade = xtime * delta;
 			if (m_phase >= m_loop_phase2 - xfade)
