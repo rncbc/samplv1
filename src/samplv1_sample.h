@@ -103,15 +103,21 @@ public:
 	// loop range.
 	void setLoopRange(uint32_t start, uint32_t end);
 
-	uint32_t loopStart (void) const
+	uint32_t loopStart() const
 		{ return m_loop_start; }
-	uint32_t loopEnd (void) const
+	uint32_t loopEnd() const
 		{ return m_loop_end; }
 
-	float loopPhase1 (void) const
+	float loopPhase1() const
 		{ return m_loop_phase1; }
-	float loopPhase2 (void) const
+	float loopPhase2() const
 		{ return m_loop_phase2; }
+
+	// loop cross-fade (in num.frames)
+	void setLoopCrossFade(float xfade)
+		{ m_loop_xfade = xfade; }
+	float loopCrossFade() const
+		{ return m_loop_xfade; }
 
 	// init.
 	bool open(const char *filename, float freq0 = 1.0f);
@@ -172,6 +178,7 @@ private:
 	uint32_t m_loop_end;
 	float    m_loop_phase1;
 	float    m_loop_phase2;
+	float    m_loop_xfade;
 
 	samplv1_reverse_sched *m_reverse_sched;
 };
@@ -243,49 +250,58 @@ public:
 		m_index  = int(m_phase);
 		m_alpha  = m_phase - float(m_index);
 		m_phase += delta;
-	#if 1//XFADE_TEST
+
 		if (m_loop) {
-			const float xtime = 32.0f; // nframes.
-			const float xstep = 1.0f / xtime;
-			const float xfade = xtime * delta;
-			if (m_phase >= m_loop_phase2 - xfade)
-				m_gain -= xstep;
-			else
-			if (m_gain < 1.0f)
-				m_gain += xstep;
-			if (m_phase >= m_loop_phase2) {
-				m_phase -= m_loop_phase1;
-				if (m_phase < 0.0f) {
-					m_phase = 0.0f;
-					m_gain = xstep;
-				} else {
-					m_gain = 0.0f;
+			const float xfade = m_sample->loopCrossFade(); // nframes.
+			if (xfade > 0.0f) {
+				const float xstep = 1.0f / xfade;
+				const float xoffs = xfade * delta;
+				if (m_phase >= m_loop_phase2 - xoffs)
+					m_gain -= xstep;
+				else
+				if (m_gain < 1.0f)
+					m_gain += xstep;
+				if (m_phase >= m_loop_phase2) {
+					m_phase -= m_loop_phase1;
+					if (m_phase < 0.0f) {
+						m_phase = 0.0f;
+						m_gain = xstep;
+					} else {
+						m_gain = 0.0f;
+					}
 				}
 			}
+			else
+			if (m_phase >= m_loop_phase2) {
+				m_phase -= m_loop_phase1;
+				if (m_phase < 0.0f)
+					m_phase = 0.0f;
+			}
 		}
-	#else
-		if (m_loop && m_phase >= m_loop_phase2) {
-			m_phase -= m_loop_phase1;
-			if (m_phase < 0.0f)
-				m_phase = 0.0f;
-		}
-	#endif
+
 		if (m_frame < m_index)
 			m_frame = m_index;
 	}
 
 	// sample.
 	float value(uint16_t k) const
-	{
-		if (isOver())
-			return 0.0f;
+		{ return (isOver() ? 0.0f : m_gain * interp(k, m_index, m_alpha)); }
 
+	// predicate.
+	bool isOver() const
+		{ return !m_loop && m_sample->isOver(m_frame); }
+
+protected:
+
+	// sample (cubic interpolate).
+	float interp(uint16_t k, uint32_t index, float alpha) const
+	{
 		const float *frames = m_sample->frames(k);
 
-		const float x0 = frames[m_index];
-		const float x1 = frames[m_index + 1];
-		const float x2 = frames[m_index + 2];
-		const float x3 = frames[m_index + 3];
+		const float x0 = frames[index];
+		const float x1 = frames[index + 1];
+		const float x2 = frames[index + 2];
+		const float x3 = frames[index + 3];
 
 		const float c1 = (x2 - x0) * 0.5f;
 		const float b1 = (x1 - x2);
@@ -293,12 +309,8 @@ public:
 		const float c3 = (x3 - x1) * 0.5f + b2 + b1;
 		const float c2 = (c3 + b2);
 
-		return m_gain * ((((c3 * m_alpha) - c2) * m_alpha + c1) * m_alpha + x1);
+		return (((c3 * alpha) - c2) * alpha + c1) * alpha + x1;
 	}
-
-	// predicate.
-	bool isOver() const
-		{ return !m_loop && m_sample->isOver(m_frame); }
 
 private:
 
