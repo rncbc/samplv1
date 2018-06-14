@@ -278,6 +278,7 @@ public:
 					m_phase = 0.0f;
 			}
 		}
+
 		if (m_frame < m_index)
 			m_frame = m_index;
 	}
