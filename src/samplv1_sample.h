@@ -206,13 +206,18 @@ public:
 		m_phase = 0.0f;
 		m_index = 0;
 		m_alpha = 0.0f;
+		m_gain  = 1.0f;
+
 		m_frame = 0;
 
 		m_loop = false;
 		m_loop_phase1 = 0.0f;
 		m_loop_phase2 = 0.0f;
 
-		m_gain = 1.0f;
+		m_phase1 = 0.0f;
+		m_index1 = 0;
+		m_alpha1 = 0.0f;
+		m_gain1  = 0.0f;
 	}
 
 	// reset loop.
@@ -227,17 +232,22 @@ public:
 			m_loop_phase1 = 0.0f;
 			m_loop_phase2 = 0.0f;
 		}
-
-		m_gain = 1.0f;
 	}
 
 	// begin.
 	void start()
 	{
-		m_phase = 0.0f;
-		m_index = 0;
-		m_alpha = 0.0f;
-		m_frame = 0;
+		m_phase  = 0.0f;
+		m_index  = 0;
+		m_alpha  = 0.0f;
+		m_gain   = 1.0f;
+
+		m_frame  = 0;
+
+		m_phase1 = 0.0f;
+		m_index1 = 0;
+		m_alpha1 = 0.0f;
+		m_gain1  = 0.0f;
 
 		setLoop(m_sample->isLoop());
 	}
@@ -251,28 +261,36 @@ public:
 		m_alpha  = m_phase - float(m_index);
 		m_phase += delta;
 
-		if (m_loop) {
+		if (m_loop && m_phase >= m_loop_phase2) {
 			const float xfade = m_sample->loopCrossFade(); // nframes.
 			if (xfade > 0.0f) {
-				const float xstep = 1.0f / xfade;
-				const float xoffs = xfade * delta;
-				if (m_phase >= m_loop_phase2 - xoffs)
-					m_gain -= xstep;
-				else
-				if (m_gain < 1.0f)
-					m_gain += xstep;
-				if (m_phase >= m_loop_phase2) {
-					m_phase -= m_loop_phase1;
-					if (m_phase < 0.0f) {
-						m_phase = 0.0f;
-						m_gain = xstep;
+				if (m_index1 == 0) {
+					m_phase1 = m_phase - m_loop_phase1;
+					if (m_phase1 < 0.0f)
+						m_phase1 = 0.0f;
+					m_gain1 = 0.0f;
+				}
+				if (m_phase1 > 0.0f) {
+					m_index1 = int(m_phase1);
+					m_alpha1 = m_phase1 - float(m_index1);
+					m_phase1 += delta;
+					const float xoffs = xfade * delta;
+					if (m_phase >= m_loop_phase2 + xoffs) {
+						m_phase1 = 0.0f;
+						m_index1 = 0;
+						m_alpha1 = 0.0f;
+						m_gain1  = 0.0f;
+						m_phase -= m_loop_phase1;
+						if (m_phase < 0.0f)
+							m_phase = 0.0f;
+						m_gain = 1.0f;
 					} else {
-						m_gain = 0.0f;
+						const float xstep = 1.0f / xfade;
+						m_gain  -= xstep;
+						m_gain1 += xstep;
 					}
 				}
-			}
-			else
-			if (m_phase >= m_loop_phase2) {
+			} else {
 				m_phase -= m_loop_phase1;
 				if (m_phase < 0.0f)
 					m_phase = 0.0f;
@@ -285,7 +303,14 @@ public:
 
 	// sample.
 	float value(uint16_t k) const
-		{ return (isOver() ? 0.0f : m_gain * interp(k, m_index, m_alpha)); }
+	{
+		if (isOver())
+			return 0.0f;
+		float ret = m_gain * interp(k, m_index, m_alpha);
+		if (m_index1 > 0)
+			ret += m_gain1 * interp(k, m_index1, m_alpha1);
+		return ret;
+	}
 
 	// predicate.
 	bool isOver() const
@@ -320,13 +345,18 @@ private:
 	float    m_phase;
 	uint32_t m_index;
 	float    m_alpha;
+	float    m_gain;
+
 	uint32_t m_frame;
 
 	bool     m_loop;
 	float    m_loop_phase1;
 	float    m_loop_phase2;
 
-	float    m_gain;
+	float    m_phase1;
+	uint32_t m_index1;
+	float    m_alpha1;
+	float    m_gain1;
 };
 
 
