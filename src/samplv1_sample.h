@@ -262,7 +262,7 @@ public:
 		m_phase += delta;
 
 		if (m_loop) {
-			const float xfade = m_sample->loopCrossFade() * delta;
+			const float xfade = m_sample->loopCrossFade() * delta; // nframes
 			if (m_phase >= m_loop_phase2 - xfade) {
 				if (xfade > 0.0f) {
 					if (m_phase1 > 0.0f) {
