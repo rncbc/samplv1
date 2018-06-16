@@ -265,18 +265,18 @@ public:
 			const float xfade = m_sample->loopCrossFade() * delta;
 			if (m_phase >= m_loop_phase2 - xfade) {
 				if (xfade > 0.0f) {
-					if (m_index1 == 0) {
+					if (m_phase1 > 0.0f) {
+						m_index1 = int(m_phase1);
+						m_alpha1 = m_phase1 - float(m_index1);
+						m_phase1 += delta;
+					} else {
 						m_phase1 = m_phase - m_loop_phase1;
 						if (m_phase1 < 0.0f)
 							m_phase1 = 0.0f;
 						m_xgain1 = 0.0f;
 					}
-					if (m_phase1 > 0.0f) {
-						m_index1 = int(m_phase1);
-						m_alpha1 = m_phase1 - float(m_index1);
-						m_phase1 += delta;
-					}
-					if (m_phase >= m_loop_phase2 + xfade) {
+					if (m_sample->isOver(m_index) ||
+						m_phase >= m_loop_phase2 + xfade) {
 						m_phase1 = 0.0f;
 						m_index1 = 0;
 						m_alpha1 = 0.0f;
