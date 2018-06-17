@@ -101,7 +101,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 
 	m_ui.Gen1LoopStartSpinBox->setAccelerated(true);
 	m_ui.Gen1LoopEndSpinBox->setAccelerated(true);
-	m_ui.Gen1LoopFadeSpinBox->setAccelerated(false);
+	m_ui.Gen1LoopFadeSpinBox->setAccelerated(true);
 
 	m_ui.Gen1LoopStartSpinBox->setMinimum(0);
 	m_ui.Gen1LoopEndSpinBox->setMinimum(0);

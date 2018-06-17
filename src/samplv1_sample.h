@@ -206,8 +206,6 @@ public:
 		m_phase = 0.0f;
 		m_index = 0;
 		m_alpha = 0.0f;
-		m_xgain = 1.0f;
-
 		m_frame = 0;
 
 		m_loop = false;
@@ -217,7 +215,7 @@ public:
 		m_phase1 = 0.0f;
 		m_index1 = 0;
 		m_alpha1 = 0.0f;
-		m_xgain1 = 0.0f;
+		m_xgain1 = 1.0f;
 	}
 
 	// reset loop.
@@ -240,14 +238,12 @@ public:
 		m_phase  = 0.0f;
 		m_index  = 0;
 		m_alpha  = 0.0f;
-		m_xgain  = 1.0f;
-
 		m_frame  = 0;
 
 		m_phase1 = 0.0f;
 		m_index1 = 0;
 		m_alpha1 = 0.0f;
-		m_xgain1 = 0.0f;
+		m_xgain1 = 1.0f;
 
 		setLoop(m_sample->isLoop());
 	}
@@ -265,30 +261,31 @@ public:
 			const float xfade = m_sample->loopCrossFade() * delta; // nframes.
 			if (m_phase >= m_loop_phase2 - xfade) {
 				if (xfade > 0.0f) {
+					if (m_sample->isOver(m_index) ||
+						m_phase  > m_loop_phase2 + xfade) {
+						m_phase1 = 0.0f;
+						m_index1 = 0;
+						m_alpha1 = 0.0f;
+						m_phase -= m_loop_phase1;
+						if (m_phase < 0.0f)
+							m_phase = 0.0f;
+						m_xgain1 = 1.0f;
+					}
+					else
 					if (m_phase1 > 0.0f) {
 						m_index1 = int(m_phase1);
 						m_alpha1 = m_phase1 - float(m_index1);
 						m_phase1 += delta;
+						const float xstep
+							= 0.5f * delta / xfade;
+						m_xgain1 -= xstep;
+						if (m_xgain1 < 0.0f)
+							m_xgain1 = 0.0f;
 					} else {
 						m_phase1 = m_phase - m_loop_phase1;
 						if (m_phase1 < 0.0f)
 							m_phase1 = 0.0f;
-						m_xgain1 = 0.0f;
-					}
-					if (m_sample->isOver(m_index) ||
-						m_phase >= m_loop_phase2 + xfade) {
-						m_phase1 = 0.0f;
-						m_index1 = 0;
-						m_alpha1 = 0.0f;
-						m_xgain1 = 0.0f;
-						m_phase -= m_loop_phase1;
-						if (m_phase < 0.0f)
-							m_phase = 0.0f;
-						m_xgain = 1.0f;
-					} else {
-						const float xstep = 0.5f * delta / xfade;
-						m_xgain  -= xstep;
-						m_xgain1 += xstep;
+						m_xgain1 = 1.0f;
 					}
 				} else {
 					m_phase -= m_loop_phase1;
@@ -307,9 +304,9 @@ public:
 	{
 		if (isOver())
 			return 0.0f;
-		float ret = m_xgain * interp(k, m_index, m_alpha);
+		float ret = m_xgain1 * interp(k, m_index, m_alpha);
 		if (m_index1 > 0)
-			ret += m_xgain1 * interp(k, m_index1, m_alpha1);
+			ret += (1.0f - m_xgain1) * interp(k, m_index1, m_alpha1);
 		return ret;
 	}
 
@@ -346,8 +343,6 @@ private:
 	float    m_phase;
 	uint32_t m_index;
 	float    m_alpha;
-	float    m_xgain;
-
 	uint32_t m_frame;
 
 	bool     m_loop;
