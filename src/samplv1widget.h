@@ -115,6 +115,7 @@ protected slots:
 	void loopRangeChanged();
 	void loopStartChanged();
 	void loopEndChanged();
+	void loopFadeChanged();
 
 	// Notification updater.
 	void updateSchedNotify(int stype, int sid);

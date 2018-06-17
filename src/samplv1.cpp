@@ -2065,6 +2065,19 @@ uint32_t samplv1::loopEnd (void) const
 }
 
 
+void samplv1::setLoopFade ( uint32_t iLoopFade )
+{
+	m_pImpl->gen1_sample.setLoopCrossFade(float(iLoopFade));
+}
+
+uint32_t samplv1::loopFade (void) const
+{
+	return uint32_t(m_pImpl->gen1_sample.loopCrossFade());
+}
+
+
+
+
 void samplv1::setBufferSize ( uint32_t nsize )
 {
 	m_pImpl->setBufferSize(nsize);

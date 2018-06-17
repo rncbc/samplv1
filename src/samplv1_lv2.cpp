@@ -1,7 +1,7 @@
 // samplv1_lv2.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2017, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2018, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -95,6 +95,8 @@ samplv1_lv2::samplv1_lv2 (
  					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_LOOP_START");
  				m_urids.gen1_loop_end = m_urid_map->map(
  					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_LOOP_END");
+ 				m_urids.gen1_loop_fade = m_urid_map->map(
+ 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_LOOP_FADE");
 				m_urids.gen1_update = m_urid_map->map(
 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_UPDATE");
 				m_urids.atom_Blank = m_urid_map->map(
@@ -316,6 +318,16 @@ void samplv1_lv2::run ( uint32_t nframes )
 								setLoopRange(loop_start, loop_end);
 							}
 						}
+						else
+						if (key == m_urids.gen1_loop_fade
+							&& type == m_urids.atom_Int) {
+							samplv1_sample *pSample = samplv1::sample();
+							if (pSample) {
+								const uint32_t loop_fade
+									= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
+								setLoopFade(loop_fade);
+							}
+						}
 					}
 				}
 				else
@@ -411,6 +423,7 @@ static LV2_State_Status samplv1_lv2_state_save ( LV2_Handle instance,
 	// Save extra loop points...
 	uint32_t loop_start = pPlugin->loopStart();
 	uint32_t loop_end   = pPlugin->loopEnd();
+	uint32_t loop_fade  = pPlugin->loopFade();
 
 	if (loop_start < loop_end) {
 		type = pPlugin->urid_map(LV2_ATOM__Int);
@@ -422,6 +435,10 @@ static LV2_State_Status samplv1_lv2_state_save ( LV2_Handle instance,
 				(*store)(handle, key, value, size, type, flags);
 			value = (const char *) &loop_end;
 			key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_END");
+			if (key)
+				(*store)(handle, key, value, size, type, flags);
+			value = (const char *) &loop_fade;
+			key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_FADE");
 			if (key)
 				(*store)(handle, key, value, size, type, flags);
 		}
@@ -489,6 +506,7 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 	// Restore extra loop points.
 	uint32_t loop_start = 0;
 	uint32_t loop_end   = 0;
+	uint32_t loop_fade  = 0;
 
 	const uint32_t int_type = pPlugin->urid_map(LV2_ATOM__Int);
 	if (int_type) {
@@ -508,10 +526,19 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 			if (value && size == sizeof(uint32_t) && type == int_type)
 				loop_end = *(uint32_t *) value;
 		}
+		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_FADE");
+		if (key) {
+			size = 0;
+			type = 0;
+			value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
+			if (value && size == sizeof(uint32_t) && type == int_type)
+				loop_fade = *(uint32_t *) value;
+		}
 	}
 
 	if (loop_start < loop_end)
 		pPlugin->setLoopRange(loop_start, loop_end);
+	pPlugin->setLoopFade(loop_fade);
 
 	pPlugin->reset();
 
@@ -668,6 +695,8 @@ bool samplv1_lv2::patch_put ( uint32_t ndelta )
 	lv2_atom_forge_int(&m_forge, pSample->loopStart());
 	lv2_atom_forge_key(&m_forge, m_urids.gen1_loop_end);
 	lv2_atom_forge_int(&m_forge, pSample->loopEnd());
+	lv2_atom_forge_key(&m_forge, m_urids.gen1_loop_fade);
+	lv2_atom_forge_int(&m_forge, uint32_t(pSample->loopCrossFade()));
 
 	lv2_atom_forge_pop(&m_forge, &body_frame);
 	lv2_atom_forge_pop(&m_forge, &patch_frame);

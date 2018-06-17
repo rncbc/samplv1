@@ -91,16 +91,21 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	m_ui.Gen1LoopRangeLabel->setFont(font);
 	m_ui.Gen1LoopStartSpinBox->setFont(font);
 	m_ui.Gen1LoopEndSpinBox->setFont(font);
+	m_ui.Gen1LoopFadeLabel->setFont(font);
+	m_ui.Gen1LoopFadeSpinBox->setFont(font);
 
 	const QFontMetrics fm(font);
 	m_ui.Gen1LoopStartSpinBox->setMaximumHeight(fm.height() + 6);
 	m_ui.Gen1LoopEndSpinBox->setMaximumHeight(fm.height() + 6);
+	m_ui.Gen1LoopFadeSpinBox->setMaximumHeight(fm.height() + 6);
 
 	m_ui.Gen1LoopStartSpinBox->setAccelerated(true);
 	m_ui.Gen1LoopEndSpinBox->setAccelerated(true);
+	m_ui.Gen1LoopFadeSpinBox->setAccelerated(false);
 
 	m_ui.Gen1LoopStartSpinBox->setMinimum(0);
 	m_ui.Gen1LoopEndSpinBox->setMinimum(0);
+	m_ui.Gen1LoopFadeSpinBox->setMinimum(0);
 
 	// Note names.
 	QStringList notes;
@@ -162,6 +167,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 #endif
 	// Special values
 	const QString& sOff = states.first();
+	m_ui.Gen1LoopFadeSpinBox->setSpecialValueText(sOff);
 	m_ui.Gen1GlideKnob->setSpecialValueText(sOff);
 	m_ui.Cho1WetKnob->setSpecialValueText(sOff);
 	m_ui.Fla1WetKnob->setSpecialValueText(sOff);
@@ -493,6 +499,9 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	QObject::connect(m_ui.Gen1LoopEndSpinBox,
 		SIGNAL(valueChanged(int)),
 		SLOT(loopEndChanged()));
+	QObject::connect(m_ui.Gen1LoopFadeSpinBox,
+		SIGNAL(valueChanged(int)),
+		SLOT(loopFadeChanged()));
 
 	// Swap params A/B
 	QObject::connect(m_ui.SwapParamsAButton,
@@ -1079,12 +1088,31 @@ void samplv1widget::loopEndChanged (void)
 }
 
 
+// Loop fade change.
+void samplv1widget::loopFadeChanged (void)
+{
+	if (m_iUpdate > 0)
+		return;
+
+	++m_iUpdate;
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi) {
+		pSamplUi->setLoopFade(m_ui.Gen1LoopFadeSpinBox->value());
+		m_ui.StatusBar->showMessage(tr("Loop fade: %1")
+			.arg(m_ui.Gen1LoopFadeSpinBox->text()), 5000);
+		updateDirtyPreset(true);
+	}
+	--m_iUpdate;
+}
+
+
 void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
 {
 	if (pSample) {
 		const bool bLoop = pSample->isLoop();
 		const uint32_t iLoopStart = pSample->loopStart();
 		const uint32_t iLoopEnd = pSample->loopEnd();
+		const uint32_t iLoopFade = uint32_t(pSample->loopCrossFade());
 		const uint32_t nframes = pSample->length();
 		m_ui.Gen1LoopRangeLabel->setEnabled(bLoop);
 		m_ui.Gen1LoopStartSpinBox->setEnabled(bLoop);
@@ -1097,6 +1125,11 @@ void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1LoopEndSpinBox->setMaximum(nframes);
 		m_ui.Gen1LoopStartSpinBox->setValue(iLoopStart);
 		m_ui.Gen1LoopEndSpinBox->setValue(iLoopEnd);
+		m_ui.Gen1LoopFadeLabel->setEnabled(bLoop);
+		m_ui.Gen1LoopFadeSpinBox->setEnabled(bLoop);
+		m_ui.Gen1LoopFadeSpinBox->setMinimum(0);
+		m_ui.Gen1LoopFadeSpinBox->setMaximum((iLoopEnd - iLoopStart) >> 2);
+		m_ui.Gen1LoopFadeSpinBox->setValue(iLoopFade);
 		m_ui.Gen1Sample->setLoopStart(iLoopStart);
 		m_ui.Gen1Sample->setLoopEnd(iLoopEnd);
 		m_ui.Gen1Sample->setLoop(bLoop);
@@ -1115,6 +1148,11 @@ void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1LoopEndSpinBox->setMinimum(0);
 		m_ui.Gen1LoopEndSpinBox->setMaximum(0);
 		m_ui.Gen1LoopEndSpinBox->setValue(0);
+		m_ui.Gen1LoopFadeLabel->setEnabled(false);
+		m_ui.Gen1LoopFadeSpinBox->setEnabled(false);
+		m_ui.Gen1LoopFadeSpinBox->setMinimum(0);
+		m_ui.Gen1LoopFadeSpinBox->setMaximum(0);
+		m_ui.Gen1LoopFadeSpinBox->setValue(0);
 		m_ui.Gen1Sample->setLoopStart(0);
 		m_ui.Gen1Sample->setLoopEnd(0);
 		m_ui.Gen1Sample->setLoop(false);

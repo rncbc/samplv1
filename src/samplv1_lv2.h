@@ -1,7 +1,7 @@
 // samplv1_lv2.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2017, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2018, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -101,6 +101,7 @@ private:
 		LV2_URID gen1_sample;
 		LV2_URID gen1_loop_start;
 		LV2_URID gen1_loop_end;
+		LV2_URID gen1_loop_fade;
 		LV2_URID gen1_update;
 		LV2_URID atom_Blank;
 		LV2_URID atom_Object;

@@ -56,6 +56,9 @@ public:
 	uint32_t loopStart() const;
 	uint32_t loopEnd() const;
 
+	void setLoopFade(uint32_t iLoopFade);
+	uint32_t loopFade() const;
+
 	bool loadPreset(const QString& sFilename);
 	bool savePreset(const QString& sFilename);
 
