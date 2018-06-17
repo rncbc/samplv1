@@ -1117,8 +1117,7 @@ void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1LoopRangeLabel->setEnabled(bLoop);
 		m_ui.Gen1LoopStartSpinBox->setEnabled(bLoop);
 		m_ui.Gen1LoopStartSpinBox->setMinimum(0);
-		m_ui.Gen1LoopStartSpinBox->setMaximum(
-		    iLoopEnd > 0 ? iLoopEnd : 0);
+		m_ui.Gen1LoopStartSpinBox->setMaximum(iLoopEnd);
 		m_ui.Gen1LoopEndSpinBox->setEnabled(bLoop);
 		m_ui.Gen1LoopEndSpinBox->setMinimum(
 		    iLoopStart < nframes ? iLoopStart : nframes);
@@ -1128,7 +1127,10 @@ void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1LoopFadeLabel->setEnabled(bLoop);
 		m_ui.Gen1LoopFadeSpinBox->setEnabled(bLoop);
 		m_ui.Gen1LoopFadeSpinBox->setMinimum(0);
-		m_ui.Gen1LoopFadeSpinBox->setMaximum((iLoopEnd - iLoopStart) >> 2);
+		uint32_t iMaxLoopFade = (iLoopEnd - iLoopStart) >> 1;
+		iMaxLoopFade = qMin(iMaxLoopFade, iLoopStart);
+		iMaxLoopFade = qMin(iMaxLoopFade, nframes - iLoopEnd);
+		m_ui.Gen1LoopFadeSpinBox->setMaximum(iMaxLoopFade);
 		m_ui.Gen1LoopFadeSpinBox->setValue(iLoopFade);
 		m_ui.Gen1Sample->setLoopStart(iLoopStart);
 		m_ui.Gen1Sample->setLoopEnd(iLoopEnd);
