@@ -253,10 +253,6 @@ public:
 	{
 		const float delta = freq * m_sample->ratio();
 
-		m_index  = int(m_phase);
-		m_alpha  = m_phase - float(m_index);
-		m_phase += delta;
-
 		if (m_loop) {
 			const float xfade = m_sample->loopCrossFade() * delta; // nframes.
 			if (m_phase >= m_loop_phase2 - xfade) {
@@ -292,6 +288,10 @@ public:
 				}
 			}
 		}
+
+		m_index  = int(m_phase);
+		m_alpha  = m_phase - float(m_index);
+		m_phase += delta;
 
 		if (m_frame < m_index)
 			m_frame = m_index;
