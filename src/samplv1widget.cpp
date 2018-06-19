@@ -1127,10 +1127,8 @@ void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1LoopFadeLabel->setEnabled(bLoop);
 		m_ui.Gen1LoopFadeSpinBox->setEnabled(bLoop);
 		m_ui.Gen1LoopFadeSpinBox->setMinimum(0);
-		const uint32_t iMaxLoopFade
-			= qMin(iLoopStart, (iLoopEnd - iLoopStart) >> 1);
 		m_ui.Gen1LoopFadeSpinBox->setMaximum(
-			qMin(iMaxLoopFade, nframes - iLoopEnd));
+			qMin(iLoopStart, (iLoopEnd - iLoopStart) >> 1));
 		m_ui.Gen1LoopFadeSpinBox->setValue(iLoopFade);
 		m_ui.Gen1Sample->setLoopStart(iLoopStart);
 		m_ui.Gen1Sample->setLoopEnd(iLoopEnd);
