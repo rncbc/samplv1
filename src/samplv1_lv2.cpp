@@ -89,14 +89,14 @@ samplv1_lv2::samplv1_lv2 (
 		if (::strcmp(host_feature->URI, LV2_URID_MAP_URI) == 0) {
 			m_urid_map = (LV2_URID_Map *) host_feature->data;
 			if (m_urid_map) {
- 				m_urids.gen1_sample = m_urid_map->map(
- 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_SAMPLE");
- 				m_urids.gen1_loop_start = m_urid_map->map(
- 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_LOOP_START");
- 				m_urids.gen1_loop_end = m_urid_map->map(
- 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_LOOP_END");
- 				m_urids.gen1_loop_fade = m_urid_map->map(
- 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_LOOP_FADE");
+				m_urids.gen1_sample = m_urid_map->map(
+					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_SAMPLE");
+				m_urids.gen1_loop_start = m_urid_map->map(
+					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_LOOP_START");
+				m_urids.gen1_loop_end = m_urid_map->map(
+					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_LOOP_END");
+				m_urids.gen1_loop_fade = m_urid_map->map(
+					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_LOOP_FADE");
 				m_urids.gen1_update = m_urid_map->map(
 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_UPDATE");
 				m_urids.atom_Blank = m_urid_map->map(
@@ -115,12 +115,12 @@ samplv1_lv2::samplv1_lv2 (
 					m_urid_map->handle, LV2_TIME__beatsPerMinute);
 				m_urids.midi_MidiEvent = m_urid_map->map(
 					m_urid_map->handle, LV2_MIDI__MidiEvent);
- 				m_urids.midi_MidiEvent = m_urid_map->map(
- 					m_urid_map->handle, LV2_MIDI__MidiEvent);
+				m_urids.midi_MidiEvent = m_urid_map->map(
+					m_urid_map->handle, LV2_MIDI__MidiEvent);
 				m_urids.bufsz_minBlockLength = m_urid_map->map(
 					m_urid_map->handle, LV2_BUF_SIZE__minBlockLength);
- 				m_urids.bufsz_maxBlockLength = m_urid_map->map(
- 					m_urid_map->handle, LV2_BUF_SIZE__maxBlockLength);
+				m_urids.bufsz_maxBlockLength = m_urid_map->map(
+					m_urid_map->handle, LV2_BUF_SIZE__maxBlockLength);
 			#ifdef LV2_BUF_SIZE__nominalBlockLength
 				m_urids.bufsz_nominalBlockLength = m_urid_map->map(
 					m_urid_map->handle, LV2_BUF_SIZE__nominalBlockLength);
@@ -129,7 +129,7 @@ samplv1_lv2::samplv1_lv2 (
 					m_urid_map->handle, LV2_STATE__StateChanged);
 			#ifdef CONFIG_LV2_PATCH
 				m_urids.patch_Get = m_urid_map->map(
- 					m_urid_map->handle, LV2_PATCH__Get);
+					m_urid_map->handle, LV2_PATCH__Get);
 				m_urids.patch_Set = m_urid_map->map(
 					m_urid_map->handle, LV2_PATCH__Set);
 				m_urids.patch_Put = m_urid_map->map(
@@ -137,7 +137,7 @@ samplv1_lv2::samplv1_lv2 (
 				m_urids.patch_body = m_urid_map->map(
 					m_urid_map->handle, LV2_PATCH__body);
 				m_urids.patch_property = m_urid_map->map(
- 					m_urid_map->handle, LV2_PATCH__property);
+					m_urid_map->handle, LV2_PATCH__property);
 				m_urids.patch_value = m_urid_map->map(
  					m_urid_map->handle, LV2_PATCH__value);
 			#endif
