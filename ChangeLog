@@ -6,6 +6,9 @@ ChangeLog
 
 GIT HEAD
 
+- Loop crossfading and zero-crossing detection (the later
+  being an old staple by default) are now set as brand new
+  user options accessible from the main UI. (EXPERIMENTAL)
 - Fixed for some g++ >= 8.1.1 warnings and quietness.
 - Added LV2 UI X11 support option. (EXPERIMENTAL)
 - Disable reference micro-tuning settings when a Scala
