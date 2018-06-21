@@ -91,7 +91,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	m_ui.Gen1LoopRangeLabel->setFont(font);
 	m_ui.Gen1LoopStartSpinBox->setFont(font);
 	m_ui.Gen1LoopEndSpinBox->setFont(font);
-	m_ui.Gen1LoopFadeLabel->setFont(font);
+	m_ui.Gen1LoopFadeCheckBox->setFont(font);
 	m_ui.Gen1LoopFadeSpinBox->setFont(font);
 
 	const QFontMetrics fm(font);
@@ -167,7 +167,6 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 #endif
 	// Special values
 	const QString& sOff = states.first();
-	m_ui.Gen1LoopFadeSpinBox->setSpecialValueText(sOff);
 	m_ui.Gen1GlideKnob->setSpecialValueText(sOff);
 	m_ui.Cho1WetKnob->setSpecialValueText(sOff);
 	m_ui.Fla1WetKnob->setSpecialValueText(sOff);
@@ -499,9 +498,15 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	QObject::connect(m_ui.Gen1LoopEndSpinBox,
 		SIGNAL(valueChanged(int)),
 		SLOT(loopEndChanged()));
+	QObject::connect(m_ui.Gen1LoopFadeCheckBox,
+		SIGNAL(valueChanged(float)),
+		SLOT(loopFadeChanged()));
 	QObject::connect(m_ui.Gen1LoopFadeSpinBox,
 		SIGNAL(valueChanged(int)),
 		SLOT(loopFadeChanged()));
+	QObject::connect(m_ui.Gen1LoopZeroCheckBox,
+		SIGNAL(valueChanged(float)),
+		SLOT(loopZeroChanged()));
 
 	// Swap params A/B
 	QObject::connect(m_ui.SwapParamsAButton,
@@ -1097,9 +1102,34 @@ void samplv1widget::loopFadeChanged (void)
 	++m_iUpdate;
 	samplv1_ui *pSamplUi = ui_instance();
 	if (pSamplUi) {
-		pSamplUi->setLoopFade(m_ui.Gen1LoopFadeSpinBox->value());
-		m_ui.StatusBar->showMessage(tr("Loop fade: %1")
-			.arg(m_ui.Gen1LoopFadeSpinBox->text()), 5000);
+		const bool bLoopFade = (m_ui.Gen1LoopFadeCheckBox->value() > 0.0f);
+		const uint32_t iLoopFade = m_ui.Gen1LoopFadeSpinBox->value();
+		pSamplUi->setLoopFade(bLoopFade ? iLoopFade : 0);
+		m_ui.StatusBar->showMessage(tr("Loop crossfade: %1")
+			.arg(bLoopFade ? QString::number(iLoopFade) : tr("Off")), 5000);
+		m_ui.Gen1LoopFadeSpinBox->setEnabled(bLoopFade);
+		updateDirtyPreset(true);
+	}
+	--m_iUpdate;
+}
+
+
+// Loop zero change.
+void samplv1widget::loopZeroChanged (void)
+{
+	if (m_iUpdate > 0)
+		return;
+
+	++m_iUpdate;
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi) {
+		const uint32_t iLoopStart = pSamplUi->loopStart();
+		const uint32_t iLoopEnd = pSamplUi->loopEnd();;
+		const bool bLoopZero = (m_ui.Gen1LoopZeroCheckBox->value() > 0.0f);
+		pSamplUi->setLoopZero(bLoopZero);
+		pSamplUi->setLoopRange(iLoopStart, iLoopEnd);
+		m_ui.StatusBar->showMessage(tr("Loop zero-crossing: %1")
+			.arg(bLoopZero ? tr("On") : tr("Off")), 5000);
 		updateDirtyPreset(true);
 	}
 	--m_iUpdate;
@@ -1113,6 +1143,7 @@ void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
 		const uint32_t iLoopStart = pSample->loopStart();
 		const uint32_t iLoopEnd = pSample->loopEnd();
 		const uint32_t iLoopFade = uint32_t(pSample->loopCrossFade());
+		const bool bLoopZero = pSample->isLoopZeroCrossing();
 		const uint32_t nframes = pSample->length();
 		m_ui.Gen1LoopRangeLabel->setEnabled(bLoop);
 		m_ui.Gen1LoopStartSpinBox->setEnabled(bLoop);
@@ -1124,12 +1155,15 @@ void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1LoopEndSpinBox->setMaximum(nframes);
 		m_ui.Gen1LoopStartSpinBox->setValue(iLoopStart);
 		m_ui.Gen1LoopEndSpinBox->setValue(iLoopEnd);
-		m_ui.Gen1LoopFadeLabel->setEnabled(bLoop);
-		m_ui.Gen1LoopFadeSpinBox->setEnabled(bLoop);
+		m_ui.Gen1LoopFadeCheckBox->setEnabled(bLoop);
+		m_ui.Gen1LoopFadeCheckBox->setValue(iLoopFade > 0 ? 1.0f : 0.0f);
+		m_ui.Gen1LoopFadeSpinBox->setEnabled(bLoop && iLoopFade > 0);
 		m_ui.Gen1LoopFadeSpinBox->setMinimum(0);
 		m_ui.Gen1LoopFadeSpinBox->setMaximum(
 			qMin(iLoopStart, (iLoopEnd - iLoopStart) >> 1));
 		m_ui.Gen1LoopFadeSpinBox->setValue(iLoopFade);
+		m_ui.Gen1LoopZeroCheckBox->setValue(bLoopZero ? 1.0f : 0.0f);
+		m_ui.Gen1LoopZeroCheckBox->setEnabled(bLoop);
 		m_ui.Gen1Sample->setLoopStart(iLoopStart);
 		m_ui.Gen1Sample->setLoopEnd(iLoopEnd);
 		m_ui.Gen1Sample->setLoop(bLoop);
@@ -1148,11 +1182,12 @@ void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1LoopEndSpinBox->setMinimum(0);
 		m_ui.Gen1LoopEndSpinBox->setMaximum(0);
 		m_ui.Gen1LoopEndSpinBox->setValue(0);
-		m_ui.Gen1LoopFadeLabel->setEnabled(false);
+		m_ui.Gen1LoopFadeCheckBox->setEnabled(false);
 		m_ui.Gen1LoopFadeSpinBox->setEnabled(false);
 		m_ui.Gen1LoopFadeSpinBox->setMinimum(0);
 		m_ui.Gen1LoopFadeSpinBox->setMaximum(0);
 		m_ui.Gen1LoopFadeSpinBox->setValue(0);
+		m_ui.Gen1LoopZeroCheckBox->setEnabled(false);
 		m_ui.Gen1Sample->setLoopStart(0);
 		m_ui.Gen1Sample->setLoopEnd(0);
 		m_ui.Gen1Sample->setLoop(false);

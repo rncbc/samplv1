@@ -179,7 +179,7 @@
             <item row="1" column="1">
              <widget class="QLabel" name="Gen1LoopRangeLabel">
               <property name="text">
-               <string>Start / End</string>
+               <string>Start / End:</string>
               </property>
              </widget>
             </item>
@@ -204,12 +204,12 @@
              </widget>
             </item>
             <item row="1" column="2">
-             <widget class="QLabel" name="Gen1LoopFadeLabel">
-              <property name="alignment">
-               <set>Qt::AlignCenter|Qt::AlignVCenter</set>
-              </property>
+             <widget class="samplv1widget_check" name="Gen1LoopFadeCheckBox">
               <property name="text">
-               <string>x Fade</string>
+               <string>Fade</string>
+              </property>
+              <property name="toolTip">
+               <string>GEN Loop Crossfade</string>
               </property>
              </widget>
             </item>
@@ -219,7 +219,17 @@
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
               <property name="toolTip">
-               <string>GEN Loop Fade</string>
+               <string>GEN Loop Crossfade</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="2">
+             <widget class="samplv1widget_check" name="Gen1LoopZeroCheckBox">
+              <property name="text">
+               <string>Zero</string>
+              </property>
+              <property name="toolTip">
+               <string>GEN Loop Zero-crossing</string>
               </property>
              </widget>
             </item>
