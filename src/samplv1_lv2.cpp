@@ -97,6 +97,8 @@ samplv1_lv2::samplv1_lv2 (
 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_LOOP_END");
 				m_urids.gen1_loop_fade = m_urid_map->map(
 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_LOOP_FADE");
+				m_urids.gen1_loop_zero = m_urid_map->map(
+					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_LOOP_ZERO");
 				m_urids.gen1_update = m_urid_map->map(
 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_UPDATE");
 				m_urids.atom_Blank = m_urid_map->map(
@@ -107,6 +109,8 @@ samplv1_lv2::samplv1_lv2 (
 					m_urid_map->handle, LV2_ATOM__Float);
 				m_urids.atom_Int = m_urid_map->map(
 					m_urid_map->handle, LV2_ATOM__Int);
+				m_urids.atom_Bool = m_urid_map->map(
+					m_urid_map->handle, LV2_ATOM__Bool);
 				m_urids.atom_Path = m_urid_map->map(
 					m_urid_map->handle, LV2_ATOM__Path);
 				m_urids.time_Position = m_urid_map->map(
@@ -328,6 +332,16 @@ void samplv1_lv2::run ( uint32_t nframes )
 								setLoopFade(loop_fade);
 							}
 						}
+						else
+						if (key == m_urids.gen1_loop_zero
+							&& type == m_urids.atom_Bool) {
+							samplv1_sample *pSample = samplv1::sample();
+							if (pSample) {
+								const bool loop_zero
+									= *(bool *) LV2_ATOM_BODY_CONST(value);
+								setLoopZero(loop_zero);
+							}
+						}
 					}
 				}
 				else
@@ -424,6 +438,7 @@ static LV2_State_Status samplv1_lv2_state_save ( LV2_Handle instance,
 	uint32_t loop_start = pPlugin->loopStart();
 	uint32_t loop_end   = pPlugin->loopEnd();
 	uint32_t loop_fade  = pPlugin->loopFade();
+	bool     loop_zero  = pPlugin->isLoopZero();
 
 	if (loop_start < loop_end) {
 		type = pPlugin->urid_map(LV2_ATOM__Int);
@@ -439,6 +454,14 @@ static LV2_State_Status samplv1_lv2_state_save ( LV2_Handle instance,
 				(*store)(handle, key, value, size, type, flags);
 			value = (const char *) &loop_fade;
 			key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_FADE");
+			if (key)
+				(*store)(handle, key, value, size, type, flags);
+		}
+		type = pPlugin->urid_map(LV2_ATOM__Bool);
+		if (type) {
+			size = sizeof(bool);
+			value = (const char *) &loop_zero;
+			key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_ZERO");
 			if (key)
 				(*store)(handle, key, value, size, type, flags);
 		}
@@ -507,6 +530,7 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 	uint32_t loop_start = 0;
 	uint32_t loop_end   = 0;
 	uint32_t loop_fade  = 0;
+	bool     loop_zero  = true;
 
 	const uint32_t int_type = pPlugin->urid_map(LV2_ATOM__Int);
 	if (int_type) {
@@ -536,9 +560,23 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 		}
 	}
 
+	const uint32_t bool_type = pPlugin->urid_map(LV2_ATOM__Bool);
+	if (bool_type) {
+		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_ZERO");
+		if (key) {
+			size = 0;
+			type = 0;
+			value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
+			if (value && size == sizeof(bool) && type == bool_type)
+				loop_zero = *(bool *) value;
+		}
+	}
+
+	pPlugin->setLoopZero(loop_zero);
+	pPlugin->setLoopFade(loop_fade);
+
 	if (loop_start < loop_end)
 		pPlugin->setLoopRange(loop_start, loop_end);
-	pPlugin->setLoopFade(loop_fade);
 
 	pPlugin->reset();
 

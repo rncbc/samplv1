@@ -111,6 +111,17 @@ uint32_t samplv1_ui::loopFade (void) const
 }
 
 
+void samplv1_ui::setLoopZero ( bool bLoopZero )
+{
+	m_pSampl->setLoopZero(bLoopZero);
+}
+
+bool samplv1_ui::isLoopZero (void) const
+{
+	return m_pSampl->isLoopZero();
+}
+
+
 bool samplv1_ui::loadPreset ( const QString& sFilename )
 {
 	return samplv1_param::loadPreset(m_pSampl, sFilename);

@@ -62,7 +62,8 @@ samplv1_sample::samplv1_sample ( samplv1 *pSampl, float srate )
 		m_rate0(0.0f), m_freq0(1.0f), m_ratio(0.0f),
 		m_nframes(0), m_pframes(NULL), m_reverse(false),
 		m_loop(false), m_loop_start(0), m_loop_end(0),
-		m_loop_phase1(0.0f), m_loop_phase2(0.0f), m_loop_xfade(0.0f)
+		m_loop_phase1(0.0f), m_loop_phase2(0.0f),
+		m_loop_xfade(0.0f), m_loop_xzero(true)
 {
 	m_reverse_sched = new samplv1_reverse_sched(pSampl, this);
 }
@@ -217,12 +218,14 @@ void samplv1_sample::setLoopRange ( uint32_t start, uint32_t end )
 	if (start < end) {
 		m_loop_start = start;
 		m_loop_end = end;
-		int slope = 0;
-		end = zero_crossing(m_loop_end, &slope);
-		start = zero_crossing(m_loop_start, &slope);
-		if (start >= end) {
-			start = m_loop_start;
-			end = m_loop_end;
+		if (m_loop_xzero) {
+			int slope = 0;
+			end = zero_crossing(m_loop_end, &slope);
+			start = zero_crossing(m_loop_start, &slope);
+			if (start >= end) {
+				start = m_loop_start;
+				end = m_loop_end;
+			}
 		}
 		m_loop_phase1 = float(end - start);
 		m_loop_phase2 = float(end);

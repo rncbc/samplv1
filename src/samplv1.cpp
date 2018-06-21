@@ -2076,6 +2076,15 @@ uint32_t samplv1::loopFade (void) const
 }
 
 
+void samplv1::setLoopZero ( bool bLoopZero )
+{
+	m_pImpl->gen1_sample.setLoopZeroCrossing(bLoopZero);
+}
+
+bool samplv1::isLoopZero (void) const
+{
+	return m_pImpl->gen1_sample.isLoopZeroCrossing();
+}
 
 
 void samplv1::setBufferSize ( uint32_t nsize )

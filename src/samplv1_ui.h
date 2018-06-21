@@ -59,6 +59,9 @@ public:
 	void setLoopFade(uint32_t iLoopFade);
 	uint32_t loopFade() const;
 
+	void setLoopZero(bool bLoopZero);
+	bool isLoopZero() const;
+
 	bool loadPreset(const QString& sFilename);
 	bool savePreset(const QString& sFilename);
 

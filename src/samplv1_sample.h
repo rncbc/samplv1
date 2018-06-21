@@ -113,11 +113,17 @@ public:
 	float loopPhase2() const
 		{ return m_loop_phase2; }
 
-	// loop cross-fade (in num.frames)
+	// loop cross-fade (in number of frames)
 	void setLoopCrossFade(float xfade)
 		{ m_loop_xfade = xfade; }
 	float loopCrossFade() const
 		{ return m_loop_xfade; }
+
+	// loop zero-crossing detection
+	void setLoopZeroCrossing(bool xzero)
+		{ m_loop_xzero = xzero; }
+	bool isLoopZeroCrossing() const
+		{ return m_loop_xzero; }
 
 	// init.
 	bool open(const char *filename, float freq0 = 1.0f);
@@ -179,6 +185,7 @@ private:
 	float    m_loop_phase1;
 	float    m_loop_phase2;
 	float    m_loop_xfade;
+	bool     m_loop_xzero;
 
 	samplv1_reverse_sched *m_reverse_sched;
 };

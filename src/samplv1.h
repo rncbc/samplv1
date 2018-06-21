@@ -70,6 +70,9 @@ public:
 	void setLoopFade(uint32_t iLoopFade);
 	uint32_t loopFade() const;
 
+	void setLoopZero(bool bLoopZero);
+	bool isLoopZero() const;
+
 	void setBufferSize(uint32_t nsize);
 	uint32_t bufferSize() const;
 

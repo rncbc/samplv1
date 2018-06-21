@@ -102,11 +102,13 @@ private:
 		LV2_URID gen1_loop_start;
 		LV2_URID gen1_loop_end;
 		LV2_URID gen1_loop_fade;
+		LV2_URID gen1_loop_zero;
 		LV2_URID gen1_update;
 		LV2_URID atom_Blank;
 		LV2_URID atom_Object;
 		LV2_URID atom_Float;
 		LV2_URID atom_Int;
+		LV2_URID atom_Bool;
 		LV2_URID atom_Path;
 		LV2_URID time_Position;
 		LV2_URID time_beatsPerMinute;

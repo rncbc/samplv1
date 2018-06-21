@@ -190,6 +190,7 @@ void samplv1_param::loadSamples (
 			uint32_t iLoopStart = 0;
 			uint32_t iLoopEnd = 0;
 			uint32_t iLoopFade = 0;
+			bool bLoopZero = true;
 			for (QDomNode nChild = eSample.firstChild();
 					!nChild.isNull();
 						nChild = nChild.nextSibling()) {
@@ -211,6 +212,10 @@ void samplv1_param::loadSamples (
 				if (eChild.tagName() == "loop-fade") {
 					iLoopFade = eChild.text().toULong();
 				}
+				else
+				if (eChild.tagName() == "loop-zero") {
+					bLoopZero = (eChild.text().toInt() > 0);
+				}
 			}
 			// Legacy loader...
 			if (sFilename.isEmpty())
@@ -222,8 +227,9 @@ void samplv1_param::loadSamples (
 			pSampl->setSampleFile(
 				fi.canonicalFilePath().toUtf8().constData());
 			// Set actual sample loop points...
-			pSampl->setLoopRange(iLoopStart, iLoopEnd);
+			pSampl->setLoopZero(bLoopZero);
 			pSampl->setLoopFade(iLoopFade);
+			pSampl->setLoopRange(iLoopStart, iLoopEnd);
 		}
 	}
 }
@@ -264,6 +270,7 @@ void samplv1_param::saveSamples (
 	const uint32_t iLoopStart = pSampl->loopStart();
 	const uint32_t iLoopEnd   = pSampl->loopEnd();
 	const uint32_t iLoopFade  = pSampl->loopFade();
+	const bool     bLoopZero  = pSampl->isLoopZero();
 	if (iLoopStart < iLoopEnd) {
 		QDomElement eLoopStart = doc.createElement("loop-start");
 		eLoopStart.appendChild(doc.createTextNode(
@@ -277,6 +284,10 @@ void samplv1_param::saveSamples (
 		eLoopFade.appendChild(doc.createTextNode(
 			QString::number(iLoopFade)));
 		eSample.appendChild(eLoopFade);
+		QDomElement eLoopZero = doc.createElement("loop-zero");
+		eLoopZero.appendChild(doc.createTextNode(
+			QString::number(int(bLoopZero))));
+		eSample.appendChild(eLoopZero);
 	}
 
 	eSamples.appendChild(eSample);
