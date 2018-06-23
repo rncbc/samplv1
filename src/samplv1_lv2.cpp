@@ -724,7 +724,7 @@ bool samplv1_lv2::patch_put ( uint32_t ndelta )
 	lv2_atom_forge_key(&m_forge, m_urids.gen1_loop_end);
 	lv2_atom_forge_int(&m_forge, pSample->loopEnd());
 	lv2_atom_forge_key(&m_forge, m_urids.gen1_loop_fade);
-	lv2_atom_forge_int(&m_forge, uint32_t(pSample->loopCrossFade()));
+	lv2_atom_forge_int(&m_forge, pSample->loopCrossFade());
 
 	lv2_atom_forge_pop(&m_forge, &body_frame);
 	lv2_atom_forge_pop(&m_forge, &patch_frame);

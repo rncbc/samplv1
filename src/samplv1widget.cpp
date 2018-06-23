@@ -1142,7 +1142,7 @@ void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
 		const bool bLoop = pSample->isLoop();
 		const uint32_t iLoopStart = pSample->loopStart();
 		const uint32_t iLoopEnd = pSample->loopEnd();
-		const uint32_t iLoopFade = uint32_t(pSample->loopCrossFade());
+		const uint32_t iLoopFade = pSample->loopCrossFade();
 		const bool bLoopZero = pSample->isLoopZeroCrossing();
 		const uint32_t nframes = pSample->length();
 		m_ui.Gen1LoopRangeLabel->setEnabled(bLoop);

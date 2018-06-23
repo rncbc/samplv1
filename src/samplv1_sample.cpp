@@ -63,7 +63,7 @@ samplv1_sample::samplv1_sample ( samplv1 *pSampl, float srate )
 		m_nframes(0), m_pframes(NULL), m_reverse(false),
 		m_loop(false), m_loop_start(0), m_loop_end(0),
 		m_loop_phase1(0.0f), m_loop_phase2(0.0f),
-		m_loop_xfade(0.0f), m_loop_xzero(true)
+		m_loop_xfade(0), m_loop_xzero(true)
 {
 	m_reverse_sched = new samplv1_reverse_sched(pSampl, this);
 }

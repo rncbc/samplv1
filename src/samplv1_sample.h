@@ -114,9 +114,9 @@ public:
 		{ return m_loop_phase2; }
 
 	// loop cross-fade (in number of frames)
-	void setLoopCrossFade(float xfade)
+	void setLoopCrossFade(uint32_t xfade)
 		{ m_loop_xfade = xfade; }
-	float loopCrossFade() const
+	uint32_t loopCrossFade() const
 		{ return m_loop_xfade; }
 
 	// loop zero-crossing detection
@@ -184,7 +184,7 @@ private:
 	uint32_t m_loop_end;
 	float    m_loop_phase1;
 	float    m_loop_phase2;
-	float    m_loop_xfade;
+	uint32_t m_loop_xfade;
 	bool     m_loop_xzero;
 
 	samplv1_reverse_sched *m_reverse_sched;
@@ -264,26 +264,22 @@ public:
 		m_alpha  = m_phase - float(m_index);
 		m_phase += delta;
 
-		if (m_loop && delta > 0.0f) {
-			const float xfade = m_sample->loopCrossFade() / delta; // nframes.
-			if (m_phase >= m_loop_phase2 - xfade) {
-				if (xfade > 0.0f) {
+		if (m_loop) {
+			const uint32_t xfade = m_sample->loopCrossFade();
+			if (xfade > 0 && delta > 0.0f) {
+				const float xphase = float(xfade) / delta;
+				if (m_phase >= m_loop_phase2 - xphase) {
 					if (//m_sample->isOver(m_index) ||
 						m_phase >= m_loop_phase2) {
-						m_phase1 = 0.0f;
-						m_index1 = 0;
-						m_alpha1 = 0.0f;
 						m_phase -= m_loop_phase1;
 						if (m_phase < 0.0f)
 							m_phase = 0.0f;
-						m_xgain1 = 1.0f;
 					}
-					else
 					if (m_phase1 > 0.0f) {
 						m_index1 = int(m_phase1);
 						m_alpha1 = m_phase1 - float(m_index1);
 						m_phase1 += delta;
-						m_xgain1 -= delta / xfade;
+						m_xgain1 -= delta / xphase;
 						if (m_xgain1 < 0.0f)
 							m_xgain1 = 0.0f;
 					} else {
@@ -292,11 +288,20 @@ public:
 							m_phase1 = 0.0f;
 						m_xgain1 = 1.0f;
 					}
-				} else {
-					m_phase -= m_loop_phase1;
-					if (m_phase < 0.0f)
-						m_phase = 0.0f;
 				}
+				else
+				if (m_phase1 > 0.0f) {
+					m_phase1 = 0.0f;
+					m_index1 = 0;
+					m_alpha1 = 0.0f;
+					m_xgain1 = 1.0f;
+				}
+			}
+			else
+			if (m_phase >= m_loop_phase2) {
+				m_phase -= m_loop_phase1;
+				if (m_phase < 0.0f)
+					m_phase = 0.0f;
 			}
 		}
 
