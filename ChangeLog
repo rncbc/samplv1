@@ -4,6 +4,12 @@ samplv1 - an old-school polyphonic sampler
 ChangeLog
 
 
+GIT HEAD
+
+- AppData/AppStream metadata is now settled under an all
+  permisssive license (FSFAP).
+
+
 0.9.1  2018-06-26  An Early Summer'18 release.
 
 - Loop crossfading and zero-crossing detection (the later
