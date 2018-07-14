@@ -107,6 +107,10 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	m_ui.Gen1LoopEndSpinBox->setMinimum(0);
 	m_ui.Gen1LoopFadeSpinBox->setMinimum(0);
 
+	m_ui.Gen1LoopStartSpinBox->setFormat(samplv1widget_spinbox::Time);
+	m_ui.Gen1LoopEndSpinBox->setFormat(samplv1widget_spinbox::Time);
+	m_ui.Gen1LoopFadeSpinBox->setFormat(samplv1widget_spinbox::Time);
+
 	// Note names.
 	QStringList notes;
 	for (int note = 0; note < 128; ++note)
@@ -493,16 +497,16 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 		SLOT(loopRangeChanged()));
 
 	QObject::connect(m_ui.Gen1LoopStartSpinBox,
-		SIGNAL(valueChanged(int)),
+		SIGNAL(valueChanged(uint32_t)),
 		SLOT(loopStartChanged()));
 	QObject::connect(m_ui.Gen1LoopEndSpinBox,
-		SIGNAL(valueChanged(int)),
+		SIGNAL(valueChanged(uint32_t)),
 		SLOT(loopEndChanged()));
 	QObject::connect(m_ui.Gen1LoopFadeCheckBox,
 		SIGNAL(valueChanged(float)),
 		SLOT(loopFadeChanged()));
 	QObject::connect(m_ui.Gen1LoopFadeSpinBox,
-		SIGNAL(valueChanged(int)),
+		SIGNAL(valueChanged(uint32_t)),
 		SLOT(loopFadeChanged()));
 	QObject::connect(m_ui.Gen1LoopZeroCheckBox,
 		SIGNAL(valueChanged(float)),
@@ -1145,10 +1149,13 @@ void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
 		const uint32_t iLoopFade = pSample->loopCrossFade();
 		const bool bLoopZero = pSample->isLoopZeroCrossing();
 		const uint32_t nframes = pSample->length();
+		const float srate = pSample->sampleRate();
 		m_ui.Gen1LoopRangeLabel->setEnabled(bLoop);
+		m_ui.Gen1LoopStartSpinBox->setSampleRate(srate);
 		m_ui.Gen1LoopStartSpinBox->setEnabled(bLoop);
 		m_ui.Gen1LoopStartSpinBox->setMinimum(0);
 		m_ui.Gen1LoopStartSpinBox->setMaximum(iLoopEnd);
+		m_ui.Gen1LoopEndSpinBox->setSampleRate(srate);
 		m_ui.Gen1LoopEndSpinBox->setEnabled(bLoop);
 		m_ui.Gen1LoopEndSpinBox->setMinimum(
 		    iLoopStart < nframes ? iLoopStart : nframes);
@@ -1157,6 +1164,7 @@ void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1LoopEndSpinBox->setValue(iLoopEnd);
 		m_ui.Gen1LoopFadeCheckBox->setEnabled(bLoop);
 		m_ui.Gen1LoopFadeCheckBox->setValue(iLoopFade > 0 ? 1.0f : 0.0f);
+		m_ui.Gen1LoopFadeSpinBox->setSampleRate(srate);
 		m_ui.Gen1LoopFadeSpinBox->setEnabled(bLoop && iLoopFade > 0);
 		m_ui.Gen1LoopFadeSpinBox->setMinimum(0);
 		m_ui.Gen1LoopFadeSpinBox->setMaximum(

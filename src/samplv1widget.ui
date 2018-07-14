@@ -184,7 +184,7 @@
              </widget>
             </item>
             <item row="2" column="0" colspan="2">
-             <widget class="QSpinBox" name="Gen1LoopStartSpinBox">
+             <widget class="samplv1widget_spinbox" name="Gen1LoopStartSpinBox">
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
@@ -194,7 +194,7 @@
              </widget>
             </item>
             <item row="3" column="0" colspan="2">
-             <widget class="QSpinBox" name="Gen1LoopEndSpinBox">
+             <widget class="samplv1widget_spinbox" name="Gen1LoopEndSpinBox">
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
@@ -214,7 +214,7 @@
              </widget>
             </item>
             <item row="2" column="2">
-             <widget class="QSpinBox" name="Gen1LoopFadeSpinBox">
+             <widget class="samplv1widget_spinbox" name="Gen1LoopFadeSpinBox">
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
@@ -1354,6 +1354,11 @@
    <class>samplv1widget_spin</class>
    <extends>QDial</extends>
    <header>samplv1widget_param.h</header>
+  </customwidget>
+  <customwidget>
+   <class>samplv1widget_spinbox</class>
+   <extends>QAbstractSpinBox</extends>
+   <header>samplv1widget_spinbox.h</header>
   </customwidget>
   <customwidget>
    <class>samplv1widget_combo</class>

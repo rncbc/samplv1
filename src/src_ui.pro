@@ -20,6 +20,7 @@ HEADERS = \
 	samplv1widget_param.h \
 	samplv1widget_preset.h \
 	samplv1widget_status.h \
+	samplv1widget_spinbox.h \
 	samplv1widget_programs.h \
 	samplv1widget_controls.h \
 	samplv1widget_control.h \
@@ -35,6 +36,7 @@ SOURCES = \
 	samplv1widget_param.cpp \
 	samplv1widget_preset.cpp \
 	samplv1widget_status.cpp \
+	samplv1widget_spinbox.cpp \
 	samplv1widget_programs.cpp \
 	samplv1widget_controls.cpp \
 	samplv1widget_control.cpp \
