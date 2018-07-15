@@ -65,7 +65,7 @@ public:
 	int iKnobEditMode;
 
 	// Special time-formatted spinbox option.
-	int iSpinBoxFormat;
+	int iFrameTimeFormat;
 
 	// Special persistent options.
 	bool bControlsEnabled;

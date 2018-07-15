@@ -80,6 +80,7 @@ samplv1widget_config::samplv1widget_config (
 		m_ui.CustomStyleThemeComboBox->setCurrentIndex(iCustomStyleTheme);
 		m_ui.CustomStyleThemeTextLabel->setEnabled(!bPlugin);
 		m_ui.CustomStyleThemeComboBox->setEnabled(!bPlugin);
+		m_ui.FrameTimeFormatComboBox->setCurrentIndex(pConfig->iFrameTimeFormat);
 		// Load controllers database...
 		samplv1_controls *pControls = m_pSamplUi->controls();
 		if (pControls) {
@@ -210,6 +211,9 @@ samplv1widget_config::samplv1widget_config (
 		SIGNAL(activated(int)),
 		SLOT(optionsChanged()));
 	QObject::connect(m_ui.CustomStyleThemeComboBox,
+		SIGNAL(activated(int)),
+		SLOT(optionsChanged()));
+	QObject::connect(m_ui.FrameTimeFormatComboBox,
 		SIGNAL(activated(int)),
 		SLOT(optionsChanged()));
 
@@ -670,7 +674,11 @@ void samplv1widget_config::accept (void)
 			pConfig->sCustomStyleTheme = m_ui.CustomStyleThemeComboBox->currentText();
 		else
 			pConfig->sCustomStyleTheme.clear();
+		const int iOldFrameTimeFormat = pConfig->iFrameTimeFormat;
+		pConfig->iFrameTimeFormat = m_ui.FrameTimeFormatComboBox->currentIndex();
 		int iNeedRestart = 0;
+		if (pConfig->iFrameTimeFormat != iOldFrameTimeFormat)
+			++iNeedRestart;
  		if (pConfig->sCustomStyleTheme != sOldCustomStyleTheme) {
 			if (pConfig->sCustomStyleTheme.isEmpty()) {
 				++iNeedRestart;

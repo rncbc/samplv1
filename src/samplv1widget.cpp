@@ -548,7 +548,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 		samplv1widget_edit::setEditMode(
 			samplv1widget_edit::EditMode(pConfig->iKnobEditMode));
 		const samplv1widget_spinbox::Format format
-			= samplv1widget_spinbox::Format(pConfig->iSpinBoxFormat);
+			= samplv1widget_spinbox::Format(pConfig->iFrameTimeFormat);
 		m_ui.Gen1LoopStartSpinBox->setFormat(format);
 		m_ui.Gen1LoopEndSpinBox->setFormat(format);
 	}
@@ -1479,7 +1479,7 @@ void samplv1widget::spinboxContextMenu ( const QPoint& pos )
 	if (format != pSpinBox->format()) {
 		samplv1_config *pConfig = samplv1_config::getInstance();
 		if (pConfig) {
-			pConfig->iSpinBoxFormat = int(format);
+			pConfig->iFrameTimeFormat = int(format);
 			m_ui.Gen1LoopStartSpinBox->setFormat(format);
 			m_ui.Gen1LoopEndSpinBox->setFormat(format);
 		}
