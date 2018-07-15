@@ -182,7 +182,7 @@
           <string>&amp;Frame-time format:</string>
          </property>
          <property name="buddy">
-          <cstring>SpinBoxFormatComboBox</cstring>
+          <cstring>FrameTimeFormatComboBox</cstring>
          </property>
         </widget>
        </item>
@@ -196,7 +196,7 @@
          </property>
          <item>
           <property name="text">
-           <string>Frames</string>
+           <string>Frames (default)</string>
           </property>
          </item>
          <item>
