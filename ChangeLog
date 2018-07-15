@@ -6,6 +6,8 @@ ChangeLog
 
 GIT HEAD
 
+- Frame-time display format option added to both loop-start
+  and loop-end spin-boxes. (EXPERIMENTAL)
 - Add LV2 UI Resize extension data support. (EXPERIMENTAL)
 - Process MIDI Controlllers even though the channel filter
   is on (DEF Channel is set anything but "Omni").

@@ -40,6 +40,7 @@ sources = \
 	src/$(name)_controls.cpp
 
 headers_ui = \
+	src/$(name_ui).h \
 	src/$(name)widget.h \
 	src/$(name)widget_env.h \
 	src/$(name)widget_filt.h \
@@ -55,6 +56,7 @@ headers_ui = \
 	src/$(name)widget_config.h
 
 sources_ui = \
+	src/$(name_ui).cpp \
 	src/$(name)widget.cpp \
 	src/$(name)widget_env.cpp \
 	src/$(name)widget_filt.cpp \
