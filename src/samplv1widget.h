@@ -127,6 +127,9 @@ protected slots:
 	// Param knob context menu.
 	void paramContextMenu(const QPoint& pos);
 
+	// Format changes (spinbox).
+	void spinboxContextMenu(const QPoint& pos);
+
 	// Menu actions.
 	void helpConfigure();
 

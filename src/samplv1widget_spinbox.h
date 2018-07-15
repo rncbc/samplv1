@@ -67,9 +67,6 @@ signals:
 	void valueChanged(uint32_t);
 	void valueChanged(const QString&);
 
-	// Display-format change notification.
-	void formatChanged(int);
-
 protected:
 
 	// Mark that we got actual value.

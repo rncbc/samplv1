@@ -107,10 +107,6 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	m_ui.Gen1LoopEndSpinBox->setMinimum(0);
 	m_ui.Gen1LoopFadeSpinBox->setMinimum(0);
 
-	m_ui.Gen1LoopStartSpinBox->setFormat(samplv1widget_spinbox::Time);
-	m_ui.Gen1LoopEndSpinBox->setFormat(samplv1widget_spinbox::Time);
-	m_ui.Gen1LoopFadeSpinBox->setFormat(samplv1widget_spinbox::Time);
-
 	// Note names.
 	QStringList notes;
 	for (int note = 0; note < 128; ++note)
@@ -487,6 +483,8 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 
 	// Sample context menu...
 	m_ui.Gen1Sample->setContextMenuPolicy(Qt::CustomContextMenu);
+	m_ui.Gen1LoopStartSpinBox->setContextMenuPolicy(Qt::CustomContextMenu);
+	m_ui.Gen1LoopEndSpinBox->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	QObject::connect(m_ui.Gen1Sample,
 		SIGNAL(customContextMenuRequested(const QPoint&)),
@@ -506,11 +504,18 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 		SIGNAL(valueChanged(float)),
 		SLOT(loopFadeChanged()));
 	QObject::connect(m_ui.Gen1LoopFadeSpinBox,
-		SIGNAL(valueChanged(uint32_t)),
+		SIGNAL(valueChanged(int)),
 		SLOT(loopFadeChanged()));
 	QObject::connect(m_ui.Gen1LoopZeroCheckBox,
 		SIGNAL(valueChanged(float)),
 		SLOT(loopZeroChanged()));
+
+	QObject::connect(m_ui.Gen1LoopStartSpinBox,
+		SIGNAL(customContextMenuRequested(const QPoint&)),
+		SLOT(spinboxContextMenu(const QPoint&)));
+	QObject::connect(m_ui.Gen1LoopEndSpinBox,
+		SIGNAL(customContextMenuRequested(const QPoint&)),
+		SLOT(spinboxContextMenu(const QPoint&)));
 
 	// Swap params A/B
 	QObject::connect(m_ui.SwapParamsAButton,
@@ -535,13 +540,17 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 		SIGNAL(triggered(bool)),
 		SLOT(helpAboutQt()));
 
-	// General knob/dial  behavior init...
+	// General knob/dial behavior init...
 	samplv1_config *pConfig = samplv1_config::getInstance();
 	if (pConfig) {
 		samplv1widget_dial::setDialMode(
 			samplv1widget_dial::DialMode(pConfig->iKnobDialMode));
 		samplv1widget_edit::setEditMode(
 			samplv1widget_edit::EditMode(pConfig->iKnobEditMode));
+		const samplv1widget_spinbox::Format format
+			= samplv1widget_spinbox::Format(pConfig->iSpinBoxFormat);
+		m_ui.Gen1LoopStartSpinBox->setFormat(format);
+		m_ui.Gen1LoopEndSpinBox->setFormat(format);
 	}
 
 	// Epilog.
@@ -1164,7 +1173,6 @@ void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1LoopEndSpinBox->setValue(iLoopEnd);
 		m_ui.Gen1LoopFadeCheckBox->setEnabled(bLoop);
 		m_ui.Gen1LoopFadeCheckBox->setValue(iLoopFade > 0 ? 1.0f : 0.0f);
-		m_ui.Gen1LoopFadeSpinBox->setSampleRate(srate);
 		m_ui.Gen1LoopFadeSpinBox->setEnabled(bLoop && iLoopFade > 0);
 		m_ui.Gen1LoopFadeSpinBox->setMinimum(0);
 		m_ui.Gen1LoopFadeSpinBox->setMaximum(
@@ -1394,6 +1402,7 @@ void samplv1widget::helpAboutQt (void)
 }
 
 
+
 // Dirty flag (overridable virtual) methods.
 void samplv1widget::updateDirtyPreset ( bool bDirtyPreset )
 {
@@ -1435,6 +1444,45 @@ void samplv1widget::paramContextMenu ( const QPoint& pos )
 		const samplv1::ParamIndex index = m_knobParams.value(pParam);
 		const QString& sTitle = pParam->toolTip();
 		samplv1widget_control::showInstance(pControls, index, sTitle, this);
+	}
+}
+
+
+// Format changes (spinbox).
+void samplv1widget::spinboxContextMenu ( const QPoint& pos )
+{
+	samplv1widget_spinbox *pSpinBox
+		= qobject_cast<samplv1widget_spinbox *> (sender());
+	if (pSpinBox == NULL)
+		return;
+
+	samplv1widget_spinbox::Format format = pSpinBox->format();
+
+	QMenu menu(this);
+	QAction *pAction;
+
+	pAction = menu.addAction(tr("&Frames"));
+	pAction->setCheckable(true);
+	pAction->setChecked(format == samplv1widget_spinbox::Frames);
+	pAction->setData(int(samplv1widget_spinbox::Frames));
+
+	pAction = menu.addAction(tr("&Time"));
+	pAction->setCheckable(true);
+	pAction->setChecked(format == samplv1widget_spinbox::Time);
+	pAction->setData(int(samplv1widget_spinbox::Time));
+
+	pAction = menu.exec(pSpinBox->mapToGlobal(pos));
+	if (pAction == NULL)
+		return;
+
+	format = samplv1widget_spinbox::Format(pAction->data().toInt());
+	if (format != pSpinBox->format()) {
+		samplv1_config *pConfig = samplv1_config::getInstance();
+		if (pConfig) {
+			pConfig->iSpinBoxFormat = int(format);
+			m_ui.Gen1LoopStartSpinBox->setFormat(format);
+			m_ui.Gen1LoopEndSpinBox->setFormat(format);
+		}
 	}
 }
 

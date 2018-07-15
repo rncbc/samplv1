@@ -64,6 +64,9 @@ public:
 	int iKnobDialMode;
 	int iKnobEditMode;
 
+	// Special time-formatted spinbox option.
+	int iSpinBoxFormat;
+
 	// Special persistent options.
 	bool bControlsEnabled;
 	bool bProgramsEnabled;
