@@ -497,8 +497,8 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 		SLOT(contextMenuRequest(const QPoint&)));
 
 	QObject::connect(m_ui.Gen1Sample,
-		SIGNAL(loopRangeChanged()),
-		SLOT(loopRangeChanged()));
+		SIGNAL(offsetLoopChanged()),
+		SLOT(offsetLoopChanged()));
 
 	QObject::connect(m_ui.Gen1OffsetSpinBox,
 		SIGNAL(valueChanged(uint32_t)),
@@ -735,7 +735,7 @@ void samplv1widget::updateParamEx ( samplv1::ParamIndex index, float fValue )
 	case samplv1::GEN1_LOOP: {
 		const bool bLoop = bool(fValue > 0.0f);
 		pSamplUi->setLoop(bLoop);
-		updateSampleLoop(pSamplUi->sample());
+		updateOffsetLoop(pSamplUi->sample());
 		break;
 	}
 	default:
@@ -1025,7 +1025,7 @@ void samplv1widget::updateSample ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1Sample->setLoopStart(iLoopStart);
 		m_ui.Gen1Sample->setLoopEnd(iLoopEnd);
 		activateParamKnobs(pSample->filename() != NULL);
-		updateSampleLoop(pSample);
+		updateOffsetLoop(pSample);
 		// Set current preset name if empty...
 		if (pSample->filename() && m_ui.Preset->preset().isEmpty()) {
 			m_ui.Preset->setPreset(
@@ -1036,7 +1036,7 @@ void samplv1widget::updateSample ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1Sample->setLoopStart(0);
 		m_ui.Gen1Sample->setLoopEnd(0);
 		activateParamKnobs(false);
-		updateSampleLoop(NULL);
+		updateOffsetLoop(NULL);
 	}
 	--m_iUpdate;
 
@@ -1074,25 +1074,7 @@ void samplv1widget::offsetChanged (void)
 	if (pSamplUi) {
 		const uint32_t iOffset = m_ui.Gen1OffsetSpinBox->value();
 		pSamplUi->setOffset(iOffset);
-		updateSampleLoop(pSamplUi->sample(), true);
-	}
-	--m_iUpdate;
-}
-
-
-// Loop range change.
-void samplv1widget::loopRangeChanged (void)
-{
-	if (m_iUpdate > 0)
-		return;
-
-	++m_iUpdate;
-	samplv1_ui *pSamplUi = ui_instance();
-	if (pSamplUi) {
-		const uint32_t iLoopStart = m_ui.Gen1Sample->loopStart();
-		const uint32_t iLoopEnd = m_ui.Gen1Sample->loopEnd();
-		pSamplUi->setLoopRange(iLoopStart, iLoopEnd);
-		updateSampleLoop(pSamplUi->sample(), true);
+		updateOffsetLoop(pSamplUi->sample(), true);
 	}
 	--m_iUpdate;
 }
@@ -1111,7 +1093,7 @@ void samplv1widget::loopStartChanged (void)
 		const uint32_t iLoopEnd = pSamplUi->loopEnd();
 		pSamplUi->setLoopRange(iLoopStart, iLoopEnd);
 		m_ui.Gen1Sample->setLoopStart(iLoopStart);
-		updateSampleLoop(pSamplUi->sample(), true);
+		updateOffsetLoop(pSamplUi->sample(), true);
 	}
 	--m_iUpdate;
 }
@@ -1130,7 +1112,7 @@ void samplv1widget::loopEndChanged (void)
 		const uint32_t iLoopEnd = m_ui.Gen1LoopEndSpinBox->value();
 		pSamplUi->setLoopRange(iLoopStart, iLoopEnd);
 		m_ui.Gen1Sample->setLoopEnd(iLoopEnd);
-		updateSampleLoop(pSamplUi->sample(), true);
+		updateOffsetLoop(pSamplUi->sample(), true);
 	}
 	--m_iUpdate;
 }
@@ -1179,19 +1161,41 @@ void samplv1widget::loopZeroChanged (void)
 }
 
 
-void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
+// Offset/loop points changed (from UI).
+void samplv1widget::offsetLoopChanged (void)
+{
+	if (m_iUpdate > 0)
+		return;
+
+	++m_iUpdate;
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi) {
+		const uint32_t iOffset    = m_ui.Gen1Sample->offset();
+		const uint32_t iLoopStart = m_ui.Gen1Sample->loopStart();
+		const uint32_t iLoopEnd   = m_ui.Gen1Sample->loopEnd();
+		pSamplUi->setLoopRange(iLoopStart, iLoopEnd);
+		pSamplUi->setOffset(iOffset);
+		updateOffsetLoop(pSamplUi->sample(), true);
+	}
+	--m_iUpdate;
+}
+
+
+void samplv1widget::updateOffsetLoop ( samplv1_sample *pSample, bool bDirty )
 {
 	if (pSample) {
-		const uint32_t iOffset = pSample->offset();
 		const bool bLoop = pSample->isLoop();
+		const uint32_t iOffset = pSample->offset();
 		const uint32_t iLoopStart = pSample->loopStart();
 		const uint32_t iLoopEnd = pSample->loopEnd();
 		const uint32_t iLoopFade = pSample->loopCrossFade();
 		const bool bLoopZero = pSample->isLoopZeroCrossing();
 		const uint32_t nframes = pSample->length();
 		const float srate = pSample->sampleRate();
+		m_ui.Gen1OffsetLabel->setEnabled(pSample->filename() != NULL);
 		m_ui.Gen1OffsetSpinBox->setSampleRate(srate);
 		m_ui.Gen1OffsetSpinBox->setMaximum(bLoop ? iLoopStart : nframes);
+		m_ui.Gen1OffsetSpinBox->setValue(iOffset);
 		m_ui.Gen1LoopRangeLabel->setEnabled(bLoop);
 		m_ui.Gen1LoopStartSpinBox->setSampleRate(srate);
 		m_ui.Gen1LoopStartSpinBox->setEnabled(bLoop);
@@ -1213,16 +1217,20 @@ void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1LoopFadeSpinBox->setValue(iLoopFade);
 		m_ui.Gen1LoopZeroCheckBox->setValue(bLoopZero ? 1.0f : 0.0f);
 		m_ui.Gen1LoopZeroCheckBox->setEnabled(bLoop);
+		m_ui.Gen1Sample->setOffset(iOffset);
 		m_ui.Gen1Sample->setLoopStart(iLoopStart);
 		m_ui.Gen1Sample->setLoopEnd(iLoopEnd);
 		m_ui.Gen1Sample->setLoop(bLoop);
 		if (bDirty) {
-			m_ui.StatusBar->showMessage(tr("Loop start: %1, end: %2")
-				.arg(iLoopStart).arg(iLoopEnd), 5000);
+			m_ui.StatusBar->showMessage(
+				tr("Offset: %1  Loop start: %2, end: %3")
+				.arg(iOffset).arg(iLoopStart).arg(iLoopEnd), 5000);
 			updateDirtyPreset(true);
 		}
 	} else {
+		m_ui.Gen1OffsetLabel->setEnabled(false);
 		m_ui.Gen1OffsetSpinBox->setMaximum(0);
+		m_ui.Gen1OffsetSpinBox->setValue(0);
 		m_ui.Gen1LoopRangeLabel->setEnabled(false);
 		m_ui.Gen1LoopStartSpinBox->setEnabled(false);
 		m_ui.Gen1LoopStartSpinBox->setMinimum(0);
@@ -1238,6 +1246,7 @@ void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1LoopFadeSpinBox->setMaximum(0);
 		m_ui.Gen1LoopFadeSpinBox->setValue(0);
 		m_ui.Gen1LoopZeroCheckBox->setEnabled(false);
+		m_ui.Gen1Sample->setOffset(0);
 		m_ui.Gen1Sample->setLoopStart(0);
 		m_ui.Gen1Sample->setLoopEnd(0);
 		m_ui.Gen1Sample->setLoop(false);

@@ -111,15 +111,17 @@ protected slots:
 	// Swap params A/B.
 	void swapParams(bool bOn);
 
-	// Offset changed.
+	// Offset point changed.
 	void offsetChanged();
 
-	// Loop range changes.
-	void loopRangeChanged();
+	// Loop point changes.
 	void loopStartChanged();
 	void loopEndChanged();
 	void loopFadeChanged();
 	void loopZeroChanged();
+
+	// Loop points changed (from UI).
+	void offsetLoopChanged();
 
 	// Notification updater.
 	void updateSchedNotify(int stype, int sid);
@@ -168,7 +170,7 @@ protected:
 	void updateSample(samplv1_sample *pSample, bool bDirty = false);
 
 	// Update loop range change status.
-	void updateSampleLoop(samplv1_sample *pSample, bool bDirty = false);
+	void updateOffsetLoop(samplv1_sample *pSample, bool bDirty = false);
 
 	// Param port methods.
 	virtual void updateParam(samplv1::ParamIndex index, float fValue) const = 0;

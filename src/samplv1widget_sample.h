@@ -60,6 +60,9 @@ public:
 	void setSampleName(const QString& sName);
 	const QString& sampleName() const;
 
+	// Offset getter.
+	uint32_t offset() const;
+
 	void setLoop(bool bLoop);
 	bool isLoop() const;
 
@@ -75,8 +78,8 @@ signals:
 	// Load new sample file.
 	void loadSampleFile(const QString&);
 
-	// Loop range changed.
-	void loopRangeChanged();
+	// Offset/loop range changed.
+	void offsetLoopChanged();
 
 public slots:
 
@@ -85,6 +88,9 @@ public slots:
 
 	// Effective sample slot.
 	void loadSample(samplv1_sample *pSample);
+
+	// Offset point setters.
+	void setOffset(uint32_t iOffset);
 
 	// Loop point setters.
 	void setLoopStart(uint32_t iLoopStart);
@@ -143,17 +149,21 @@ private:
 	// Drag state.
 	enum DragState {
 		DragNone = 0, DragStart, DragSelect,
-		DragLoopStart, DragLoopEnd,
+		DragOffset, DragLoopStart, DragLoopEnd,
 	} m_dragState, m_dragCursor;
 
 	QPoint m_posDrag;
 
-	int m_iDragStartX;
-	int m_iDragEndX;
+	int m_iDragOffsetX;
+	int m_iDragLoopStartX;
+	int m_iDragLoopEndX;
 
 	samplv1_sample *m_pDragSample;
 
 	int m_iDirectNoteOn;
+
+	// Offset state.
+	uint32_t m_iOffset;
 
 	// Loop state.
 	bool     m_bLoop;
