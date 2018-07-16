@@ -60,6 +60,9 @@ public:
 	void setReverse(bool bReverse);
 	bool isReverse() const;
 
+	void setOffset(uint32_t iOffset);
+	uint32_t offset() const;
+
 	void setLoop(bool bLoop);
 	bool isLoop() const;
 

@@ -73,6 +73,17 @@ bool samplv1_ui::isReverse (void) const
 }
 
 
+void samplv1_ui::setOffset ( uint32_t iOffset )
+{
+	m_pSampl->setOffset(iOffset);
+}
+
+uint32_t samplv1_ui::offset (void) const
+{
+	return m_pSampl->offset();
+}
+
+
 void samplv1_ui::setLoop ( bool bLoop )
 {
 	m_pSampl->setLoop(bLoop);

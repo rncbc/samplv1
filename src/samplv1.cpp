@@ -2040,6 +2040,19 @@ bool samplv1::isReverse (void) const
 }
 
 
+void samplv1::setOffset ( uint32_t iOffset )
+{
+	m_pImpl->gen1_sample.setOffset(iOffset);
+
+	updateSample();
+}
+
+uint32_t samplv1::offset (void) const
+{
+	return m_pImpl->gen1_sample.offset();
+}
+
+
 void samplv1::setLoop ( bool bLoop )
 {
 	m_pImpl->gen1_sample.setLoop(bLoop);

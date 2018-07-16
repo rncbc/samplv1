@@ -1152,6 +1152,7 @@ void samplv1widget::loopZeroChanged (void)
 void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
 {
 	if (pSample) {
+		const uint32_t iOffset = pSample->offset();
 		const bool bLoop = pSample->isLoop();
 		const uint32_t iLoopStart = pSample->loopStart();
 		const uint32_t iLoopEnd = pSample->loopEnd();
@@ -1162,7 +1163,7 @@ void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1LoopRangeLabel->setEnabled(bLoop);
 		m_ui.Gen1LoopStartSpinBox->setSampleRate(srate);
 		m_ui.Gen1LoopStartSpinBox->setEnabled(bLoop);
-		m_ui.Gen1LoopStartSpinBox->setMinimum(0);
+		m_ui.Gen1LoopStartSpinBox->setMinimum(iOffset);
 		m_ui.Gen1LoopStartSpinBox->setMaximum(iLoopEnd);
 		m_ui.Gen1LoopEndSpinBox->setSampleRate(srate);
 		m_ui.Gen1LoopEndSpinBox->setEnabled(bLoop);
@@ -1176,7 +1177,7 @@ void samplv1widget::updateSampleLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1LoopFadeSpinBox->setEnabled(bLoop && iLoopFade > 0);
 		m_ui.Gen1LoopFadeSpinBox->setMinimum(0);
 		m_ui.Gen1LoopFadeSpinBox->setMaximum(
-			qMin(iLoopStart, (iLoopEnd - iLoopStart) >> 1));
+			qMin(iLoopStart - iOffset, (iLoopEnd - iLoopStart) >> 1));
 		m_ui.Gen1LoopFadeSpinBox->setValue(iLoopFade);
 		m_ui.Gen1LoopZeroCheckBox->setValue(bLoopZero ? 1.0f : 0.0f);
 		m_ui.Gen1LoopZeroCheckBox->setEnabled(bLoop);

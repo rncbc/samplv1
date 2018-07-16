@@ -99,6 +99,7 @@ private:
 	struct lv2_urids
 	{
 		LV2_URID gen1_sample;
+		LV2_URID gen1_offset;
 		LV2_URID gen1_loop_start;
 		LV2_URID gen1_loop_end;
 		LV2_URID gen1_loop_fade;

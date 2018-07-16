@@ -53,6 +53,12 @@ public:
 	float sampleRate() const
 		{ return m_srate; }
 
+	// sample start point (offset)
+	void setOffset(uint32_t offset);
+
+	uint32_t offset() const
+		{ return m_offset; }
+
 	// reverse mode.
 	void setReverse(bool reverse)
 		{ reverse_test(reverse); }
@@ -179,6 +185,8 @@ private:
 	float  **m_pframes;
 	bool     m_reverse;
 
+	uint32_t m_offset;
+
 	bool     m_loop;
 	uint32_t m_loop_start;
 	uint32_t m_loop_end;
@@ -210,10 +218,11 @@ public:
 	{
 		m_sample = sample;
 
-		m_phase = 0.0f;
-		m_index = 0;
-		m_alpha = 0.0f;
-		m_frame = 0;
+		m_phase0 = float(m_sample->offset());
+		m_phase  = m_phase0;
+		m_index  = 0;
+		m_alpha  = 0.0f;
+		m_frame  = 0;
 
 		m_loop = false;
 		m_loop_phase1 = 0.0f;
@@ -242,7 +251,8 @@ public:
 	// begin.
 	void start()
 	{
-		m_phase  = 0.0f;
+		m_phase0 = float(m_sample->offset());
+		m_phase  = m_phase0;
 		m_index  = 0;
 		m_alpha  = 0.0f;
 		m_frame  = 0;
@@ -272,8 +282,8 @@ public:
 					if (//m_sample->isOver(m_index) ||
 						m_phase >= m_loop_phase2) {
 						m_phase -= m_loop_phase1;
-						if (m_phase < 0.0f)
-							m_phase = 0.0f;
+						if (m_phase < m_phase0)
+							m_phase = m_phase0;
 					}
 					if (m_phase1 > 0.0f) {
 						m_index1 = int(m_phase1);
@@ -284,8 +294,8 @@ public:
 							m_xgain1 = 0.0f;
 					} else {
 						m_phase1 = m_phase - m_loop_phase1;
-						if (m_phase1 < 0.0f)
-							m_phase1 = 0.0f;
+						if (m_phase1 < m_phase0)
+							m_phase1 = m_phase0;
 						m_xgain1 = 1.0f;
 					}
 				}
@@ -300,8 +310,8 @@ public:
 			else
 			if (m_phase >= m_loop_phase2) {
 				m_phase -= m_loop_phase1;
-				if (m_phase < 0.0f)
-					m_phase = 0.0f;
+				if (m_phase < m_phase0)
+					m_phase = m_phase0;
 			}
 		}
 
@@ -350,6 +360,7 @@ private:
 	// iterator variables.
 	samplv1_sample *m_sample;
 
+	float    m_phase0;
 	float    m_phase;
 	uint32_t m_index;
 	float    m_alpha;

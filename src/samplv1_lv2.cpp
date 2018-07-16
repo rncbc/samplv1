@@ -91,6 +91,8 @@ samplv1_lv2::samplv1_lv2 (
 			if (m_urid_map) {
 				m_urids.gen1_sample = m_urid_map->map(
 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_SAMPLE");
+				m_urids.gen1_offset = m_urid_map->map(
+					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_OFFSET");
 				m_urids.gen1_loop_start = m_urid_map->map(
 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_LOOP_START");
 				m_urids.gen1_loop_end = m_urid_map->map(
@@ -299,6 +301,16 @@ void samplv1_lv2::run ( uint32_t nframes )
 							}
 						}
 						else
+						if (key == m_urids.gen1_offset
+							&& type == m_urids.atom_Int) {
+							samplv1_sample *pSample = samplv1::sample();
+							if (pSample) {
+								const uint32_t offset
+									= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
+								setOffset(offset);
+							}
+						}
+						else
 						if (key == m_urids.gen1_loop_start
 							&& type == m_urids.atom_Int) {
 							samplv1_sample *pSample = samplv1::sample();
@@ -432,16 +444,22 @@ static LV2_State_Status samplv1_lv2_state_save ( LV2_Handle instance,
 	if (map_path)
 		::free((void *) value);
 
-	// Save extra loop points...
-	uint32_t loop_start = pPlugin->loopStart();
-	uint32_t loop_end   = pPlugin->loopEnd();
-	uint32_t loop_fade  = pPlugin->loopFade();
-	uint32_t loop_zero  = pPlugin->isLoopZero() ? 1 : 0;
-
-	if (loop_start < loop_end) {
-		type = pPlugin->urid_map(LV2_ATOM__Int);
-		if (type) {
-			size = sizeof(uint32_t);
+	// Save state properties...
+	size = sizeof(uint32_t);
+	type = pPlugin->urid_map(LV2_ATOM__Int);
+	if (type) {
+		// Offset state...
+		uint32_t offset = pPlugin->offset();
+		value = (const char *) &offset;
+		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_OFFSET");
+		if (key)
+			(*store)(handle, key, value, size, type, flags);
+		// Loop state...
+		uint32_t loop_start = pPlugin->loopStart();
+		uint32_t loop_end   = pPlugin->loopEnd();
+		uint32_t loop_fade  = pPlugin->loopFade();
+		uint32_t loop_zero  = pPlugin->isLoopZero() ? 1 : 0;
+		if (loop_start < loop_end) {
 			value = (const char *) &loop_start;
 			key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_START");
 			if (key)
@@ -520,7 +538,8 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 	if (map_path)
 		::free((void *) value);
 
-	// Restore extra loop points.
+	// Restore state properties...
+	uint32_t offset     = 0;
 	uint32_t loop_start = 0;
 	uint32_t loop_end   = 0;
 	uint32_t loop_fade  = 0;
@@ -528,6 +547,14 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 
 	const uint32_t int_type = pPlugin->urid_map(LV2_ATOM__Int);
 	if (int_type) {
+		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_OFFSET");
+		if (key) {
+			size = 0;
+			type = 0;
+			value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
+			if (value && size == sizeof(uint32_t) && type == int_type)
+				offset = *(uint32_t *) value;
+		}
 		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_START");
 		if (key) {
 			size = 0;
@@ -567,6 +594,9 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 
 	if (loop_start < loop_end)
 		pPlugin->setLoopRange(loop_start, loop_end);
+
+	if (offset > 0)
+		pPlugin->setOffset(offset);
 
 	pPlugin->reset();
 
@@ -719,12 +749,16 @@ bool samplv1_lv2::patch_put ( uint32_t ndelta )
 	lv2_atom_forge_object(&m_forge, &body_frame, 0, 0);
 	lv2_atom_forge_key(&m_forge, m_urids.gen1_sample);
 	lv2_atom_forge_path(&m_forge, pszSampleFile, ::strlen(pszSampleFile) + 1);
+	lv2_atom_forge_key(&m_forge, m_urids.gen1_offset);
+	lv2_atom_forge_int(&m_forge, pSample->offset());
 	lv2_atom_forge_key(&m_forge, m_urids.gen1_loop_start);
 	lv2_atom_forge_int(&m_forge, pSample->loopStart());
 	lv2_atom_forge_key(&m_forge, m_urids.gen1_loop_end);
 	lv2_atom_forge_int(&m_forge, pSample->loopEnd());
 	lv2_atom_forge_key(&m_forge, m_urids.gen1_loop_fade);
 	lv2_atom_forge_int(&m_forge, pSample->loopCrossFade());
+	lv2_atom_forge_key(&m_forge, m_urids.gen1_loop_zero);
+	lv2_atom_forge_int(&m_forge, pSample->isLoopZeroCrossing() ? 1 : 0);
 
 	lv2_atom_forge_pop(&m_forge, &body_frame);
 	lv2_atom_forge_pop(&m_forge, &patch_frame);

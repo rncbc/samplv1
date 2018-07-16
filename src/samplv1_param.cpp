@@ -187,6 +187,7 @@ void samplv1_param::loadSamples (
 		if (eSample.tagName() == "sample") {
 		//	int index = eSample.attribute("index").toInt();
 			QString sFilename;
+			uint32_t iOffset = 0;
 			uint32_t iLoopStart = 0;
 			uint32_t iLoopEnd = 0;
 			uint32_t iLoopFade = 0;
@@ -199,6 +200,10 @@ void samplv1_param::loadSamples (
 					continue;
 				if (eChild.tagName() == "filename") {
 					sFilename = eChild.text();
+				}
+				else
+				if (eChild.tagName() == "offset") {
+					iOffset = eChild.text().toULong();
 				}
 				else
 				if (eChild.tagName() == "loop-start") {
@@ -230,6 +235,7 @@ void samplv1_param::loadSamples (
 			pSampl->setLoopZero(bLoopZero);
 			pSampl->setLoopFade(iLoopFade);
 			pSampl->setLoopRange(iLoopStart, iLoopEnd);
+			pSampl->setOffset(iOffset);
 		}
 	}
 }
@@ -266,6 +272,14 @@ void samplv1_param::saveSamples (
 	eFilename.appendChild(doc.createTextNode(
 		QDir::current().relativeFilePath(fi.absoluteFilePath())));
 	eSample.appendChild(eFilename);
+
+	const uint32_t iOffset = pSampl->offset();
+	if (iOffset > 0) {
+		QDomElement eOffset = doc.createElement("offset");
+		eOffset.appendChild(doc.createTextNode(
+			QString::number(iOffset)));
+		eSample.appendChild(eOffset);
+	}
 
 	const uint32_t iLoopStart = pSampl->loopStart();
 	const uint32_t iLoopEnd   = pSampl->loopEnd();

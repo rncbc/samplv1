@@ -60,7 +60,7 @@ private:
 samplv1_sample::samplv1_sample ( samplv1 *pSampl, float srate )
 	: m_srate(srate), m_filename(NULL), m_nchannels(0),
 		m_rate0(0.0f), m_freq0(1.0f), m_ratio(0.0f),
-		m_nframes(0), m_pframes(NULL), m_reverse(false),
+		m_nframes(0), m_pframes(NULL), m_reverse(false), m_offset(0),
 		m_loop(false), m_loop_start(0), m_loop_end(0),
 		m_loop_phase1(0.0f), m_loop_phase2(0.0f),
 		m_loop_xfade(0), m_loop_xzero(true)
@@ -203,6 +203,21 @@ void samplv1_sample::reverse_sync (void)
 			}
 		}
 	}
+}
+
+
+// sample start point (offset)
+void samplv1_sample::setOffset ( uint32_t offset )
+{
+	if (offset > m_nframes)
+		offset = 0;
+	if (offset > 0)
+		offset = zero_crossing(offset, NULL);
+
+	m_offset = offset;
+
+	if (m_loop && m_loop_start < m_offset)
+		setLoopRange(m_offset, m_loop_end);
 }
 
 
