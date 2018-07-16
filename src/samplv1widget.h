@@ -111,6 +111,9 @@ protected slots:
 	// Swap params A/B.
 	void swapParams(bool bOn);
 
+	// Offset changed.
+	void offsetChanged();
+
 	// Loop range changes.
 	void loopRangeChanged();
 	void loopStartChanged();
