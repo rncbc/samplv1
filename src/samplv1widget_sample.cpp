@@ -292,7 +292,7 @@ void samplv1widget_sample::mouseMoveEvent ( QMouseEvent *pMouseEvent )
 	const int x = pMouseEvent->pos().x();
 
 	switch (m_dragState) {
-	case DragNone: {
+	case DragNone:
 		if (m_pSample) {
 			const int w = QFrame::width();
 			const uint32_t nframes = m_pSample->length();
@@ -323,65 +323,63 @@ void samplv1widget_sample::mouseMoveEvent ( QMouseEvent *pMouseEvent )
 			}
 		}
 		break;
-	}
-	case DragOffset: {
-		if (!m_bLoop || m_iDragLoopStartX > x) {
-			m_iDragOffsetX = safeX(x);
-			update();
-			if (m_pSample) {
-				const int w = QFrame::width();
-				if (w > 0) {
-					const uint32_t nframes = m_pSample->length();
-					QToolTip::showText(
-						QCursor::pos(),
-						tr("Offset: %1")
-							.arg((m_iDragOffsetX * nframes) / w), this);
-				}
-			}
-		}
-		break;
-	}
-	case DragLoopStart: {
-		if (m_iDragLoopEndX > x && m_iDragOffsetX < x) {
-			m_iDragLoopStartX = safeX(x);
-			update();
-			if (m_pSample) {
-				const int w = QFrame::width();
-				if (w > 0) {
-					const uint32_t nframes = m_pSample->length();
-					QToolTip::showText(
-						QCursor::pos(),
-						tr("Loop start: %1")
-							.arg((m_iDragLoopStartX * nframes) / w), this);
-				}
-			}
-		}
-		break;
-	}
-	case DragLoopEnd: {
-		if (m_iDragLoopStartX < x) {
-			m_iDragLoopEndX = safeX(x);
-			update();
-			if (m_pSample) {
-				const int w = QFrame::width();
-				if (w > 0) {
-					const uint32_t nframes = m_pSample->length();
-					QToolTip::showText(
-						QCursor::pos(),
-						tr("Loop end: %1")
-							.arg((m_iDragLoopEndX * nframes) / w), this);
-				}
-			}
-		}
-		break;
-	}
-	case DragSelect: {
-		// Rubber-band selection...
-		const QRect& rect = QRect(m_posDrag, pMouseEvent->pos()).normalized();
-		m_iDragLoopStartX = safeX(rect.left());
-		m_iDragLoopEndX   = safeX(rect.right());
-		update();
+	case DragOffset:
 		if (m_pSample) {
+			m_iDragOffsetX = safeX(x);
+			if (m_bLoop && m_iDragOffsetX > m_iDragLoopStartX)
+				m_iDragOffsetX = m_iDragLoopStartX;
+			update();
+			const int w = QFrame::width();
+			if (w > 0) {
+				const uint32_t nframes = m_pSample->length();
+				QToolTip::showText(
+					QCursor::pos(),
+					tr("Offset: %1")
+						.arg((m_iDragOffsetX * nframes) / w), this);
+			}
+		}
+		break;
+	case DragLoopStart:
+		if (m_pSample) {
+			m_iDragLoopStartX = safeX(x);
+			if (m_iDragLoopStartX < m_iDragOffsetX)
+				m_iDragLoopStartX = m_iDragOffsetX;
+			if (m_iDragLoopStartX > m_iDragLoopEndX)
+				m_iDragLoopStartX = m_iDragLoopEndX;
+			update();
+			const int w = QFrame::width();
+			if (w > 0) {
+				const uint32_t nframes = m_pSample->length();
+				QToolTip::showText(
+					QCursor::pos(),
+					tr("Loop start: %1")
+						.arg((m_iDragLoopStartX * nframes) / w), this);
+			}
+		}
+		break;
+	case DragLoopEnd:
+		if (m_pSample) {
+			m_iDragLoopEndX = safeX(x);
+			if (m_iDragLoopEndX < m_iDragLoopStartX)
+				m_iDragLoopEndX = m_iDragLoopStartX;
+			update();
+			const int w = QFrame::width();
+			if (w > 0) {
+				const uint32_t nframes = m_pSample->length();
+				QToolTip::showText(
+					QCursor::pos(),
+					tr("Loop end: %1")
+						.arg((m_iDragLoopEndX * nframes) / w), this);
+			}
+		}
+		break;
+	case DragLoopRange:
+		// Rubber-band selection...
+		if (m_pSample) {
+			const QRect& rect = QRect(m_posDrag, pMouseEvent->pos()).normalized();
+			m_iDragLoopStartX = safeX(rect.left());
+			m_iDragLoopEndX   = safeX(rect.right());
+			update();
 			const int w = QFrame::width();
 			if (w > 0) {
 				const uint32_t nframes = m_pSample->length();
@@ -393,7 +391,6 @@ void samplv1widget_sample::mouseMoveEvent ( QMouseEvent *pMouseEvent )
 			}
 		}
 		break;
-	}
 	case DragStart:
 		// Rubber-band starting...
 		if ((m_posDrag - pMouseEvent->pos()).manhattanLength()
@@ -404,7 +401,7 @@ void samplv1widget_sample::mouseMoveEvent ( QMouseEvent *pMouseEvent )
 			else
 			if (m_bLoop && (pMouseEvent->modifiers()
 				& (Qt::ShiftModifier | Qt::ControlModifier))) {
-				m_dragState = m_dragCursor = DragSelect;
+				m_dragState = m_dragCursor = DragLoopRange;
 				m_iDragLoopStartX = m_iDragLoopEndX = m_posDrag.x();
 				QFrame::setCursor(QCursor(Qt::SizeHorCursor));
 			} else if (m_pSample && m_pSample->filename()) {
@@ -433,18 +430,6 @@ void samplv1widget_sample::mouseReleaseEvent ( QMouseEvent *pMouseEvent )
 	QFrame::mouseReleaseEvent(pMouseEvent);
 
 	switch (m_dragState) {
-	case DragSelect: {
-		const int w = QFrame::width();
-		if (m_pSample && w > 0) {
-			const uint32_t nframes = m_pSample->length();
-			m_iLoopStart = (m_iDragLoopStartX * nframes) / w;
-			m_iLoopEnd   = (m_iDragLoopEndX   * nframes) / w;
-			emit sampleChanged();
-			updateToolTip();
-			update();
-		}
-		break;
-	}
 	case DragOffset: {
 		const int w = QFrame::width();
 		if (m_pSample && w > 0) {
@@ -472,6 +457,18 @@ void samplv1widget_sample::mouseReleaseEvent ( QMouseEvent *pMouseEvent )
 		if (m_pSample && w > 0) {
 			const uint32_t nframes = m_pSample->length();
 			m_iLoopEnd = (m_iDragLoopEndX * nframes) / w;
+			emit sampleChanged();
+			updateToolTip();
+			update();
+		}
+		break;
+	}
+	case DragLoopRange: {
+		const int w = QFrame::width();
+		if (m_pSample && w > 0) {
+			const uint32_t nframes = m_pSample->length();
+			m_iLoopStart = (m_iDragLoopStartX * nframes) / w;
+			m_iLoopEnd   = (m_iDragLoopEndX   * nframes) / w;
 			emit sampleChanged();
 			updateToolTip();
 			update();
@@ -575,35 +572,34 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 		// Loop point lines...
 		if (m_bLoop && bEnabled) {
 			int x1 = 0, x2 = 0;
-			if (m_iDragLoopStartX < m_iDragLoopEndX) {
+			if (m_dragState == DragLoopStart ||
+				m_dragState == DragLoopEnd   ||
+				m_dragState == DragLoopRange) {
 				x1 = m_iDragLoopStartX;
 				x2 = m_iDragLoopEndX;
-			} else {
-				const uint32_t nframes = m_pSample->length();
-				if (nframes > 0) {
-					x1 = (m_iLoopStart * w) / nframes;
-					x2 = (m_iLoopEnd   * w) / nframes;
-				}
 			}
-			if (x1 < x2) {
-				QLinearGradient grad1(0, 0, w2, h);
-				painter.setPen(pal.highlight().color());
-				grad1.setColorAt(0.0f, rgbLite.darker());
-				grad1.setColorAt(0.5f, pal.dark().color());
-				painter.fillRect(x1, 0, x2 - x1, h, grad1);
-				painter.drawLine(x1, 0, x1, h);
-				painter.drawLine(x2, 0, x2, h);
-				painter.setBrush(rgbLite);
-				QPolygon polyg(3);
-				polyg.putPoints(0, 3, x1 + 8, 0, x1, 8, x1, 0);
-				painter.drawPolygon(polyg);
-			//	polyg.putPoints(0, 3, x1 + 8, h, x1, h - 8, x1, h);
-			//	painter.drawPolygon(polyg);
-			//	polyg.putPoints(0, 3, x2 - 8, 0, x2, 8, x2, 0);
-			//	painter.drawPolygon(polyg);
-				polyg.putPoints(0, 3, x2 - 8, h, x2, h - 8, x2, h);
-				painter.drawPolygon(polyg);
+			else
+			if (nframes > 0) {
+				x1 = (m_iLoopStart * w) / nframes;
+				x2 = (m_iLoopEnd   * w) / nframes;
 			}
+			QLinearGradient grad1(0, 0, w2, h);
+			painter.setPen(pal.highlight().color());
+			grad1.setColorAt(0.0f, rgbLite.darker());
+			grad1.setColorAt(0.5f, pal.dark().color());
+			painter.fillRect(x1, 0, x2 - x1, h, grad1);
+			painter.drawLine(x1, 0, x1, h);
+			painter.drawLine(x2, 0, x2, h);
+			painter.setBrush(rgbLite);
+			QPolygon polyg(3);
+			polyg.putPoints(0, 3, x1 + 8, 0, x1, 8, x1, 0);
+			painter.drawPolygon(polyg);
+		//	polyg.putPoints(0, 3, x1 + 8, h, x1, h - 8, x1, h);
+		//	painter.drawPolygon(polyg);
+		//	polyg.putPoints(0, 3, x2 - 8, 0, x2, 8, x2, 0);
+		//	painter.drawPolygon(polyg);
+			polyg.putPoints(0, 3, x2 - 8, h, x2, h - 8, x2, h);
+			painter.drawPolygon(polyg);
 		}
 		// Sample waveform...
 		QLinearGradient grad(0, 0, w2, h);
@@ -616,7 +612,7 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 		// Offset line...
 		if (bEnabled) {
 			int x0 = 0;
-			if (m_iDragOffsetX > 0)
+			if (m_dragState == DragOffset)
 				x0 = m_iDragOffsetX;
 			else
 			if (nframes > 0)

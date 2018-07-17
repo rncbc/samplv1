@@ -148,8 +148,8 @@ private:
 
 	// Drag state.
 	enum DragState {
-		DragNone = 0, DragStart, DragSelect,
-		DragOffset, DragLoopStart, DragLoopEnd,
+		DragNone = 0, DragStart, DragOffset,
+		DragLoopRange, DragLoopStart, DragLoopEnd,
 	} m_dragState, m_dragCursor;
 
 	QPoint m_posDrag;

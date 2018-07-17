@@ -86,7 +86,7 @@ public:
 		m_loop = loop;
 
 		if (m_loop && m_loop_start >= m_loop_end) {
-			m_loop_start = 0;
+			m_loop_start = m_offset;
 			m_loop_end = m_nframes;
 			m_loop_phase1 = m_loop_phase2 = float(m_nframes);
 		}
