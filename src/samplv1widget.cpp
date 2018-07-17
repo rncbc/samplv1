@@ -87,7 +87,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 		m_ui.TabBar->addTab(m_ui.StackedWidget->widget(iTab)->windowTitle());
 
 	// Offset/Loop range font.
-	const QFont& font = m_ui.Gen1LoopKnob->font();
+	const QFont& font = m_ui.Gen1ReverseKnob->font();
 	m_ui.Gen1OffsetLabel->setFont(font);
 	m_ui.Gen1OffsetSpinBox->setFont(font);
 	m_ui.Gen1LoopRangeLabel->setFont(font);
@@ -486,7 +486,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 		SIGNAL(resetPresetFile()),
 		SLOT(resetParams()));
 
-	// Sample context menu...
+	// Common context menu policies...
 	m_ui.Gen1Sample->setContextMenuPolicy(Qt::CustomContextMenu);
 	m_ui.Gen1OffsetSpinBox->setContextMenuPolicy(Qt::CustomContextMenu);
 	m_ui.Gen1LoopStartSpinBox->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -497,8 +497,8 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 		SLOT(contextMenuRequest(const QPoint&)));
 
 	QObject::connect(m_ui.Gen1Sample,
-		SIGNAL(offsetLoopChanged()),
-		SLOT(offsetLoopChanged()));
+		SIGNAL(sampleChanged()),
+		SLOT(sampleChanged()));
 
 	QObject::connect(m_ui.Gen1OffsetSpinBox,
 		SIGNAL(valueChanged(uint32_t)),
@@ -1018,12 +1018,10 @@ void samplv1widget::updateSample ( samplv1_sample *pSample, bool bDirty )
 
 	++m_iUpdate;
 	if (pSample) {
-		const bool bLoop = pSample->isLoop();
-		m_ui.Gen1Sample->setLoop(bLoop);
-		const uint32_t iLoopStart = pSample->loopStart();
-		const uint32_t iLoopEnd = pSample->loopEnd();
-		m_ui.Gen1Sample->setLoopStart(iLoopStart);
-		m_ui.Gen1Sample->setLoopEnd(iLoopEnd);
+		m_ui.Gen1Sample->setOffset(pSample->offset());
+		m_ui.Gen1Sample->setLoop(pSample->isLoop());
+		m_ui.Gen1Sample->setLoopStart(pSample->loopStart());
+		m_ui.Gen1Sample->setLoopEnd(pSample->loopStart());
 		activateParamKnobs(pSample->filename() != NULL);
 		updateOffsetLoop(pSample);
 		// Set current preset name if empty...
@@ -1032,6 +1030,7 @@ void samplv1widget::updateSample ( samplv1_sample *pSample, bool bDirty )
 				QFileInfo(pSample->filename()).completeBaseName());
 		}
 	} else {
+		m_ui.Gen1Sample->setOffset(0);
 		m_ui.Gen1Sample->setLoop(false);
 		m_ui.Gen1Sample->setLoopStart(0);
 		m_ui.Gen1Sample->setLoopEnd(0);
@@ -1072,8 +1071,7 @@ void samplv1widget::offsetChanged (void)
 	++m_iUpdate;
 	samplv1_ui *pSamplUi = ui_instance();
 	if (pSamplUi) {
-		const uint32_t iOffset = m_ui.Gen1OffsetSpinBox->value();
-		pSamplUi->setOffset(iOffset);
+		pSamplUi->setOffset(m_ui.Gen1OffsetSpinBox->value());
 		updateOffsetLoop(pSamplUi->sample(), true);
 	}
 	--m_iUpdate;
@@ -1162,7 +1160,7 @@ void samplv1widget::loopZeroChanged (void)
 
 
 // Offset/loop points changed (from UI).
-void samplv1widget::offsetLoopChanged (void)
+void samplv1widget::sampleChanged (void)
 {
 	if (m_iUpdate > 0)
 		return;
@@ -1181,11 +1179,12 @@ void samplv1widget::offsetLoopChanged (void)
 }
 
 
+// Update offset/loop range change status.
 void samplv1widget::updateOffsetLoop ( samplv1_sample *pSample, bool bDirty )
 {
 	if (pSample) {
-		const bool bLoop = pSample->isLoop();
 		const uint32_t iOffset = pSample->offset();
+		const bool bLoop = pSample->isLoop();
 		const uint32_t iLoopStart = pSample->loopStart();
 		const uint32_t iLoopEnd = pSample->loopEnd();
 		const uint32_t iLoopFade = pSample->loopCrossFade();

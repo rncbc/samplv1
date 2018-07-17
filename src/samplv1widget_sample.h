@@ -79,7 +79,7 @@ signals:
 	void loadSampleFile(const QString&);
 
 	// Offset/loop range changed.
-	void offsetLoopChanged();
+	void sampleChanged();
 
 public slots:
 

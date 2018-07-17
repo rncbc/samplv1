@@ -120,8 +120,8 @@ protected slots:
 	void loopFadeChanged();
 	void loopZeroChanged();
 
-	// Loop points changed (from UI).
-	void offsetLoopChanged();
+	// Offset/Loop points changed (from UI).
+	void sampleChanged();
 
 	// Notification updater.
 	void updateSchedNotify(int stype, int sid);
@@ -169,7 +169,7 @@ protected:
 	// Sample updater.
 	void updateSample(samplv1_sample *pSample, bool bDirty = false);
 
-	// Update loop range change status.
+	// Update offset/loop range change status.
 	void updateOffsetLoop(samplv1_sample *pSample, bool bDirty = false);
 
 	// Param port methods.

@@ -439,7 +439,7 @@ void samplv1widget_sample::mouseReleaseEvent ( QMouseEvent *pMouseEvent )
 			const uint32_t nframes = m_pSample->length();
 			m_iLoopStart = (m_iDragLoopStartX * nframes) / w;
 			m_iLoopEnd   = (m_iDragLoopEndX   * nframes) / w;
-			emit offsetLoopChanged();
+			emit sampleChanged();
 			updateToolTip();
 			update();
 		}
@@ -450,7 +450,7 @@ void samplv1widget_sample::mouseReleaseEvent ( QMouseEvent *pMouseEvent )
 		if (m_pSample && w > 0) {
 			const uint32_t nframes = m_pSample->length();
 			m_iOffset = (m_iDragOffsetX * nframes) / w;
-			emit offsetLoopChanged();
+			emit sampleChanged();
 			updateToolTip();
 			update();
 		}
@@ -461,7 +461,7 @@ void samplv1widget_sample::mouseReleaseEvent ( QMouseEvent *pMouseEvent )
 		if (m_pSample && w > 0) {
 			const uint32_t nframes = m_pSample->length();
 			m_iLoopStart = (m_iDragLoopStartX * nframes) / w;
-			emit offsetLoopChanged();
+			emit sampleChanged();
 			updateToolTip();
 			update();
 		}
@@ -472,7 +472,7 @@ void samplv1widget_sample::mouseReleaseEvent ( QMouseEvent *pMouseEvent )
 		if (m_pSample && w > 0) {
 			const uint32_t nframes = m_pSample->length();
 			m_iLoopEnd = (m_iDragLoopEndX * nframes) / w;
-			emit offsetLoopChanged();
+			emit sampleChanged();
 			updateToolTip();
 			update();
 		}
