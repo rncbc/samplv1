@@ -497,7 +497,10 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 		SLOT(contextMenuRequest(const QPoint&)));
 
 	QObject::connect(m_ui.Gen1Sample,
-		SIGNAL(sampleChanged()),
+		SIGNAL(offsetChanged()),
+		SLOT(sampleChanged()));
+	QObject::connect(m_ui.Gen1Sample,
+		SIGNAL(loopRangeChanged()),
 		SLOT(sampleChanged()));
 
 	QObject::connect(m_ui.Gen1OffsetSpinBox,
@@ -1183,14 +1186,14 @@ void samplv1widget::sampleChanged (void)
 void samplv1widget::updateOffsetLoop ( samplv1_sample *pSample, bool bDirty )
 {
 	if (pSample) {
-		const uint32_t iOffset = pSample->offset();
-		const bool bLoop = pSample->isLoop();
+		const uint32_t iOffset    = pSample->offset();
+		const bool     bLoop      = pSample->isLoop();
 		const uint32_t iLoopStart = pSample->loopStart();
-		const uint32_t iLoopEnd = pSample->loopEnd();
-		const uint32_t iLoopFade = pSample->loopCrossFade();
-		const bool bLoopZero = pSample->isLoopZeroCrossing();
-		const uint32_t nframes = pSample->length();
-		const float srate = pSample->sampleRate();
+		const uint32_t iLoopEnd   = pSample->loopEnd();
+		const uint32_t iLoopFade  = pSample->loopCrossFade();
+		const bool     bLoopZero  = pSample->isLoopZeroCrossing();
+		const uint32_t nframes    = pSample->length();
+		const float    srate      = pSample->sampleRate();
 		m_ui.Gen1OffsetLabel->setEnabled(pSample->filename() != NULL);
 		m_ui.Gen1OffsetSpinBox->setSampleRate(srate);
 		m_ui.Gen1OffsetSpinBox->setMaximum(bLoop ? iLoopStart : nframes);
@@ -1222,8 +1225,10 @@ void samplv1widget::updateOffsetLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1Sample->setLoop(bLoop);
 		if (bDirty) {
 			m_ui.StatusBar->showMessage(
-				tr("Offset: %1  Loop start: %2, end: %3")
-				.arg(iOffset).arg(iLoopStart).arg(iLoopEnd), 5000);
+				tr("Offset: %1  Loop start: %2  Loop end: %3")
+				.arg(m_ui.Gen1Sample->textFromValue(iOffset))
+				.arg(m_ui.Gen1Sample->textFromValue(iLoopStart))
+				.arg(m_ui.Gen1Sample->textFromValue(iLoopEnd)), 5000);
 			updateDirtyPreset(true);
 		}
 	} else {

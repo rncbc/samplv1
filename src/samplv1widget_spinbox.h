@@ -61,6 +61,12 @@ public:
 	void setMaximum(uint32_t maximum);
 	uint32_t maximum() const;
 
+	// Value/text format converter utilities.
+	static uint32_t valueFromText(
+		const QString& text, Format format, float srate);
+	static QString textFromValue(
+		uint32_t value, Format format, float srate);
+
 signals:
 
 	// Common value change notification.

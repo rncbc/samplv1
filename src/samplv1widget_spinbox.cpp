@@ -189,26 +189,29 @@ QAbstractSpinBox::StepEnabled samplv1widget_spinbox::stepEnabled (void) const
 }
 
 
-// Value/text format converters.
-uint32_t samplv1widget_spinbox::valueFromText ( const QString& text ) const
+// Value/text format converter utilities.
+uint32_t samplv1widget_spinbox::valueFromText (
+	const QString& text, Format format, float srate )
 {
-	if (m_format == Frames)
+	if (format == Frames)
 		return text.toULong();
 
 	// Time frame code in hh:mm:ss.zzz ...
 	const uint32_t hh = text.section(':', 0, 0).toULong();
 	const uint32_t mm = text.section(':', 1, 1).toULong() + 60 * hh;
 	const float secs = text.section(':', 2).toFloat() + float(60 * mm);
-	return ::lrintf(secs * m_srate);
+	return ::lrintf(secs * srate);
 }
 
-QString samplv1widget_spinbox::textFromValue ( uint32_t value ) const
+QString samplv1widget_spinbox::textFromValue (
+	uint32_t value, Format format, float srate )
 {
-	if (m_format == Frames)
+	if (format == Frames)
 		return QString::number(value);
 
 	// Time frame code in hh:mm:ss.zzz ...
-	float secs = float(value) / m_srate;
+	float secs = float(value) / srate;
+
 	uint32_t hh = 0, mm = 0, ss = 0;
 	if (secs >= 3600.0f) {
 		hh = uint32_t(secs / 3600.0f);
@@ -222,8 +225,21 @@ QString samplv1widget_spinbox::textFromValue ( uint32_t value ) const
 		ss = uint32_t(secs);
 		secs -= float(ss);
 	}
+
 	const uint32_t zzz = uint32_t(secs * 1000.0f);
 	return QString().sprintf("%02u:%02u:%02u.%03u", hh, mm, ss, zzz);
+}
+
+
+// Value/text format converters.
+uint32_t samplv1widget_spinbox::valueFromText ( const QString& text ) const
+{
+	return valueFromText(text, m_format, m_srate);
+}
+
+QString samplv1widget_spinbox::textFromValue ( uint32_t value ) const
+{
+	return textFromValue(value, m_format, m_srate);
 }
 
 

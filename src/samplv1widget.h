@@ -120,7 +120,7 @@ protected slots:
 	void loopFadeChanged();
 	void loopZeroChanged();
 
-	// Offset/Loop points changed (from UI).
+	// Offset/loop points changed (from UI).
 	void sampleChanged();
 
 	// Notification updater.
