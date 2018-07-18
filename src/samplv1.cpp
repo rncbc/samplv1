@@ -785,6 +785,8 @@ public:
 	void setParamValue(samplv1::ParamIndex index, float fValue);
 	float paramValue(samplv1::ParamIndex index);
 
+	void updateEnvTimes();
+
 	samplv1_controls *controls();
 	samplv1_programs *programs();
 
@@ -810,8 +812,6 @@ public:
 	samplv1_formant::Impl dcf1_formant;
 
 protected:
-
-	void updateEnvTimes();
 
 	void allSoundOff();
 	void allControllersOff();
@@ -1114,8 +1114,11 @@ void samplv1_impl::updateEnvTimes (void)
 	const float srate_ms = 0.001f * m_srate;
 
 	float envtime_msecs = 10000.0f * m_gen1.envtime0;
-	if (envtime_msecs < MIN_ENV_MSECS)
-		envtime_msecs = (gen1_sample.length() >> 1) / srate_ms;
+	if (envtime_msecs < MIN_ENV_MSECS) {
+		const uint32_t envtime_frames
+			= (gen1_sample.length() - gen1_sample.offset()) >> 1;
+		envtime_msecs = envtime_frames / srate_ms;
+	}
 	if (envtime_msecs < MIN_ENV_MSECS)
 		envtime_msecs = MIN_ENV_MSECS * 4.0f;
 
@@ -2043,6 +2046,8 @@ bool samplv1::isReverse (void) const
 void samplv1::setOffset ( uint32_t iOffset )
 {
 	m_pImpl->gen1_sample.setOffset(iOffset);
+
+	m_pImpl->updateEnvTimes();
 
 	updateSample();
 }
