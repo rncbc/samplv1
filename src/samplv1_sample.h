@@ -54,13 +54,15 @@ public:
 		{ return m_srate; }
 
 	// sample start/end points (offsets)
-	void setOffsetStart(uint32_t start);
-	void setOffsetEnd(uint32_t end);
+	void setOffsetRange(uint32_t start, uint32_t end);
 
 	uint32_t offsetStart() const
 		{ return m_offset_start; }
 	uint32_t offsetEnd() const
 		{ return m_offset_end; }
+
+	float offsetPhase0() const
+		{ return m_offset_phase0; }
 
 	// reverse mode.
 	void setReverse(bool reverse)
@@ -166,8 +168,8 @@ public:
 		{ return m_pframes[k]; }
 
 	// predicate.
-	bool isOver(uint32_t frame) const
-		{ return !m_pframes || (frame >= m_offset_end); }
+	bool isOver(uint32_t index) const
+		{ return !m_pframes || (index >= m_offset_end2); }
 
 protected:
 
@@ -190,6 +192,8 @@ private:
 
 	uint32_t m_offset_start;
 	uint32_t m_offset_end;
+	float    m_offset_phase0;
+	uint32_t m_offset_end2;
 
 	bool     m_loop;
 	uint32_t m_loop_start;
@@ -222,11 +226,10 @@ public:
 	{
 		m_sample = sample;
 
-		m_phase0 = float(m_sample->offsetStart());
+		m_phase0 = m_sample->offsetPhase0();
 		m_phase  = m_phase0;
 		m_index  = 0;
 		m_alpha  = 0.0f;
-		m_frame  = 0;
 
 		m_loop = false;
 		m_loop_phase1 = 0.0f;
@@ -255,11 +258,10 @@ public:
 	// begin.
 	void start()
 	{
-		m_phase0 = float(m_sample->offsetStart());
+		m_phase0 = m_sample->offsetPhase0();
 		m_phase  = m_phase0;
 		m_index  = 0;
 		m_alpha  = 0.0f;
-		m_frame  = 0;
 
 		m_phase1 = 0.0f;
 		m_index1 = 0;
@@ -318,9 +320,6 @@ public:
 					m_phase = m_phase0;
 			}
 		}
-
-		if (m_frame < m_index)
-			m_frame = m_index;
 	}
 
 	// sample.
@@ -336,7 +335,7 @@ public:
 
 	// predicate.
 	bool isOver() const
-		{ return !m_loop && m_sample->isOver(m_frame); }
+		{ return !m_loop && m_sample->isOver(m_index); }
 
 protected:
 
@@ -368,7 +367,6 @@ private:
 	float    m_phase;
 	uint32_t m_index;
 	float    m_alpha;
-	uint32_t m_frame;
 
 	bool     m_loop;
 	float    m_loop_phase1;

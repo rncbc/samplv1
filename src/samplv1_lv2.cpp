@@ -309,7 +309,9 @@ void samplv1_lv2::run ( uint32_t nframes )
 							if (pSample) {
 								const uint32_t offset_start
 									= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
-								setOffsetStart(offset_start);
+								const uint32_t offset_end
+									= pSample->offsetEnd();
+								setOffsetRange(offset_start, offset_end);
 							}
 						}
 						else
@@ -317,9 +319,11 @@ void samplv1_lv2::run ( uint32_t nframes )
 							&& type == m_urids.atom_Int) {
 							samplv1_sample *pSample = samplv1::sample();
 							if (pSample) {
+								const uint32_t offset_start
+									= pSample->offsetStart();
 								const uint32_t offset_end
 									= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
-								setOffsetEnd(offset_end);
+								setOffsetRange(offset_start, offset_end);
 							}
 						}
 						else
@@ -329,7 +333,8 @@ void samplv1_lv2::run ( uint32_t nframes )
 							if (pSample) {
 								const uint32_t loop_start
 									= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
-								const uint32_t loop_end = pSample->loopEnd();
+								const uint32_t loop_end
+									= pSample->loopEnd();
 								setLoopRange(loop_start, loop_end);
 							}
 						}
@@ -338,7 +343,8 @@ void samplv1_lv2::run ( uint32_t nframes )
 							&& type == m_urids.atom_Int) {
 							samplv1_sample *pSample = samplv1::sample();
 							if (pSample) {
-								const uint32_t loop_start = pSample->loopStart();
+								const uint32_t loop_start
+									= pSample->loopStart();
 								const uint32_t loop_end
 									= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
 								setLoopRange(loop_start, loop_end);
@@ -617,16 +623,14 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 		}
 	}
 
-	if (offset_start < offset_end) {
-		pPlugin->setOffsetStart(offset_start);
-		pPlugin->setOffsetEnd(offset_end);
-	}
-
 	pPlugin->setLoopZero(loop_zero > 0);
 	pPlugin->setLoopFade(loop_fade);
 
 	if (loop_start < loop_end)
 		pPlugin->setLoopRange(loop_start, loop_end);
+
+	if (offset_start < offset_end)
+		pPlugin->setOffsetRange(offset_start, offset_end);
 
 	pPlugin->reset();
 

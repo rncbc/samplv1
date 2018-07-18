@@ -241,9 +241,7 @@ void samplv1_param::loadSamples (
 			pSampl->setLoopZero(bLoopZero);
 			pSampl->setLoopFade(iLoopFade);
 			pSampl->setLoopRange(iLoopStart, iLoopEnd);
-			pSampl->setOffsetStart(iOffsetStart);
-			if (iOffsetStart < iOffsetEnd)
-				pSampl->setOffsetEnd(iOffsetEnd);
+			pSampl->setOffsetRange(iOffsetStart, iOffsetEnd);
 		}
 	}
 }

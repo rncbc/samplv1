@@ -1088,7 +1088,9 @@ void samplv1widget::offsetStartChanged (void)
 	++m_iUpdate;
 	samplv1_ui *pSamplUi = ui_instance();
 	if (pSamplUi) {
-		pSamplUi->setOffsetStart(m_ui.Gen1OffsetStartSpinBox->value());
+		const uint32_t iOffsetStart = m_ui.Gen1OffsetStartSpinBox->value();
+		const uint32_t iOffsetEnd = pSamplUi->offsetEnd();
+		pSamplUi->setOffsetRange(iOffsetStart, iOffsetEnd);
 		updateOffsetLoop(pSamplUi->sample(), true);
 	}
 	--m_iUpdate;
@@ -1104,7 +1106,9 @@ void samplv1widget::offsetEndChanged (void)
 	++m_iUpdate;
 	samplv1_ui *pSamplUi = ui_instance();
 	if (pSamplUi) {
-		pSamplUi->setOffsetEnd(m_ui.Gen1OffsetEndSpinBox->value());
+		const uint32_t iOffsetStart = pSamplUi->offsetStart();
+		const uint32_t iOffsetEnd = m_ui.Gen1OffsetEndSpinBox->value();
+		pSamplUi->setOffsetRange(iOffsetStart, iOffsetEnd);
 		updateOffsetLoop(pSamplUi->sample(), true);
 	}
 	--m_iUpdate;
@@ -1203,8 +1207,7 @@ void samplv1widget::offsetRangeChanged (void)
 	if (pSamplUi) {
 		const uint32_t iOffsetStart = m_ui.Gen1Sample->offsetStart();
 		const uint32_t iOffsetEnd   = m_ui.Gen1Sample->offsetEnd();
-		pSamplUi->setOffsetStart(iOffsetStart);
-		pSamplUi->setOffsetEnd(iOffsetEnd);
+		pSamplUi->setOffsetRange(iOffsetStart, iOffsetEnd);
 		updateOffsetLoop(pSamplUi->sample(), true);
 	}
 	--m_iUpdate;

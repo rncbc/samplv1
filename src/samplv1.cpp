@@ -2043,9 +2043,9 @@ bool samplv1::isReverse (void) const
 }
 
 
-void samplv1::setOffsetStart ( uint32_t iOffsetStart )
+void samplv1::setOffsetRange ( uint32_t iOffsetStart, uint32_t iOffsetEnd )
 {
-	m_pImpl->gen1_sample.setOffsetStart(iOffsetStart);
+	m_pImpl->gen1_sample.setOffsetRange(iOffsetStart, iOffsetEnd);
 
 	m_pImpl->updateEnvTimes();
 
@@ -2055,16 +2055,6 @@ void samplv1::setOffsetStart ( uint32_t iOffsetStart )
 uint32_t samplv1::offsetStart (void) const
 {
 	return m_pImpl->gen1_sample.offsetStart();
-}
-
-
-void samplv1::setOffsetEnd ( uint32_t iOffsetEnd )
-{
-	m_pImpl->gen1_sample.setOffsetEnd(iOffsetEnd);
-
-	m_pImpl->updateEnvTimes();
-
-	updateSample();
 }
 
 uint32_t samplv1::offsetEnd (void) const
