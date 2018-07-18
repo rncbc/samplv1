@@ -187,7 +187,8 @@ void samplv1_param::loadSamples (
 		if (eSample.tagName() == "sample") {
 		//	int index = eSample.attribute("index").toInt();
 			QString sFilename;
-			uint32_t iOffset = 0;
+			uint32_t iOffsetStart = 0;
+			uint32_t iOffsetEnd = 0;
 			uint32_t iLoopStart = 0;
 			uint32_t iLoopEnd = 0;
 			uint32_t iLoopFade = 0;
@@ -202,8 +203,13 @@ void samplv1_param::loadSamples (
 					sFilename = eChild.text();
 				}
 				else
-				if (eChild.tagName() == "offset") {
-					iOffset = eChild.text().toULong();
+				if (eChild.tagName() == "offset" ||
+					eChild.tagName() == "offset-start") {
+					iOffsetStart = eChild.text().toULong();
+				}
+				else
+				if (eChild.tagName() == "offset-end") {
+					iOffsetEnd = eChild.text().toULong();
 				}
 				else
 				if (eChild.tagName() == "loop-start") {
@@ -235,7 +241,9 @@ void samplv1_param::loadSamples (
 			pSampl->setLoopZero(bLoopZero);
 			pSampl->setLoopFade(iLoopFade);
 			pSampl->setLoopRange(iLoopStart, iLoopEnd);
-			pSampl->setOffset(iOffset);
+			pSampl->setOffsetStart(iOffsetStart);
+			if (iOffsetStart < iOffsetEnd)
+				pSampl->setOffsetEnd(iOffsetEnd);
 		}
 	}
 }
@@ -273,12 +281,17 @@ void samplv1_param::saveSamples (
 		QDir::current().relativeFilePath(fi.absoluteFilePath())));
 	eSample.appendChild(eFilename);
 
-	const uint32_t iOffset = pSampl->offset();
-	if (iOffset > 0) {
-		QDomElement eOffset = doc.createElement("offset");
-		eOffset.appendChild(doc.createTextNode(
-			QString::number(iOffset)));
-		eSample.appendChild(eOffset);
+	const uint32_t iOffsetStart = pSampl->offsetStart();
+	const uint32_t iOffsetEnd   = pSampl->offsetEnd();
+	if (iOffsetStart < iOffsetEnd) {
+		QDomElement eOffsetStart = doc.createElement("offset-start");
+		eOffsetStart.appendChild(doc.createTextNode(
+			QString::number(iOffsetStart)));
+		eSample.appendChild(eOffsetStart);
+		QDomElement eOffsetEnd = doc.createElement("offset-end");
+		eOffsetEnd.appendChild(doc.createTextNode(
+			QString::number(iOffsetEnd)));
+		eSample.appendChild(eOffsetEnd);
 	}
 
 	const uint32_t iLoopStart = pSampl->loopStart();

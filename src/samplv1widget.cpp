@@ -88,8 +88,9 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 
 	// Offset/Loop range font.
 	const QFont& font = m_ui.Gen1ReverseKnob->font();
-	m_ui.Gen1OffsetLabel->setFont(font);
-	m_ui.Gen1OffsetSpinBox->setFont(font);
+	m_ui.Gen1OffsetRangeLabel->setFont(font);
+	m_ui.Gen1OffsetStartSpinBox->setFont(font);
+	m_ui.Gen1OffsetEndSpinBox->setFont(font);
 	m_ui.Gen1LoopRangeLabel->setFont(font);
 	m_ui.Gen1LoopStartSpinBox->setFont(font);
 	m_ui.Gen1LoopEndSpinBox->setFont(font);
@@ -97,17 +98,20 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	m_ui.Gen1LoopFadeSpinBox->setFont(font);
 
 	const QFontMetrics fm(font);
-	m_ui.Gen1OffsetSpinBox->setMaximumHeight(fm.height() + 6);
+	m_ui.Gen1OffsetStartSpinBox->setMaximumHeight(fm.height() + 6);
+	m_ui.Gen1OffsetEndSpinBox->setMaximumHeight(fm.height() + 6);
 	m_ui.Gen1LoopStartSpinBox->setMaximumHeight(fm.height() + 6);
 	m_ui.Gen1LoopEndSpinBox->setMaximumHeight(fm.height() + 6);
 	m_ui.Gen1LoopFadeSpinBox->setMaximumHeight(fm.height() + 6);
 
-	m_ui.Gen1OffsetSpinBox->setAccelerated(true);
+	m_ui.Gen1OffsetStartSpinBox->setAccelerated(true);
+	m_ui.Gen1OffsetEndSpinBox->setAccelerated(true);
 	m_ui.Gen1LoopStartSpinBox->setAccelerated(true);
 	m_ui.Gen1LoopEndSpinBox->setAccelerated(true);
 	m_ui.Gen1LoopFadeSpinBox->setAccelerated(true);
 
-	m_ui.Gen1OffsetSpinBox->setMinimum(0);
+	m_ui.Gen1OffsetStartSpinBox->setMinimum(0);
+	m_ui.Gen1OffsetEndSpinBox->setMinimum(0);
 	m_ui.Gen1LoopStartSpinBox->setMinimum(0);
 	m_ui.Gen1LoopEndSpinBox->setMinimum(0);
 	m_ui.Gen1LoopFadeSpinBox->setMinimum(0);
@@ -488,7 +492,8 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 
 	// Common context menu policies...
 	m_ui.Gen1Sample->setContextMenuPolicy(Qt::CustomContextMenu);
-	m_ui.Gen1OffsetSpinBox->setContextMenuPolicy(Qt::CustomContextMenu);
+	m_ui.Gen1OffsetStartSpinBox->setContextMenuPolicy(Qt::CustomContextMenu);
+	m_ui.Gen1OffsetEndSpinBox->setContextMenuPolicy(Qt::CustomContextMenu);
 	m_ui.Gen1LoopStartSpinBox->setContextMenuPolicy(Qt::CustomContextMenu);
 	m_ui.Gen1LoopEndSpinBox->setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -497,15 +502,18 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 		SLOT(contextMenuRequest(const QPoint&)));
 
 	QObject::connect(m_ui.Gen1Sample,
-		SIGNAL(offsetChanged()),
-		SLOT(sampleChanged()));
+		SIGNAL(offsetRangeChanged()),
+		SLOT(offsetRangeChanged()));
 	QObject::connect(m_ui.Gen1Sample,
 		SIGNAL(loopRangeChanged()),
-		SLOT(sampleChanged()));
+		SLOT(loopRangeChanged()));
 
-	QObject::connect(m_ui.Gen1OffsetSpinBox,
+	QObject::connect(m_ui.Gen1OffsetStartSpinBox,
 		SIGNAL(valueChanged(uint32_t)),
-		SLOT(offsetChanged()));
+		SLOT(offsetStartChanged()));
+	QObject::connect(m_ui.Gen1OffsetEndSpinBox,
+		SIGNAL(valueChanged(uint32_t)),
+		SLOT(offsetEndChanged()));
 	QObject::connect(m_ui.Gen1LoopStartSpinBox,
 		SIGNAL(valueChanged(uint32_t)),
 		SLOT(loopStartChanged()));
@@ -522,7 +530,10 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 		SIGNAL(valueChanged(float)),
 		SLOT(loopZeroChanged()));
 
-	QObject::connect(m_ui.Gen1OffsetSpinBox,
+	QObject::connect(m_ui.Gen1OffsetStartSpinBox,
+		SIGNAL(customContextMenuRequested(const QPoint&)),
+		SLOT(spinboxContextMenu(const QPoint&)));
+	QObject::connect(m_ui.Gen1OffsetEndSpinBox,
 		SIGNAL(customContextMenuRequested(const QPoint&)),
 		SLOT(spinboxContextMenu(const QPoint&)));
 	QObject::connect(m_ui.Gen1LoopStartSpinBox,
@@ -564,7 +575,8 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 			samplv1widget_edit::EditMode(pConfig->iKnobEditMode));
 		const samplv1widget_spinbox::Format format
 			= samplv1widget_spinbox::Format(pConfig->iFrameTimeFormat);
-		m_ui.Gen1OffsetSpinBox->setFormat(format);
+		m_ui.Gen1OffsetStartSpinBox->setFormat(format);
+		m_ui.Gen1OffsetEndSpinBox->setFormat(format);
 		m_ui.Gen1LoopStartSpinBox->setFormat(format);
 		m_ui.Gen1LoopEndSpinBox->setFormat(format);
 	}
@@ -1021,7 +1033,8 @@ void samplv1widget::updateSample ( samplv1_sample *pSample, bool bDirty )
 
 	++m_iUpdate;
 	if (pSample) {
-		m_ui.Gen1Sample->setOffset(pSample->offset());
+		m_ui.Gen1Sample->setOffsetStart(pSample->offsetStart());
+		m_ui.Gen1Sample->setOffsetEnd(pSample->offsetEnd());
 		m_ui.Gen1Sample->setLoop(pSample->isLoop());
 		m_ui.Gen1Sample->setLoopStart(pSample->loopStart());
 		m_ui.Gen1Sample->setLoopEnd(pSample->loopStart());
@@ -1033,7 +1046,8 @@ void samplv1widget::updateSample ( samplv1_sample *pSample, bool bDirty )
 				QFileInfo(pSample->filename()).completeBaseName());
 		}
 	} else {
-		m_ui.Gen1Sample->setOffset(0);
+		m_ui.Gen1Sample->setOffsetStart(0);
+		m_ui.Gen1Sample->setOffsetEnd(0);
 		m_ui.Gen1Sample->setLoop(false);
 		m_ui.Gen1Sample->setLoopStart(0);
 		m_ui.Gen1Sample->setLoopEnd(0);
@@ -1065,8 +1079,8 @@ bool samplv1widget::queryClose (void)
 }
 
 
-// Offset change.
-void samplv1widget::offsetChanged (void)
+// Offset start change.
+void samplv1widget::offsetStartChanged (void)
 {
 	if (m_iUpdate > 0)
 		return;
@@ -1074,7 +1088,23 @@ void samplv1widget::offsetChanged (void)
 	++m_iUpdate;
 	samplv1_ui *pSamplUi = ui_instance();
 	if (pSamplUi) {
-		pSamplUi->setOffset(m_ui.Gen1OffsetSpinBox->value());
+		pSamplUi->setOffsetStart(m_ui.Gen1OffsetStartSpinBox->value());
+		updateOffsetLoop(pSamplUi->sample(), true);
+	}
+	--m_iUpdate;
+}
+
+
+// Offset end change.
+void samplv1widget::offsetEndChanged (void)
+{
+	if (m_iUpdate > 0)
+		return;
+
+	++m_iUpdate;
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi) {
+		pSamplUi->setOffsetEnd(m_ui.Gen1OffsetEndSpinBox->value());
 		updateOffsetLoop(pSamplUi->sample(), true);
 	}
 	--m_iUpdate;
@@ -1162,8 +1192,8 @@ void samplv1widget::loopZeroChanged (void)
 }
 
 
-// Offset/loop points changed (from UI).
-void samplv1widget::sampleChanged (void)
+// Offset points changed (from UI).
+void samplv1widget::offsetRangeChanged (void)
 {
 	if (m_iUpdate > 0)
 		return;
@@ -1171,11 +1201,27 @@ void samplv1widget::sampleChanged (void)
 	++m_iUpdate;
 	samplv1_ui *pSamplUi = ui_instance();
 	if (pSamplUi) {
-		const uint32_t iOffset    = m_ui.Gen1Sample->offset();
+		const uint32_t iOffsetStart = m_ui.Gen1Sample->offsetStart();
+		const uint32_t iOffsetEnd   = m_ui.Gen1Sample->offsetEnd();
+		pSamplUi->setOffsetStart(iOffsetStart);
+		pSamplUi->setOffsetEnd(iOffsetEnd);
+		updateOffsetLoop(pSamplUi->sample(), true);
+	}
+	--m_iUpdate;
+}
+
+
+void samplv1widget::loopRangeChanged (void)
+{
+	if (m_iUpdate > 0)
+		return;
+
+	++m_iUpdate;
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi) {
 		const uint32_t iLoopStart = m_ui.Gen1Sample->loopStart();
 		const uint32_t iLoopEnd   = m_ui.Gen1Sample->loopEnd();
 		pSamplUi->setLoopRange(iLoopStart, iLoopEnd);
-		pSamplUi->setOffset(iOffset);
 		updateOffsetLoop(pSamplUi->sample(), true);
 	}
 	--m_iUpdate;
@@ -1186,7 +1232,8 @@ void samplv1widget::sampleChanged (void)
 void samplv1widget::updateOffsetLoop ( samplv1_sample *pSample, bool bDirty )
 {
 	if (pSample) {
-		const uint32_t iOffset    = pSample->offset();
+		const uint32_t iOffsetStart = pSample->offsetStart();
+		const uint32_t iOffsetEnd = pSample->offsetEnd();
 		const bool     bLoop      = pSample->isLoop();
 		const uint32_t iLoopStart = pSample->loopStart();
 		const uint32_t iLoopEnd   = pSample->loopEnd();
@@ -1194,20 +1241,24 @@ void samplv1widget::updateOffsetLoop ( samplv1_sample *pSample, bool bDirty )
 		const bool     bLoopZero  = pSample->isLoopZeroCrossing();
 		const uint32_t nframes    = pSample->length();
 		const float    srate      = pSample->sampleRate();
-		m_ui.Gen1OffsetLabel->setEnabled(pSample->filename() != NULL);
-		m_ui.Gen1OffsetSpinBox->setSampleRate(srate);
-		m_ui.Gen1OffsetSpinBox->setMaximum(bLoop ? iLoopStart : nframes);
-		m_ui.Gen1OffsetSpinBox->setValue(iOffset);
+		m_ui.Gen1OffsetRangeLabel->setEnabled(pSample->filename() != NULL);
+		m_ui.Gen1OffsetStartSpinBox->setSampleRate(srate);
+		m_ui.Gen1OffsetStartSpinBox->setMinimum(0);
+		m_ui.Gen1OffsetStartSpinBox->setMaximum(bLoop ? iLoopStart : iOffsetEnd);
+		m_ui.Gen1OffsetStartSpinBox->setValue(iOffsetStart);
+		m_ui.Gen1OffsetEndSpinBox->setSampleRate(srate);
+		m_ui.Gen1OffsetEndSpinBox->setMinimum(bLoop ? iLoopEnd : iOffsetStart);
+		m_ui.Gen1OffsetEndSpinBox->setMaximum(nframes);
+		m_ui.Gen1OffsetEndSpinBox->setValue(iOffsetEnd);
 		m_ui.Gen1LoopRangeLabel->setEnabled(bLoop);
 		m_ui.Gen1LoopStartSpinBox->setSampleRate(srate);
 		m_ui.Gen1LoopStartSpinBox->setEnabled(bLoop);
-		m_ui.Gen1LoopStartSpinBox->setMinimum(iOffset);
-		m_ui.Gen1LoopStartSpinBox->setMaximum(iLoopEnd);
+		m_ui.Gen1LoopStartSpinBox->setMinimum(iOffsetStart);
+		m_ui.Gen1LoopStartSpinBox->setMaximum(bLoop ? iLoopEnd : iOffsetEnd);
 		m_ui.Gen1LoopEndSpinBox->setSampleRate(srate);
 		m_ui.Gen1LoopEndSpinBox->setEnabled(bLoop);
-		m_ui.Gen1LoopEndSpinBox->setMinimum(
-		    iLoopStart < nframes ? iLoopStart : nframes);
-		m_ui.Gen1LoopEndSpinBox->setMaximum(nframes);
+		m_ui.Gen1LoopEndSpinBox->setMinimum(bLoop ? iLoopStart : iOffsetStart);
+		m_ui.Gen1LoopEndSpinBox->setMaximum(iOffsetEnd);
 		m_ui.Gen1LoopStartSpinBox->setValue(iLoopStart);
 		m_ui.Gen1LoopEndSpinBox->setValue(iLoopEnd);
 		m_ui.Gen1LoopFadeCheckBox->setEnabled(bLoop);
@@ -1215,26 +1266,37 @@ void samplv1widget::updateOffsetLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1LoopFadeSpinBox->setEnabled(bLoop && iLoopFade > 0);
 		m_ui.Gen1LoopFadeSpinBox->setMinimum(0);
 		m_ui.Gen1LoopFadeSpinBox->setMaximum(
-			qMin(iLoopStart - iOffset, (iLoopEnd - iLoopStart) >> 1));
+			qMin(iLoopStart - iOffsetStart, (iLoopEnd - iLoopStart) >> 1));
 		m_ui.Gen1LoopFadeSpinBox->setValue(iLoopFade);
 		m_ui.Gen1LoopZeroCheckBox->setValue(bLoopZero ? 1.0f : 0.0f);
 		m_ui.Gen1LoopZeroCheckBox->setEnabled(bLoop);
-		m_ui.Gen1Sample->setOffset(iOffset);
+		m_ui.Gen1Sample->setOffsetStart(iOffsetStart);
+		m_ui.Gen1Sample->setOffsetEnd(iOffsetEnd);
 		m_ui.Gen1Sample->setLoopStart(iLoopStart);
 		m_ui.Gen1Sample->setLoopEnd(iLoopEnd);
 		m_ui.Gen1Sample->setLoop(bLoop);
 		if (bDirty) {
-			m_ui.StatusBar->showMessage(
-				tr("Offset: %1  Loop start: %2  Loop end: %3")
-				.arg(m_ui.Gen1Sample->textFromValue(iOffset))
-				.arg(m_ui.Gen1Sample->textFromValue(iLoopStart))
-				.arg(m_ui.Gen1Sample->textFromValue(iLoopEnd)), 5000);
+			QString sMessage = tr("Offset: %1 - %2")
+				.arg(m_ui.Gen1Sample->textFromValue(iOffsetStart))
+				.arg(m_ui.Gen1Sample->textFromValue(iOffsetEnd));
+			if (bLoop) {
+				sMessage.append(' ');
+				sMessage.append(' ');
+				sMessage.append(tr("Loop: %1 - %2")
+					.arg(m_ui.Gen1Sample->textFromValue(iLoopStart))
+					.arg(m_ui.Gen1Sample->textFromValue(iLoopEnd)));
+			}
+			m_ui.StatusBar->showMessage(sMessage, 3000);
 			updateDirtyPreset(true);
 		}
 	} else {
-		m_ui.Gen1OffsetLabel->setEnabled(false);
-		m_ui.Gen1OffsetSpinBox->setMaximum(0);
-		m_ui.Gen1OffsetSpinBox->setValue(0);
+		m_ui.Gen1OffsetRangeLabel->setEnabled(false);
+		m_ui.Gen1OffsetStartSpinBox->setMinimum(0);
+		m_ui.Gen1OffsetStartSpinBox->setMaximum(0);
+		m_ui.Gen1OffsetStartSpinBox->setValue(0);
+		m_ui.Gen1OffsetEndSpinBox->setMinimum(0);
+		m_ui.Gen1OffsetEndSpinBox->setMaximum(0);
+		m_ui.Gen1OffsetEndSpinBox->setValue(0);
 		m_ui.Gen1LoopRangeLabel->setEnabled(false);
 		m_ui.Gen1LoopStartSpinBox->setEnabled(false);
 		m_ui.Gen1LoopStartSpinBox->setMinimum(0);
@@ -1250,7 +1312,8 @@ void samplv1widget::updateOffsetLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1LoopFadeSpinBox->setMaximum(0);
 		m_ui.Gen1LoopFadeSpinBox->setValue(0);
 		m_ui.Gen1LoopZeroCheckBox->setEnabled(false);
-		m_ui.Gen1Sample->setOffset(0);
+		m_ui.Gen1Sample->setOffsetStart(0);
+		m_ui.Gen1Sample->setOffsetEnd(0);
 		m_ui.Gen1Sample->setLoopStart(0);
 		m_ui.Gen1Sample->setLoopEnd(0);
 		m_ui.Gen1Sample->setLoop(false);
@@ -1527,7 +1590,8 @@ void samplv1widget::spinboxContextMenu ( const QPoint& pos )
 		samplv1_config *pConfig = samplv1_config::getInstance();
 		if (pConfig) {
 			pConfig->iFrameTimeFormat = int(format);
-			m_ui.Gen1OffsetSpinBox->setFormat(format);
+			m_ui.Gen1OffsetStartSpinBox->setFormat(format);
+			m_ui.Gen1OffsetEndSpinBox->setFormat(format);
 			m_ui.Gen1LoopStartSpinBox->setFormat(format);
 			m_ui.Gen1LoopEndSpinBox->setFormat(format);
 		}

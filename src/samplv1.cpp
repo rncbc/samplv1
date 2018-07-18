@@ -1116,7 +1116,7 @@ void samplv1_impl::updateEnvTimes (void)
 	float envtime_msecs = 10000.0f * m_gen1.envtime0;
 	if (envtime_msecs < MIN_ENV_MSECS) {
 		const uint32_t envtime_frames
-			= (gen1_sample.length() - gen1_sample.offset()) >> 1;
+			= (gen1_sample.offsetEnd() - gen1_sample.offsetStart()) >> 1;
 		envtime_msecs = envtime_frames / srate_ms;
 	}
 	if (envtime_msecs < MIN_ENV_MSECS)
@@ -2043,18 +2043,33 @@ bool samplv1::isReverse (void) const
 }
 
 
-void samplv1::setOffset ( uint32_t iOffset )
+void samplv1::setOffsetStart ( uint32_t iOffsetStart )
 {
-	m_pImpl->gen1_sample.setOffset(iOffset);
+	m_pImpl->gen1_sample.setOffsetStart(iOffsetStart);
 
 	m_pImpl->updateEnvTimes();
 
 	updateSample();
 }
 
-uint32_t samplv1::offset (void) const
+uint32_t samplv1::offsetStart (void) const
 {
-	return m_pImpl->gen1_sample.offset();
+	return m_pImpl->gen1_sample.offsetStart();
+}
+
+
+void samplv1::setOffsetEnd ( uint32_t iOffsetEnd )
+{
+	m_pImpl->gen1_sample.setOffsetEnd(iOffsetEnd);
+
+	m_pImpl->updateEnvTimes();
+
+	updateSample();
+}
+
+uint32_t samplv1::offsetEnd (void) const
+{
+	return m_pImpl->gen1_sample.offsetEnd();
 }
 
 

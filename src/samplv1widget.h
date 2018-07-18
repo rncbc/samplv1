@@ -112,7 +112,8 @@ protected slots:
 	void swapParams(bool bOn);
 
 	// Offset point changed.
-	void offsetChanged();
+	void offsetStartChanged();
+	void offsetEndChanged();
 
 	// Loop point changes.
 	void loopStartChanged();
@@ -121,7 +122,8 @@ protected slots:
 	void loopZeroChanged();
 
 	// Offset/loop points changed (from UI).
-	void sampleChanged();
+	void offsetRangeChanged();
+	void loopRangeChanged();
 
 	// Notification updater.
 	void updateSchedNotify(int stype, int sid);
