@@ -1009,9 +1009,9 @@ void samplv1widget::clearSampleFile (void)
 
 	samplv1_ui *pSamplUi = ui_instance();
 	if (pSamplUi)
-		pSamplUi->setSampleFile(0);
+		pSamplUi->setSampleFile(NULL);
 
-	updateSample(0);
+	updateSample(NULL);
 }
 
 
