@@ -1297,11 +1297,11 @@ void samplv1widget::updateOffsetLoop ( samplv1_sample *pSample, bool bDirty )
 					.arg(m_ui.Gen1Sample->textFromValue(iOffsetStart))
 					.arg(m_ui.Gen1Sample->textFromValue(iOffsetEnd)));
 			}
+			if (!sMessage.isEmpty()) {
+				sMessage.append(',');
+				sMessage.append(' ');
+			}
 			if (bLoop) {
-				if (!sMessage.isEmpty()) {
-					sMessage.append(',');
-					sMessage.append(' ');
-				}
 				sMessage.append(tr("Loop: %1 - %2")
 					.arg(m_ui.Gen1Sample->textFromValue(iLoopStart))
 					.arg(m_ui.Gen1Sample->textFromValue(iLoopEnd)));

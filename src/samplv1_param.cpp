@@ -204,8 +204,7 @@ void samplv1_param::loadSamples (
 					sFilename = eChild.text();
 				}
 				else
-				if (eChild.tagName() == "offset" ||
-					eChild.tagName() == "offset-start") {
+				if (eChild.tagName() == "offset-start") {
 					iOffsetStart = eChild.text().toULong();
 				}
 				else
