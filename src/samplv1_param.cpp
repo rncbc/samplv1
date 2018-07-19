@@ -50,6 +50,7 @@ struct ParamInfo {
 	// name            type,           def,    min,    max
 	{ "GEN1_SAMPLE",   PARAM_INT,    60.0f,   0.0f, 127.0f }, // GEN1 Sample
 	{ "GEN1_REVERSE",  PARAM_BOOL,    0.0f,   0.0f,   1.0f }, // GEN1 Reverse
+	{ "GEN1_OFFSET",   PARAM_BOOL,    0.0f,   0.0f,   1.0f }, // GEN1 Offset
 	{ "GEN1_LOOP",     PARAM_BOOL,    0.0f,   0.0f,   1.0f }, // GEN1 Loop
 	{ "GEN1_OCTAVE",   PARAM_FLOAT,   0.0f,  -4.0f,   4.0f }, // GEN1 Octave
 	{ "GEN1_TUNING",   PARAM_FLOAT,   0.0f,  -1.0f,   1.0f }, // GEN1 Tuning

@@ -53,17 +53,6 @@ public:
 	float sampleRate() const
 		{ return m_srate; }
 
-	// sample start/end points (offsets)
-	void setOffsetRange(uint32_t start, uint32_t end);
-
-	uint32_t offsetStart() const
-		{ return m_offset_start; }
-	uint32_t offsetEnd() const
-		{ return m_offset_end; }
-
-	float offsetPhase0() const
-		{ return m_offset_phase0; }
-
 	// reverse mode.
 	void setReverse(bool reverse)
 		{ reverse_test(reverse); }
@@ -85,14 +74,53 @@ public:
 	void reverse_sched();
 	void reverse_sync();
 
+	// offset mode.
+	void setOffset(bool offset)
+	{
+		m_offset = offset;
+
+		if (m_offset_start >= m_offset_end) {
+			m_offset_start = 0;
+			m_offset_end = m_nframes;
+			m_offset_phase0 = 0.0f;
+		}
+
+		m_offset_end2 = (m_offset ? m_offset_end : m_nframes);
+	}
+
+	bool isOffset() const
+		{ return m_offset && (m_offset_start < m_offset_end); }
+
+	// offset change.
+	bool offset_test(bool offset)
+	{
+		if ((m_offset && !offset) || (!m_offset && offset)) {
+			setOffset(offset);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	// offset range.
+	void setOffsetRange(uint32_t start, uint32_t end);
+
+	uint32_t offsetStart() const
+		{ return m_offset_start; }
+	uint32_t offsetEnd() const
+		{ return m_offset_end; }
+
+	float offsetPhase0() const
+		{ return (m_offset ? m_offset_phase0 : 0.0f); }
+
 	// loop mode.
 	void setLoop(bool loop)
 	{
 		m_loop = loop;
 
 		if (m_loop && m_loop_start >= m_loop_end) {
-			m_loop_start = m_offset_start;
-			m_loop_end = m_offset_end;
+			m_loop_start = (m_offset ? m_offset_start : 0);
+			m_loop_end = (m_offset ? m_offset_end : m_nframes);
 			m_loop_phase1 = m_loop_phase2 = float(m_nframes);
 		}
 	}
@@ -190,6 +218,7 @@ private:
 	float  **m_pframes;
 	bool     m_reverse;
 
+	bool     m_offset;
 	uint32_t m_offset_start;
 	uint32_t m_offset_end;
 	float    m_offset_phase0;

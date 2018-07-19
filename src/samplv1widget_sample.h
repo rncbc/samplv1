@@ -60,10 +60,15 @@ public:
 	void setSampleName(const QString& sName);
 	const QString& sampleName() const;
 
+	// Offset mode.
+	void setOffset(bool bOffset);
+	bool isOffset() const;
+
 	// Offset getters.
 	uint32_t offsetStart() const;
 	uint32_t offsetEnd() const;
 
+	// Loop mode.
 	void setLoop(bool bLoop);
 	bool isLoop() const;
 
@@ -173,6 +178,7 @@ private:
 	int m_iDirectNoteOn;
 
 	// Offset state.
+	bool     m_bOffset;
 	uint32_t m_iOffsetStart;
 	uint32_t m_iOffsetEnd;
 

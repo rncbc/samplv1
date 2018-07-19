@@ -165,6 +165,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	states << tr("On");
 #if 0
 	m_ui.Gen1ReverseKnob->insertItems(0, states);
+	m_ui.Gen1OffsetKnob->insertItems(0, states);
 	m_ui.Gen1LoopKnob->insertItems(0, states);
 
 	m_ui.Lfo1SyncKnob->insertItems(0, states);
@@ -262,6 +263,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	// GEN1
 	setParamKnob(samplv1::GEN1_SAMPLE,  m_ui.Gen1SampleKnob);
 	setParamKnob(samplv1::GEN1_REVERSE, m_ui.Gen1ReverseKnob);
+	setParamKnob(samplv1::GEN1_OFFSET,  m_ui.Gen1OffsetKnob);
 	setParamKnob(samplv1::GEN1_LOOP,    m_ui.Gen1LoopKnob);
 	setParamKnob(samplv1::GEN1_OCTAVE,  m_ui.Gen1OctaveKnob);
 	setParamKnob(samplv1::GEN1_TUNING,  m_ui.Gen1TuningKnob);
@@ -744,15 +746,21 @@ void samplv1widget::updateParamEx ( samplv1::ParamIndex index, float fValue )
 		break;
 	}
 #endif
-	case samplv1::DCF1_SLOPE:
-		m_ui.Dcf1TypeKnob->setEnabled(int(fValue) != 3); // !Formant
+	case samplv1::GEN1_OFFSET: {
+		const bool bOffset = bool(fValue > 0.0f);
+		pSamplUi->setOffset(bOffset);
+		updateOffsetLoop(pSamplUi->sample());
 		break;
+	}
 	case samplv1::GEN1_LOOP: {
 		const bool bLoop = bool(fValue > 0.0f);
 		pSamplUi->setLoop(bLoop);
 		updateOffsetLoop(pSamplUi->sample());
 		break;
 	}
+	case samplv1::DCF1_SLOPE:
+		m_ui.Dcf1TypeKnob->setEnabled(int(fValue) != 3); // !Formant
+		// Fall thru...
 	default:
 		break;
 	}
@@ -1235,6 +1243,7 @@ void samplv1widget::loopRangeChanged (void)
 void samplv1widget::updateOffsetLoop ( samplv1_sample *pSample, bool bDirty )
 {
 	if (pSample) {
+		const bool     bOffset    = pSample->isOffset();
 		const uint32_t iOffsetStart = pSample->offsetStart();
 		const uint32_t iOffsetEnd = pSample->offsetEnd();
 		const bool     bLoop      = pSample->isLoop();
@@ -1244,12 +1253,14 @@ void samplv1widget::updateOffsetLoop ( samplv1_sample *pSample, bool bDirty )
 		const bool     bLoopZero  = pSample->isLoopZeroCrossing();
 		const uint32_t nframes    = pSample->length();
 		const float    srate      = pSample->sampleRate();
-		m_ui.Gen1OffsetRangeLabel->setEnabled(pSample->filename() != NULL);
+		m_ui.Gen1OffsetRangeLabel->setEnabled(bOffset);
 		m_ui.Gen1OffsetStartSpinBox->setSampleRate(srate);
+		m_ui.Gen1OffsetStartSpinBox->setEnabled(bOffset);
 		m_ui.Gen1OffsetStartSpinBox->setMinimum(0);
 		m_ui.Gen1OffsetStartSpinBox->setMaximum(bLoop ? iLoopStart : iOffsetEnd);
 		m_ui.Gen1OffsetStartSpinBox->setValue(iOffsetStart);
 		m_ui.Gen1OffsetEndSpinBox->setSampleRate(srate);
+		m_ui.Gen1OffsetEndSpinBox->setEnabled(bOffset);
 		m_ui.Gen1OffsetEndSpinBox->setMinimum(bLoop ? iLoopEnd : iOffsetStart);
 		m_ui.Gen1OffsetEndSpinBox->setMaximum(nframes);
 		m_ui.Gen1OffsetEndSpinBox->setValue(iOffsetEnd);
@@ -1275,28 +1286,37 @@ void samplv1widget::updateOffsetLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1LoopZeroCheckBox->setEnabled(bLoop);
 		m_ui.Gen1Sample->setOffsetStart(iOffsetStart);
 		m_ui.Gen1Sample->setOffsetEnd(iOffsetEnd);
+		m_ui.Gen1Sample->setOffset(bOffset);
 		m_ui.Gen1Sample->setLoopStart(iLoopStart);
 		m_ui.Gen1Sample->setLoopEnd(iLoopEnd);
 		m_ui.Gen1Sample->setLoop(bLoop);
 		if (bDirty) {
-			QString sMessage = tr("Offset: %1 - %2")
-				.arg(m_ui.Gen1Sample->textFromValue(iOffsetStart))
-				.arg(m_ui.Gen1Sample->textFromValue(iOffsetEnd));
+			QString sMessage;
+			if (bOffset) {
+				sMessage.append(tr("Offset: %1 - %2")
+					.arg(m_ui.Gen1Sample->textFromValue(iOffsetStart))
+					.arg(m_ui.Gen1Sample->textFromValue(iOffsetEnd)));
+			}
 			if (bLoop) {
-				sMessage.append(' ');
-				sMessage.append(' ');
+				if (!sMessage.isEmpty()) {
+					sMessage.append(',');
+					sMessage.append(' ');
+				}
 				sMessage.append(tr("Loop: %1 - %2")
 					.arg(m_ui.Gen1Sample->textFromValue(iLoopStart))
 					.arg(m_ui.Gen1Sample->textFromValue(iLoopEnd)));
 			}
-			m_ui.StatusBar->showMessage(sMessage, 3000);
+			if (!sMessage.isEmpty())
+				m_ui.StatusBar->showMessage(sMessage, 3000);
 			updateDirtyPreset(true);
 		}
 	} else {
 		m_ui.Gen1OffsetRangeLabel->setEnabled(false);
+		m_ui.Gen1OffsetStartSpinBox->setEnabled(false);
 		m_ui.Gen1OffsetStartSpinBox->setMinimum(0);
 		m_ui.Gen1OffsetStartSpinBox->setMaximum(0);
 		m_ui.Gen1OffsetStartSpinBox->setValue(0);
+		m_ui.Gen1OffsetEndSpinBox->setEnabled(false);
 		m_ui.Gen1OffsetEndSpinBox->setMinimum(0);
 		m_ui.Gen1OffsetEndSpinBox->setMaximum(0);
 		m_ui.Gen1OffsetEndSpinBox->setValue(0);
@@ -1317,6 +1337,7 @@ void samplv1widget::updateOffsetLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1LoopZeroCheckBox->setEnabled(false);
 		m_ui.Gen1Sample->setOffsetStart(0);
 		m_ui.Gen1Sample->setOffsetEnd(0);
+		m_ui.Gen1Sample->setOffset(false);
 		m_ui.Gen1Sample->setLoopStart(0);
 		m_ui.Gen1Sample->setLoopEnd(0);
 		m_ui.Gen1Sample->setLoop(false);

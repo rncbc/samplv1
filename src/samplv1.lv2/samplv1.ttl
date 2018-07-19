@@ -27,7 +27,8 @@
 	lv2:requiredFeature lv2urid:map, lv2worker:schedule ;
 	lv2:optionalFeature lv2:hardRTCapable ;
 	lv2:extensionData lv2state:interface, lv2worker:interface ;
-	lv2patch:writable samplv1_lv2:GEN1_SAMPLE, samplv1_lv2:GEN1_OFFSET,
+	lv2patch:writable samplv1_lv2:GEN1_SAMPLE,
+		samplv1_lv2:GEN1_OFFSET_START, samplv1_lv2:GEN1_OFFSET_END,
 		samplv1_lv2:GEN1_LOOP_START, samplv1_lv2:GEN1_LOOP_END,
 		samplv1_lv2:GEN1_LOOP_FADE, samplv1_lv2:GEN1_LOOP_ZERO ;
 	lv2ui:ui samplv1_lv2:ui, samplv1_lv2:ui_x11, samplv1_lv2:ui_external ;
@@ -91,6 +92,16 @@
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
 		lv2:index 8 ;
+		lv2:symbol "GEN1_OFFSET" ;
+		lv2:name "GEN1 Offset" ;
+		lv2:portProperty lv2:toggled ;
+		lv2:default 0.0 ;
+		lv2:minimum 0.0 ;
+		lv2:maximum 1.0 ;
+		lv2pg:group samplv1_lv2:101_GEN1 ;
+	], [
+		a lv2:InputPort, lv2:ControlPort ;
+		lv2:index 9 ;
 		lv2:symbol "GEN1_LOOP" ;
 		lv2:name "GEN1 Loop" ;
 		lv2:portProperty lv2:toggled ;
@@ -100,7 +111,7 @@
 		lv2pg:group samplv1_lv2:101_GEN1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 9 ;
+		lv2:index 10 ;
 		lv2:symbol "GEN1_OCTAVE" ;
 		lv2:name "GEN1 Octave" ;
 		lv2:default 0.0 ;
@@ -109,7 +120,7 @@
 		lv2pg:group samplv1_lv2:101_GEN1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 10 ;
+		lv2:index 11 ;
 		lv2:symbol "GEN1_TUNING" ;
 		lv2:name "GEN1 Tuning" ;
 		lv2:default 0.0 ;
@@ -118,7 +129,7 @@
 		lv2pg:group samplv1_lv2:101_GEN1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 11 ;
+		lv2:index 12 ;
 		lv2:symbol "GEN1_GLIDE" ;
 		lv2:name "GEN1 Glide" ;
 		lv2:default 0.0 ;
@@ -127,7 +138,7 @@
 		lv2pg:group samplv1_lv2:101_GEN1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 12 ;
+		lv2:index 13 ;
 		lv2:symbol "GEN1_ENVTIME" ;
 		lv2:name "GEN1 Env.Time" ;
 		lv2:default 0.5 ;
@@ -136,7 +147,7 @@
 		lv2pg:group samplv1_lv2:101_GEN1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 13 ;
+		lv2:index 14 ;
 		lv2:symbol "DCF1_CUTOFF" ;
 		lv2:name "DCF1 Cutoff" ;
 		lv2:default 1.0 ;
@@ -145,7 +156,7 @@
 		lv2pg:group samplv1_lv2:102_DCF1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 14 ;
+		lv2:index 15 ;
 		lv2:symbol "DCF1_RESO" ;
 		lv2:name "DCF1 Resonance" ;
 		lv2:default 0.0 ;
@@ -154,7 +165,7 @@
 		lv2pg:group samplv1_lv2:102_DCF1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 15 ;
+		lv2:index 16 ;
 		lv2:symbol "DCF1_TYPE" ;
 		lv2:name "DCF1 Type" ;
 		lv2:portProperty lv2:integer, lv2:enumeration ;
@@ -168,7 +179,7 @@
 		lv2pg:group samplv1_lv2:102_DCF1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 16 ;
+		lv2:index 17 ;
 		lv2:symbol "DCF1_SLOPE" ;
 		lv2:name "DCF1 Slope" ;
 		lv2:portProperty lv2:integer, lv2:enumeration ;
@@ -182,7 +193,7 @@
 		lv2pg:group samplv1_lv2:102_DCF1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 17 ;
+		lv2:index 18 ;
 		lv2:symbol "DCF1_ENVELOPE" ;
 		lv2:name "DCF1 Envelope" ;
 		lv2:default 1.0 ;
@@ -191,7 +202,7 @@
 		lv2pg:group samplv1_lv2:102_DCF1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 18 ;
+		lv2:index 19 ;
 		lv2:symbol "DCF1_ATTACK" ;
 		lv2:name "DCF1 Attack" ;
 		lv2:default 0.0 ;
@@ -200,7 +211,7 @@
 		lv2pg:group samplv1_lv2:102_DCF1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 19 ;
+		lv2:index 20 ;
 		lv2:symbol "DCF1_DECAY" ;
 		lv2:name "DCF1 Decay" ;
 		lv2:default 0.2 ;
@@ -209,7 +220,7 @@
 		lv2pg:group samplv1_lv2:102_DCF1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 20 ;
+		lv2:index 21 ;
 		lv2:symbol "DCF1_SUSTAIN" ;
 		lv2:name "DCF1 Sustain" ;
 		lv2:default 0.5 ;
@@ -218,7 +229,7 @@
 		lv2pg:group samplv1_lv2:102_DCF1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 21 ;
+		lv2:index 22 ;
 		lv2:symbol "DCF1_RELEASE" ;
 		lv2:name "DCF1 Release" ;
 		lv2:default 0.5 ;
@@ -227,7 +238,7 @@
 		lv2pg:group samplv1_lv2:102_DCF1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 22 ;
+		lv2:index 23 ;
 		lv2:symbol "LFO1_SHAPE" ;
 		lv2:name "LFO1 Wave Shape" ;
 		lv2:portProperty lv2:integer, lv2:enumeration ;
@@ -242,7 +253,7 @@
 		lv2pg:group samplv1_lv2:103_LFO1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 23 ;
+		lv2:index 24 ;
 		lv2:symbol "LFO1_WIDTH" ;
 		lv2:name "LFO1 Wave Width" ;
 		lv2:default 1.0 ;
@@ -251,7 +262,7 @@
 		lv2pg:group samplv1_lv2:103_LFO1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 24 ;
+		lv2:index 25 ;
 		lv2:symbol "LFO1_BPM" ;
 		lv2:name "LFO1 BPM" ;
 		lv2:default 180.0 ;
@@ -260,7 +271,7 @@
 		lv2pg:group samplv1_lv2:103_LFO1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 25 ;
+		lv2:index 26 ;
 		lv2:symbol "LFO1_RATE" ;
 		lv2:name "LFO1 Rate" ;
 		lv2:default 0.5 ;
@@ -269,7 +280,7 @@
 		lv2pg:group samplv1_lv2:103_LFO1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 26 ;
+		lv2:index 27 ;
 		lv2:symbol "LFO1_SYNC" ;
 		lv2:name "LFO1 Sync" ;
 		lv2:portProperty lv2:toggled ;
@@ -279,7 +290,7 @@
 		lv2pg:group samplv1_lv2:103_LFO1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 27 ;
+		lv2:index 28 ;
 		lv2:symbol "LFO1_SWEEP" ;
 		lv2:name "LFO1 Sweep" ;
 		lv2:default 0.0 ;
@@ -288,7 +299,7 @@
 		lv2pg:group samplv1_lv2:103_LFO1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 28 ;
+		lv2:index 29 ;
 		lv2:symbol "LFO1_PITCH" ;
 		lv2:name "LFO1 Pitch" ;
 		lv2:default 0.0 ;
@@ -297,7 +308,7 @@
 		lv2pg:group samplv1_lv2:103_LFO1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 29 ;
+		lv2:index 30 ;
 		lv2:symbol "LFO1_CUTOFF" ;
 		lv2:name "LFO1 Cutoff" ;
 		lv2:default 0.0 ;
@@ -306,7 +317,7 @@
 		lv2pg:group samplv1_lv2:103_LFO1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 30 ;
+		lv2:index 31 ;
 		lv2:symbol "LFO1_RESO" ;
 		lv2:name "LFO1 Resonance" ;
 		lv2:default 0.0 ;
@@ -315,7 +326,7 @@
 		lv2pg:group samplv1_lv2:103_LFO1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 31 ;
+		lv2:index 32 ;
 		lv2:symbol "LFO1_PANNING" ;
 		lv2:name "LFO1 Panning" ;
 		lv2:default 0.0 ;
@@ -324,7 +335,7 @@
 		lv2pg:group samplv1_lv2:103_LFO1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 32 ;
+		lv2:index 33 ;
 		lv2:symbol "LFO1_VOLUME" ;
 		lv2:name "LFO1 Volume" ;
 		lv2:default 0.0 ;
@@ -333,7 +344,7 @@
 		lv2pg:group samplv1_lv2:103_LFO1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 33 ;
+		lv2:index 34 ;
 		lv2:symbol "LFO1_ATTACK" ;
 		lv2:name "LFO1 Attack" ;
 		lv2:default 0.0 ;
@@ -342,7 +353,7 @@
 		lv2pg:group samplv1_lv2:103_LFO1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 34 ;
+		lv2:index 35 ;
 		lv2:symbol "LFO1_DECAY" ;
 		lv2:name "LFO1 Decay" ;
 		lv2:default 0.1 ;
@@ -351,7 +362,7 @@
 		lv2pg:group samplv1_lv2:103_LFO1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 35 ;
+		lv2:index 36 ;
 		lv2:symbol "LFO1_SUSTAIN" ;
 		lv2:name "LFO1 Sustain" ;
 		lv2:default 1.0 ;
@@ -360,7 +371,7 @@
 		lv2pg:group samplv1_lv2:103_LFO1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 36 ;
+		lv2:index 37 ;
 		lv2:symbol "LFO1_RELEASE" ;
 		lv2:name "LFO1 Release" ;
 		lv2:default 0.5 ;
@@ -369,7 +380,7 @@
 		lv2pg:group samplv1_lv2:103_LFO1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 37 ;
+		lv2:index 38 ;
 		lv2:symbol "DCA1_VOLUME" ;
 		lv2:name "DCA1 Volume" ;
 		lv2:default 0.5 ;
@@ -378,7 +389,7 @@
 		lv2pg:group samplv1_lv2:104_DCA1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 38 ;
+		lv2:index 39 ;
 		lv2:symbol "DCA1_ATTACK" ;
 		lv2:name "DCA1 Attack" ;
 		lv2:default 0.0 ;
@@ -387,7 +398,7 @@
 		lv2pg:group samplv1_lv2:104_DCA1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 39 ;
+		lv2:index 40 ;
 		lv2:symbol "DCA1_DECAY" ;
 		lv2:name "DCA1 Decay" ;
 		lv2:default 0.1 ;
@@ -396,7 +407,7 @@
 		lv2pg:group samplv1_lv2:104_DCA1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 40 ;
+		lv2:index 41 ;
 		lv2:symbol "DCA1_SUSTAIN" ;
 		lv2:name "DCA1 Sustain" ;
 		lv2:default 1.0 ;
@@ -405,7 +416,7 @@
 		lv2pg:group samplv1_lv2:104_DCA1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 41 ;
+		lv2:index 42 ;
 		lv2:symbol "DCA1_RELEASE" ;
 		lv2:name "DCA1 Release" ;
 		lv2:default 0.5 ;
@@ -414,7 +425,7 @@
 		lv2pg:group samplv1_lv2:104_DCA1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 42 ;
+		lv2:index 43 ;
 		lv2:symbol "OUT1_WIDTH" ;
 		lv2:name "OUT1 Stereo Width" ;
 		lv2:default 0.0 ;
@@ -423,7 +434,7 @@
 		lv2pg:group samplv1_lv2:105_OUT1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 43 ;
+		lv2:index 44 ;
 		lv2:symbol "OUT1_PANNING" ;
 		lv2:name "OUT1 Panning" ;
 		lv2:default 0.0 ;
@@ -432,7 +443,7 @@
 		lv2pg:group samplv1_lv2:105_OUT1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 44 ;
+		lv2:index 45 ;
 		lv2:symbol "OUT1_FXSEND" ;
 		lv2:name "OUT1 FX Send" ;
 		lv2:default 1.0 ;
@@ -441,7 +452,7 @@
 		lv2pg:group samplv1_lv2:105_OUT1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 45 ;
+		lv2:index 46 ;
 		lv2:symbol "OUT1_VOLUME" ;
 		lv2:name "OUT1 Volume" ;
 		lv2:default 0.5 ;
@@ -451,7 +462,7 @@
 	] ;
 	lv2:port [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 46 ;
+		lv2:index 47 ;
 		lv2:symbol "DEF1_PITCHBEND" ;
 		lv2:name "DEF1 Pitchbend" ;
 		lv2:default 0.2 ;
@@ -460,7 +471,7 @@
 		lv2pg:group samplv1_lv2:106_DEF1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 47 ;
+		lv2:index 48 ;
 		lv2:symbol "DEF1_MODWHEEL" ;
 		lv2:name "DEF1 Modwheel" ;
 		lv2:default 0.2 ;
@@ -469,7 +480,7 @@
 		lv2pg:group samplv1_lv2:106_DEF1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 48 ;
+		lv2:index 49 ;
 		lv2:symbol "DEF1_PRESSURE" ;
 		lv2:name "DEF1 Pressure" ;
 		lv2:default 0.2 ;
@@ -478,7 +489,7 @@
 		lv2pg:group samplv1_lv2:106_DEF1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 49 ;
+		lv2:index 50 ;
 		lv2:symbol "DEF1_VELOCITY" ;
 		lv2:name "DEF1 Velocity" ;
 		lv2:default 0.2 ;
@@ -487,7 +498,7 @@
 		lv2pg:group samplv1_lv2:106_DEF1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 50 ;
+		lv2:index 51 ;
 		lv2:symbol "DEF1_CHANNEL" ;
 		lv2:name "DEF1 Channel" ;
 		lv2:portProperty lv2:integer ;
@@ -497,7 +508,7 @@
 		lv2pg:group samplv1_lv2:106_DEF1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 51 ;
+		lv2:index 52 ;
 		lv2:symbol "DEF1_MONO" ;
 		lv2:name "DEF1 Mono" ;
 		lv2:portProperty lv2:integer, lv2:enumeration ;
@@ -511,7 +522,7 @@
 	] ;
 	lv2:port [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 52 ;
+		lv2:index 53 ;
 		lv2:symbol "CHO1_WET" ;
 		lv2:name "Chorus Wet" ;
 		lv2:default 0.0 ;
@@ -520,7 +531,7 @@
 		lv2pg:group samplv1_lv2:201_CHO1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 53 ;
+		lv2:index 54 ;
 		lv2:symbol "CHO1_DELAY" ;
 		lv2:name "Chorus Delay" ;
 		lv2:default 0.5 ;
@@ -529,7 +540,7 @@
 		lv2pg:group samplv1_lv2:201_CHO1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 54 ;
+		lv2:index 55 ;
 		lv2:symbol "CHO1_FEEDB" ;
 		lv2:name "Chorus Feedback" ;
 		lv2:default 0.5 ;
@@ -538,7 +549,7 @@
 		lv2pg:group samplv1_lv2:201_CHO1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 55 ;
+		lv2:index 56 ;
 		lv2:symbol "CHO1_RATE" ;
 		lv2:name "Chorus Rate" ;
 		lv2:default 0.5 ;
@@ -547,7 +558,7 @@
 		lv2pg:group samplv1_lv2:201_CHO1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 56 ;
+		lv2:index 57 ;
 		lv2:symbol "CHO1_MOD" ;
 		lv2:name "Chorus Modulation" ;
 		lv2:default 0.5 ;
@@ -557,7 +568,7 @@
 	] ;
 	lv2:port [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 57 ;
+		lv2:index 58 ;
 		lv2:symbol "FLA1_WET" ;
 		lv2:name "Flanger Wet" ;
 		lv2:default 0.0 ;
@@ -566,7 +577,7 @@
 		lv2pg:group samplv1_lv2:202_FLA1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 58 ;
+		lv2:index 59 ;
 		lv2:symbol "FLA1_DELAY" ;
 		lv2:name "Flanger Delay" ;
 		lv2:default 0.5 ;
@@ -575,7 +586,7 @@
 		lv2pg:group samplv1_lv2:202_FLA1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 59 ;
+		lv2:index 60 ;
 		lv2:symbol "FLA1_FEEDB" ;
 		lv2:name "Flanger Feedback" ;
 		lv2:default 0.5 ;
@@ -584,7 +595,7 @@
 		lv2pg:group samplv1_lv2:202_FLA1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 60 ;
+		lv2:index 61 ;
 		lv2:symbol "FLA1_DAFT" ;
 		lv2:name "Flanger Daft" ;
 		lv2:default 0.0 ;
@@ -594,7 +605,7 @@
 	] ;
 	lv2:port [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 61 ;
+		lv2:index 62 ;
 		lv2:symbol "PHA1_WET" ;
 		lv2:name "Phaser Wet" ;
 		lv2:default 0.0 ;
@@ -603,7 +614,7 @@
 		lv2pg:group samplv1_lv2:203_PHA1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 62 ;
+		lv2:index 63 ;
 		lv2:symbol "PHA1_RATE" ;
 		lv2:name "Phaser Rate" ;
 		lv2:default 0.5 ;
@@ -612,7 +623,7 @@
 		lv2pg:group samplv1_lv2:203_PHA1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 63 ;
+		lv2:index 64 ;
 		lv2:symbol "PHA1_FEEDB" ;
 		lv2:name "Phaser Feedback" ;
 		lv2:default 0.5 ;
@@ -621,7 +632,7 @@
 		lv2pg:group samplv1_lv2:203_PHA1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 64 ;
+		lv2:index 65 ;
 		lv2:symbol "PHA1_DEPTH" ;
 		lv2:name "Phaser Depth" ;
 		lv2:default 0.5 ;
@@ -630,7 +641,7 @@
 		lv2pg:group samplv1_lv2:203_PHA1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 65 ;
+		lv2:index 66 ;
 		lv2:symbol "PHA1_DAFT" ;
 		lv2:name "Phaser Daft" ;
 		lv2:default 0.0 ;
@@ -640,7 +651,7 @@
 	] ;
 	lv2:port [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 66 ;
+		lv2:index 67 ;
 		lv2:symbol "DEL1_WET" ;
 		lv2:name "Delay Wet" ;
 		lv2:default 0.0 ;
@@ -649,7 +660,7 @@
 		lv2pg:group samplv1_lv2:204_DEL1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 67 ;
+		lv2:index 68 ;
 		lv2:symbol "DEL1_DELAY" ;
 		lv2:name "Delay Delay" ;
 		lv2:default 0.5 ;
@@ -658,7 +669,7 @@
 		lv2pg:group samplv1_lv2:204_DEL1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 68 ;
+		lv2:index 69 ;
 		lv2:symbol "DEL1_FEEDB" ;
 		lv2:name "Delay Feedback" ;
 		lv2:default 0.5 ;
@@ -667,7 +678,7 @@
 		lv2pg:group samplv1_lv2:204_DEL1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 69 ;
+		lv2:index 70 ;
 		lv2:symbol "DEL1_BPM" ;
 		lv2:name "Delay BPM" ;
 		lv2:default 180.0 ;
@@ -677,7 +688,7 @@
 	] ;
 	lv2:port [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 70 ;
+		lv2:index 71 ;
 		lv2:symbol "REV1_WET" ;
 		lv2:name "Reverb Wet" ;
 		lv2:default 0.0 ;
@@ -686,7 +697,7 @@
 		lv2pg:group samplv1_lv2:205_REV1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 71 ;
+		lv2:index 72 ;
 		lv2:symbol "REV1_ROOM" ;
 		lv2:name "Reverb Room" ;
 		lv2:default 0.5 ;
@@ -695,7 +706,7 @@
 		lv2pg:group samplv1_lv2:205_REV1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 72 ;
+		lv2:index 73 ;
 		lv2:symbol "REV1_DAMP" ;
 		lv2:name "Reverb Damp" ;
 		lv2:default 0.5 ;
@@ -704,7 +715,7 @@
 		lv2pg:group samplv1_lv2:205_REV1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 73 ;
+		lv2:index 74 ;
 		lv2:symbol "REV1_FEEDB" ;
 		lv2:name "Reverb Feedback" ;
 		lv2:default 0.5 ;
@@ -713,7 +724,7 @@
 		lv2pg:group samplv1_lv2:205_REV1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 74 ;
+		lv2:index 75 ;
 		lv2:symbol "REV1_WIDTH" ;
 		lv2:name "Reverb Width" ;
 		lv2:default 0.0 ;
@@ -723,7 +734,7 @@
 	] ;
 	lv2:port [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 75 ;
+		lv2:index 76 ;
 		lv2:symbol "DYN1_COMPRESS" ;
 		lv2:name "Dynamic Compressor" ;
 		lv2:portProperty lv2:toggled ;
@@ -733,7 +744,7 @@
 		lv2pg:group samplv1_lv2:206_DYN1 ;
 	], [
 		a lv2:InputPort, lv2:ControlPort ;
-		lv2:index 76 ;
+		lv2:index 77 ;
 		lv2:symbol "DYN1_LIMITER" ;
 		lv2:name "Dynamic Limiter" ;
 		lv2:portProperty lv2:toggled ;
@@ -743,10 +754,21 @@
 		lv2pg:group samplv1_lv2:206_DYN1 ;
 	] .
 
+
 samplv1_lv2:GEN1_SAMPLE
 	a lv2:Parameter ;
 	rdfs:label "GEN1 Sample File" ;
 	rdfs:range lv2atom:Path .
+
+samplv1_lv2:GEN1_OFFSET_START
+	a lv2:Parameter ;
+	rdfs:label "GEN1 Offset Start" ;
+	rdfs:range lv2atom:Int .
+
+samplv1_lv2:GEN1_OFFSET_END
+	a lv2:Parameter ;
+	rdfs:label "GEN1 Offset End" ;
+	rdfs:range lv2atom:Int .
 
 samplv1_lv2:GEN1_LOOP_START
 	a lv2:Parameter ;
@@ -757,6 +779,17 @@ samplv1_lv2:GEN1_LOOP_END
 	a lv2:Parameter ;
 	rdfs:label "GEN1 Loop End" ;
 	rdfs:range lv2atom:Int .
+
+samplv1_lv2:GEN1_LOOP_FADE
+	a lv2:Parameter ;
+	rdfs:label "GEN1 Loop Crossfade" ;
+	rdfs:range lv2atom:Int .
+
+samplv1_lv2:GEN1_LOOP_ZERO
+	a lv2:Parameter ;
+	rdfs:label "GEN1 Loop Zero-crossing" ;
+	rdfs:range lv2atom:Int .
+
 
 samplv1_lv2:101_GEN1
 	a lv2pg:InputGroup;

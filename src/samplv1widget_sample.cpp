@@ -67,6 +67,7 @@ samplv1widget_sample::samplv1widget_sample (
 	QFrame::setFrameShape(QFrame::Panel);
 	QFrame::setFrameShadow(QFrame::Sunken);
 
+	m_bOffset = false;
 	m_iOffsetStart = m_iOffsetEnd = 0;
 
 	m_bLoop = false;
@@ -114,7 +115,8 @@ void samplv1widget_sample::setSample ( samplv1_sample *pSample )
 
 	m_pSample = pSample;
 
-//	m_iOffset = 0;
+//	m_bOffset = 0;
+//	m_iOffsetStart = m_iOffsetEnd = 0;
 
 //	m_bLoop = false;
 //	m_iLoopStart = m_iLoopEnd = 0;
@@ -187,6 +189,21 @@ const QString& samplv1widget_sample::sampleName (void) const
 }
 
 
+// Offset mode.
+void samplv1widget_sample::setOffset ( bool bOffset )
+{
+	m_bOffset = bOffset;
+
+	updateToolTip();
+	update();
+}
+
+bool samplv1widget_sample::isOffset (void) const
+{
+	return m_bOffset;
+}
+
+
 void samplv1widget_sample::setOffsetStart ( uint32_t iOffsetStart )
 {
 	m_iOffsetStart = iOffsetStart;
@@ -215,6 +232,7 @@ uint32_t samplv1widget_sample::offsetEnd (void) const
 }
 
 
+// Loop mode.
 void samplv1widget_sample::setLoop ( bool bLoop )
 {
 	m_bLoop = bLoop;
@@ -286,11 +304,13 @@ void samplv1widget_sample::mousePressEvent ( QMouseEvent *pMouseEvent )
 			m_dragState = DragStart;
 			m_posDrag = pMouseEvent->pos();
 		} else {
-			const int w = QFrame::width();
 			const uint32_t nframes = m_pSample->length();
-			if (nframes > 0) {
-				m_iDragOffsetStartX = safeX((m_iOffsetStart * w) / nframes);
-				m_iDragOffsetEndX   = safeX((m_iOffsetEnd   * w) / nframes);
+			if (nframes > 0 && (m_bOffset || m_bLoop)) {
+				const int w = QFrame::width();
+				if (m_bOffset) {
+					m_iDragOffsetStartX = safeX((m_iOffsetStart * w) / nframes);
+					m_iDragOffsetEndX   = safeX((m_iOffsetEnd   * w) / nframes);
+				}
 				if (m_bLoop) {
 					m_iDragLoopStartX = safeX((m_iLoopStart * w) / nframes);
 					m_iDragLoopEndX   = safeX((m_iLoopEnd   * w) / nframes);
@@ -311,9 +331,9 @@ void samplv1widget_sample::mouseMoveEvent ( QMouseEvent *pMouseEvent )
 	switch (m_dragState) {
 	case DragNone:
 		if (m_pSample) {
-			const int w = QFrame::width();
 			const uint32_t nframes = m_pSample->length();
 			if (nframes > 0) {
+				const int w  = QFrame::width();
 				const int dx = QApplication::startDragDistance();
 				const int x0 = (m_iOffsetStart * w) / nframes;
 				const int x1 = (m_iOffsetEnd * w) / nframes;
@@ -329,12 +349,12 @@ void samplv1widget_sample::mouseMoveEvent ( QMouseEvent *pMouseEvent )
 					QFrame::setCursor(QCursor(Qt::SizeHorCursor));
 				}
 				else
-				if (abs(x1 - x) < dx) {
+				if (abs(x1 - x) < dx && m_bOffset) {
 					m_dragCursor = DragOffsetEnd;
 					QFrame::setCursor(QCursor(Qt::SizeHorCursor));
 				}
 				else
-				if (abs(x0 - x) < dx) {
+				if (abs(x0 - x) < dx && m_bOffset) {
 					m_dragCursor = DragOffsetStart;
 					QFrame::setCursor(QCursor(Qt::SizeHorCursor));
 				}
@@ -409,7 +429,7 @@ void samplv1widget_sample::mouseMoveEvent ( QMouseEvent *pMouseEvent )
 	case DragLoopStart:
 		if (m_pSample) {
 			m_iDragLoopStartX = safeX(x);
-			if (m_iDragLoopStartX < m_iDragOffsetStartX)
+			if (m_bOffset && m_iDragLoopStartX < m_iDragOffsetStartX)
 				m_iDragLoopStartX = m_iDragOffsetStartX;
 			if (m_iDragLoopStartX > m_iDragLoopEndX)
 				m_iDragLoopStartX = m_iDragLoopEndX;
@@ -429,7 +449,7 @@ void samplv1widget_sample::mouseMoveEvent ( QMouseEvent *pMouseEvent )
 	case DragLoopEnd:
 		if (m_pSample) {
 			m_iDragLoopEndX = safeX(x);
-			if (m_iDragLoopEndX > m_iDragOffsetEndX)
+			if (m_bOffset && m_iDragLoopEndX > m_iDragOffsetEndX)
 				m_iDragLoopEndX = m_iDragOffsetEndX;
 			if (m_iDragLoopEndX < m_iDragLoopStartX)
 				m_iDragLoopEndX = m_iDragLoopStartX;
@@ -474,7 +494,7 @@ void samplv1widget_sample::mouseMoveEvent ( QMouseEvent *pMouseEvent )
 			if (m_dragCursor != DragNone)
 				m_dragState = m_dragCursor;
 			else
-			if (pMouseEvent->modifiers() & Qt::ShiftModifier) {
+			if (m_bOffset && pMouseEvent->modifiers() & Qt::ShiftModifier) {
 				m_dragState = m_dragCursor = DragOffsetRange;
 				m_iDragOffsetStartX = m_iDragOffsetEndX = m_posDrag.x();
 				QFrame::setCursor(QCursor(Qt::SizeHorCursor));
@@ -484,7 +504,9 @@ void samplv1widget_sample::mouseMoveEvent ( QMouseEvent *pMouseEvent )
 				m_dragState = m_dragCursor = DragLoopRange;
 				m_iDragLoopStartX = m_iDragLoopEndX = m_posDrag.x();
 				QFrame::setCursor(QCursor(Qt::SizeHorCursor));
-			} else if (m_pSample && m_pSample->filename()) {
+			}
+			else
+			if (m_pSample && m_pSample->filename()) {
 				QList<QUrl> urls;
 				m_pDragSample = m_pSample;
 				urls.append(QUrl::fromLocalFile(m_pDragSample->filename()));
@@ -714,7 +736,7 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 		for (unsigned short k = 0; k < m_iChannels; ++k)
 			painter.drawPolygon(*m_ppPolyg[k]);
 		// Offset line...
-		if (bEnabled) {
+		if (m_bOffset && bEnabled) {
 			int x1 = 0, x2 = 0;
 			if (m_dragState == DragOffsetStart ||
 				m_dragState == DragOffsetEnd   ||
@@ -894,7 +916,7 @@ void samplv1widget_sample::updateToolTip (void)
 			.arg(m_pSample->rate());
 	}
 
-	if (m_iOffsetStart < m_iOffsetEnd) {
+	if (m_bOffset && m_iOffsetStart < m_iOffsetEnd) {
 		if (!sToolTip.isEmpty()) sToolTip += '\n';
 		sToolTip += tr("Offset: %1 - %2")
 			.arg(textFromValue(m_iOffsetStart))

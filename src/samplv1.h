@@ -60,6 +60,9 @@ public:
 	void setReverse(bool bReverse);
 	bool isReverse() const;
 
+	void setOffset(bool bOffset);
+	bool isOffset() const;
+
 	void setOffsetRange(uint32_t iOffsetStart, uint32_t iOffsetEnd);
 	uint32_t offsetStart() const;
 	uint32_t offsetEnd() const;
@@ -87,6 +90,7 @@ public:
 
 		GEN1_SAMPLE = 0,
 		GEN1_REVERSE,
+		GEN1_OFFSET,
 		GEN1_LOOP,
 		GEN1_OCTAVE,
 		GEN1_TUNING,
@@ -176,6 +180,7 @@ public:
 	void process_midi(uint8_t *data, uint32_t size);
 	void process(float **ins, float **outs, uint32_t nframes);
 
+	bool sampleOffsetTest() const;
 	bool sampleLoopTest() const;
 
 	virtual void updatePreset(bool bDirty) = 0;

@@ -49,6 +49,9 @@ public:
 	void setReverse(bool bReverse);
 	bool isReverse() const;
 
+	void setOffset(bool bOffset);
+	bool isOffset() const;
+
 	void setOffsetRange(uint32_t iOffsetStart, uint32_t iOffsetEnd);
 	uint32_t offsetStart() const;
 	uint32_t offsetEnd() const;

@@ -427,6 +427,7 @@ struct samplv1_gen
 {
 	samplv1_port sample;
 	samplv1_port reverse;
+	samplv1_port offset;
 	samplv1_port loop;
 	samplv1_port octave;
 	samplv1_port tuning;
@@ -795,9 +796,10 @@ public:
 	void process_midi(uint8_t *data, uint32_t size);
 	void process(float **ins, float **outs, uint32_t nframes);
 
-	bool sampleLoopTest();
-
 	void reset();
+
+	bool sampleOffsetTest();
+	bool sampleLoopTest();
 
 	void midiInEnabled(bool on);
 	uint32_t midiInCount();
@@ -1207,6 +1209,7 @@ samplv1_port *samplv1_impl::paramPort ( samplv1::ParamIndex index )
 	switch (index) {
 	case samplv1::GEN1_SAMPLE:    pParamPort = &m_gen1.sample;      break;
 	case samplv1::GEN1_REVERSE:   pParamPort = &m_gen1.reverse;     break;
+	case samplv1::GEN1_OFFSET:    pParamPort = &m_gen1.offset;      break;
 	case samplv1::GEN1_LOOP:      pParamPort = &m_gen1.loop;        break;
 	case samplv1::GEN1_OCTAVE:    pParamPort = &m_gen1.octave;      break;
 	case samplv1::GEN1_TUNING:    pParamPort = &m_gen1.tuning;      break;
@@ -1967,10 +1970,17 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 }
 
 
+bool samplv1_impl::sampleOffsetTest (void)
+{
+	return gen1_sample.offset_test(*m_gen1.offset > 0.5f);
+}
+
+
 bool samplv1_impl::sampleLoopTest (void)
 {
 	return gen1_sample.loop_test(*m_gen1.loop > 0.5f);
 }
+
 
 //-------------------------------------------------------------------------
 // samplv1 - decl.
@@ -2040,6 +2050,17 @@ void samplv1::setReverse ( bool bReverse )
 bool samplv1::isReverse (void) const
 {
 	return m_pImpl->gen1_sample.isReverse();
+}
+
+
+void samplv1::setOffset ( bool bOffset )
+{
+	m_pImpl->gen1_sample.setOffset(bOffset);
+}
+
+bool samplv1::isOffset (void) const
+{
+	return m_pImpl->gen1_sample.isOffset();
 }
 
 
@@ -2200,6 +2221,12 @@ samplv1_programs *samplv1::programs (void) const
 void samplv1::reset (void)
 {
 	m_pImpl->reset();
+}
+
+
+bool samplv1::sampleOffsetTest (void) const
+{
+	return m_pImpl->sampleOffsetTest();
 }
 
 

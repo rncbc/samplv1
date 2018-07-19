@@ -73,6 +73,17 @@ bool samplv1_ui::isReverse (void) const
 }
 
 
+void samplv1_ui::setOffset ( bool bOffset )
+{
+	m_pSampl->setOffset(bOffset);
+}
+
+bool samplv1_ui::isOffset (void) const
+{
+	return m_pSampl->isOffset();
+}
+
+
 void samplv1_ui::setOffsetRange ( uint32_t iOffsetStart, uint32_t iOffsetEnd )
 {
 	m_pSampl->setOffsetRange(iOffsetStart, iOffsetEnd);

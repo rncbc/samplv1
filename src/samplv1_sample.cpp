@@ -61,7 +61,7 @@ samplv1_sample::samplv1_sample ( samplv1 *pSampl, float srate )
 	: m_srate(srate), m_filename(NULL), m_nchannels(0),
 		m_rate0(0.0f), m_freq0(1.0f), m_ratio(0.0f),
 		m_nframes(0), m_pframes(NULL), m_reverse(false),
-		m_offset_start(0), m_offset_end(0),
+		m_offset(false), m_offset_start(0), m_offset_end(0),
 		m_offset_phase0(0.0f), m_offset_end2(0),
 		m_loop(false), m_loop_start(0), m_loop_end(0),
 		m_loop_phase1(0.0f), m_loop_phase2(0.0f),
@@ -153,8 +153,7 @@ bool samplv1_sample::open ( const char *filename, float freq0 )
 
 	reset(freq0);
 
-	setOffsetRange(0, m_nframes);
-
+	setOffset(m_offset);
 	setLoop(m_loop);
 	return true;
 }
@@ -210,7 +209,7 @@ void samplv1_sample::reverse_sync (void)
 }
 
 
-// sample start/end points (offsets)
+// offset range.
 void samplv1_sample::setOffsetRange ( uint32_t start, uint32_t end )
 {
 	if (start > m_nframes)
