@@ -476,9 +476,9 @@ struct samplv1_lfo
 
 struct samplv1_dca
 {
-	samplv1_port2 volume;
+	samplv1_port volume;
 
-	samplv1_env   env;
+	samplv1_env  env;
 };
 
 
@@ -500,10 +500,10 @@ struct samplv1_def
 
 struct samplv1_out
 {
-	samplv1_port2 width;
-	samplv1_port2 panning;
-	samplv1_port2 fxsend;
-	samplv1_port2 volume;
+	samplv1_port width;
+	samplv1_port panning;
+	samplv1_port fxsend;
+	samplv1_port volume;
 };
 
 
@@ -511,11 +511,11 @@ struct samplv1_out
 
 struct samplv1_cho
 {
-	samplv1_port2 wet;
-	samplv1_port2 delay;
-	samplv1_port2 feedb;
-	samplv1_port2 rate;
-	samplv1_port2 mod;
+	samplv1_port wet;
+	samplv1_port delay;
+	samplv1_port feedb;
+	samplv1_port rate;
+	samplv1_port mod;
 };
 
 
@@ -523,10 +523,10 @@ struct samplv1_cho
 
 struct samplv1_fla
 {
-	samplv1_port2 wet;
-	samplv1_port2 delay;
-	samplv1_port2 feedb;
-	samplv1_port2 daft;
+	samplv1_port wet;
+	samplv1_port delay;
+	samplv1_port feedb;
+	samplv1_port daft;
 };
 
 
@@ -534,11 +534,11 @@ struct samplv1_fla
 
 struct samplv1_pha
 {
-	samplv1_port2 wet;
-	samplv1_port2 rate;
-	samplv1_port2 feedb;
-	samplv1_port2 depth;
-	samplv1_port2 daft;
+	samplv1_port wet;
+	samplv1_port rate;
+	samplv1_port feedb;
+	samplv1_port depth;
+	samplv1_port daft;
 };
 
 
@@ -546,10 +546,10 @@ struct samplv1_pha
 
 struct samplv1_del
 {
-	samplv1_port2 wet;
-	samplv1_port2 delay;
-	samplv1_port2 feedb;
-	samplv1_port2 bpm;
+	samplv1_port wet;
+	samplv1_port delay;
+	samplv1_port feedb;
+	samplv1_port bpm;
 };
 
 
@@ -557,11 +557,11 @@ struct samplv1_del
 
 struct samplv1_rev
 {
-	samplv1_port2 wet;
-	samplv1_port2 room;
-	samplv1_port2 damp;
-	samplv1_port2 feedb;
-	samplv1_port2 width;
+	samplv1_port wet;
+	samplv1_port room;
+	samplv1_port damp;
+	samplv1_port feedb;
+	samplv1_port width;
 };
 
 // dynamic(compressor/limiter)
@@ -1956,11 +1956,6 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 
 	// post-processing
 	m_phasor.process(nframes);
-
-	m_dca1.volume.tick(nframes);
-	m_out1.width.tick(nframes);
-	m_out1.panning.tick(nframes);
-	m_out1.volume.tick(nframes);
 
 	m_wid1.process(nframes);
 	m_pan1.process(nframes);
