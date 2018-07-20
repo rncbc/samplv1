@@ -436,7 +436,7 @@ void samplv1widget_sample::mouseMoveEvent ( QMouseEvent *pMouseEvent )
 				const uint32_t iOffsetEnd   = (m_iDragOffsetEndX   * nframes) / w;
 				QToolTip::showText(
 					QCursor::pos(),
-					tr("Offset: %1 - %2")
+					tr("Offset start: %1, end: %2")
 						.arg(textFromValue(iOffsetStart))
 						.arg(textFromValue(iOffsetEnd)), this);
 			}
@@ -496,7 +496,7 @@ void samplv1widget_sample::mouseMoveEvent ( QMouseEvent *pMouseEvent )
 				const uint32_t iLoopEnd   = (m_iDragLoopEndX   * nframes) / w;
 				QToolTip::showText(
 					QCursor::pos(),
-					tr("Loop: %1 - %2")
+					tr("Loop start: %1, end: %2")
 						.arg(textFromValue(iLoopStart))
 						.arg(textFromValue(iLoopEnd)), this);
 			}
@@ -932,14 +932,14 @@ void samplv1widget_sample::updateToolTip (void)
 
 	if (m_bOffset && m_iOffsetStart < m_iOffsetEnd) {
 		if (!sToolTip.isEmpty()) sToolTip += '\n';
-		sToolTip += tr("Offset: %1 - %2")
+		sToolTip += tr("Offset start: %1, end: %2")
 			.arg(textFromValue(m_iOffsetStart))
 			.arg(textFromValue(m_iOffsetEnd));
 	}
 
 	if (m_bLoop && m_iLoopStart < m_iLoopEnd) {
 		if (!sToolTip.isEmpty()) sToolTip += '\n';
-		sToolTip += tr("Loop: %1 - %2")
+		sToolTip += tr("Loop start: %1, end: %2")
 			.arg(textFromValue(m_iLoopStart))
 			.arg(textFromValue(m_iLoopEnd));
 	}
