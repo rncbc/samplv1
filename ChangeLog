@@ -4,13 +4,13 @@ samplv1 - an old-school polyphonic sampler
 ChangeLog
 
 
-GIT HEAD
+0.9.2  2018-07-24  A Summer'18 release.
 
 - Frame-time display format option added to new offset,
-  loop-start and loop-end spin-boxes. (EXPERIMENTAL)
+  loop-start and loop-end spin-boxes.
 - Sample start point (offset) added as a brand new property
-  parameter. (EXPERIMENTAL)
-- Add LV2 UI Resize extension data support. (EXPERIMENTAL)
+  parameter.
+- Add LV2 UI Resize extension data support.
 - Process MIDI Controlllers even though the channel filter
   is on (DEF Channel is set anything but "Omni").
 - AppData/AppStream metadata is now settled under an all
