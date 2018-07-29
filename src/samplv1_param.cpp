@@ -51,7 +51,11 @@ struct ParamInfo {
 	{ "GEN1_SAMPLE",   PARAM_INT,    60.0f,   0.0f, 127.0f }, // GEN1 Sample
 	{ "GEN1_REVERSE",  PARAM_BOOL,    0.0f,   0.0f,   1.0f }, // GEN1 Reverse
 	{ "GEN1_OFFSET",   PARAM_BOOL,    0.0f,   0.0f,   1.0f }, // GEN1 Offset
+	{ "GEN1_OFFSET_1", PARAM_FLOAT,   0.0f,   0.0f,   1.0f }, // GEN1 Offset Start
+	{ "GEN1_OFFSET_2", PARAM_FLOAT,   0.0f,   0.0f,   1.0f }, // GEN1 Offset End
 	{ "GEN1_LOOP",     PARAM_BOOL,    0.0f,   0.0f,   1.0f }, // GEN1 Loop
+	{ "GEN1_LOOP_1",   PARAM_FLOAT,   0.0f,   0.0f,   1.0f }, // GEN1 Loop Start
+	{ "GEN1_LOOP_2",   PARAM_FLOAT,   0.0f,   0.0f,   1.0f }, // GEN1 Loop End
 	{ "GEN1_OCTAVE",   PARAM_FLOAT,   0.0f,  -4.0f,   4.0f }, // GEN1 Octave
 	{ "GEN1_TUNING",   PARAM_FLOAT,   0.0f,  -1.0f,   1.0f }, // GEN1 Tuning
 	{ "GEN1_GLIDE",    PARAM_FLOAT,   0.0f,   0.0f,   1.0f }, // GEN1 Glide
