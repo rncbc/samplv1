@@ -1,4 +1,4 @@
-// samplv1.cpp
+﻿// samplv1.cpp
 //
 /****************************************************************************
    Copyright (C) 2012-2018, rncbc aka Rui Nuno Capela. All rights reserved.
@@ -235,6 +235,29 @@ private:
 };
 
 
+// parameter port (scheduled/detached)
+
+class samplv1_port3 : public samplv1_port
+{
+public:
+
+	samplv1_port3(samplv1_sched *sched, samplv1::ParamIndex index)
+		: m_sched(sched), m_index(index) {}
+
+	void set_value(float value)
+	{
+		samplv1_port::set_value(value);
+
+		m_sched->schedule(m_index);
+	}
+
+private:
+
+	samplv1_sched      *m_sched;
+	samplv1::ParamIndex m_index;
+};
+
+
 // envelope
 
 struct samplv1_env
@@ -423,18 +446,101 @@ struct samplv1_aux
 
 // dco
 
-struct samplv1_gen
+class samplv1_gen : samplv1_sched
 {
-	samplv1_port sample;
-	samplv1_port reverse;
-	samplv1_port offset;
-	samplv1_port loop;
-	samplv1_port octave;
-	samplv1_port tuning;
-	samplv1_port glide;
-	samplv1_port envtime;
+public:
+
+	samplv1_gen(samplv1 *pSampl)
+		: samplv1_sched(pSampl, samplv1_sched::Controller),
+			offset_1(this, samplv1::GEN1_OFFSET_1),
+			offset_2(this, samplv1::GEN1_OFFSET_2),
+			loop_1(this, samplv1::GEN1_LOOP_1),
+			loop_2(this, samplv1::GEN1_LOOP_2) {}
+
+	samplv1_port  sample;
+	samplv1_port  reverse;
+	samplv1_port  offset;
+	samplv1_port3 offset_1;
+	samplv1_port3 offset_2;
+	samplv1_port  loop;
+	samplv1_port3 loop_1;
+	samplv1_port3 loop_2;
+	samplv1_port  octave;
+	samplv1_port  tuning;
+	samplv1_port  glide;
+	samplv1_port  envtime;
 
 	float sample0, envtime0;
+
+protected:
+
+	void process(int sid)
+	{
+		samplv1 *pSampl = samplv1_sched::instance();
+
+		switch (samplv1::ParamIndex(sid)) {
+		case samplv1::GEN1_OFFSET_1:
+			if (pSampl->isOffset()) {
+				const bool bLoop
+					= pSampl->isLoop();
+				const uint32_t iOffsetEnd
+					= pSampl->offsetEnd();
+				const uint32_t iOffsetLength
+					= (bLoop ? pSampl->loopStart() : iOffsetEnd);
+				const uint32_t iOffsetStart = uint32_t(
+					offset_1.value() * float(iOffsetLength));
+				pSampl->setOffsetRange(iOffsetStart, iOffsetEnd);
+			}
+			break;
+		case samplv1::GEN1_OFFSET_2:
+			if (pSampl->isOffset()) {
+				const bool bLoop
+					= pSampl->isLoop();
+				const uint32_t iOffsetStart
+					= pSampl->offsetStart();
+				const uint32_t iOffsetLength
+					= (bLoop ? pSampl->loopEnd() : iOffsetStart);
+				const uint32_t iSampleLength
+					= pSampl->sample()->length();
+				const uint32_t iOffsetEnd = iOffsetLength + uint32_t(
+					offset_2.value() * float(iSampleLength - iOffsetLength));
+				pSampl->setOffsetRange(iOffsetStart, iOffsetEnd);
+			}
+			break;
+		case samplv1::GEN1_LOOP_1:
+			if (pSampl->isLoop()) {
+				const bool bOffset
+					= pSampl->isOffset();
+				const uint32_t iLoopEnd
+					= pSampl->loopEnd();
+				const uint32_t iOffsetStart
+					= (bOffset ? pSampl->offsetStart() : 0);
+				const uint32_t iLoopStart = iOffsetStart + uint32_t(
+					loop_1.value() * float(iLoopEnd - iOffsetStart));
+				pSampl->setLoopRange(iLoopStart, iLoopEnd);
+			}
+			break;
+		case samplv1::GEN1_LOOP_2:
+			if (pSampl->isLoop()) {
+				const bool bOffset
+					= pSampl->isOffset();
+				const uint32_t iLoopStart
+					= pSampl->loopStart();
+				const uint32_t iSampleLength
+					= pSampl->sample()->length();
+				const uint32_t iOffsetStart
+					= (bOffset ? pSampl->offsetStart() : 0);
+				const uint32_t iOffsetEnd
+					= (bOffset ? pSampl->offsetEnd() : iSampleLength);
+				const uint32_t iLoopEnd = iOffsetStart + uint32_t(
+					loop_2.value() * float(iOffsetEnd - iLoopStart));
+				pSampl->setLoopRange(iLoopStart, iLoopEnd);
+			}
+			break;
+		default:
+			break;
+		}
+	}
 };
 
 
@@ -922,8 +1028,9 @@ samplv1_voice::samplv1_voice ( samplv1_impl *pImpl ) :
 // engine constructor
 
 samplv1_impl::samplv1_impl (
-	samplv1 *pSampl, uint16_t nchannels, float srate ) : gen1_sample(pSampl),
-		m_controls(pSampl), m_programs(pSampl), m_midi_in(pSampl), m_bpm(180.0f)
+	samplv1 *pSampl, uint16_t nchannels, float srate )
+		: gen1_sample(pSampl), m_controls(pSampl), m_programs(pSampl),
+			m_midi_in(pSampl), m_bpm(180.0f), m_gen1(pSampl)
 {
 	// null sample.
 	m_gen1.sample0 = 0.0f;
@@ -1210,7 +1317,11 @@ samplv1_port *samplv1_impl::paramPort ( samplv1::ParamIndex index )
 	case samplv1::GEN1_SAMPLE:    pParamPort = &m_gen1.sample;      break;
 	case samplv1::GEN1_REVERSE:   pParamPort = &m_gen1.reverse;     break;
 	case samplv1::GEN1_OFFSET:    pParamPort = &m_gen1.offset;      break;
+	case samplv1::GEN1_OFFSET_1:  pParamPort = &m_gen1.offset_1;    break;
+	case samplv1::GEN1_OFFSET_2:  pParamPort = &m_gen1.offset_2;    break;
 	case samplv1::GEN1_LOOP:      pParamPort = &m_gen1.loop;        break;
+	case samplv1::GEN1_LOOP_1:    pParamPort = &m_gen1.loop_1;      break;
+	case samplv1::GEN1_LOOP_2:    pParamPort = &m_gen1.loop_2;      break;
 	case samplv1::GEN1_OCTAVE:    pParamPort = &m_gen1.octave;      break;
 	case samplv1::GEN1_TUNING:    pParamPort = &m_gen1.tuning;      break;
 	case samplv1::GEN1_GLIDE:     pParamPort = &m_gen1.glide;       break;
@@ -1967,12 +2078,18 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 
 bool samplv1_impl::sampleOffsetTest (void)
 {
+	m_gen1.offset_1.tick(1);
+	m_gen1.offset_2.tick(1);
+
 	return gen1_sample.offset_test(*m_gen1.offset > 0.5f);
 }
 
 
 bool samplv1_impl::sampleLoopTest (void)
 {
+	m_gen1.loop_1.tick(1);
+	m_gen1.loop_2.tick(1);
+
 	return gen1_sample.loop_test(*m_gen1.loop > 0.5f);
 }
 
@@ -2219,15 +2336,10 @@ void samplv1::reset (void)
 }
 
 
-bool samplv1::sampleOffsetTest (void) const
+void samplv1::sampleOffsetLoopTest (void)
 {
-	return m_pImpl->sampleOffsetTest();
-}
-
-
-bool samplv1::sampleLoopTest (void) const
-{
-	return m_pImpl->sampleLoopTest();
+	if (m_pImpl->sampleOffsetTest() || m_pImpl->sampleLoopTest())
+		updateSample();
 }
 
 
