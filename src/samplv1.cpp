@@ -489,7 +489,8 @@ protected:
 					= (bLoop ? pSampl->loopStart() : iOffsetEnd);
 				const uint32_t iOffsetStart = uint32_t(
 					offset_1.value() * float(iOffsetLength));
-				pSampl->setOffsetRange(iOffsetStart, iOffsetEnd);
+				if (iOffsetStart < iOffsetEnd)
+					pSampl->setOffsetRange(iOffsetStart, iOffsetEnd);
 			}
 			break;
 		case samplv1::GEN1_OFFSET_2:
@@ -504,7 +505,8 @@ protected:
 					= pSampl->sample()->length();
 				const uint32_t iOffsetEnd = iOffsetLength + uint32_t(
 					offset_2.value() * float(iSampleLength - iOffsetLength));
-				pSampl->setOffsetRange(iOffsetStart, iOffsetEnd);
+				if (iOffsetStart < iOffsetEnd)
+					pSampl->setOffsetRange(iOffsetStart, iOffsetEnd);
 			}
 			break;
 		case samplv1::GEN1_LOOP_1:
@@ -517,7 +519,8 @@ protected:
 					= (bOffset ? pSampl->offsetStart() : 0);
 				const uint32_t iLoopStart = iOffsetStart + uint32_t(
 					loop_1.value() * float(iLoopEnd - iOffsetStart));
-				pSampl->setLoopRange(iLoopStart, iLoopEnd);
+				if (iLoopStart < iLoopEnd)
+					pSampl->setLoopRange(iLoopStart, iLoopEnd);
 			}
 			break;
 		case samplv1::GEN1_LOOP_2:
@@ -528,13 +531,12 @@ protected:
 					= pSampl->loopStart();
 				const uint32_t iSampleLength
 					= pSampl->sample()->length();
-				const uint32_t iOffsetStart
-					= (bOffset ? pSampl->offsetStart() : 0);
 				const uint32_t iOffsetEnd
 					= (bOffset ? pSampl->offsetEnd() : iSampleLength);
-				const uint32_t iLoopEnd = iOffsetStart + uint32_t(
+				const uint32_t iLoopEnd = iLoopStart + uint32_t(
 					loop_2.value() * float(iOffsetEnd - iLoopStart));
-				pSampl->setLoopRange(iLoopStart, iLoopEnd);
+				if (iLoopStart < iLoopEnd)
+					pSampl->setLoopRange(iLoopStart, iLoopEnd);
 			}
 			break;
 		default:
