@@ -4,6 +4,15 @@ samplv1 - an old-school polyphonic sampler
 ChangeLog
 
 
+GIT HEAD
+
+- Sample offset/loop start/end parameters automation is now a
+  possibility, on the LV2 plug-in form only. (EXPERIMENTAL)
+- Make NSM state independent to session display name, keeping
+  backward compatibility for old sessions. (EXPERIMENTAL)
+- Give some more slack to schedule/worker thread ring-buffer.
+
+
 0.9.2  2018-07-24  A Summer'18 release.
 
 - Frame-time display format option added to new offset,
