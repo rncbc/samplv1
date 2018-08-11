@@ -500,30 +500,24 @@ protected:
 		switch (samplv1::ParamIndex(sid)) {
 		case samplv1::GEN1_OFFSET_1:
 			if (pSampl->isOffset()) {
-				const bool bLoop
-					= pSampl->isLoop();
+				const uint32_t iSampleLength
+					= pSampl->sample()->length();
+				const uint32_t iOffsetStart = uint32_t(
+					offset_1.value() * float(iSampleLength));
 				const uint32_t iOffsetEnd
 					= pSampl->offsetEnd();
-				const uint32_t iOffsetLength
-					= (bLoop ? pSampl->loopStart() : iOffsetEnd);
-				const uint32_t iOffsetStart = uint32_t(
-					offset_1.value() * float(iOffsetLength));
 				if (iOffsetStart < iOffsetEnd)
 					pSampl->setOffsetRange(iOffsetStart, iOffsetEnd);
 			}
 			break;
 		case samplv1::GEN1_OFFSET_2:
 			if (pSampl->isOffset()) {
-				const bool bLoop
-					= pSampl->isLoop();
-				const uint32_t iOffsetStart
-					= pSampl->offsetStart();
-				const uint32_t iOffsetLength
-					= (bLoop ? pSampl->loopEnd() : iOffsetStart);
 				const uint32_t iSampleLength
 					= pSampl->sample()->length();
-				const uint32_t iOffsetEnd = iOffsetLength + uint32_t(
-					offset_2.value() * float(iSampleLength - iOffsetLength));
+				const uint32_t iOffsetStart
+					= pSampl->offsetStart();
+				const uint32_t iOffsetEnd = uint32_t(
+					offset_2.value() * float(iSampleLength));
 				if (iOffsetStart < iOffsetEnd)
 					pSampl->setOffsetRange(iOffsetStart, iOffsetEnd);
 			}
@@ -532,12 +526,15 @@ protected:
 			if (pSampl->isLoop()) {
 				const bool bOffset
 					= pSampl->isOffset();
+				const uint32_t iSampleLength
+					= pSampl->sample()->length();
+				const uint32_t iOffsetLength
+					= (bOffset ? pSampl->offsetEnd() : iSampleLength)
+					- (bOffset ? pSampl->offsetStart() : 0);
+				const uint32_t iLoopStart = uint32_t(
+					loop_1.value() * float(iOffsetLength));
 				const uint32_t iLoopEnd
 					= pSampl->loopEnd();
-				const uint32_t iOffsetStart
-					= (bOffset ? pSampl->offsetStart() : 0);
-				const uint32_t iLoopStart = iOffsetStart + uint32_t(
-					loop_1.value() * float(iLoopEnd - iOffsetStart));
 				if (iLoopStart < iLoopEnd)
 					pSampl->setLoopRange(iLoopStart, iLoopEnd);
 			}
@@ -546,14 +543,15 @@ protected:
 			if (pSampl->isLoop()) {
 				const bool bOffset
 					= pSampl->isOffset();
-				const uint32_t iLoopStart
-					= pSampl->loopStart();
 				const uint32_t iSampleLength
 					= pSampl->sample()->length();
-				const uint32_t iOffsetEnd
-					= (bOffset ? pSampl->offsetEnd() : iSampleLength);
-				const uint32_t iLoopEnd = iLoopStart + uint32_t(
-					loop_2.value() * float(iOffsetEnd - iLoopStart));
+				const uint32_t iOffsetLength
+					= (bOffset ? pSampl->offsetEnd() : iSampleLength)
+					- (bOffset ? pSampl->offsetStart() : 0);
+				const uint32_t iLoopStart
+					= pSampl->loopStart();
+				const uint32_t iLoopEnd = uint32_t(
+					loop_2.value() * float(iOffsetLength));
 				if (iLoopStart < iLoopEnd)
 					pSampl->setLoopRange(iLoopStart, iLoopEnd);
 			}
@@ -2120,24 +2118,19 @@ bool samplv1_impl::sampleLoopTest (void)
 
 void samplv1_impl::sampleOffsetSync (void)
 {
-	const bool bLoop
-		= gen1_sample.isLoop();
 	const uint32_t iOffsetStart
 		= gen1_sample.offsetStart();
 	const uint32_t iOffsetEnd
 		= gen1_sample.offsetEnd();
 	const uint32_t iSampleLength
 		= gen1_sample.length();
-	const uint32_t iOffsetLength1
-		= (bLoop ? gen1_sample.loopStart() : iOffsetEnd);
-	const uint32_t iOffsetLength2
-		= (bLoop ? gen1_sample.loopEnd() : iOffsetStart);
 
-	const float offset_1
-		= float(iOffsetStart) / float(iOffsetLength1);
-	const float offset_2
-		= float(iOffsetEnd - iOffsetLength2)
-		/ float(iSampleLength - iOffsetLength2);
+	const float offset_1 = (iSampleLength > 0
+		? float(iOffsetStart) / float(iSampleLength)
+		: 0.0f);
+	const float offset_2 = (iSampleLength > 0
+		? float(iOffsetEnd) / float(iSampleLength)
+		: 1.0f);
 
 	m_gen1.offset_1.set_value_sync(offset_1);
 	m_gen1.offset_2.set_value_sync(offset_2);
@@ -2148,21 +2141,21 @@ void samplv1_impl::sampleLoopSync (void)
 {
 	const bool bOffset
 		= gen1_sample.isOffset();
-	const uint32_t iOffsetStart
-		= (bOffset ? gen1_sample.offsetStart() : 0);
-	const uint32_t iOffsetEnd
-		= (bOffset ? gen1_sample.offsetEnd() : gen1_sample.length());
+	const uint32_t iOffsetLength
+		= (bOffset ? gen1_sample.offsetStart() : 0)
+		- (bOffset ? gen1_sample.offsetEnd() : gen1_sample.length());
+
 	const uint32_t iLoopStart
 		= gen1_sample.loopStart();
 	const uint32_t iLoopEnd
 		= gen1_sample.loopEnd();
 
-	const float loop_1
-		= float(iLoopStart - iOffsetStart)
-		/ float(iLoopEnd - iOffsetStart);
-	const float loop_2
-		= float(iLoopEnd - iLoopStart)
-		/ float(iOffsetEnd - iLoopStart);
+	const float loop_1 = (iOffsetLength > 0
+		? float(iLoopStart) / float(iOffsetLength)
+		: 0.0f);
+	const float loop_2 = (iOffsetLength > 0
+		? float(iLoopEnd) / float(iOffsetLength)
+		: 1.0f);
 
 	m_gen1.loop_1.set_value_sync(loop_1);
 	m_gen1.loop_2.set_value_sync(loop_2);
