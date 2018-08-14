@@ -116,6 +116,9 @@ class samplv1widget_jack;
 class samplv1_nsm;
 #endif
 
+#ifdef HAVE_SIGNAL_H
+class QSocketNotifier;
+#endif
 
 class samplv1_jack_application : public QObject
 {
@@ -145,6 +148,11 @@ protected slots:
 
 #endif	// CONFIG_NSM
 
+#ifdef HAVE_SIGNAL_H
+	// SIGTERM signal handler.
+	void sigterm_handler();
+#endif
+
 protected:
 
 	// Argument parser method.
@@ -165,6 +173,10 @@ private:
 
 #ifdef CONFIG_NSM
 	samplv1_nsm *m_pNsmClient;
+#endif
+
+#ifdef HAVE_SIGNAL_H
+	QSocketNotifier *m_pSigtermNotifier;
 #endif
 };
 
