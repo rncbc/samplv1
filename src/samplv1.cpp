@@ -2111,8 +2111,12 @@ bool samplv1_impl::sampleOffsetLoopTest (void)
 	m_gen1.loop_1.tick(1);
 	m_gen1.loop_2.tick(1);
 
-	return gen1_sample.offset_test(*m_gen1.offset > 0.5f)
-		|| gen1_sample.loop_test(*m_gen1.loop > 0.5f);
+	const bool bOffsetTest
+		= gen1_sample.offset_test(*m_gen1.offset > 0.5f);
+	const bool bLoopTest
+		= gen1_sample.loop_test(*m_gen1.loop > 0.5f);
+
+	return bOffsetTest || bLoopTest;
 }
 
 

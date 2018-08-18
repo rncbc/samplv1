@@ -904,10 +904,12 @@ static LV2_Worker_Status samplv1_lv2_worker_response (
 	LV2_Handle instance, uint32_t size, const void *data )
 {
 	samplv1_lv2 *pSampl = static_cast<samplv1_lv2 *> (instance);
-	if (pSampl && pSampl->worker_response(data, size))
+	if (pSampl) {
+		pSampl->worker_response(data, size);
 		return LV2_WORKER_SUCCESS;
-	else
-		return LV2_WORKER_ERR_UNKNOWN;
+	}
+
+	return LV2_WORKER_ERR_UNKNOWN;
 }
 
 

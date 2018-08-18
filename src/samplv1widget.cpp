@@ -1041,11 +1041,6 @@ void samplv1widget::updateSample ( samplv1_sample *pSample, bool bDirty )
 
 	++m_iUpdate;
 	if (pSample) {
-		m_ui.Gen1Sample->setOffsetStart(pSample->offsetStart());
-		m_ui.Gen1Sample->setOffsetEnd(pSample->offsetEnd());
-		m_ui.Gen1Sample->setLoop(pSample->isLoop());
-		m_ui.Gen1Sample->setLoopStart(pSample->loopStart());
-		m_ui.Gen1Sample->setLoopEnd(pSample->loopStart());
 		activateParamKnobs(pSample->filename() != NULL);
 		updateOffsetLoop(pSample);
 		// Set current preset name if empty...
@@ -1054,11 +1049,6 @@ void samplv1widget::updateSample ( samplv1_sample *pSample, bool bDirty )
 				QFileInfo(pSample->filename()).completeBaseName());
 		}
 	} else {
-		m_ui.Gen1Sample->setOffsetStart(0);
-		m_ui.Gen1Sample->setOffsetEnd(0);
-		m_ui.Gen1Sample->setLoop(false);
-		m_ui.Gen1Sample->setLoopStart(0);
-		m_ui.Gen1Sample->setLoopEnd(0);
 		activateParamKnobs(false);
 		updateOffsetLoop(NULL);
 	}
