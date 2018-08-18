@@ -242,15 +242,15 @@ class samplv1_port3 : public samplv1_port
 public:
 
 	samplv1_port3(samplv1_sched *sched, samplv1::ParamIndex index)
-		: m_sched(sched), m_index(index), m_vsync(0.0f), m_xsync(false) {}
+		: m_sched(sched), m_index(index), m_vsync(0.5f), m_xsync(false) {}
 
 	void set_value(float value)
 	{
 		if (!m_xsync) {
 			const float v0 = samplv1_port::value();
 			const float v1 = m_vsync;
-			const float d1 = (v1 - value);
-			const float d2 = (v1 - v0) * d1;
+			const float d1 = ::fabsf(v1 - value);
+			const float d2 = ::fabsf(v1 - v0) * d1;
 			m_xsync = (d2 < 0.001f);
 		}
 
