@@ -471,17 +471,19 @@ public:
 
 	samplv1_gen(samplv1 *pSampl)
 		: samplv1_sched(pSampl, samplv1_sched::Controller),
+			offset(this, samplv1::GEN1_OFFSET),
 			offset_1(this, samplv1::GEN1_OFFSET_1),
 			offset_2(this, samplv1::GEN1_OFFSET_2),
+			loop(this, samplv1::GEN1_LOOP),
 			loop_1(this, samplv1::GEN1_LOOP_1),
 			loop_2(this, samplv1::GEN1_LOOP_2) {}
 
 	samplv1_port  sample;
 	samplv1_port  reverse;
-	samplv1_port  offset;
+	samplv1_port3 offset;
 	samplv1_port3 offset_1;
 	samplv1_port3 offset_2;
-	samplv1_port  loop;
+	samplv1_port3 loop;
 	samplv1_port3 loop_1;
 	samplv1_port3 loop_2;
 	samplv1_port  octave;
@@ -498,6 +500,9 @@ protected:
 		samplv1 *pSampl = samplv1_sched::instance();
 
 		switch (samplv1::ParamIndex(sid)) {
+		case samplv1::GEN1_OFFSET:
+			pSampl->setOffset(offset.value() > 0.5f);
+			break;
 		case samplv1::GEN1_OFFSET_1:
 			if (pSampl->isOffset()) {
 				const uint32_t iSampleLength
@@ -521,6 +526,9 @@ protected:
 				if (iOffsetStart < iOffsetEnd)
 					pSampl->setOffsetRange(iOffsetStart, iOffsetEnd);
 			}
+			break;
+		case samplv1::GEN1_LOOP:
+			pSampl->setLoop(loop.value() > 0.5f);
 			break;
 		case samplv1::GEN1_LOOP_1:
 			if (pSampl->isLoop()) {
@@ -931,7 +939,7 @@ public:
 
 	void reset();
 
-	bool sampleOffsetLoopTest();
+	void sampleOffsetLoopTest();
 	void sampleOffsetLoopSync();
 
 	void midiInEnabled(bool on);
@@ -2103,20 +2111,15 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 }
 
 
-bool samplv1_impl::sampleOffsetLoopTest (void)
+void samplv1_impl::sampleOffsetLoopTest (void)
 {
+	m_gen1.offset.tick(1);
 	m_gen1.offset_1.tick(1);
 	m_gen1.offset_2.tick(1);
 
+	m_gen1.loop.tick(1);
 	m_gen1.loop_1.tick(1);
 	m_gen1.loop_2.tick(1);
-
-	const bool bOffsetTest
-		= gen1_sample.offset_test(*m_gen1.offset > 0.5f);
-	const bool bLoopTest
-		= gen1_sample.loop_test(*m_gen1.loop > 0.5f);
-
-	return bOffsetTest || bLoopTest;
 }
 
 
@@ -2133,6 +2136,8 @@ void samplv1_impl::sampleOffsetLoopSync (void)
 	const uint32_t iOffsetLength
 		= (iOffsetEnd - iOffsetStart);
 
+	m_gen1.offset.set_value_sync(bOffset ? 1.0f : 0.0f);
+
 	if (bOffset) {
 		const float offset_1 = (iSampleLength > 0
 			? float(iOffsetStart) / float(iSampleLength)
@@ -2144,7 +2149,12 @@ void samplv1_impl::sampleOffsetLoopSync (void)
 		m_gen1.offset_2.set_value_sync(offset_2);
 	}
 
-	if (gen1_sample.isLoop()) {
+	const bool bLoop
+		= gen1_sample.isLoop();
+
+	m_gen1.loop.set_value_sync(bLoop ? 1.0f : 0.0f);
+
+	if (bLoop) {
 		const uint32_t iLoopStart
 			= gen1_sample.loopStart();
 		const uint32_t iLoopEnd
@@ -2406,8 +2416,7 @@ void samplv1::reset (void)
 
 void samplv1::sampleOffsetLoopTest (void)
 {
-	if (m_pImpl->sampleOffsetLoopTest())
-		updateSample();
+	m_pImpl->sampleOffsetLoopTest();
 }
 
 
