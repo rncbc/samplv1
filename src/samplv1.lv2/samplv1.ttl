@@ -799,32 +799,47 @@ samplv1_lv2:GEN1_SAMPLE
 samplv1_lv2:GEN1_OFFSET_START
 	a lv2:Parameter ;
 	rdfs:label "GEN1 Offset Start" ;
-	rdfs:range lv2atom:Int .
+	rdfs:range lv2atom:Int ;
+	lv2:default 0 ;
+	lv2:minimum 0 ;
+	lv2:maximum 16777216 .
 
 samplv1_lv2:GEN1_OFFSET_END
 	a lv2:Parameter ;
 	rdfs:label "GEN1 Offset End" ;
-	rdfs:range lv2atom:Int .
+	rdfs:range lv2atom:Int ;
+	lv2:default 0 ;
+	lv2:minimum 0 ;
+	lv2:maximum 16777216 .
 
 samplv1_lv2:GEN1_LOOP_START
 	a lv2:Parameter ;
 	rdfs:label "GEN1 Loop Start" ;
-	rdfs:range lv2atom:Int .
+	rdfs:range lv2atom:Int ;
+	lv2:default 0 ;
+	lv2:minimum 0 ;
+	lv2:maximum 16777216 .
 
 samplv1_lv2:GEN1_LOOP_END
 	a lv2:Parameter ;
 	rdfs:label "GEN1 Loop End" ;
-	rdfs:range lv2atom:Int .
+	rdfs:range lv2atom:Int ;
+	lv2:default 0 ;
+	lv2:minimum 0 ;
+	lv2:maximum 16777216 .
 
 samplv1_lv2:GEN1_LOOP_FADE
 	a lv2:Parameter ;
 	rdfs:label "GEN1 Loop Crossfade" ;
-	rdfs:range lv2atom:Int .
+	rdfs:range lv2atom:Int ;
+	lv2:default 0 ;
+	lv2:minimum 0 ;
+	lv2:maximum 16384 .
 
 samplv1_lv2:GEN1_LOOP_ZERO
 	a lv2:Parameter ;
 	rdfs:label "GEN1 Loop Zero-crossing" ;
-	rdfs:range lv2atom:Int .
+	rdfs:range lv2atom:Bool .
 
 
 samplv1_lv2:101_GEN1

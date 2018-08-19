@@ -365,9 +365,9 @@ void samplv1_lv2::run ( uint32_t nframes )
 							&& type == m_urids.atom_Int) {
 							samplv1_sample *pSample = samplv1::sample();
 							if (pSample) {
-								const bool loop_zero
-									= *(uint32_t *) LV2_ATOM_BODY_CONST(value) > 0;
-								setLoopZero(loop_zero);
+								const uint32_t loop_zero
+									= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
+								setLoopZero(loop_zero > 0);
 							}
 						}
 					}
