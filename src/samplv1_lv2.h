@@ -110,6 +110,7 @@ private:
 		LV2_URID atom_Object;
 		LV2_URID atom_Float;
 		LV2_URID atom_Int;
+		LV2_URID atom_Bool;
 		LV2_URID atom_Path;
 		LV2_URID time_Position;
 		LV2_URID time_beatsPerMinute;
