@@ -2306,6 +2306,8 @@ uint32_t samplv1::loopEnd (void) const
 void samplv1::setLoopFade ( uint32_t iLoopFade )
 {
 	m_pImpl->gen1_sample.setLoopCrossFade(float(iLoopFade));
+
+	updateSample();
 }
 
 uint32_t samplv1::loopFade (void) const
@@ -2317,6 +2319,8 @@ uint32_t samplv1::loopFade (void) const
 void samplv1::setLoopZero ( bool bLoopZero )
 {
 	m_pImpl->gen1_sample.setLoopZeroCrossing(bLoopZero);
+
+	updateSample();
 }
 
 bool samplv1::isLoopZero (void) const
