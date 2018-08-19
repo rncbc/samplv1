@@ -710,8 +710,11 @@ void samplv1_lv2::updateSample (void)
 }
 
 
-bool samplv1_lv2::worker_work ( const void *data, uint32_t /*size*/ )
+bool samplv1_lv2::worker_work ( const void *data, uint32_t size )
 {
+	if (size != sizeof(samplv1_lv2_worker_message))
+		return false;
+
 	const samplv1_lv2_worker_message *mesg
 		= (const samplv1_lv2_worker_message *) data;
 
@@ -730,8 +733,11 @@ bool samplv1_lv2::worker_work ( const void *data, uint32_t /*size*/ )
 }
 
 
-bool samplv1_lv2::worker_response ( const void *data, uint32_t /*size*/ )
+bool samplv1_lv2::worker_response ( const void *data, uint32_t size )
 {
+	if (size != sizeof(samplv1_lv2_worker_message))
+		return false;
+
 	const samplv1_lv2_worker_message *mesg
 		= (const samplv1_lv2_worker_message *) data;
 	if (mesg->atom.type == m_urids.state_StateChanged)
@@ -904,12 +910,10 @@ static LV2_Worker_Status samplv1_lv2_worker_response (
 	LV2_Handle instance, uint32_t size, const void *data )
 {
 	samplv1_lv2 *pSampl = static_cast<samplv1_lv2 *> (instance);
-	if (pSampl) {
-		pSampl->worker_response(data, size);
+	if (pSampl && pSampl->worker_response(data, size))
 		return LV2_WORKER_SUCCESS;
-	}
-
-	return LV2_WORKER_ERR_UNKNOWN;
+	else
+		return LV2_WORKER_ERR_UNKNOWN;
 }
 
 
