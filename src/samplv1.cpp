@@ -471,6 +471,7 @@ public:
 
 	samplv1_gen(samplv1 *pSampl)
 		: samplv1_sched(pSampl, samplv1_sched::Controller),
+			reverse(this, samplv1::GEN1_REVERSE),
 			offset(this, samplv1::GEN1_OFFSET),
 			offset_1(this, samplv1::GEN1_OFFSET_1),
 			offset_2(this, samplv1::GEN1_OFFSET_2),
@@ -479,7 +480,7 @@ public:
 			loop_2(this, samplv1::GEN1_LOOP_2) {}
 
 	samplv1_port  sample;
-	samplv1_port  reverse;
+	samplv1_port3 reverse;
 	samplv1_port3 offset;
 	samplv1_port3 offset_1;
 	samplv1_port3 offset_2;
@@ -500,6 +501,9 @@ protected:
 		samplv1 *pSampl = samplv1_sched::instance();
 
 		switch (samplv1::ParamIndex(sid)) {
+		case samplv1::GEN1_REVERSE:
+			pSampl->setReverse(reverse.value() > 0.5f);
+			break;
 		case samplv1::GEN1_OFFSET:
 			pSampl->setOffset(offset.value() > 0.5f);
 			break;
@@ -939,6 +943,9 @@ public:
 
 	void reset();
 
+	void sampleReverseTest();
+	void sampleReverseSync();
+
 	void sampleOffsetLoopTest();
 	void sampleOffsetLoopSync();
 
@@ -1064,7 +1071,7 @@ samplv1_voice::samplv1_voice ( samplv1_impl *pImpl ) :
 
 samplv1_impl::samplv1_impl (
 	samplv1 *pSampl, uint16_t nchannels, float srate )
-		: gen1_sample(pSampl), m_controls(pSampl), m_programs(pSampl),
+		: gen1_sample(srate), m_controls(pSampl), m_programs(pSampl),
 			m_midi_in(pSampl), m_bpm(180.0f), m_gen1(pSampl)
 {
 	// null sample.
@@ -1912,7 +1919,6 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 		updateEnvTimes();
 	}
 
-	gen1_sample.reverse_test(*m_gen1.reverse > 0.5f);
 	lfo1_wave.reset_test(
 		samplv1_wave::Shape(*m_lfo1.shape), *m_lfo1.width);
 
@@ -2111,6 +2117,22 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 }
 
 
+void samplv1_impl::sampleReverseTest (void)
+{
+	m_gen1.reverse.tick(1);
+}
+
+
+void samplv1_impl::sampleReverseSync (void)
+{
+	const bool bReverse
+		= gen1_sample.isReverse();
+
+	m_gen1.reverse.set_value_sync(bReverse ? 1.0f : 0.0f);
+}
+
+
+
 void samplv1_impl::sampleOffsetLoopTest (void)
 {
 	m_gen1.offset.tick(1);
@@ -2234,6 +2256,9 @@ samplv1_sample *samplv1::sample (void) const
 void samplv1::setReverse ( bool bReverse )
 {
 	m_pImpl->gen1_sample.setReverse(bReverse);
+	m_pImpl->sampleReverseSync();
+
+	updateSample();
 }
 
 bool samplv1::isReverse (void) const
@@ -2391,6 +2416,8 @@ void samplv1::process_midi ( uint8_t *data, uint32_t size )
 void samplv1::process ( float **ins, float **outs, uint32_t nframes )
 {
 	m_pImpl->process(ins, outs, nframes);
+
+	m_pImpl->sampleReverseTest();
 }
 
 

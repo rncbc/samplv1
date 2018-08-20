@@ -391,7 +391,7 @@ void samplv1_lv2::run ( uint32_t nframes )
 	if (nframes > ndelta)
 		samplv1::process(ins, outs, nframes - ndelta);
 
-	// test for current sample offset/loop changes
+	// test for sample offset/loop changes
 	samplv1::sampleOffsetLoopTest();
 }
 

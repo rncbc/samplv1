@@ -27,37 +27,11 @@
 
 
 //-------------------------------------------------------------------------
-// samplv1_reverse_sched - local module schedule thread stuff.
-//
-
-#include "samplv1_sched.h"
-
-
-class samplv1_reverse_sched : public samplv1_sched
-{
-public:
-
-	// ctor.
-	samplv1_reverse_sched (samplv1 *pSampl, samplv1_sample *sample)
-		: samplv1_sched(pSampl, Sample), m_sample(sample) {}
-
-	// process reverse (virtual).
-	void process(int)
-		{ m_sample->reverse_sync(); }
-
-private:
-
-	// instance variables.
-	samplv1_sample *m_sample;
-};
-
-
-//-------------------------------------------------------------------------
 // samplv1_sample - sampler wave table.
 //
 
 // ctor.
-samplv1_sample::samplv1_sample ( samplv1 *pSampl, float srate )
+samplv1_sample::samplv1_sample ( float srate )
 	: m_srate(srate), m_filename(NULL), m_nchannels(0),
 		m_rate0(0.0f), m_freq0(1.0f), m_ratio(0.0f),
 		m_nframes(0), m_pframes(NULL), m_reverse(false),
@@ -67,7 +41,6 @@ samplv1_sample::samplv1_sample ( samplv1 *pSampl, float srate )
 		m_loop_phase1(0.0f), m_loop_phase2(0.0f),
 		m_loop_xfade(0), m_loop_xzero(true)
 {
-	m_reverse_sched = new samplv1_reverse_sched(pSampl, this);
 }
 
 
@@ -75,8 +48,6 @@ samplv1_sample::samplv1_sample ( samplv1 *pSampl, float srate )
 samplv1_sample::~samplv1_sample (void)
 {
 	close();
-
-	delete m_reverse_sched;
 }
 
 
@@ -183,13 +154,6 @@ void samplv1_sample::close (void)
 	}
 
 	setLoopRange(0, 0);
-}
-
-
-// schedule sample reverse.
-void samplv1_sample::reverse_sched (void)
-{
-	m_reverse_sched->schedule();
 }
 
 

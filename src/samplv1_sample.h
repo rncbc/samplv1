@@ -30,7 +30,6 @@
 
 // forward decls.
 class samplv1;
-class samplv1_reverse_sched;
 
 
 //-------------------------------------------------------------------------
@@ -42,7 +41,7 @@ class samplv1_sample
 public:
 
 	// ctor.
-	samplv1_sample(samplv1 *pSampl, float srate = 44100.0f);
+	samplv1_sample(float srate = 44100.0f);
 
 	// dtor.
 	~samplv1_sample();
@@ -55,24 +54,16 @@ public:
 
 	// reverse mode.
 	void setReverse(bool reverse)
-		{ reverse_test(reverse); }
-
-	bool isReverse() const
-		{ return m_reverse; }
-
-	// schedule sample reverse.
-	void reverse_test(bool reverse)
 	{
 		if (( m_reverse && !reverse) ||
 			(!m_reverse &&  reverse)) {
 			m_reverse = reverse;
-			reverse_sched();
+			reverse_sync();
 		}
 	}
 
-	// reverse sample buffer.
-	void reverse_sched();
-	void reverse_sync();
+	bool isReverse() const
+		{ return m_reverse; }
 
 	// offset mode.
 	void setOffset(bool offset)
@@ -90,17 +81,6 @@ public:
 
 	bool isOffset() const
 		{ return m_offset && (m_offset_start < m_offset_end); }
-
-	// offset change.
-	bool offset_test(bool offset)
-	{
-		if ((m_offset && !offset) || (!m_offset && offset)) {
-			setOffset(offset);
-			return true;
-		} else {
-			return false;
-		}
-	}
 
 	// offset range.
 	void setOffsetRange(uint32_t start, uint32_t end);
@@ -127,17 +107,6 @@ public:
 
 	bool isLoop() const
 		{ return m_loop && (m_loop_start < m_loop_end); }
-
-	// loop change.
-	bool loop_test(bool loop)
-	{
-		if ((m_loop && !loop) || (!m_loop && loop)) {
-			setLoop(loop);
-			return true;
-		} else {
-			return false;
-		}
-	}
 
 	// loop range.
 	void setLoopRange(uint32_t start, uint32_t end);
@@ -201,6 +170,9 @@ public:
 
 protected:
 
+	// reverse sample buffer.
+	void reverse_sync();
+
 	// zero-crossing aliasing .
 	uint32_t zero_crossing_k(uint32_t i, uint16_t k, int *slope) const;
 	uint32_t zero_crossing(uint32_t i, int *slope) const;
@@ -231,8 +203,6 @@ private:
 	float    m_loop_phase2;
 	uint32_t m_loop_xfade;
 	bool     m_loop_xzero;
-
-	samplv1_reverse_sched *m_reverse_sched;
 };
 
 
