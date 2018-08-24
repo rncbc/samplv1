@@ -678,14 +678,13 @@ samplv1widget_param *samplv1widget::paramKnob ( samplv1::ParamIndex index ) cons
 
 
 // Param port accessors.
-void samplv1widget::setParamValue (
-	samplv1::ParamIndex index, float fValue, bool bDefault )
+void samplv1widget::setParamValue ( samplv1::ParamIndex index, float fValue )
 {
 	++m_iUpdate;
 
 	samplv1widget_param *pParam = paramKnob(index);
 	if (pParam)
-		pParam->setValue(fValue, bDefault);
+		pParam->setValue(fValue);
 
 	updateParamEx(index, fValue);
 
@@ -776,7 +775,7 @@ void samplv1widget::updateSchedParam ( samplv1::ParamIndex index, float fValue )
 
 	samplv1widget_param *pParam = paramKnob(index);
 	if (pParam) {
-		pParam->setValue(fValue, false);
+		pParam->setValue(fValue);
 		updateParam(index, fValue);
 		updateParamEx(index, fValue);
 		m_ui.StatusBar->showMessage(QString("%1: %2")
@@ -867,7 +866,7 @@ void samplv1widget::updateParamValues (void)
 		const float fValue = (pSamplUi
 			? pSamplUi->paramValue(index)
 			: samplv1_param::paramDefaultValue(index));
-		setParamValue(index, fValue, true);
+		setParamValue(index, fValue);
 		updateParam(index, fValue);
 	//	updateParamEx(index, fValue);
 		m_params_ab[i] = fValue;
@@ -883,7 +882,7 @@ void samplv1widget::resetParamValues (void)
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
 		const samplv1::ParamIndex index = samplv1::ParamIndex(i);
 		const float fValue = samplv1_param::paramDefaultValue(index);
-		setParamValue(index, fValue, true);
+		setParamValue(index, fValue);
 		updateParam(index, fValue);
 	//	updateParamEx(index, fValue);
 		m_params_ab[i] = fValue;
@@ -1394,6 +1393,7 @@ void samplv1widget::updateLoadPreset ( const QString& sPreset )
 	if (pSamplUi)
 		updateSample(pSamplUi->sample());
 
+	resetParamKnobs();
 	updateParamValues();
 
 	m_ui.Preset->setPreset(sPreset);
@@ -1444,6 +1444,7 @@ void samplv1widget::updateSchedNotify ( int stype, int sid )
 		updateSample(pSamplUi->sample());
 		if (sid > 0) {
 			updateParamValues();
+			resetParamKnobs();
 			updateDirtyPreset(false);
 		}
 		// Fall thru...

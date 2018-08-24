@@ -45,9 +45,6 @@ samplv1widget_lv2::samplv1widget_lv2 ( samplv1_lv2 *pSampl,
 	m_bIdleClosed = false;
 #endif
 
-	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i)
-		m_params_def[i] = true;
-
 	// May initialize the scheduler/work notifier.
 	openSchedNotifier();
 
@@ -127,8 +124,7 @@ void samplv1widget_lv2::port_event ( uint32_t port_index,
 		const samplv1::ParamIndex index
 			= samplv1::ParamIndex(port_index - samplv1_lv2::ParamBase);
 		const float fValue = *(float *) buffer;
-		setParamValue(index, fValue, m_params_def[index]);
-		m_params_def[index] = false;
+		setParamValue(index, fValue);
 	}
 }
 

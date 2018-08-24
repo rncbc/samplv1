@@ -60,8 +60,7 @@ public:
 	void closeSchedNotifier();
 
 	// Param port accessors.
-	void setParamValue(
-		samplv1::ParamIndex index, float fValue, bool bDefault = false);
+	void setParamValue(samplv1::ParamIndex index, float fValue);
 	float paramValue(samplv1::ParamIndex index) const;
 
 	// Param kbob (widget) mapper.

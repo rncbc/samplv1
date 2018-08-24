@@ -79,7 +79,9 @@ samplv1widget_jack::samplv1widget_jack ( samplv1_jack *pSampl )
 	// Initialize preset stuff...
 	// initPreset();
 	updateSample(m_pSamplUi->sample());
-	updateParamValues();
+
+	resetParamKnobs();
+	resetParamValues();
 }
 
 
