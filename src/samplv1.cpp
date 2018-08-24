@@ -502,7 +502,7 @@ protected:
 
 		switch (samplv1::ParamIndex(sid)) {
 		case samplv1::GEN1_REVERSE:
-			pSampl->setReverse(reverse.value() > 0.5f);
+			pSampl->setReverseSync(reverse.value() > 0.5f);
 			break;
 		case samplv1::GEN1_OFFSET:
 			pSampl->setOffset(offset.value() > 0.5f);
@@ -2254,6 +2254,11 @@ samplv1_sample *samplv1::sample (void) const
 
 
 void samplv1::setReverse ( bool bReverse )
+{
+	m_pImpl->gen1_sample.setReverse(bReverse);
+}
+
+void samplv1::setReverseSync ( bool bReverse )
 {
 	m_pImpl->gen1_sample.setReverse(bReverse);
 	m_pImpl->sampleReverseSync();

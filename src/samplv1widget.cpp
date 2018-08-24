@@ -737,14 +737,12 @@ void samplv1widget::updateParamEx ( samplv1::ParamIndex index, float fValue )
 	++m_iUpdate;
 
 	switch (index) {
-#if 1//--updateSchedNotify(samplv1_sched::Sample, 0);
 	case samplv1::GEN1_REVERSE: {
 		const bool bReverse = bool(fValue > 0.0f);
 		pSamplUi->setReverse(bReverse);
 		updateSample(pSamplUi->sample());
 		break;
 	}
-#endif
 	case samplv1::GEN1_OFFSET: {
 		const bool bOffset = bool(fValue > 0.0f);
 		pSamplUi->setOffset(bOffset);
