@@ -88,6 +88,7 @@ samplv1_lv2::samplv1_lv2 (
 		if (::strcmp(host_feature->URI, LV2_URID_MAP_URI) == 0) {
 			m_urid_map = (LV2_URID_Map *) host_feature->data;
 			if (m_urid_map) {
+			#if 1//SAMPLV1_LV2_LEGACY
 				m_urids.gen1_sample = m_urid_map->map(
 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_SAMPLE");
 				m_urids.gen1_offset_start = m_urid_map->map(
@@ -102,6 +103,21 @@ samplv1_lv2::samplv1_lv2 (
 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_LOOP_FADE");
 				m_urids.gen1_loop_zero = m_urid_map->map(
 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_LOOP_ZERO");
+			#endif
+				m_urids.p101_sample_file = m_urid_map->map(
+					m_urid_map->handle, SAMPLV1_LV2_PREFIX "P101_SAMPLE_FILE");
+				m_urids.p102_offset_start = m_urid_map->map(
+					m_urid_map->handle, SAMPLV1_LV2_PREFIX "P102_OFFSET_START");
+				m_urids.p103_offset_end = m_urid_map->map(
+					m_urid_map->handle, SAMPLV1_LV2_PREFIX "P103_OFFSET_END");
+				m_urids.p104_loop_start = m_urid_map->map(
+					m_urid_map->handle, SAMPLV1_LV2_PREFIX "P104_LOOP_START");
+				m_urids.p105_loop_end = m_urid_map->map(
+					m_urid_map->handle, SAMPLV1_LV2_PREFIX "P105_LOOP_END");
+				m_urids.p106_loop_fade = m_urid_map->map(
+					m_urid_map->handle, SAMPLV1_LV2_PREFIX "P106_LOOP_FADE");
+				m_urids.p107_loop_zero = m_urid_map->map(
+					m_urid_map->handle, SAMPLV1_LV2_PREFIX "P107_LOOP_ZERO");
 				m_urids.gen1_update = m_urid_map->map(
 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_UPDATE");
 				m_urids.atom_Blank = m_urid_map->map(
@@ -290,7 +306,8 @@ void samplv1_lv2::run ( uint32_t nframes )
 					if (property && value && property->type == m_forge.URID) {
 						const uint32_t key = ((const LV2_Atom_URID *) property)->body;
 						const LV2_URID type = value->type;
-						if (key == m_urids.gen1_sample
+						if ((key == m_urids.p101_sample_file ||
+							 key == m_urids.gen1_sample)
 							&& type == m_urids.atom_Path) {
 							if (m_schedule) {
 								samplv1_lv2_worker_message mesg;
@@ -304,7 +321,8 @@ void samplv1_lv2::run ( uint32_t nframes )
 							}
 						}
 						else
-						if (key == m_urids.gen1_offset_start
+						if ((key == m_urids.p102_offset_start ||
+							 key == m_urids.gen1_offset_start)
 							&& type == m_urids.atom_Int) {
 							samplv1_sample *pSample = samplv1::sample();
 							if (pSample) {
@@ -316,7 +334,8 @@ void samplv1_lv2::run ( uint32_t nframes )
 							}
 						}
 						else
-						if (key == m_urids.gen1_offset_end
+						if ((key == m_urids.p103_offset_end ||
+							 key == m_urids.gen1_offset_end)
 							&& type == m_urids.atom_Int) {
 							samplv1_sample *pSample = samplv1::sample();
 							if (pSample) {
@@ -328,7 +347,8 @@ void samplv1_lv2::run ( uint32_t nframes )
 							}
 						}
 						else
-						if (key == m_urids.gen1_loop_start
+						if ((key == m_urids.p104_loop_start ||
+							 key == m_urids.gen1_loop_start)
 							&& type == m_urids.atom_Int) {
 							samplv1_sample *pSample = samplv1::sample();
 							if (pSample) {
@@ -340,7 +360,8 @@ void samplv1_lv2::run ( uint32_t nframes )
 							}
 						}
 						else
-						if (key == m_urids.gen1_loop_end
+						if ((key == m_urids.p105_loop_end ||
+							 key == m_urids.gen1_loop_end)
 							&& type == m_urids.atom_Int) {
 							samplv1_sample *pSample = samplv1::sample();
 							if (pSample) {
@@ -352,7 +373,8 @@ void samplv1_lv2::run ( uint32_t nframes )
 							}
 						}
 						else
-						if (key == m_urids.gen1_loop_fade
+						if ((key == m_urids.p106_loop_fade ||
+							 key == m_urids.gen1_loop_fade)
 							&& type == m_urids.atom_Int) {
 							samplv1_sample *pSample = samplv1::sample();
 							if (pSample) {
@@ -362,7 +384,8 @@ void samplv1_lv2::run ( uint32_t nframes )
 							}
 						}
 						else
-						if (key == m_urids.gen1_loop_zero
+						if ((key == m_urids.p107_loop_zero ||
+							 key == m_urids.gen1_loop_zero)
 							&& (type == m_urids.atom_Int ||
 								type == m_urids.atom_Bool)) {
 							samplv1_sample *pSample = samplv1::sample();
@@ -433,7 +456,7 @@ static LV2_State_Status samplv1_lv2_state_save ( LV2_Handle instance,
 		}
 	}
 
-	uint32_t key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_SAMPLE");
+	uint32_t key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P101_SAMPLE");
 	if (key == 0)
 		return LV2_STATE_ERR_NO_PROPERTY;
 
@@ -472,11 +495,11 @@ static LV2_State_Status samplv1_lv2_state_save ( LV2_Handle instance,
 		uint32_t offset_end   = pPlugin->offsetEnd();
 		if (offset_start < offset_end) {
 			value = (const char *) &offset_start;
-			key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_OFFSET_START");
+			key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P102_OFFSET_START");
 			if (key)
 				(*store)(handle, key, value, size, type, flags);
 			value = (const char *) &offset_end;
-			key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_OFFSET_END");
+			key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P103_OFFSET_END");
 			if (key)
 				(*store)(handle, key, value, size, type, flags);
 		}
@@ -485,17 +508,17 @@ static LV2_State_Status samplv1_lv2_state_save ( LV2_Handle instance,
 		uint32_t loop_end   = pPlugin->loopEnd();
 		if (loop_start < loop_end) {
 			value = (const char *) &loop_start;
-			key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_START");
+			key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P104_LOOP_START");
 			if (key)
 				(*store)(handle, key, value, size, type, flags);
 			value = (const char *) &loop_end;
-			key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_END");
+			key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P105_LOOP_END");
 			if (key)
 				(*store)(handle, key, value, size, type, flags);
 		}
 		uint32_t loop_fade = pPlugin->loopFade();
 		value = (const char *) &loop_fade;
-		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_FADE");
+		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P106_LOOP_FADE");
 		if (key)
 			(*store)(handle, key, value, size, type, flags);
 	}
@@ -504,7 +527,7 @@ static LV2_State_Status samplv1_lv2_state_save ( LV2_Handle instance,
 	if (type) {
 		uint32_t loop_zero = pPlugin->isLoopZero() ? 1 : 0;
 		value = (const char *) &loop_zero;
-		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_ZERO");
+		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P107_LOOP_ZERO");
 		if (key)
 			(*store)(handle, key, value, size, type, flags);
 	}
@@ -529,7 +552,11 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 		}
 	}
 
-	uint32_t key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_SAMPLE");
+	uint32_t key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P101_SAMPLE_FILE");
+#if 1//SAMPLV1_LV2_LEGACY
+	if (key == 0)
+		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_SAMPLE");
+#endif
 	if (key == 0)
 		return LV2_STATE_ERR_NO_PROPERTY;
 
@@ -578,51 +605,111 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 
 	const uint32_t int_type = pPlugin->urid_map(LV2_ATOM__Int);
 	if (int_type) {
-		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_OFFSET_START");
+		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P102_OFFSET_START");
 		if (key) {
 			size = 0;
 			type = 0;
 			value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
 			if (value && size == sizeof(uint32_t) && type == int_type)
 				offset_start = *(uint32_t *) value;
+		#if 1//SAMPLV1_LV2_LEGACY
+			else {
+				key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_OFFSET_START");
+				if (key) {
+					size = 0;
+					type = 0;
+					value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
+					if (value && size == sizeof(uint32_t) && type == int_type)
+						offset_start = *(uint32_t *) value;
+				}
+			}
+		#endif
 		}
-		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_OFFSET_END");
+		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P103_OFFSET_END");
 		if (key) {
 			size = 0;
 			type = 0;
 			value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
 			if (value && size == sizeof(uint32_t) && type == int_type)
 				offset_end = *(uint32_t *) value;
+		#if 1//SAMPLV1_LV2_LEGACY
+			else {
+				key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_OFFSET_END");
+				if (key) {
+					size = 0;
+					type = 0;
+					value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
+					if (value && size == sizeof(uint32_t) && type == int_type)
+						offset_end = *(uint32_t *) value;
+				}
+			}
+		#endif
 		}
-		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_START");
+		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P104_LOOP_START");
 		if (key) {
 			size = 0;
 			type = 0;
 			value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
 			if (value && size == sizeof(uint32_t) && type == int_type)
 				loop_start = *(uint32_t *) value;
+		#if 1//SAMPLV1_LV2_LEGACY
+			else {
+				key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_START");
+				if (key) {
+					size = 0;
+					type = 0;
+					value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
+					if (value && size == sizeof(uint32_t) && type == int_type)
+						loop_start = *(uint32_t *) value;
+				}
+			}
+		#endif
 		}
-		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_END");
+		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P105_LOOP_END");
 		if (key) {
 			size = 0;
 			type = 0;
 			value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
 			if (value && size == sizeof(uint32_t) && type == int_type)
 				loop_end = *(uint32_t *) value;
+		#if 1//SAMPLV1_LV2_LEGACY
+			else {
+				key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_END");
+				if (key) {
+					size = 0;
+					type = 0;
+					value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
+					if (value && size == sizeof(uint32_t) && type == int_type)
+						loop_end = *(uint32_t *) value;
+				}
+			}
+		#endif
 		}
-		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_FADE");
+		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P106_LOOP_FADE");
 		if (key) {
 			size = 0;
 			type = 0;
 			value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
 			if (value && size == sizeof(uint32_t) && type == int_type)
 				loop_fade = *(uint32_t *) value;
+		#if 1//SAMPLV1_LV2_LEGACY
+			else {
+				key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_FADE");
+				if (key) {
+					size = 0;
+					type = 0;
+					value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
+					if (value && size == sizeof(uint32_t) && type == int_type)
+						loop_fade = *(uint32_t *) value;
+				}
+			}
+		#endif
 		}
 	}
 
 	const uint32_t bool_type = pPlugin->urid_map(LV2_ATOM__Bool);
 	if (int_type || bool_type) {
-		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_ZERO");
+		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P107_LOOP_ZERO");
 		if (key) {
 			size = 0;
 			type = 0;
@@ -630,6 +717,19 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 			if (value && size == sizeof(uint32_t)
 				&& (type == int_type || type == bool_type))
 				loop_zero = *(uint32_t *) value;
+		#if 1//SAMPLV1_LV2_LEGACY
+			else {
+				key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_ZERO");
+				if (key) {
+					size = 0;
+					type = 0;
+					value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
+					if (value && size == sizeof(uint32_t)
+						&& (type == int_type || type == bool_type))
+						loop_zero = *(uint32_t *) value;
+				}
+			}
+		#endif
 		}
 	}
 
@@ -735,7 +835,8 @@ bool samplv1_lv2::worker_work ( const void *data, uint32_t size )
 	if (mesg->atom.type == m_urids.gen1_update)
 		return true;
 	else
-	if (mesg->atom.type == m_urids.gen1_sample) {
+	if (mesg->atom.type == m_urids.p101_sample_file ||
+		mesg->atom.type == m_urids.gen1_sample) {
 		samplv1::setSampleFile(mesg->sample_path);
 		return true;
 	}
@@ -797,19 +898,19 @@ bool samplv1_lv2::patch_put ( uint32_t ndelta )
 
 	LV2_Atom_Forge_Frame body_frame;
 	lv2_atom_forge_object(&m_forge, &body_frame, 0, 0);
-	lv2_atom_forge_key(&m_forge, m_urids.gen1_sample);
+	lv2_atom_forge_key(&m_forge, m_urids.p101_sample_file);
 	lv2_atom_forge_path(&m_forge, pszSampleFile, ::strlen(pszSampleFile) + 1);
-	lv2_atom_forge_key(&m_forge, m_urids.gen1_offset_start);
+	lv2_atom_forge_key(&m_forge, m_urids.p102_offset_start);
 	lv2_atom_forge_int(&m_forge, pSample->offsetStart());
-	lv2_atom_forge_key(&m_forge, m_urids.gen1_offset_end);
+	lv2_atom_forge_key(&m_forge, m_urids.p103_offset_end);
 	lv2_atom_forge_int(&m_forge, pSample->offsetEnd());
-	lv2_atom_forge_key(&m_forge, m_urids.gen1_loop_start);
+	lv2_atom_forge_key(&m_forge, m_urids.p104_loop_start);
 	lv2_atom_forge_int(&m_forge, pSample->loopStart());
-	lv2_atom_forge_key(&m_forge, m_urids.gen1_loop_end);
+	lv2_atom_forge_key(&m_forge, m_urids.p105_loop_end);
 	lv2_atom_forge_int(&m_forge, pSample->loopEnd());
-	lv2_atom_forge_key(&m_forge, m_urids.gen1_loop_fade);
+	lv2_atom_forge_key(&m_forge, m_urids.p106_loop_fade);
 	lv2_atom_forge_int(&m_forge, pSample->loopCrossFade());
-	lv2_atom_forge_key(&m_forge, m_urids.gen1_loop_zero);
+	lv2_atom_forge_key(&m_forge, m_urids.p107_loop_zero);
 	lv2_atom_forge_bool(&m_forge, pSample->isLoopZeroCrossing());
 
 	lv2_atom_forge_pop(&m_forge, &body_frame);

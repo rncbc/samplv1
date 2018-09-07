@@ -98,6 +98,7 @@ private:
 
 	struct lv2_urids
 	{
+	#if 1//SAMPLV1_LV2_LEGACY
 		LV2_URID gen1_sample;
 		LV2_URID gen1_offset_start;
 		LV2_URID gen1_offset_end;
@@ -105,6 +106,14 @@ private:
 		LV2_URID gen1_loop_end;
 		LV2_URID gen1_loop_fade;
 		LV2_URID gen1_loop_zero;
+	#endif
+		LV2_URID p101_sample_file;
+		LV2_URID p102_offset_start;
+		LV2_URID p103_offset_end;
+		LV2_URID p104_loop_start;
+		LV2_URID p105_loop_end;
+		LV2_URID p106_loop_fade;
+		LV2_URID p107_loop_zero;
 		LV2_URID gen1_update;
 		LV2_URID atom_Blank;
 		LV2_URID atom_Object;
