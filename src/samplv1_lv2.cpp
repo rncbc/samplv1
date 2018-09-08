@@ -553,10 +553,6 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 	}
 
 	uint32_t key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P101_SAMPLE_FILE");
-#if 1//SAMPLV1_LV2_LEGACY
-	if (key == 0)
-		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_SAMPLE");
-#endif
 	if (key == 0)
 		return LV2_STATE_ERR_NO_PROPERTY;
 
@@ -574,6 +570,16 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 
 	const char *value
 		= (const char *) (*retrieve)(handle, key, &size, &type, &flags);
+#if 1//SAMPLV1_LV2_LEGACY
+	if (value == NULL) {
+		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_SAMPLE");
+		if (key) {
+			size = 0;
+			type = 0;
+			value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
+		}
+#endif
+	}
 
 	if (size < 2)
 		return LV2_STATE_ERR_UNKNOWN;
@@ -610,100 +616,90 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 			size = 0;
 			type = 0;
 			value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
-			if (value && size == sizeof(uint32_t) && type == int_type)
-				offset_start = *(uint32_t *) value;
 		#if 1//SAMPLV1_LV2_LEGACY
-			else {
+			if (value == NULL) {
 				key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_OFFSET_START");
 				if (key) {
 					size = 0;
 					type = 0;
 					value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
-					if (value && size == sizeof(uint32_t) && type == int_type)
-						offset_start = *(uint32_t *) value;
 				}
 			}
 		#endif
+			if (value && size == sizeof(uint32_t) && type == int_type)
+				offset_start = *(uint32_t *) value;
 		}
 		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P103_OFFSET_END");
 		if (key) {
 			size = 0;
 			type = 0;
 			value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
-			if (value && size == sizeof(uint32_t) && type == int_type)
-				offset_end = *(uint32_t *) value;
 		#if 1//SAMPLV1_LV2_LEGACY
-			else {
+			if (value == NULL) {
 				key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_OFFSET_END");
 				if (key) {
 					size = 0;
 					type = 0;
 					value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
-					if (value && size == sizeof(uint32_t) && type == int_type)
-						offset_end = *(uint32_t *) value;
 				}
 			}
 		#endif
+			if (value && size == sizeof(uint32_t) && type == int_type)
+				offset_end = *(uint32_t *) value;
 		}
 		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P104_LOOP_START");
 		if (key) {
 			size = 0;
 			type = 0;
 			value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
-			if (value && size == sizeof(uint32_t) && type == int_type)
-				loop_start = *(uint32_t *) value;
 		#if 1//SAMPLV1_LV2_LEGACY
-			else {
+			if (value == NULL) {
 				key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_START");
 				if (key) {
 					size = 0;
 					type = 0;
 					value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
-					if (value && size == sizeof(uint32_t) && type == int_type)
-						loop_start = *(uint32_t *) value;
 				}
 			}
 		#endif
+			if (value && size == sizeof(uint32_t) && type == int_type)
+				loop_start = *(uint32_t *) value;
 		}
 		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P105_LOOP_END");
 		if (key) {
 			size = 0;
 			type = 0;
 			value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
-			if (value && size == sizeof(uint32_t) && type == int_type)
-				loop_end = *(uint32_t *) value;
 		#if 1//SAMPLV1_LV2_LEGACY
-			else {
+			if (value == NULL) {
 				key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_END");
 				if (key) {
 					size = 0;
 					type = 0;
 					value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
-					if (value && size == sizeof(uint32_t) && type == int_type)
-						loop_end = *(uint32_t *) value;
 				}
 			}
 		#endif
+			if (value && size == sizeof(uint32_t) && type == int_type)
+				loop_end = *(uint32_t *) value;
 		}
 		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P106_LOOP_FADE");
 		if (key) {
 			size = 0;
 			type = 0;
 			value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
-			if (value && size == sizeof(uint32_t) && type == int_type)
-				loop_fade = *(uint32_t *) value;
 		#if 1//SAMPLV1_LV2_LEGACY
-			else {
+			if (value == NULL) {
 				key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_FADE");
 				if (key) {
 					size = 0;
 					type = 0;
 					value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
-					if (value && size == sizeof(uint32_t) && type == int_type)
-						loop_fade = *(uint32_t *) value;
 				}
 			}
 		#endif
+			if (value && size == sizeof(uint32_t) && type == int_type)
+				loop_fade = *(uint32_t *) value;
 		}
 	}
 
@@ -714,22 +710,19 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 			size = 0;
 			type = 0;
 			value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
-			if (value && size == sizeof(uint32_t)
-				&& (type == int_type || type == bool_type))
-				loop_zero = *(uint32_t *) value;
 		#if 1//SAMPLV1_LV2_LEGACY
-			else {
+			if (value == NULL) {
 				key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_ZERO");
 				if (key) {
 					size = 0;
 					type = 0;
 					value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
-					if (value && size == sizeof(uint32_t)
-						&& (type == int_type || type == bool_type))
-						loop_zero = *(uint32_t *) value;
 				}
 			}
 		#endif
+			if (value && size == sizeof(uint32_t)
+				&& (type == int_type || type == bool_type))
+				loop_zero = *(uint32_t *) value;
 		}
 	}
 
