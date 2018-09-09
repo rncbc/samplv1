@@ -45,14 +45,17 @@ samplv1widget_lv2::samplv1widget_lv2 ( samplv1_lv2 *pSampl,
 	m_bIdleClosed = false;
 #endif
 
-	// May initialize the scheduler/work notifier.
-	openSchedNotifier();
+	// Initialise preset stuff...
+	clearPreset();
 
 	// Initial update, always...
-	if (m_pSamplUi->sampleFile())
-		updateSample(m_pSamplUi->sample());
-//	else
-//		initPreset();
+	updateSample(m_pSamplUi->sample());
+
+	resetParamValues();
+	resetParamKnobs();
+
+	// May initialize the scheduler/work notifier.
+	openSchedNotifier();
 }
 
 

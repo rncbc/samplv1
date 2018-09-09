@@ -823,7 +823,6 @@ void samplv1widget::swapParams ( bool bOn )
 #ifdef CONFIG_DEBUG
 	qDebug("samplv1widget::swapParams(%d)", int(bOn));
 #endif
-//	resetParamKnobs();
 
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
 		const samplv1::ParamIndex index = samplv1::ParamIndex(i);
