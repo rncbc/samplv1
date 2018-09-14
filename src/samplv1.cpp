@@ -505,7 +505,7 @@ protected:
 			pSampl->setReverseSync(reverse.value() > 0.5f);
 			break;
 		case samplv1::GEN1_OFFSET:
-			pSampl->setOffset(offset.value() > 0.5f);
+			pSampl->setOffsetSync(offset.value() > 0.5f);
 			break;
 		case samplv1::GEN1_OFFSET_1:
 			if (pSampl->isOffset()) {
@@ -546,7 +546,7 @@ protected:
 			}
 			break;
 		case samplv1::GEN1_LOOP:
-			pSampl->setLoop(loop.value() > 0.5f);
+			pSampl->setLoopSync(loop.value() > 0.5f);
 			break;
 		case samplv1::GEN1_LOOP_1:
 			if (pSampl->isLoop()) {
@@ -2278,6 +2278,14 @@ void samplv1::setOffset ( bool bOffset )
 	m_pImpl->gen1_sample.setOffset(bOffset);
 }
 
+void samplv1::setOffsetSync ( bool bOffset )
+{
+	m_pImpl->gen1_sample.setOffset(bOffset);
+	m_pImpl->sampleOffsetLoopSync();
+
+	updateSample();
+}
+
 bool samplv1::isOffset (void) const
 {
 	return m_pImpl->gen1_sample.isOffset();
@@ -2307,6 +2315,14 @@ uint32_t samplv1::offsetEnd (void) const
 void samplv1::setLoop ( bool bLoop )
 {
 	m_pImpl->gen1_sample.setLoop(bLoop);
+}
+
+void samplv1::setLoopSync ( bool bLoop )
+{
+	m_pImpl->gen1_sample.setLoop(bLoop);
+	m_pImpl->sampleOffsetLoopSync();
+
+	updateSample();
 }
 
 bool samplv1::isLoop (void) const

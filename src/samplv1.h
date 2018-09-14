@@ -62,6 +62,7 @@ public:
 	bool isReverse() const;
 
 	void setOffset(bool bOffset);
+	void setOffsetSync(bool bOffset);
 	bool isOffset() const;
 
 	void setOffsetRange(uint32_t iOffsetStart, uint32_t iOffsetEnd);
@@ -69,6 +70,7 @@ public:
 	uint32_t offsetEnd() const;
 
 	void setLoop(bool bLoop);
+	void setLoopSync(bool bLoop);
 	bool isLoop() const;
 
 	void setLoopRange(uint32_t iLoopStart, uint32_t iLoopEnd);
