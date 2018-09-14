@@ -51,7 +51,7 @@ samplv1widget_lv2::samplv1widget_lv2 ( samplv1_lv2 *pSampl,
 	// Initial update, always...
 	updateSample(m_pSamplUi->sample());
 
-	resetParamValues();
+	//resetParamValues();
 	resetParamKnobs();
 
 	// May initialize the scheduler/work notifier.
