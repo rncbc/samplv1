@@ -206,15 +206,21 @@ void samplv1_sample::setOffsetRange ( uint32_t start, uint32_t end )
 // loop range.
 void samplv1_sample::setLoopRange ( uint32_t start, uint32_t end )
 {
-	if (start < m_offset_start)
-		start = m_offset_start;
-	if (start > m_offset_end)
-		start = m_offset_end;
-
-	if (end > m_offset_end)
-		end = m_offset_end;
-	if (end < m_offset_start)
-		end = m_offset_start;
+	if (m_offset) {
+		if (start < m_offset_start)
+			start = m_offset_start;
+		if (start > m_offset_end)
+			start = m_offset_end;
+		if (end > m_offset_end)
+			end = m_offset_end;
+		if (end < m_offset_start)
+			end = m_offset_start;
+	} else {
+		if (start > m_nframes)
+			start = m_nframes;
+		if (end > m_nframes)
+			end = m_nframes;
+	}
 
 	if (start < end) {
 		m_loop_start = start;
