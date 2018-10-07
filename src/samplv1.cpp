@@ -2270,7 +2270,7 @@ void samplv1::setReverse ( bool bReverse, bool bSync )
 	m_pImpl->gen1_sample.setReverse(bReverse);
 	m_pImpl->sampleReverseSync(bSync);
 
-	updateSample();
+	if (bSync) updateSample();
 }
 
 bool samplv1::isReverse (void) const
@@ -2284,7 +2284,7 @@ void samplv1::setOffset ( bool bOffset, bool bSync )
 	m_pImpl->gen1_sample.setOffset(bOffset);
 	m_pImpl->sampleOffsetSync(bSync);
 
-	updateSample();
+	if (bSync) updateSample();
 }
 
 bool samplv1::isOffset (void) const
@@ -2300,7 +2300,7 @@ void samplv1::setOffsetRange (
 	m_pImpl->sampleOffsetSync(bSync);
 	m_pImpl->updateEnvTimes();
 
-	updateSample();
+	if (bSync) updateSample();
 }
 
 uint32_t samplv1::offsetStart (void) const
@@ -2319,7 +2319,7 @@ void samplv1::setLoop ( bool bLoop, bool bSync )
 	m_pImpl->gen1_sample.setLoop(bLoop);
 	m_pImpl->sampleLoopSync(bSync);
 
-	updateSample();
+	if (bSync) updateSample();
 }
 
 bool samplv1::isLoop (void) const
@@ -2334,7 +2334,7 @@ void samplv1::setLoopRange (
 	m_pImpl->gen1_sample.setLoopRange(iLoopStart, iLoopEnd);
 	m_pImpl->sampleLoopSync(bSync);
 
-	updateSample();
+	if (bSync) updateSample();
 }
 
 uint32_t samplv1::loopStart (void) const
