@@ -967,6 +967,8 @@ public:
 
 	void directNoteOn(int note, int vel);
 
+	bool running(bool on);
+
 	samplv1_sample  gen1_sample;
 	samplv1_wave_lf lfo1_wave;
 
@@ -1059,6 +1061,8 @@ private:
 	volatile int m_direct_chan;
 	volatile int m_direct_note;
 	volatile int m_direct_vel;
+
+	volatile bool m_running;
 };
 
 
@@ -1085,7 +1089,7 @@ samplv1_voice::samplv1_voice ( samplv1_impl *pImpl ) :
 samplv1_impl::samplv1_impl (
 	samplv1 *pSampl, uint16_t nchannels, float srate )
 		: gen1_sample(srate), m_controls(pSampl), m_programs(pSampl),
-			m_midi_in(pSampl), m_bpm(180.0f), m_gen1(pSampl)
+			m_midi_in(pSampl), m_bpm(180.0f), m_gen1(pSampl), m_running(false)
 {
 	// null sample.
 	m_gen1.sample0 = 0.0f;
@@ -1138,7 +1142,8 @@ samplv1_impl::samplv1_impl (
 
 	// reset all voices
 	allControllersOff();
-	allNotesOff();
+
+	running(true);
 }
 
 
@@ -1883,6 +1888,8 @@ uint32_t samplv1_impl::midiInCount (void)
 
 void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 {
+	if (!m_running) return;
+
 	float *v_outs[m_nchannels];
 	float *v_sfxs[m_nchannels];
 
@@ -2205,6 +2212,16 @@ void samplv1_impl::sampleLoopSync ( bool bSync )
 }
 
 
+// process running state...
+bool samplv1_impl::running ( bool on )
+{
+	const bool running = m_running;
+	m_running = on;
+	reset();
+	return running;
+}
+
+
 //-------------------------------------------------------------------------
 // samplv1 - decl.
 //
@@ -2449,6 +2466,14 @@ samplv1_controls *samplv1::controls (void) const
 samplv1_programs *samplv1::programs (void) const
 {
 	return m_pImpl->programs();
+}
+
+
+// process state
+
+bool samplv1::running ( bool on )
+{
+	return m_pImpl->running(on);
 }
 
 

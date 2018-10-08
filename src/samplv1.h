@@ -178,6 +178,8 @@ public:
 	void setParamValue(ParamIndex index, float fValue);
 	float paramValue(ParamIndex index) const;
 
+	bool running(bool on);
+
 	void reset();
 
 	samplv1_controls *controls() const;
