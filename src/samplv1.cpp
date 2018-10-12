@@ -1142,6 +1142,7 @@ samplv1_impl::samplv1_impl (
 
 	// reset all voices
 	allControllersOff();
+	allNotesOff();
 
 	running(true);
 }

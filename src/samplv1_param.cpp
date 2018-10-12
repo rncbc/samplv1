@@ -370,6 +370,8 @@ bool samplv1_param::loadPreset (
 	if (!file.open(QIODevice::ReadOnly))
 		return false;
 
+	pSampl->reset();
+
 	const bool running = pSampl->running(false);
 
 	static QHash<QString, samplv1::ParamIndex> s_hash;
@@ -426,6 +428,7 @@ bool samplv1_param::loadPreset (
 
 	file.close();
 
+	pSampl->reset();
 	pSampl->running(running);
 
 	QDir::setCurrent(currentDir.absolutePath());
