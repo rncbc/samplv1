@@ -60,7 +60,7 @@ public:
 	void closeSchedNotifier();
 
 	// Param port accessors.
-	void setParamValue(samplv1::ParamIndex index, float fValue);
+	void setParamValue(samplv1::ParamIndex index, float fValue, bool bIter = false);
 	float paramValue(samplv1::ParamIndex index) const;
 
 	// Param kbob (widget) mapper.
@@ -177,7 +177,7 @@ protected:
 	virtual void updateParam(samplv1::ParamIndex index, float fValue) const = 0;
 
 	// Update local tied widgets.
-	void updateParamEx(samplv1::ParamIndex index, float fValue);
+	void updateParamEx(samplv1::ParamIndex index, float fValue, bool bIter = false);
 
 	// Update scheduled controllers param/knob widgets.
 	void updateSchedParam(samplv1::ParamIndex index, float fValue);

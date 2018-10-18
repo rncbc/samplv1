@@ -678,7 +678,8 @@ samplv1widget_param *samplv1widget::paramKnob ( samplv1::ParamIndex index ) cons
 
 
 // Param port accessors.
-void samplv1widget::setParamValue ( samplv1::ParamIndex index, float fValue )
+void samplv1widget::setParamValue (
+	samplv1::ParamIndex index, float fValue, bool bIter )
 {
 	++m_iUpdate;
 
@@ -686,7 +687,7 @@ void samplv1widget::setParamValue ( samplv1::ParamIndex index, float fValue )
 	if (pParam)
 		pParam->setValue(fValue);
 
-	updateParamEx(index, fValue);
+	updateParamEx(index, fValue, bIter);
 
 	--m_iUpdate;
 }
@@ -728,7 +729,8 @@ void samplv1widget::paramChanged ( float fValue )
 
 
 // Update local tied widgets.
-void samplv1widget::updateParamEx ( samplv1::ParamIndex index, float fValue )
+void samplv1widget::updateParamEx (
+	samplv1::ParamIndex index, float fValue, bool bIter )
 {
 	samplv1_ui *pSamplUi = ui_instance();
 	if (pSamplUi == NULL)
@@ -738,21 +740,18 @@ void samplv1widget::updateParamEx ( samplv1::ParamIndex index, float fValue )
 
 	switch (index) {
 	case samplv1::GEN1_REVERSE: {
-		const bool bReverse = bool(fValue > 0.0f);
-		pSamplUi->setReverse(bReverse);
-		updateSample(pSamplUi->sample());
+		pSamplUi->setReverse(bool(fValue > 0.0f));
+		if (!bIter) updateSample(pSamplUi->sample());
 		break;
 	}
 	case samplv1::GEN1_OFFSET: {
-		const bool bOffset = bool(fValue > 0.0f);
-		pSamplUi->setOffset(bOffset);
-		updateOffsetLoop(pSamplUi->sample());
+		pSamplUi->setOffset(bool(fValue > 0.0f));
+		if (!bIter) updateOffsetLoop(pSamplUi->sample());
 		break;
 	}
 	case samplv1::GEN1_LOOP: {
-		const bool bLoop = bool(fValue > 0.0f);
-		pSamplUi->setLoop(bLoop);
-		updateOffsetLoop(pSamplUi->sample());
+		pSamplUi->setLoop(bool(fValue > 0.0f));
+		if (!bIter) updateOffsetLoop(pSamplUi->sample());
 		break;
 	}
 	case samplv1::DCF1_SLOPE:
@@ -803,11 +802,12 @@ void samplv1widget::resetParams (void)
 		samplv1widget_param *pParam = paramKnob(index);
 		if (pParam && pParam->isDefaultValue())
 			fValue = pParam->defaultValue();
-		setParamValue(index, fValue);
+		setParamValue(index, fValue, true);
 		updateParam(index, fValue);
-	//	updateParamEx(index, fValue);
 		m_params_ab[i] = fValue;
 	}
+
+	updateSample(pSamplUi->sample());
 
 	m_ui.StatusBar->showMessage(tr("Reset preset"), 5000);
 	updateDirtyPreset(false);
@@ -820,6 +820,10 @@ void samplv1widget::swapParams ( bool bOn )
 	if (m_iUpdate > 0 || !bOn)
 		return;
 
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi == NULL)
+		return;
+
 #ifdef CONFIG_DEBUG
 	qDebug("samplv1widget::swapParams(%d)", int(bOn));
 #endif
@@ -830,11 +834,13 @@ void samplv1widget::swapParams ( bool bOn )
 		if (pParam) {
 			const float fOldValue = pParam->value();
 			const float fNewValue = m_params_ab[i];
-			setParamValue(index, fNewValue);
+			setParamValue(index, fNewValue, true);
 			updateParam(index, fNewValue);
 			m_params_ab[i] = fOldValue;
 		}
 	}
+
+	updateSample(pSamplUi->sample());
 
 	const bool bSwapA = m_ui.SwapParamsAButton->isChecked();
 	m_ui.StatusBar->showMessage(tr("Swap %1").arg(bSwapA ? 'A' : 'B'), 5000);
@@ -857,17 +863,18 @@ void samplv1widget::updateParamValues (void)
 	resetSwapParams();
 
 	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi == NULL)
+		return;
 
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
 		const samplv1::ParamIndex index = samplv1::ParamIndex(i);
-		const float fValue = (pSamplUi
-			? pSamplUi->paramValue(index)
-			: samplv1_param::paramDefaultValue(index));
-		setParamValue(index, fValue);
+		const float fValue = pSamplUi->paramValue(index);
+		setParamValue(index, fValue, true);
 		updateParam(index, fValue);
-	//	updateParamEx(index, fValue);
 		m_params_ab[i] = fValue;
 	}
+
+	updateSample(pSamplUi->sample());
 }
 
 
@@ -876,14 +883,19 @@ void samplv1widget::resetParamValues (void)
 {
 	resetSwapParams();
 
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi == NULL)
+		return;
+
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
 		const samplv1::ParamIndex index = samplv1::ParamIndex(i);
 		const float fValue = samplv1_param::paramDefaultValue(index);
-		setParamValue(index, fValue);
+		setParamValue(index, fValue, true);
 		updateParam(index, fValue);
-	//	updateParamEx(index, fValue);
 		m_params_ab[i] = fValue;
 	}
+
+	updateSample(pSamplUi->sample());
 }
 
 
