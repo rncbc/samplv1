@@ -626,6 +626,7 @@ void samplv1_jack::updateSample (void)
 
 #include <QSocketNotifier>
 
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <signal.h>
