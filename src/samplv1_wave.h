@@ -1,7 +1,7 @@
 // samplv1_wave.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2015, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2018, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -71,11 +71,9 @@ public:
 	// begin.
 	float start(float& phase, float pshift = 0.0f, float freq = 0.0f) const
 	{
-		const float p0 = float(m_nsize);
-
-		phase = m_phase0 + pshift * p0;
-		if (phase >= p0)
-			phase -= p0;
+		phase = m_phase0 + pshift;
+		if (phase >= 1.0f)
+			phase -= 1.0f;
 
 		return sample(phase, freq);
 	}
@@ -83,13 +81,13 @@ public:
 	// iterate.
 	float sample(float& phase, float freq) const
 	{
-		const uint32_t i = uint32_t(phase);
-		const float alpha = phase - float(i);
-		const float p0 = float(m_nsize);
+		const float index = phase * float(m_nsize);
+		const uint32_t i = uint32_t(index);
+		const float alpha = index - float(i);
 
-		phase += p0 * freq / m_srate;
-		if (phase >= p0)
-			phase -= p0;
+		phase += freq / m_srate;
+		if (phase >= 1.0f)
+			phase -= 1.0f;
 
 		// cubic interpolation...
 		const float x0 = m_table[i];
@@ -113,14 +111,11 @@ public:
 	// absolute value.
 	float value(float phase) const
 	{
-		const float p0 = float(m_nsize);
-
-		phase *= p0;
 		phase += m_phase0;
-		if (phase >= p0)
-			phase -= p0;
+		if (phase >= 1.0f)
+			phase -= 1.0f;
 
-		return m_table[uint32_t(phase)];
+		return m_table[uint32_t(phase * float(m_nsize))];
 	}
 
 protected:

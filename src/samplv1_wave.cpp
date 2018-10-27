@@ -1,7 +1,7 @@
 // samplv1_wave.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2015, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2018, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -32,7 +32,8 @@
 // ctor.
 samplv1_wave::samplv1_wave ( uint32_t nsize, uint16_t nover )
 	: m_nsize(nsize), m_nover(nover),
-		m_shape(Pulse), m_width(1.0f), m_srate(44100.0f), m_srand(0)
+		m_shape(Pulse), m_width(1.0f),
+		m_srate(44100.0f), m_phase0(0.0f), m_srand(0)
 {
 	m_table = new float [m_nsize + 4];
 
@@ -68,7 +69,7 @@ void samplv1_wave::reset ( Shape shape, float width )
 		break;
 	case Noise:
 		reset_noise();
-		// thru...
+		// Fall thru...
 	default:
 		break;
 	}
@@ -238,7 +239,7 @@ void samplv1_wave::reset_normalize (void)
 
 void samplv1_wave::reset_interp (void)
 {
-	uint32_t i, pk = 0;
+	uint32_t i, k = 0;
 
 	for (i = m_nsize; i < m_nsize + 4; ++i)
 		m_table[i] = m_table[i - m_nsize];
@@ -247,10 +248,10 @@ void samplv1_wave::reset_interp (void)
 		const float p1 = m_table[i - 1];
 		const float p2 = m_table[i];
 		if (p1 < 0.0f && p2 >= 0.0f)
-			pk = i;
+			k = i;
 	}
 
-	m_phase0 = float(pk);
+	m_phase0 = float(k) / float(m_nsize);
 }
 
 
