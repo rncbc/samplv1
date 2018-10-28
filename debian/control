@@ -9,7 +9,7 @@ Standards-Version: 3.7.2
 
 Package: samplv1
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: jackd, ${shlibs:Depends}, ${misc:Depends}
 Description: an old-school polyphonic sampler
   An old-school polyphonic sampler synthesizer with stereo fx.
 
