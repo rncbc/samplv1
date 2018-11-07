@@ -152,8 +152,6 @@ void samplv1_sample::close (void)
 		::free(m_filename);
 		m_filename = NULL;
 	}
-
-	setLoopRange(0, 0);
 }
 
 

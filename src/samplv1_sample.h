@@ -263,7 +263,7 @@ public:
 	{
 		const float delta = freq * (m_sample ? m_sample->ratio() : 1.0f);
 
-		m_index  = int(m_phase);
+		m_index  = uint32_t(m_phase);
 		m_alpha  = m_phase - float(m_index);
 		m_phase += delta;
 
