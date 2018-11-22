@@ -129,31 +129,31 @@ void samplv1widget_sample::setSample ( samplv1_sample *pSample )
 		const int h = height();
 		const int w = width() & 0x7ffe; // force even.
 		const int w2 = (w >> 1);
-		const unsigned int nframes = m_pSample->length();
-		const float period = float(nframes) / float(w2);
+		const uint32_t nframes = m_pSample->length();
+		const uint32_t nperiod = nframes / w2;
 		const int h0 = h / m_iChannels;
-		const float h1 = float(h0 >> 1);
+		const int h1 = (h0 >> 1);
 		int y0 = h1;
 		m_ppPolyg = new QPolygon* [m_iChannels];
-		for (unsigned short k = 0; k < m_iChannels; ++k) {
+		for (uint16_t k = 0; k < m_iChannels; ++k) {
 			m_ppPolyg[k] = new QPolygon(w);
 			const float *pframes = m_pSample->frames(k);
 			float vmax = 0.0f;
 			float vmin = 0.0f;
 			int n = 0;
 			int x = 1;
-			unsigned int j = 0;
-			for (unsigned int i = 0; i < nframes; ++i) {
+			uint32_t j = 0;
+			for (uint32_t i = 0; i < nframes; ++i) {
 				const float v = *pframes++;
-				if (vmax < v)
+				if (vmax < v || j == 0)
 					vmax = v;
-				if (vmin > v)
+				if (vmin > v || j == 0)
 					vmin = v;
-				if (i > j) {
+				if (++j > nperiod) {
 					m_ppPolyg[k]->setPoint(n, x, y0 - int(vmax * h1));
 					m_ppPolyg[k]->setPoint(w - n - 1, x, y0 - int(vmin * h1));
 					vmax = vmin = 0.0f;
-					++n; x += 2; j = (unsigned int) (float(n) * period);
+					++n; x += 2; j = 0;
 				}
 			}
 			while (n < w2) {
