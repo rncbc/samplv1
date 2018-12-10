@@ -456,7 +456,7 @@ static LV2_State_Status samplv1_lv2_state_save ( LV2_Handle instance,
 		}
 	}
 
-	uint32_t key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P101_SAMPLE");
+	uint32_t key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P101_SAMPLE_FILE");
 	if (key == 0)
 		return LV2_STATE_ERR_NO_PROPERTY;
 

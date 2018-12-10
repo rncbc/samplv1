@@ -6,6 +6,10 @@ ChangeLog
 
 GIT HEAD
 
+- Fixed a severe bug on saving the LV2 plug-in state: the
+  sample file reference was being saved with the wrong name
+  identifier and thus gone missing on every session or state
+  reload thereafter.
 - Sample waveform drawing is a bit more keen to precision.
 - Old deprecated Qt4 build support is no more.
 - Normalized wavetable oscillator phasors. (EXPERIMENTAL)
