@@ -306,9 +306,11 @@ void samplv1_lv2::run ( uint32_t nframes )
 					if (property && value && property->type == m_forge.URID) {
 						const uint32_t key = ((const LV2_Atom_URID *) property)->body;
 						const LV2_URID type = value->type;
-						if ((key == m_urids.p101_sample_file ||
-							 key == m_urids.gen1_sample)
-							&& type == m_urids.atom_Path) {
+						if ((key == m_urids.p101_sample_file
+						#if 1//SAMPLV1_LV2_LEGACY
+							 || key == m_urids.gen1_sample
+						#endif
+							 ) && type == m_urids.atom_Path) {
 							if (m_schedule) {
 								samplv1_lv2_worker_message mesg;
 								mesg.atom.type = key;
@@ -321,9 +323,11 @@ void samplv1_lv2::run ( uint32_t nframes )
 							}
 						}
 						else
-						if ((key == m_urids.p102_offset_start ||
-							 key == m_urids.gen1_offset_start)
-							&& type == m_urids.atom_Int) {
+						if ((key == m_urids.p102_offset_start
+						#if 1//SAMPLV1_LV2_LEGACY
+							|| key == m_urids.gen1_offset_start
+						#endif
+							) && type == m_urids.atom_Int) {
 							samplv1_sample *pSample = samplv1::sample();
 							if (pSample) {
 								const uint32_t offset_start
@@ -334,9 +338,11 @@ void samplv1_lv2::run ( uint32_t nframes )
 							}
 						}
 						else
-						if ((key == m_urids.p103_offset_end ||
-							 key == m_urids.gen1_offset_end)
-							&& type == m_urids.atom_Int) {
+						if ((key == m_urids.p103_offset_end
+						#if 1//SAMPLV1_LV2_LEGACY
+							|| key == m_urids.gen1_offset_end
+						#endif
+							) && type == m_urids.atom_Int) {
 							samplv1_sample *pSample = samplv1::sample();
 							if (pSample) {
 								const uint32_t offset_start
@@ -347,9 +353,11 @@ void samplv1_lv2::run ( uint32_t nframes )
 							}
 						}
 						else
-						if ((key == m_urids.p104_loop_start ||
-							 key == m_urids.gen1_loop_start)
-							&& type == m_urids.atom_Int) {
+						if ((key == m_urids.p104_loop_start
+						#if 1//SAMPLV1_LV2_LEGACY
+							|| key == m_urids.gen1_loop_start
+						#endif
+							) && type == m_urids.atom_Int) {
 							samplv1_sample *pSample = samplv1::sample();
 							if (pSample) {
 								const uint32_t loop_start
@@ -360,9 +368,11 @@ void samplv1_lv2::run ( uint32_t nframes )
 							}
 						}
 						else
-						if ((key == m_urids.p105_loop_end ||
-							 key == m_urids.gen1_loop_end)
-							&& type == m_urids.atom_Int) {
+						if ((key == m_urids.p105_loop_end
+						#if 1//SAMPLV1_LV2_LEGACY
+							|| key == m_urids.gen1_loop_end
+						#endif
+							) && type == m_urids.atom_Int) {
 							samplv1_sample *pSample = samplv1::sample();
 							if (pSample) {
 								const uint32_t loop_start
@@ -373,9 +383,11 @@ void samplv1_lv2::run ( uint32_t nframes )
 							}
 						}
 						else
-						if ((key == m_urids.p106_loop_fade ||
-							 key == m_urids.gen1_loop_fade)
-							&& type == m_urids.atom_Int) {
+						if ((key == m_urids.p106_loop_fade
+						#if 1//SAMPLV1_LV2_LEGACY
+							|| key == m_urids.gen1_loop_fade
+						#endif
+							) && type == m_urids.atom_Int) {
 							samplv1_sample *pSample = samplv1::sample();
 							if (pSample) {
 								const uint32_t loop_fade
@@ -384,10 +396,15 @@ void samplv1_lv2::run ( uint32_t nframes )
 							}
 						}
 						else
-						if ((key == m_urids.p107_loop_zero ||
-							 key == m_urids.gen1_loop_zero)
-							&& (type == m_urids.atom_Int ||
-								type == m_urids.atom_Bool)) {
+						if ((key == m_urids.p107_loop_zero
+						#if 1//SAMPLV1_LV2_LEGACY
+							|| key == m_urids.gen1_loop_zero
+						#endif
+							) && (type == m_urids.atom_Bool
+						#if 1//SAMPLV1_LV2_LEGACY
+							|| type == m_urids.atom_Int
+						#endif
+							)) {
 							samplv1_sample *pSample = samplv1::sample();
 							if (pSample) {
 								const uint32_t loop_zero
@@ -828,8 +845,11 @@ bool samplv1_lv2::worker_work ( const void *data, uint32_t size )
 	if (mesg->atom.type == m_urids.gen1_update)
 		return true;
 	else
-	if (mesg->atom.type == m_urids.p101_sample_file ||
-		mesg->atom.type == m_urids.gen1_sample) {
+	if (mesg->atom.type == m_urids.p101_sample_file
+	#if 0//SAMPLV1_LV2_LEGACY
+		|| mesg->atom.type == m_urids.gen1_sample
+	#endif
+		) {
 		samplv1::setSampleFile(mesg->sample_path);
 		return true;
 	}
