@@ -6,6 +6,8 @@ ChangeLog
 
 GIT HEAD
 
+- Make sure all LV2 state sample file references are resolved
+  to their original and canonical file-paths (not symlinks).
 - Fixed a severe bug on saving the LV2 plug-in state: the
   sample file reference was being saved with the wrong name
   identifier and thus gone missing on every session or state

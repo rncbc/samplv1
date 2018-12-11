@@ -57,6 +57,8 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include <QFileInfo>
+
 
 //-------------------------------------------------------------------------
 // samplv1_lv2 - impl.
@@ -613,7 +615,10 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 	if (value == NULL)
 		return LV2_STATE_ERR_UNKNOWN;
 
-	pPlugin->setSampleFile((const char *) value);
+	// Make sure to get rid of any symlinks...
+	pPlugin->setSampleFile(
+		QFileInfo(QString::fromUtf8(value))
+			.canonicalFilePath().toUtf8().constData());
 
 	if (map_path)
 		::free((void *) value);
