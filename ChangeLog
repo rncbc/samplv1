@@ -4,6 +4,12 @@ samplv1 - an old-school polyphonic sampler
 ChangeLog
 
 
+GIT HEAD
+
+- Avoid destructing the possibly shared QApplication instance
+  on LV2 plug-in UI clean-up. (EXPERIMENTAL)
+
+
 0.9.4  2018-12-12  A Late Autumn'18 release.
 
 - Make sure all LV2 state sample file references are resolved
