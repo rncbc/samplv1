@@ -1,7 +1,7 @@
 ﻿// samplv1.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2018, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2019, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -890,6 +890,8 @@ public:
 
 	void schedule_event()
 		{ if (m_enabled && ++m_count < 2) schedule(-1); }
+	void schedule_note(int key, int vel)
+		{ if (m_enabled) schedule((vel << 7) | key); }
 
 	void process(int) {}
 
@@ -1602,6 +1604,7 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 				// allocated
 				m_notes[key] = pv;
 			}
+			m_midi_in.schedule_note(key, value);
 		}
 		// note off
 		else if (status == 0x80 || (status == 0x90 && value == 0)) {
@@ -1632,6 +1635,7 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 					}
 				}
 			}
+			m_midi_in.schedule_note(key, 0);
 		}
 		// key pressure/poly.aftertouch
 		else if (status == 0xa0) {
