@@ -18,6 +18,7 @@ HEADERS = \
 	samplv1widget_sample.h \
 	samplv1widget_wave.h \
 	samplv1widget_param.h \
+	samplv1widget_keybd.h \
 	samplv1widget_preset.h \
 	samplv1widget_status.h \
 	samplv1widget_spinbox.h \
@@ -34,6 +35,7 @@ SOURCES = \
 	samplv1widget_sample.cpp \
 	samplv1widget_wave.cpp \
 	samplv1widget_param.cpp \
+	samplv1widget_keybd.cpp \
 	samplv1widget_preset.cpp \
 	samplv1widget_status.cpp \
 	samplv1widget_spinbox.cpp \
