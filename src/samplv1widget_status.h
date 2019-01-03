@@ -48,10 +48,11 @@ public:
 	~samplv1widget_status();
 
 	// Permanent widgets accessors.
-	void midiInLed(bool bMidiInLed);
-	void modified(bool bModified);
+	samplv1widget_keybd *keybd() const;
 
-	void midiInNote(int key, int vel);
+	void midiInLed(bool bMidiInLed);
+	void midiInNote(int iNote, int iVelocity);
+	void modified(bool bModified);
 
 private:
 

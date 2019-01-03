@@ -28,6 +28,8 @@
 #include "samplv1widget_config.h"
 #include "samplv1widget_control.h"
 
+#include "samplv1widget_keybd.h"
+
 #include "samplv1_controls.h"
 #include "samplv1_programs.h"
 
@@ -556,6 +558,11 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	// Direct stacked-page signal/slot
 	QObject::connect(m_ui.TabBar, SIGNAL(currentChanged(int)),
 		m_ui.StackedWidget, SLOT(setCurrentIndex(int)));
+
+	// Direct status-bar keyboard input
+	QObject::connect(m_ui.StatusBar->keybd(),
+		SIGNAL(sendNote(int, int)),
+		SLOT(directNoteOn(int, int)));
 
 	// Menu actions
 	QObject::connect(m_ui.helpConfigureAction,
@@ -1466,6 +1473,19 @@ void samplv1widget::updateSchedNotify ( int stype, int sid )
 	default:
 		break;
 	}
+}
+
+
+// Direct note-on/off slot.
+void samplv1widget::directNoteOn ( int iNote, int iVelocity )
+{
+#ifdef CONFIG_DEBUG
+	qDebug("samplv1widget::directNoteOn(%d, %d)", iNote, iVelocity);
+#endif
+
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi)
+		pSamplUi->directNoteOn(iNote, iVelocity); // note-on!
 }
 
 
