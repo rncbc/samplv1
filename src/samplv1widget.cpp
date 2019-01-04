@@ -561,7 +561,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 
 	// Direct status-bar keyboard input
 	QObject::connect(m_ui.StatusBar->keybd(),
-		SIGNAL(sendNote(int, int)),
+		SIGNAL(noteOnClicked(int, int)),
 		SLOT(directNoteOn(int, int)));
 
 	// Menu actions
