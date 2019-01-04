@@ -1,7 +1,7 @@
 // samplv1widget.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2018, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2019, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -80,6 +80,9 @@ public slots:
 	// Preset file I/O.
 	void loadPreset(const QString& sFilename);
 	void savePreset(const QString& sFilename);
+
+	// Direct note-on/off slot.
+	void directNoteOn(int iNote, int iVelocity);
 
 protected slots:
 
