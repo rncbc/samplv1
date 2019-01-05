@@ -790,7 +790,29 @@
 		lv2:minimum 0.0 ;
 		lv2:maximum 1.0 ;
 		lv2pg:group samplv1_lv2:G206_DYN1 ;
+	] ;
+	lv2:port [
+		a lv2:InputPort, lv2:ControlPort ;
+		lv2:index 82 ;
+		lv2:symbol "KEY1_LOW" ;
+		lv2:name "Keyboard Low" ;
+		lv2:portProperty lv2:integer ;
+		lv2:default 0.0 ;
+		lv2:minimum 0.0 ;
+		lv2:maximum 127.0 ;
+		lv2pg:group samplv1_lv2:G207_KEY1 ;
+	], [
+		a lv2:InputPort, lv2:ControlPort ;
+		lv2:index 83 ;
+		lv2:symbol "KEY1_HIGH" ;
+		lv2:name "Keyboard High" ;
+		lv2:portProperty lv2:integer ;
+		lv2:default 127.0 ;
+		lv2:minimum 0.0 ;
+		lv2:maximum 127.0 ;
+		lv2pg:group samplv1_lv2:G207_KEY1 ;
 	] .
+
 
 
 samplv1_lv2:P101_SAMPLE_FILE
@@ -903,3 +925,8 @@ samplv1_lv2:G206_DYN1
 	a lv2pg:InputGroup;
 	lv2:name "Effects - Dynamic" ;
 	lv2:symbol "DYN1" .
+
+samplv1_lv2:G207_KEY1
+	a lv2pg:InputGroup;
+	lv2:name "Input - Keyboard" ;
+	lv2:symbol "KEY1" .

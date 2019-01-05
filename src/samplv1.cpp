@@ -719,12 +719,27 @@ struct samplv1_rev
 	samplv1_port width;
 };
 
+
 // dynamic(compressor/limiter)
 
 struct samplv1_dyn
 {
 	samplv1_port compress;
 	samplv1_port limiter;
+};
+
+
+// keyboard/note range
+
+struct samplv1_key
+{
+	samplv1_port low;
+	samplv1_port high;
+
+	bool is_note(int key)
+	{
+		return (key >= int(*low) && int(*high) >= key);
+	}
 };
 
 
@@ -1035,6 +1050,8 @@ private:
 	samplv1_del m_del;
 	samplv1_rev m_rev;
 	samplv1_dyn m_dyn;
+
+	samplv1_key m_key;
 
 	samplv1_voice **m_voices;
 	samplv1_voice  *m_notes[MAX_NOTES];
@@ -1456,6 +1473,8 @@ samplv1_port *samplv1_impl::paramPort ( samplv1::ParamIndex index )
 	case samplv1::REV1_WIDTH:     pParamPort = &m_rev.width;        break;
 	case samplv1::DYN1_COMPRESS:  pParamPort = &m_dyn.compress;     break;
 	case samplv1::DYN1_LIMITER:   pParamPort = &m_dyn.limiter;      break;
+	case samplv1::KEY1_LOW:       pParamPort = &m_key.low;          break;
+	case samplv1::KEY1_HIGH:      pParamPort = &m_key.high;         break;
 	default: break;
 	}
 
@@ -1530,6 +1549,8 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 
 		// note on
 		if (status == 0x90 && value > 0) {
+			if (!m_key.is_note(key))
+				continue;
 			samplv1_voice *pv;
 			// mono voice modes
 			if (*m_def.mono > 0.0f) {
@@ -1611,6 +1632,8 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 		}
 		// note off
 		else if (status == 0x80 || (status == 0x90 && value == 0)) {
+			if (!m_key.is_note(key))
+				continue;
 			samplv1_voice *pv = m_notes[key];
 			if (pv && pv->note >= 0) {
 				if (m_ctl1.sustain)
@@ -1642,6 +1665,8 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 		}
 		// key pressure/poly.aftertouch
 		else if (status == 0xa0) {
+			if (!m_key.is_note(key))
+				continue;
 			samplv1_voice *pv = m_notes[key];
 			if (pv && pv->note >= 0)
 				pv->pre = *m_def.pressure * float(value) / 127.0f;
