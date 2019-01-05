@@ -474,6 +474,8 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	setParamKnob(samplv1::DYN1_COMPRESS, m_ui.Dyn1CompressKnob);
 	setParamKnob(samplv1::DYN1_LIMITER,  m_ui.Dyn1LimiterKnob);
 
+	// Make status-bar keyboard range active.
+	m_ui.StatusBar->keybd()->setNoteRange(true);
 
 	// Sample management...
 	QObject::connect(m_ui.Gen1Sample,
@@ -563,6 +565,9 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	QObject::connect(m_ui.StatusBar->keybd(),
 		SIGNAL(noteOnClicked(int, int)),
 		SLOT(directNoteOn(int, int)));
+	QObject::connect(m_ui.StatusBar->keybd(),
+		SIGNAL(noteRangeChanged()),
+		SLOT(noteRangeChanged()));
 
 	// Menu actions
 	QObject::connect(m_ui.helpConfigureAction,
@@ -763,6 +768,12 @@ void samplv1widget::updateParamEx (
 	}
 	case samplv1::DCF1_SLOPE:
 		m_ui.Dcf1TypeKnob->setEnabled(int(fValue) != 3); // !Formant
+		break;
+	case samplv1::KEY1_LOW:
+		m_ui.StatusBar->keybd()->setNoteLow(int(fValue));
+		break;
+	case samplv1::KEY1_HIGH:
+		m_ui.StatusBar->keybd()->setNoteHigh(int(fValue));
 		// Fall thru...
 	default:
 		break;
@@ -1359,6 +1370,8 @@ void samplv1widget::activateParamKnobs ( bool bEnabled )
 	activateParamKnobsGroupBox(m_ui.Dca1GroupBox, bEnabled);
 	activateParamKnobsGroupBox(m_ui.Out1GroupBox, bEnabled);
 
+	m_ui.StatusBar->keybd()->setEnabled(bEnabled);
+
 	m_ui.Gen1Sample->setEnabled(true);
 }
 
@@ -1486,6 +1499,31 @@ void samplv1widget::directNoteOn ( int iNote, int iVelocity )
 	samplv1_ui *pSamplUi = ui_instance();
 	if (pSamplUi)
 		pSamplUi->directNoteOn(iNote, iVelocity); // note-on!
+}
+
+
+// Keyboard note range change.
+void samplv1widget::noteRangeChanged (void)
+{
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi == NULL)
+		return;
+
+	const int iNoteLow  = m_ui.StatusBar->keybd()->noteLow();
+	const int iNoteHigh = m_ui.StatusBar->keybd()->noteHigh();
+
+#ifdef CONFIG_DEBUG
+	qDebug("samplv1widget::noteRangeChanged(%d, %d)", iNoteLow, iNoteHigh);
+#endif
+
+	pSamplUi->setParamValue(samplv1::KEY1_LOW,  float(iNoteLow));
+	pSamplUi->setParamValue(samplv1::KEY1_HIGH, float(iNoteHigh));
+
+	m_ui.StatusBar->showMessage(QString("KEY Low: %1 (%2) High: %3 (%4)")
+		.arg(samplv1_ui::noteName(iNoteLow)).arg(iNoteLow)
+		.arg(samplv1_ui::noteName(iNoteHigh)).arg(iNoteHigh), 5000);
+
+	updateDirtyPreset(true);
 }
 
 
