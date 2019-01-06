@@ -76,7 +76,7 @@ samplv1widget_status::samplv1widget_status ( QWidget *pParent )
 	QStatusBar::addWidget(pMidiInWidget);
 
 	m_pKeybd = new samplv1widget_keybd();
-	m_pKeybd->setMinimumWidth(640);
+	m_pKeybd->setMinimumWidth(880);
 	QStatusBar::addPermanentWidget(m_pKeybd);
 
 	const QFontMetrics fm(QStatusBar::font());
