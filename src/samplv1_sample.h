@@ -77,6 +77,8 @@ public:
 		}
 
 		m_offset_end2 = (m_offset ? m_offset_end : m_nframes);
+
+		stabilizeOffsetLoop();
 	}
 
 	bool isOffset() const
@@ -176,6 +178,9 @@ protected:
 	// zero-crossing aliasing .
 	uint32_t zero_crossing_k(uint32_t i, uint16_t k, int *slope) const;
 	uint32_t zero_crossing(uint32_t i, int *slope) const;
+
+	// offset/loop range stabilizer.
+	void stabilizeOffsetLoop();
 
 private:
 

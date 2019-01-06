@@ -188,16 +188,14 @@ void samplv1_sample::setOffsetRange ( uint32_t start, uint32_t end )
 		m_offset_end = end;
 		m_offset_phase0 = float(zero_crossing(start, NULL));
 		m_offset_end2 = zero_crossing(end, NULL);
-		if (m_loop_start < m_offset_start)
-			setLoopRange(m_offset_start, m_loop_end);
-		if (m_loop_end > m_offset_end)
-			setLoopRange(m_loop_start, m_offset_end);
 	} else {
 		m_offset_start = 0;
 		m_offset_end = m_nframes;
 		m_offset_phase0 = 0.0f;
 		m_offset_end2 = m_nframes;
 	}
+
+	stabilizeOffsetLoop();
 }
 
 
@@ -239,6 +237,30 @@ void samplv1_sample::setLoopRange ( uint32_t start, uint32_t end )
 		m_loop_phase1 = m_loop_phase2 = 0.0f;
 	}
 }
+
+
+// offset/loop range stabilizer.
+void samplv1_sample::stabilizeOffsetLoop (void)
+{
+	int loop_update = 0;
+
+	uint32_t loop_start = m_loop_start;
+	uint32_t loop_end = m_loop_end;
+
+	if (loop_start < m_offset_start && m_offset) {
+		loop_start = m_offset_start;
+		++loop_update;
+	}
+
+	if (loop_end > m_offset_end && m_offset) {
+		loop_end = m_offset_end;
+		++loop_update;
+	}
+
+	if (loop_update > 0 && loop_start < loop_end)
+		setLoopRange(loop_start, loop_end);
+}
+
 
 
 // zero-crossing aliasing (single channel).
