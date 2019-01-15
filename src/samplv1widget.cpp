@@ -751,21 +751,18 @@ void samplv1widget::updateParamEx (
 	++m_iUpdate;
 
 	switch (index) {
-	case samplv1::GEN1_REVERSE: {
+	case samplv1::GEN1_REVERSE:
 		pSamplUi->setReverse(bool(fValue > 0.0f));
 		if (!bIter) updateSample(pSamplUi->sample());
 		break;
-	}
-	case samplv1::GEN1_OFFSET: {
+	case samplv1::GEN1_OFFSET:
 		pSamplUi->setOffset(bool(fValue > 0.0f));
 		if (!bIter) updateOffsetLoop(pSamplUi->sample());
 		break;
-	}
-	case samplv1::GEN1_LOOP: {
+	case samplv1::GEN1_LOOP:
 		pSamplUi->setLoop(bool(fValue > 0.0f));
 		if (!bIter) updateOffsetLoop(pSamplUi->sample());
 		break;
-	}
 	case samplv1::DCF1_SLOPE:
 		m_ui.Dcf1TypeKnob->setEnabled(int(fValue) != 3); // !Formant
 		break;
@@ -774,7 +771,12 @@ void samplv1widget::updateParamEx (
 		break;
 	case samplv1::KEY1_HIGH:
 		m_ui.StatusBar->keybd()->setNoteHigh(int(fValue));
-		// Fall thru...
+		break;
+	case samplv1::DEF1_VELOCITY: {
+		const int vel = int(79.375f * fValue + 47.625f) & 0x7f;
+		m_ui.StatusBar->keybd()->setVelocity(vel);
+		break;
+	}
 	default:
 		break;
 	}
