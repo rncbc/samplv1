@@ -1,7 +1,7 @@
 // samplv1_sched.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2018, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2019, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -63,6 +63,27 @@ public:
 	// signal broadcast (static).
 	static void sync_notify(samplv1 *pSampl, Type stype, int sid);
 
+	// Notifier - Worker/schedule proxy decl.
+	//
+	class Notifier
+	{
+	public:
+
+		// ctor.
+		Notifier(samplv1 *pSampl);
+
+		// dtor.
+		virtual ~Notifier();
+
+		// signal notifier.
+		virtual void notify(samplv1_sched::Type stype, int sid) const = 0;
+
+	private:
+
+		// instance variables.
+		samplv1 *m_pSampl;
+	};
+
 private:
 
 	// instance variables.
@@ -80,30 +101,6 @@ private:
 	volatile uint32_t m_iwrite;
 
 	volatile bool m_sync_wait;
-};
-
-
-//-------------------------------------------------------------------------
-// samplv1_sched_notifier - worker/schedule proxy decl.
-//
-
-class samplv1_sched_notifier
-{
-public:
-
-	// ctor.
-	samplv1_sched_notifier(samplv1 *pSampl);
-
-	// dtor.
-	~samplv1_sched_notifier();
-
-	// signal notifier.
-	virtual void notify(samplv1_sched::Type stype, int sid) const = 0;
-
-private:
-
-	// instance variables.
-	samplv1 *m_pSampl;
 };
 
 

@@ -1,7 +1,7 @@
 // samplv1_sched.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2018, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2019, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -73,7 +73,7 @@ private:
 static samplv1_sched_thread *g_sched_thread = NULL;
 static uint32_t g_sched_refcount = 0;
 
-static QHash<samplv1 *, QList<samplv1_sched_notifier *> > g_sched_notifiers;
+static QHash<samplv1 *, QList<samplv1_sched::Notifier *> > g_sched_notifiers;
 
 
 //-------------------------------------------------------------------------
@@ -254,9 +254,9 @@ void samplv1_sched::sync_process (void)
 void samplv1_sched::sync_notify ( samplv1 *pSampl, Type stype, int sid )
 {
 	if (g_sched_notifiers.contains(pSampl)) {
-		const QList<samplv1_sched_notifier *>& list
+		const QList<Notifier *>& list
 			= g_sched_notifiers.value(pSampl);
-		QListIterator<samplv1_sched_notifier *> iter(list);
+		QListIterator<Notifier *> iter(list);
 		while (iter.hasNext())
 			iter.next()->notify(stype, sid);
 	}
@@ -264,22 +264,22 @@ void samplv1_sched::sync_notify ( samplv1 *pSampl, Type stype, int sid )
 
 
 //-------------------------------------------------------------------------
-// samplv1_sched_notifier - worker/schedule proxy decl.
+// samplv1_sched::Notifier - worker/schedule proxy decl.
 //
 
 // ctor.
-samplv1_sched_notifier::samplv1_sched_notifier ( samplv1 *pSampl )
+samplv1_sched::Notifier::Notifier ( samplv1 *pSampl )
 	: m_pSampl(pSampl)
 {
-	g_sched_notifiers[m_pSampl].append(this);
+	g_sched_notifiers[pSampl].append(this);
 }
 
 
 // dtor.
-samplv1_sched_notifier::~samplv1_sched_notifier (void)
+samplv1_sched::Notifier::~Notifier (void)
 {
 	if (g_sched_notifiers.contains(m_pSampl)) {
-		QList<samplv1_sched_notifier *>& list = g_sched_notifiers[m_pSampl];
+		QList<Notifier *>& list = g_sched_notifiers[m_pSampl];
 		list.removeAll(this);
 		if (list.isEmpty())
 			g_sched_notifiers.remove(m_pSampl);

@@ -528,13 +528,11 @@ void samplv1widget_keybd::mouseMoveEvent ( QMouseEvent *pMouseEvent )
 				}
 			}
 		}
-	#if 0
 		// Are we still hovering the keyboard?
 		if (m_dragState == DragStart) {
 			dragNoteOn(pos);
 			noteToolTip(pos);
 		}
-	#endif
 		// Fall thru...
 	default:
 		break;

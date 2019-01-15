@@ -237,12 +237,12 @@ signals:
 protected:
 
 	// Notififier visitor.
-	class Notifier : public samplv1_sched_notifier
+	class Notifier : public samplv1_sched::Notifier
 	{
 	public:
 
 		Notifier(samplv1 *pSampl, samplv1widget_sched *pSched)
-			: samplv1_sched_notifier(pSampl), m_pSched(pSched) {}
+			: samplv1_sched::Notifier(pSampl), m_pSched(pSched) {}
 
 		void notify(samplv1_sched::Type stype, int sid) const
 			{ m_pSched->emit_notify(stype, sid); }
