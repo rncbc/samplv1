@@ -1,7 +1,7 @@
 // samplv1_sample.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2018, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2019, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -70,15 +70,7 @@ public:
 	{
 		m_offset = offset;
 
-		if (m_offset_start >= m_offset_end) {
-			m_offset_start = 0;
-			m_offset_end = m_nframes;
-			m_offset_phase0 = 0.0f;
-		}
-
-		m_offset_end2 = (m_offset ? m_offset_end : m_nframes);
-
-		stabilizeOffsetLoop();
+		updateOffset();
 	}
 
 	bool isOffset() const
@@ -100,11 +92,7 @@ public:
 	{
 		m_loop = loop;
 
-		if (m_loop && m_loop_start >= m_loop_end) {
-			m_loop_start = (m_offset ? m_offset_start : 0);
-			m_loop_end = (m_offset ? m_offset_end : m_nframes);
-			m_loop_phase1 = m_loop_phase2 = float(m_nframes);
-		}
+		updateLoop();
 	}
 
 	bool isLoop() const
@@ -179,8 +167,9 @@ protected:
 	uint32_t zero_crossing_k(uint32_t i, uint16_t k, int *slope) const;
 	uint32_t zero_crossing(uint32_t i, int *slope) const;
 
-	// offset/loop range stabilizer.
-	void stabilizeOffsetLoop();
+	// offset/loop update.
+	void updateOffset();
+	void updateLoop();
 
 private:
 

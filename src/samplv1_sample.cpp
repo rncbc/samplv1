@@ -1,7 +1,7 @@
 // samplv1_sample.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2018, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2019, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -124,8 +124,8 @@ bool samplv1_sample::open ( const char *filename, float freq0 )
 
 	reset(freq0);
 
-	setOffset(m_offset);
-	setLoop(m_loop);
+	updateOffset();
+	updateLoop();
 	return true;
 }
 
@@ -186,16 +186,44 @@ void samplv1_sample::setOffsetRange ( uint32_t start, uint32_t end )
 	if (start < end) {
 		m_offset_start = start;
 		m_offset_end = end;
-		m_offset_phase0 = float(zero_crossing(start, NULL));
-		m_offset_end2 = zero_crossing(end, NULL);
 	} else {
 		m_offset_start = 0;
 		m_offset_end = m_nframes;
+	}
+
+	updateOffset();
+}
+
+
+// offset updater.
+void samplv1_sample::updateOffset (void)
+{
+	if (m_offset && m_offset_start < m_offset_end) {
+		m_offset_phase0 = float(zero_crossing(m_offset_start, NULL));
+		m_offset_end2 = zero_crossing(m_offset_end, NULL);
+	} else {
 		m_offset_phase0 = 0.0f;
 		m_offset_end2 = m_nframes;
 	}
 
-	stabilizeOffsetLoop();
+	// offset/loop range stabilizer...
+	int loop_update = 0;
+
+	uint32_t loop_start = m_loop_start;
+	uint32_t loop_end = m_loop_end;
+
+	if (loop_start < m_offset_start && m_offset) {
+		loop_start = m_offset_start;
+		++loop_update;
+	}
+
+	if (loop_end > m_offset_end && m_offset) {
+		loop_end = m_offset_end;
+		++loop_update;
+	}
+
+	if (loop_update > 0 && loop_start < loop_end)
+		setLoopRange(loop_start, loop_end);
 }
 
 
@@ -221,6 +249,21 @@ void samplv1_sample::setLoopRange ( uint32_t start, uint32_t end )
 	if (start < end) {
 		m_loop_start = start;
 		m_loop_end = end;
+	} else {
+		m_loop_start = 0;
+		m_loop_end = m_nframes;
+	}
+
+	updateLoop();
+}
+
+
+// loop updater.
+void samplv1_sample::updateLoop (void)
+{
+	if (m_loop && m_loop_start < m_loop_end) {
+		uint32_t start = m_loop_start;
+		uint32_t end = m_loop_end;
 		if (m_loop_xzero) {
 			int slope = 0;
 			end = zero_crossing(m_loop_end, &slope);
@@ -233,34 +276,9 @@ void samplv1_sample::setLoopRange ( uint32_t start, uint32_t end )
 		m_loop_phase1 = float(end - start);
 		m_loop_phase2 = float(end);
 	} else {
-		m_loop_start = m_loop_end = 0;
 		m_loop_phase1 = m_loop_phase2 = 0.0f;
 	}
 }
-
-
-// offset/loop range stabilizer.
-void samplv1_sample::stabilizeOffsetLoop (void)
-{
-	int loop_update = 0;
-
-	uint32_t loop_start = m_loop_start;
-	uint32_t loop_end = m_loop_end;
-
-	if (loop_start < m_offset_start && m_offset) {
-		loop_start = m_offset_start;
-		++loop_update;
-	}
-
-	if (loop_end > m_offset_end && m_offset) {
-		loop_end = m_offset_end;
-		++loop_update;
-	}
-
-	if (loop_update > 0 && loop_start < loop_end)
-		setLoopRange(loop_start, loop_end);
-}
-
 
 
 // zero-crossing aliasing (single channel).
