@@ -202,8 +202,6 @@ public:
 
 	void updateTuning();
 
-protected:
-
 	virtual void updateSample() = 0;
 
 private:

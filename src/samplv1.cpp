@@ -201,6 +201,8 @@ public:
 
 	samplv1_port2() : m_vtick(0.0f), m_vstep(0.0f), m_nstep(0) {}
 
+	static const uint32_t NSTEP = 32;
+
 	void set_value(float value)
 	{
 		m_vtick = samplv1_port::value();
@@ -229,8 +231,6 @@ public:
 
 private:
 
-	static const uint32_t NSTEP = 32;
-
 	float    m_vtick;
 	float    m_vstep;
 	uint32_t m_nstep;
@@ -253,7 +253,7 @@ public:
 			const float v1 = m_vsync;
 			const float d1 = ::fabsf(v1 - value);
 			const float d2 = ::fabsf(v1 - v0) * d1;
-			m_xsync = (d2 < 0.001f);
+			m_xsync = (d2 < 0.5f);
 		}
 
 		samplv1_port::set_value(value);
