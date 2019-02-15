@@ -1,7 +1,7 @@
 // samplv1_lv2.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2018, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2019, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -752,10 +752,10 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 	pPlugin->setLoopFade(loop_fade);
 
 	if (loop_start < loop_end)
-		pPlugin->setLoopRange(loop_start, loop_end);
+		pPlugin->setLoopRange(loop_start, loop_end, true);
 
 	if (offset_start < offset_end)
-		pPlugin->setOffsetRange(offset_start, offset_end);
+		pPlugin->setOffsetRange(offset_start, offset_end, true);
 
 	pPlugin->reset();
 

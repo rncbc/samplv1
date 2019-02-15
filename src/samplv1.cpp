@@ -263,7 +263,13 @@ public:
 	}
 
 	void set_value_sync(float vsync, bool xsync)
-		{ m_vsync = vsync; m_xsync = xsync; }
+	{
+		m_vsync = vsync;
+		m_xsync = xsync;
+
+		if (xsync) samplv1_port::set_value(vsync);
+	}
+
 	float value_sync() const
 		{ return m_vsync; }
 	bool is_sync() const
@@ -2202,24 +2208,30 @@ void samplv1_impl::sampleOffsetTest (void)
 
 void samplv1_impl::sampleOffsetSync ( bool bSync )
 {
-	const uint32_t iSampleLength
-		= gen1_sample.length();
-
 	const bool bOffset
 		= gen1_sample.isOffset();
 
 	m_gen1.offset.set_value_sync(bOffset ? 1.0f : 0.0f, bSync);
 
-	if (bOffset) {
-		float offset_1 = 0.0f;
-		float offset_2 = 1.0f;
-		if (iSampleLength > 0) {
-			offset_1 = float(gen1_sample.offsetStart()) / float(iSampleLength);
-			offset_2 = float(gen1_sample.offsetEnd())   / float(iSampleLength);
-		}
-		m_gen1.offset_1.set_value_sync(offset_1, bSync);
-		m_gen1.offset_2.set_value_sync(offset_2, bSync);
-	}
+	if (!bOffset)
+		return;
+
+	const uint32_t iSampleLength
+		= gen1_sample.length();
+	const uint32_t iOffsetStart
+		= gen1_sample.offsetStart();
+	const uint32_t iOffsetEnd
+		= gen1_sample.offsetEnd();
+
+	const float offset_1 = (iSampleLength > 0
+		? float(iOffsetStart) / float(iSampleLength)
+		: 0.0f);
+	const float offset_2 = (iSampleLength > 0
+		? float(iOffsetEnd) / float(iSampleLength)
+		: 1.0f);
+
+	m_gen1.offset_1.set_value_sync(offset_1, bSync);
+	m_gen1.offset_2.set_value_sync(offset_2, bSync);
 }
 
 
@@ -2232,24 +2244,30 @@ void samplv1_impl::sampleLoopTest (void)
 
 void samplv1_impl::sampleLoopSync ( bool bSync )
 {
-	const uint32_t iSampleLength
-		= gen1_sample.length();
-
 	const bool bLoop
 		= gen1_sample.isLoop();
 
 	m_gen1.loop.set_value_sync(bLoop ? 1.0f : 0.0f, bSync);
 
-	if (bLoop) {
-		float loop_1 = 0.0f;
-		float loop_2 = 1.0f;
-		if (iSampleLength > 0) {
-			loop_1 = float(gen1_sample.loopStart()) / float(iSampleLength);
-			loop_2 = float(gen1_sample.loopEnd())   / float(iSampleLength);
-		}
-		m_gen1.loop_1.set_value_sync(loop_1, bSync);
-		m_gen1.loop_2.set_value_sync(loop_2, bSync);
-	}
+	if (!bLoop)
+		return;
+
+	const uint32_t iSampleLength
+		= gen1_sample.length();
+	const uint32_t iLoopStart
+		= gen1_sample.loopStart();
+	const uint32_t iLoopEnd
+		= gen1_sample.loopEnd();
+
+	const float loop_1 = (iSampleLength > 0
+		? float(iLoopStart) / float(iSampleLength)
+		: 0.0f);
+	const float loop_2 = (iSampleLength > 0
+		? float(iLoopEnd) / float(iSampleLength)
+		: 1.0f);
+
+	m_gen1.loop_1.set_value_sync(loop_1, bSync);
+	m_gen1.loop_2.set_value_sync(loop_2, bSync);
 }
 
 
