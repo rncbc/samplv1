@@ -2186,7 +2186,8 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 
 void samplv1_impl::sampleReverseTest (void)
 {
-	m_gen1.reverse.tick(1);
+	if (m_running)
+		m_gen1.reverse.tick(1);
 }
 
 
@@ -2201,9 +2202,11 @@ void samplv1_impl::sampleReverseSync ( bool bSync )
 
 void samplv1_impl::sampleOffsetTest (void)
 {
-	m_gen1.offset.tick(1);
-	m_gen1.offset_1.tick(1);
-	m_gen1.offset_2.tick(1);
+	if (m_running) {
+		m_gen1.offset.tick(1);
+		m_gen1.offset_1.tick(1);
+		m_gen1.offset_2.tick(1);
+	}
 }
 
 void samplv1_impl::sampleOffsetSync ( bool bSync )
@@ -2237,9 +2240,11 @@ void samplv1_impl::sampleOffsetSync ( bool bSync )
 
 void samplv1_impl::sampleLoopTest (void)
 {
-	m_gen1.loop.tick(1);
-	m_gen1.loop_1.tick(1);
-	m_gen1.loop_2.tick(1);
+	if (m_running) {
+		m_gen1.loop.tick(1);
+		m_gen1.loop_1.tick(1);
+		m_gen1.loop_2.tick(1);
+	}
 }
 
 void samplv1_impl::sampleLoopSync ( bool bSync )
