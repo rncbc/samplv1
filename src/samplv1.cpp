@@ -976,6 +976,7 @@ public:
 	void process_midi(uint8_t *data, uint32_t size);
 	void process(float **ins, float **outs, uint32_t nframes);
 
+	void stabilize();
 	void reset();
 
 	void sampleReverseTest();
@@ -1875,6 +1876,18 @@ void samplv1_impl::updateTuning (void)
 }
 
 
+// all stabilize
+
+void samplv1_impl::stabilize (void)
+{
+	for (int i = 0; i < samplv1::NUM_PARAMS; ++i) {
+		samplv1_port *pParamPort = paramPort(samplv1::ParamIndex(i));
+		if (pParamPort)
+			pParamPort->tick(samplv1_port2::NSTEP);
+	}
+}
+
+
 // all reset clear
 
 void samplv1_impl::reset (void)
@@ -2537,6 +2550,14 @@ samplv1_programs *samplv1::programs (void) const
 bool samplv1::running ( bool on )
 {
 	return m_pImpl->running(on);
+}
+
+
+// all stabilize
+
+void samplv1::stabilize (void)
+{
+	m_pImpl->stabilize();
 }
 
 

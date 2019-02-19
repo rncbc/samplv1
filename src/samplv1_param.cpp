@@ -373,9 +373,9 @@ bool samplv1_param::loadPreset (
 	if (!file.open(QIODevice::ReadOnly))
 		return false;
 
-	pSampl->reset();
-
 	const bool running = pSampl->running(false);
+
+	pSampl->reset();
 
 	static QHash<QString, samplv1::ParamIndex> s_hash;
 	if (s_hash.isEmpty()) {
@@ -445,6 +445,8 @@ bool samplv1_param::savePreset (
 {
 	if (pSampl == NULL)
 		return false;
+
+	pSampl->stabilize();
 
 	const QFileInfo fi(sFilename);
 	const QDir currentDir(QDir::current());
