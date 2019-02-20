@@ -267,7 +267,7 @@ public:
 		m_vsync = vsync;
 		m_xsync = xsync;
 
-		if (xsync) samplv1_port::set_value(vsync);
+		if (!xsync) samplv1_port::set_value(vsync);
 	}
 
 	float value_sync() const
@@ -984,9 +984,11 @@ public:
 
 	void sampleOffsetTest();
 	void sampleOffsetSync(bool bSync);
+	void sampleOffsetRangeSync(bool bSync);
 
 	void sampleLoopTest();
 	void sampleLoopSync(bool bSync);
+	void sampleLoopRangeSync(bool bSync);
 
 	void midiInEnabled(bool on);
 	uint32_t midiInCount();
@@ -2222,16 +2224,18 @@ void samplv1_impl::sampleOffsetTest (void)
 	}
 }
 
+
 void samplv1_impl::sampleOffsetSync ( bool bSync )
 {
 	const bool bOffset
 		= gen1_sample.isOffset();
 
 	m_gen1.offset.set_value_sync(bOffset ? 1.0f : 0.0f, bSync);
+}
 
-	if (!bOffset)
-		return;
 
+void samplv1_impl::sampleOffsetRangeSync ( bool bSync )
+{
 	const uint32_t iSampleLength
 		= gen1_sample.length();
 	const uint32_t iOffsetStart
@@ -2260,16 +2264,18 @@ void samplv1_impl::sampleLoopTest (void)
 	}
 }
 
+
 void samplv1_impl::sampleLoopSync ( bool bSync )
 {
 	const bool bLoop
 		= gen1_sample.isLoop();
 
 	m_gen1.loop.set_value_sync(bLoop ? 1.0f : 0.0f, bSync);
+}
 
-	if (!bLoop)
-		return;
 
+void samplv1_impl::sampleLoopRangeSync ( bool bSync )
+{
 	const uint32_t iSampleLength
 		= gen1_sample.length();
 	const uint32_t iLoopStart
@@ -2390,7 +2396,7 @@ void samplv1::setOffsetRange (
 	uint32_t iOffsetStart, uint32_t iOffsetEnd, bool bSync )
 {
 	m_pImpl->gen1_sample.setOffsetRange(iOffsetStart, iOffsetEnd);
-	m_pImpl->sampleOffsetSync(bSync);
+	m_pImpl->sampleOffsetRangeSync(bSync);
 	m_pImpl->updateEnvTimes();
 
 	if (bSync) updateSample();
@@ -2425,7 +2431,7 @@ void samplv1::setLoopRange (
 	uint32_t iLoopStart, uint32_t iLoopEnd, bool bSync )
 {
 	m_pImpl->gen1_sample.setLoopRange(iLoopStart, iLoopEnd);
-	m_pImpl->sampleLoopSync(bSync);
+	m_pImpl->sampleLoopRangeSync(bSync);
 
 	if (bSync) updateSample();
 }
