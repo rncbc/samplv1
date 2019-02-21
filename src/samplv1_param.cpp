@@ -247,8 +247,8 @@ void samplv1_param::loadSamples (
 			// Set actual sample loop points...
 			pSampl->setLoopZero(bLoopZero);
 			pSampl->setLoopFade(iLoopFade);
-			pSampl->setLoopRange(iLoopStart, iLoopEnd, true);
-			pSampl->setOffsetRange(iOffsetStart, iOffsetEnd, true);
+			pSampl->setLoopRange(iLoopStart, iLoopEnd);
+			pSampl->setOffsetRange(iOffsetStart, iOffsetEnd);
 		}
 	}
 }

@@ -235,7 +235,7 @@ QString samplv1_ui::noteName ( int note )
 		QT_TR_NOOP("G#/Ab"),
 		QT_TR_NOOP("A"),
 		QT_TR_NOOP("A#/Bb"),
-		QT_TR_NOOP("B")     
+		QT_TR_NOOP("B")
 	};
 
 	return QString("%1 %2").arg(s_notes[note % 12]).arg((note / 12) - 1);
