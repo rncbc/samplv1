@@ -1014,9 +1014,12 @@ void samplv1widget::clearSample (void)
 // Sample file loader slot.
 void samplv1widget::loadSample ( const QString& sFilename )
 {
-	loadSampleFile(QFileInfo(sFilename).canonicalFilePath());
+	const QFileInfo info(sFilename);
 
-	m_ui.StatusBar->showMessage(tr("Load sample: %1").arg(sFilename), 5000);
+	loadSampleFile(info.canonicalFilePath());
+
+	m_ui.StatusBar->showMessage(
+		tr("Load sample: %1").arg(info.fileName()), 5000);
 	updateDirtyPreset(true);
 }
 

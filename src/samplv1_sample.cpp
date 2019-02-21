@@ -191,13 +191,6 @@ void samplv1_sample::setOffsetRange ( uint32_t start, uint32_t end )
 		m_offset_end = m_nframes;
 	}
 
-	updateOffset();
-}
-
-
-// offset updater.
-void samplv1_sample::updateOffset (void)
-{
 	if (m_offset_start < m_offset_end) {
 		m_offset_phase0 = float(zero_crossing(m_offset_start, NULL));
 		m_offset_end2 = zero_crossing(m_offset_end, NULL);
@@ -224,6 +217,13 @@ void samplv1_sample::updateOffset (void)
 
 	if (loop_update > 0 && loop_start < loop_end)
 		setLoopRange(loop_start, loop_end);
+}
+
+
+// offset updater.
+void samplv1_sample::updateOffset (void)
+{
+	setOffsetRange(m_offset_start, m_offset_end);
 }
 
 
@@ -254,13 +254,6 @@ void samplv1_sample::setLoopRange ( uint32_t start, uint32_t end )
 		m_loop_end = m_nframes;
 	}
 
-	updateLoop();
-}
-
-
-// loop updater.
-void samplv1_sample::updateLoop (void)
-{
 	if (m_loop_start < m_loop_end) {
 		uint32_t start = m_loop_start;
 		uint32_t end = m_loop_end;
@@ -278,6 +271,13 @@ void samplv1_sample::updateLoop (void)
 	} else {
 		m_loop_phase1 = m_loop_phase2 = 0.0f;
 	}
+}
+
+
+// loop updater.
+void samplv1_sample::updateLoop (void)
+{
+	setLoopRange(m_loop_start, m_loop_end);
 }
 
 
