@@ -1510,10 +1510,6 @@ void samplv1widget::directNoteOn ( int iNote, int iVelocity )
 // Keyboard note range change.
 void samplv1widget::noteRangeChanged (void)
 {
-	samplv1_ui *pSamplUi = ui_instance();
-	if (pSamplUi == NULL)
-		return;
-
 	const int iNoteLow  = m_ui.StatusBar->keybd()->noteLow();
 	const int iNoteHigh = m_ui.StatusBar->keybd()->noteHigh();
 
@@ -1521,8 +1517,8 @@ void samplv1widget::noteRangeChanged (void)
 	qDebug("samplv1widget::noteRangeChanged(%d, %d)", iNoteLow, iNoteHigh);
 #endif
 
-	pSamplUi->setParamValue(samplv1::KEY1_LOW,  float(iNoteLow));
-	pSamplUi->setParamValue(samplv1::KEY1_HIGH, float(iNoteHigh));
+	updateParam(samplv1::KEY1_LOW,  float(iNoteLow));
+	updateParam(samplv1::KEY1_HIGH, float(iNoteHigh));
 
 	m_ui.StatusBar->showMessage(QString("KEY Low: %1 (%2) High: %3 (%4)")
 		.arg(samplv1_ui::noteName(iNoteLow)).arg(iNoteLow)
