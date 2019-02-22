@@ -157,7 +157,7 @@ class samplv1_port
 {
 public:
 
-	samplv1_port() : m_port(NULL), m_value(0.0f), m_vport(0.0f), m_xport(false) {}
+	samplv1_port() : m_port(NULL), m_value(0.0f), m_vport(0.0f) {}
 
 	virtual ~samplv1_port() {}
 
@@ -167,7 +167,7 @@ public:
 		{ return m_port; }
 
 	virtual void set_value(float value)
-		{ m_value = value; }
+		{ m_value = value; if (m_port) m_vport = *m_port; }
 
 	float value() const
 		{ return m_value; }
@@ -176,19 +176,8 @@ public:
 
 	virtual float tick(uint32_t /*nstep*/)
 	{
-		if (m_port) {
-			const float v1 = *m_port;
-			const float d1 = ::fabsf(v1 - m_vport);
-			if (d1 > 0.001f) {
-				if (!m_xport) {
-					const float d2 = ::fabsf(v1 - m_value) * d1;
-					m_xport = (d2 < 0.001f);
-				}
-				m_vport = v1;
-				if (m_xport)
-					set_value(v1);
-			}
-		}
+		if (m_port && ::fabsf(*m_port - m_vport) > 0.001f)
+			set_value(*m_port);
 
 		return m_value;
 	}
@@ -196,15 +185,11 @@ public:
 	float operator *()
 		{ return tick(1); }
 
-	void reset()
-		{ m_xport = false; }
-
 private:
 
 	float *m_port;
 	float  m_value;
 	float  m_vport;
-	bool   m_xport;
 };
 
 
@@ -1903,12 +1888,6 @@ void samplv1_impl::stabilize (void)
 
 void samplv1_impl::reset (void)
 {
-	for (int i = 0; i < samplv1::NUM_PARAMS; ++i) {
-		samplv1_port *pParamPort = paramPort(samplv1::ParamIndex(i));
-		if (pParamPort)
-			pParamPort->reset();
-	}
-
 	m_vol1.reset(
 		m_out1.volume.value_ptr(),
 		m_dca1.volume.value_ptr(),
