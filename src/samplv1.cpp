@@ -263,7 +263,13 @@ public:
 	}
 
 	void set_value_sync(float vsync, bool xsync)
-		{ m_vsync = vsync; m_xsync = xsync; }
+	{
+		m_vsync = vsync;
+		m_xsync = xsync;
+
+		samplv1_port::set_value(vsync);
+	}
+
 	float value_sync() const
 		{ return m_vsync; }
 	bool is_sync() const
