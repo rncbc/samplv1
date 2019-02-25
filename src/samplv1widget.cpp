@@ -1311,6 +1311,10 @@ void samplv1widget::updateOffsetLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1Sample->setLoopStart(iLoopStart);
 		m_ui.Gen1Sample->setLoopEnd(iLoopEnd);
 		m_ui.Gen1Sample->setLoop(bLoop);
+		updateParam(samplv1::GEN1_OFFSET_1, float(iOffsetStart) / float(nframes));
+		updateParam(samplv1::GEN1_OFFSET_2, float(iOffsetEnd) / float(nframes));
+		updateParam(samplv1::GEN1_LOOP_1, float(iLoopStart) / float(nframes));
+		updateParam(samplv1::GEN1_LOOP_2, float(iLoopEnd) / float(nframes));
 		if (bDirty) {
 			QString sMessage;
 			if (bOffset) {
