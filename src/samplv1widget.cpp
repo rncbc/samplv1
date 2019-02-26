@@ -1263,7 +1263,7 @@ void samplv1widget::loopRangeChanged (void)
 // Update offset/loop range change status.
 void samplv1widget::updateOffsetLoop ( samplv1_sample *pSample, bool bDirty )
 {
-	if (pSample) {
+	if (pSample && pSample->filename()) {
 		const bool     bOffset    = pSample->isOffset();
 		const uint32_t iOffsetStart = pSample->offsetStart();
 		const uint32_t iOffsetEnd = pSample->offsetEnd();
