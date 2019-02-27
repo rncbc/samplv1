@@ -1193,7 +1193,7 @@ void samplv1widget::loopFadeChanged (void)
 	if (pSamplUi) {
 		const bool bLoopFade = (m_ui.Gen1LoopFadeCheckBox->value() > 0.0f);
 		const uint32_t iLoopFade = m_ui.Gen1LoopFadeSpinBox->value();
-		pSamplUi->setLoopFade(bLoopFade ? iLoopFade : 0);
+		pSamplUi->setLoopFade(bLoopFade ? (iLoopFade > 0 ? iLoopFade : 1): 0);
 		m_ui.StatusBar->showMessage(tr("Loop crossfade: %1")
 			.arg(bLoopFade ? QString::number(iLoopFade) : tr("Off")), 5000);
 		m_ui.Gen1LoopFadeSpinBox->setEnabled(bLoopFade);
