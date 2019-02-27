@@ -394,7 +394,7 @@ void samplv1_lv2::run ( uint32_t nframes )
 							if (pSample) {
 								const uint32_t loop_fade
 									= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
-								setLoopFade(loop_fade);
+								setLoopFade(loop_fade, true);
 							}
 						}
 						else
@@ -411,7 +411,7 @@ void samplv1_lv2::run ( uint32_t nframes )
 							if (pSample) {
 								const uint32_t loop_zero
 									= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
-								setLoopZero(loop_zero > 0);
+								setLoopZero(loop_zero > 0, true);
 							}
 						}
 					}

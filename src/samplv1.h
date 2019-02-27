@@ -76,10 +76,10 @@ public:
 	uint32_t loopStart() const;
 	uint32_t loopEnd() const;
 
-	void setLoopFade(uint32_t iLoopFade);
+	void setLoopFade(uint32_t iLoopFade, bool bSync = false);
 	uint32_t loopFade() const;
 
-	void setLoopZero(bool bLoopZero);
+	void setLoopZero(bool bLoopZero, bool bSync = false);
 	bool isLoopZero() const;
 
 	void setBufferSize(uint32_t nsize);
