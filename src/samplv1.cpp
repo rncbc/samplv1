@@ -239,18 +239,35 @@ private:
 
 // parameter port (scheduled/detached)
 
+class samplv1_port3_sched : public samplv1_sched
+{
+public:
+
+	// ctor.
+	samplv1_port3_sched(samplv1 *pSampl)
+		: samplv1_sched(pSampl, samplv1_sched::Controller) {}
+
+	// (pure) virtual prober.
+	virtual float probe(int sid) const = 0;
+};
+
+
 class samplv1_port3 : public samplv1_port
 {
 public:
 
-	samplv1_port3(samplv1_sched *sched, samplv1::ParamIndex index)
+	samplv1_port3(samplv1_port3_sched *sched, samplv1::ParamIndex index)
 		: m_sched(sched), m_index(index) {}
 
 	void set_value(float value)
 	{
+		const float v0 = m_sched->probe(m_index);
+		const float d0 = ::fabsf(value - v0);
+
 		samplv1_port::set_value(value);
 
-		m_sched->schedule(m_index);
+		if (d0 > 0.001f)
+			m_sched->schedule(m_index);
 	}
 
 	void set_value_sync(float value)
@@ -260,8 +277,8 @@ public:
 
 private:
 
-	samplv1_sched      *m_sched;
-	samplv1::ParamIndex m_index;
+	samplv1_port3_sched *m_sched;
+	samplv1::ParamIndex  m_index;
 };
 
 
@@ -453,12 +470,12 @@ struct samplv1_aux
 
 // dco
 
-class samplv1_gen : samplv1_sched
+class samplv1_gen : samplv1_port3_sched
 {
 public:
 
 	samplv1_gen(samplv1 *pSampl)
-		: samplv1_sched(pSampl, samplv1_sched::Controller),
+		: samplv1_port3_sched(pSampl),
 			reverse(this, samplv1::GEN1_REVERSE),
 			offset(this, samplv1::GEN1_OFFSET),
 			offset_1(this, samplv1::GEN1_OFFSET_1),
@@ -484,9 +501,71 @@ public:
 
 protected:
 
+	float probe(int sid) const
+	{
+		float ret = 0.0f;
+		samplv1 *pSampl = samplv1_port3_sched::instance();
+
+		switch (samplv1::ParamIndex(sid)) {
+		case samplv1::GEN1_REVERSE:
+			ret = (pSampl->isReverse() ? 1.0f : 0.0f);
+			break;
+		case samplv1::GEN1_OFFSET:
+			ret = (pSampl->isOffset() ? 1.0f : 0.0f);
+			break;
+		case samplv1::GEN1_OFFSET_1: {
+			const uint32_t iSampleLength
+				= pSampl->sample()->length();
+			const uint32_t iOffsetStart
+				= pSampl->offsetStart();
+			ret = (iSampleLength > 0
+				? float(iOffsetStart) / float(iSampleLength)
+				: 0.0f);
+			break;
+		}
+		case samplv1::GEN1_OFFSET_2: {
+			const uint32_t iSampleLength
+				= pSampl->sample()->length();
+			const uint32_t iOffsetEnd
+				= pSampl->offsetEnd();
+			ret = (iSampleLength > 0
+				? float(iOffsetEnd) / float(iSampleLength)
+				: 1.0f);
+			break;
+		}
+		case samplv1::GEN1_LOOP:
+			ret = (pSampl->isLoop() ? 1.0f : 0.0f);
+			break;
+		case samplv1::GEN1_LOOP_1: {
+			const uint32_t iSampleLength
+				= pSampl->sample()->length();
+			const uint32_t iLoopStart
+				= pSampl->loopStart();
+			ret = (iSampleLength > 0
+				? float(iLoopStart) / float(iSampleLength)
+				: 0.0f);
+			break;
+		}
+		case samplv1::GEN1_LOOP_2: {
+			const uint32_t iSampleLength
+				= pSampl->sample()->length();
+			const uint32_t iLoopEnd
+				= pSampl->loopEnd();
+			ret = (iSampleLength > 0
+				? float(iLoopEnd) / float(iSampleLength)
+				: 1.0f);
+			break;
+		}
+		default:
+			break;
+		}
+
+		return ret;
+	}
+
 	void process(int sid)
 	{
-		samplv1 *pSampl = samplv1_sched::instance();
+		samplv1 *pSampl = samplv1_port3_sched::instance();
 
 		switch (samplv1::ParamIndex(sid)) {
 		case samplv1::GEN1_REVERSE:

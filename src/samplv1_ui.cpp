@@ -86,7 +86,7 @@ bool samplv1_ui::isOffset (void) const
 
 void samplv1_ui::setOffsetRange ( uint32_t iOffsetStart, uint32_t iOffsetEnd )
 {
-	m_pSampl->setOffsetRange(iOffsetStart, iOffsetEnd);
+	m_pSampl->setOffsetRange(iOffsetStart, iOffsetEnd, true);
 }
 
 uint32_t samplv1_ui::offsetStart (void) const
@@ -113,7 +113,7 @@ bool samplv1_ui::isLoop (void) const
 
 void samplv1_ui::setLoopRange ( uint32_t iLoopStart, uint32_t iLoopEnd )
 {
-	m_pSampl->setLoopRange(iLoopStart, iLoopEnd);
+	m_pSampl->setLoopRange(iLoopStart, iLoopEnd, true);
 }
 
 uint32_t samplv1_ui::loopStart (void) const

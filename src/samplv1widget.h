@@ -211,6 +211,8 @@ private:
 
 	float m_params_ab[samplv1::NUM_PARAMS];
 
+	uint32_t m_iLoopFade;
+
 	int m_iUpdate;
 };
 

@@ -81,6 +81,9 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i)
 		m_params_ab[i] = samplv1_param::paramDefaultValue(samplv1::ParamIndex(i));
 
+	// Some property temporary holder.
+	m_iLoopFade = 1;
+
 	// Start clean.
 	m_iUpdate = 0;
 
@@ -1193,7 +1196,8 @@ void samplv1widget::loopFadeChanged (void)
 	if (pSamplUi) {
 		const bool bLoopFade = (m_ui.Gen1LoopFadeCheckBox->value() > 0.0f);
 		const uint32_t iLoopFade = m_ui.Gen1LoopFadeSpinBox->value();
-		pSamplUi->setLoopFade(bLoopFade ? (iLoopFade > 0 ? iLoopFade : 1): 0);
+		if (bLoopFade && iLoopFade > 0) m_iLoopFade = iLoopFade;
+		pSamplUi->setLoopFade(bLoopFade ? m_iLoopFade : 0);
 		m_ui.StatusBar->showMessage(tr("Loop crossfade: %1")
 			.arg(bLoopFade ? QString::number(iLoopFade) : tr("Off")), 5000);
 		m_ui.Gen1LoopFadeSpinBox->setEnabled(bLoopFade);
@@ -1303,6 +1307,7 @@ void samplv1widget::updateOffsetLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1LoopFadeSpinBox->setMaximum(
 			qMin(iLoopStart, (iLoopEnd - iLoopStart) >> 1));
 		m_ui.Gen1LoopFadeSpinBox->setValue(iLoopFade);
+		if (iLoopFade > 0) m_iLoopFade = iLoopFade;
 		m_ui.Gen1LoopZeroCheckBox->setValue(bLoopZero ? 1.0f : 0.0f);
 		m_ui.Gen1LoopZeroCheckBox->setEnabled(bLoop);
 		m_ui.Gen1Sample->setOffsetStart(iOffsetStart);

@@ -6,6 +6,10 @@ ChangeLog
 
 GIT HEAD
 
+- Improved overall stability for current sample offset and
+  loop range, cross-fade and zero-crossing property changes
+  across UI's, eg. LV2 plug-in native GUI and a host generic
+  provided one. (EXPERIMENTAL)
 - HiDPI display screen support (Qt >= 5.6). (EXPERIMENTAL)
 - A fake/visual piano-keyboard widget is now being introduced
   to the status bar. (EXPERIMENTAL)
