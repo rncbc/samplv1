@@ -1194,7 +1194,7 @@ void samplv1widget::loopFadeChanged (void)
 	++m_iUpdate;
 	samplv1_ui *pSamplUi = ui_instance();
 	if (pSamplUi) {
-		const bool bLoopFade = (m_ui.Gen1LoopFadeCheckBox->value() > 0.0f);
+		const bool bLoopFade = (m_ui.Gen1LoopFadeCheckBox->value() > 0.5f);
 		const uint32_t iLoopFade = m_ui.Gen1LoopFadeSpinBox->value();
 		if (bLoopFade && iLoopFade > 0) m_iLoopFade = iLoopFade;
 		pSamplUi->setLoopFade(bLoopFade ? m_iLoopFade : 0);
@@ -1218,7 +1218,7 @@ void samplv1widget::loopZeroChanged (void)
 	if (pSamplUi) {
 		const uint32_t iLoopStart = pSamplUi->loopStart();
 		const uint32_t iLoopEnd = pSamplUi->loopEnd();;
-		const bool bLoopZero = (m_ui.Gen1LoopZeroCheckBox->value() > 0.0f);
+		const bool bLoopZero = (m_ui.Gen1LoopZeroCheckBox->value() > 0.5f);
 		pSamplUi->setLoopZero(bLoopZero);
 		pSamplUi->setLoopRange(iLoopStart, iLoopEnd);
 		m_ui.StatusBar->showMessage(tr("Loop zero-crossing: %1")
@@ -1306,8 +1306,8 @@ void samplv1widget::updateOffsetLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1LoopFadeSpinBox->setMinimum(0);
 		m_ui.Gen1LoopFadeSpinBox->setMaximum(
 			qMin(iLoopStart, (iLoopEnd - iLoopStart) >> 1));
-		m_ui.Gen1LoopFadeSpinBox->setValue(iLoopFade);
 		if (iLoopFade > 0) m_iLoopFade = iLoopFade;
+		m_ui.Gen1LoopFadeSpinBox->setValue(m_iLoopFade);
 		m_ui.Gen1LoopZeroCheckBox->setValue(bLoopZero ? 1.0f : 0.0f);
 		m_ui.Gen1LoopZeroCheckBox->setEnabled(bLoop);
 		m_ui.Gen1Sample->setOffsetStart(iOffsetStart);
