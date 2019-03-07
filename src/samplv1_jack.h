@@ -137,6 +137,16 @@ public:
 	// Facade method.
 	int exec();
 
+	// JACK shutdown handler.
+	void shutdown();
+
+	// Pseudo-singleton accessor.
+	static samplv1_jack_application *getInstance();
+
+signals:
+
+	void shutdown_signal();
+
 #ifdef CONFIG_NSM
 
 protected slots:
@@ -155,6 +165,8 @@ protected slots:
 	void sigterm_handler();
 #endif
 
+	void shutdown_slot();
+
 protected:
 
 	// Argument parser method.
@@ -168,6 +180,7 @@ private:
 	// Instance variables.
 	QCoreApplication *m_pApp;
 	bool m_bGui;
+
 	QStringList m_presets;
 
 	samplv1_jack *m_pSampl;
@@ -180,6 +193,8 @@ private:
 #ifdef HAVE_SIGNAL_H
 	QSocketNotifier *m_pSigtermNotifier;
 #endif
+
+	static samplv1_jack_application *g_pInstance;
 };
 
 

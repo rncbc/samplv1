@@ -622,7 +622,9 @@ void samplv1_jack::updateSample (void)
 
 void samplv1_jack::shutdown (void)
 {
-	QCoreApplication::quit();
+	samplv1_jack_application *pApp = samplv1_jack_application::getInstance();
+	if (pApp)
+		pApp->shutdown();
 }
 
 
@@ -728,12 +730,17 @@ samplv1_jack_application::samplv1_jack_application ( int& argc, char **argv )
 	m_pSigtermNotifier = NULL;
 
 #endif	// !HAVE_SIGNAL_H
+
+	// Pseudo-singleton instance.
+	g_pInstance = this;
 }
 
 
 // Destructor.
 samplv1_jack_application::~samplv1_jack_application (void)
 {
+	g_pInstance = NULL;
+
 #ifdef HAVE_SIGNAL_H
 	if (m_pSigtermNotifier) delete m_pSigtermNotifier;
 #endif
@@ -791,6 +798,10 @@ bool samplv1_jack_application::setup (void)
 		m_pApp->quit();
 		return false;
 	}
+
+	QObject::connect(this,
+		SIGNAL(shutdown_signal()),
+		SLOT(shutdown_slot()));
 
 	m_pSampl = new samplv1_jack();
 
@@ -978,6 +989,30 @@ void samplv1_jack_application::sigterm_handler (void)
 }
 
 #endif	// HAVE_SIGNAL_H
+
+
+// JACK shutdown handlers.
+void samplv1_jack_application::shutdown (void)
+{
+	emit shutdown_signal();
+}
+
+void samplv1_jack_application::shutdown_slot (void)
+{
+	if (m_pWidget)
+		m_pWidget->close();
+	if (m_pApp)
+		m_pApp->quit();
+}
+
+
+// Pseudo-singleton instance.
+samplv1_jack_application *samplv1_jack_application::g_pInstance = NULL;
+
+samplv1_jack_application *samplv1_jack_application::getInstance (void)
+{
+	return g_pInstance;
+}
 
 
 //-------------------------------------------------------------------------
