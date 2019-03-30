@@ -257,40 +257,28 @@ class samplv1_port3 : public samplv1_port
 public:
 
 	samplv1_port3(samplv1_port3_sched *sched, samplv1::ParamIndex index)
-		: m_sched(sched), m_index(index), m_xsync(false) {}
+		: m_sched(sched), m_index(index) {}
 
 	void set_value(float value)
 	{
 		const float v0 = m_sched->probe(m_index);
 		const float d0 = ::fabsf(value - v0);
 
-		if (!m_xsync) {
-			const float v1 = samplv1_port::value();
-			const float d1 = ::fabsf(value - v1) * d0;
-			m_xsync = (d1 < 0.001f);
-		}
+		samplv1_port::set_value(value);
 
-		if (m_xsync) {
-			samplv1_port::set_value(value);
-			if (d0 > 0.001f)
-				m_sched->schedule(m_index);
-		}
+		if (d0 > 0.001f)
+			m_sched->schedule(m_index);
 	}
 
-	void set_value_sync(float vsync, bool xsync)
+	void set_value_sync(float value)
 	{
-		samplv1_port::set_value(vsync);
-
-		if (!xsync)
-			m_xsync = false;
+		samplv1_port::set_value(value);
 	}
 
 private:
 
 	samplv1_port3_sched *m_sched;
 	samplv1::ParamIndex  m_index;
-
-	bool m_xsync;
 };
 
 
@@ -602,7 +590,7 @@ protected:
 				}
 				if (iOffsetStart >= iOffsetEnd)
 					iOffsetStart  = iOffsetEnd - 1;
-				pSampl->setOffsetRange(iOffsetStart, iOffsetEnd, true);
+				pSampl->setOffsetRange(iOffsetStart, iOffsetEnd);
 			}
 			break;
 		case samplv1::GEN1_OFFSET_2:
@@ -621,7 +609,7 @@ protected:
 				}
 				if (iOffsetStart >= iOffsetEnd)
 					iOffsetEnd = iOffsetStart + 1;
-				pSampl->setOffsetRange(iOffsetStart, iOffsetEnd, true);
+				pSampl->setOffsetRange(iOffsetStart, iOffsetEnd);
 			}
 			break;
 		case samplv1::GEN1_LOOP:
@@ -643,7 +631,7 @@ protected:
 				}
 				if (iLoopStart >= iLoopEnd)
 					iLoopStart  = iLoopEnd - 1;
-				pSampl->setLoopRange(iLoopStart, iLoopEnd, true);
+				pSampl->setLoopRange(iLoopStart, iLoopEnd);
 			}
 			break;
 		case samplv1::GEN1_LOOP_2:
@@ -662,7 +650,7 @@ protected:
 				}
 				if (iLoopStart >= iLoopEnd)
 					iLoopEnd = iLoopStart + 1;
-				pSampl->setLoopRange(iLoopStart, iLoopEnd, true);
+				pSampl->setLoopRange(iLoopStart, iLoopEnd);
 			}
 			break;
 		default:
@@ -1055,11 +1043,11 @@ public:
 
 	void sampleOffsetTest();
 	void sampleOffsetSync();
-	void sampleOffsetRangeSync(bool bSync);
+	void sampleOffsetRangeSync();
 
 	void sampleLoopTest();
 	void sampleLoopSync();
-	void sampleLoopRangeSync(bool bSync);
+	void sampleLoopRangeSync();
 
 	void midiInEnabled(bool on);
 	uint32_t midiInCount();
@@ -2282,7 +2270,7 @@ void samplv1_impl::sampleReverseSync (void)
 	const bool bReverse
 		= gen1_sample.isReverse();
 
-	m_gen1.reverse.set_value_sync(bReverse ? 1.0f : 0.0f, false);
+	m_gen1.reverse.set_value_sync(bReverse ? 1.0f : 0.0f);
 }
 
 
@@ -2301,11 +2289,11 @@ void samplv1_impl::sampleOffsetSync (void)
 	const bool bOffset
 		= gen1_sample.isOffset();
 
-	m_gen1.offset.set_value_sync(bOffset ? 1.0f : 0.0f, false);
+	m_gen1.offset.set_value_sync(bOffset ? 1.0f : 0.0f);
 }
 
 
-void samplv1_impl::sampleOffsetRangeSync ( bool bSync )
+void samplv1_impl::sampleOffsetRangeSync (void)
 {
 	const uint32_t iSampleLength
 		= gen1_sample.length();
@@ -2321,8 +2309,8 @@ void samplv1_impl::sampleOffsetRangeSync ( bool bSync )
 		? float(iOffsetEnd) / float(iSampleLength)
 		: 1.0f);
 
-	m_gen1.offset_1.set_value_sync(offset_1, bSync);
-	m_gen1.offset_2.set_value_sync(offset_2, bSync);
+	m_gen1.offset_1.set_value_sync(offset_1);
+	m_gen1.offset_2.set_value_sync(offset_2);
 }
 
 
@@ -2341,11 +2329,11 @@ void samplv1_impl::sampleLoopSync (void)
 	const bool bLoop
 		= gen1_sample.isLoop();
 
-	m_gen1.loop.set_value_sync(bLoop ? 1.0f : 0.0f, false);
+	m_gen1.loop.set_value_sync(bLoop ? 1.0f : 0.0f);
 }
 
 
-void samplv1_impl::sampleLoopRangeSync ( bool bSync )
+void samplv1_impl::sampleLoopRangeSync (void)
 {
 	const uint32_t iSampleLength
 		= gen1_sample.length();
@@ -2361,8 +2349,8 @@ void samplv1_impl::sampleLoopRangeSync ( bool bSync )
 		? float(iLoopEnd) / float(iSampleLength)
 		: 1.0f);
 
-	m_gen1.loop_1.set_value_sync(loop_1, bSync);
-	m_gen1.loop_2.set_value_sync(loop_2, bSync);
+	m_gen1.loop_1.set_value_sync(loop_1);
+	m_gen1.loop_2.set_value_sync(loop_2);
 }
 
 
@@ -2463,11 +2451,10 @@ bool samplv1::isOffset (void) const
 }
 
 
-void samplv1::setOffsetRange (
-	uint32_t iOffsetStart, uint32_t iOffsetEnd, bool bSync )
+void samplv1::setOffsetRange ( uint32_t iOffsetStart, uint32_t iOffsetEnd )
 {
 	m_pImpl->gen1_sample.setOffsetRange(iOffsetStart, iOffsetEnd);
-	m_pImpl->sampleOffsetRangeSync(bSync);
+	m_pImpl->sampleOffsetRangeSync();
 	m_pImpl->updateEnvTimes();
 
 	updateSample();
@@ -2498,11 +2485,10 @@ bool samplv1::isLoop (void) const
 }
 
 
-void samplv1::setLoopRange (
-	uint32_t iLoopStart, uint32_t iLoopEnd, bool bSync )
+void samplv1::setLoopRange ( uint32_t iLoopStart, uint32_t iLoopEnd )
 {
 	m_pImpl->gen1_sample.setLoopRange(iLoopStart, iLoopEnd);
-	m_pImpl->sampleLoopRangeSync(bSync);
+	m_pImpl->sampleLoopRangeSync();
 
 	updateSample();
 }
