@@ -336,7 +336,7 @@ void samplv1_lv2::run ( uint32_t nframes )
 									= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
 								const uint32_t offset_end
 									= pSample->offsetEnd();
-								setOffsetRange(offset_start, offset_end, true);
+								setOffsetRange(offset_start, offset_end);
 							}
 						}
 						else
@@ -351,7 +351,7 @@ void samplv1_lv2::run ( uint32_t nframes )
 									= pSample->offsetStart();
 								const uint32_t offset_end
 									= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
-								setOffsetRange(offset_start, offset_end, true);
+								setOffsetRange(offset_start, offset_end);
 							}
 						}
 						else
@@ -366,7 +366,7 @@ void samplv1_lv2::run ( uint32_t nframes )
 									= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
 								const uint32_t loop_end
 									= pSample->loopEnd();
-								setLoopRange(loop_start, loop_end, true);
+								setLoopRange(loop_start, loop_end);
 							}
 						}
 						else
@@ -381,7 +381,7 @@ void samplv1_lv2::run ( uint32_t nframes )
 									= pSample->loopStart();
 								const uint32_t loop_end
 									= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
-								setLoopRange(loop_start, loop_end, true);
+								setLoopRange(loop_start, loop_end);
 							}
 						}
 						else
@@ -752,10 +752,10 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 	pPlugin->setLoopFade(loop_fade);
 
 	if (loop_start < loop_end)
-		pPlugin->setLoopRange(loop_start, loop_end, true);
+		pPlugin->setLoopRange(loop_start, loop_end);
 
 	if (offset_start < offset_end)
-		pPlugin->setOffsetRange(offset_start, offset_end, true);
+		pPlugin->setOffsetRange(offset_start, offset_end);
 
 	pPlugin->reset();
 

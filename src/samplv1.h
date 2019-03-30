@@ -63,16 +63,14 @@ public:
 	void setOffset(bool bOffset, bool bSync = false);
 	bool isOffset() const;
 
-	void setOffsetRange(
-		uint32_t iOffsetStart, uint32_t iOffsetEnd, bool bSync = false);
+	void setOffsetRange(uint32_t iOffsetStart, uint32_t iOffsetEnd);
 	uint32_t offsetStart() const;
 	uint32_t offsetEnd() const;
 
 	void setLoop(bool bLoop, bool bSync = false);
 	bool isLoop() const;
 
-	void setLoopRange(
-		uint32_t iLoopStart, uint32_t iLoopEnd, bool bSync = false);
+	void setLoopRange(uint32_t iLoopStart, uint32_t iLoopEnd);
 	uint32_t loopStart() const;
 	uint32_t loopEnd() const;
 
