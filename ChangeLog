@@ -9,6 +9,13 @@ ChangeLog
 - A gentlier shutdown for the JACK client standalone client.
 
 
+GIT HEAD
+
+- Probable fix to sample offset and loop range changes across
+  native UI and loading and saving state. (EXPERIMENTAL)
+- Post-LAC2019 development cycle started (towards v0.9.7)...
+
+
 0.9.5  2019-03-04  The End of Winter'19 release.
 
 - Improved overall stability for current sample offset and

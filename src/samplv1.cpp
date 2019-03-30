@@ -257,17 +257,24 @@ class samplv1_port3 : public samplv1_port
 public:
 
 	samplv1_port3(samplv1_port3_sched *sched, samplv1::ParamIndex index)
-		: m_sched(sched), m_index(index) {}
+		: m_sched(sched), m_index(index), m_xsync(false) {}
 
 	void set_value(float value)
 	{
 		const float v0 = m_sched->probe(m_index);
 		const float d0 = ::fabsf(value - v0);
 
-		samplv1_port::set_value(value);
+		if (!m_xsync) {
+			const float v1 = samplv1_port::value();
+			const float d1 = ::fabsf(value - v1) * d0;
+			m_xsync = (d1 < 0.001f);
+		}
 
-		if (d0 > 0.001f)
-			m_sched->schedule(m_index);
+		if (m_xsync) {
+			samplv1_port::set_value(value);
+			if (d0 > 0.001f)
+				m_sched->schedule(m_index);
+		}
 	}
 
 	void set_value_sync(float value)
@@ -279,6 +286,8 @@ private:
 
 	samplv1_port3_sched *m_sched;
 	samplv1::ParamIndex  m_index;
+
+	bool m_xsync;
 };
 
 
