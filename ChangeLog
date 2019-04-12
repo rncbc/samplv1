@@ -4,17 +4,19 @@ samplv1 - an old-school polyphonic sampler
 ChangeLog
 
 
-0.9.6  2019-03-18  Pre-LAC2019 Release Frenzy.
-
-- A gentlier shutdown for the JACK client standalone client.
-
-
 GIT HEAD
 
+- All audio input now get through without being processed
+  by any or whole effects stage anymore. (EXPERIMENTAL)
 - Re-defined all JACK stand-alone client application UNIX
   signal handling. (EXPERIMENTAL)
 - Probable fix to sample offset and loop range changes across
   native UI and loading and saving state. (EXPERIMENTAL)
+
+
+0.9.6  2019-03-18  Pre-LAC2019 Release Frenzy.
+
+- A gentlier shutdown for the JACK client standalone client.
 
 
 0.9.5  2019-03-04  The End of Winter'19 release.
