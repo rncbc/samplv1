@@ -4,7 +4,7 @@ NAME = samplv1
 
 TARGET = $${NAME}
 TEMPLATE = lib
-CONFIG += shared
+CONFIG += static
 
 include(src_core.pri)
 

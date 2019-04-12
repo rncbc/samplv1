@@ -31,7 +31,7 @@
 		samplv1_lv2:P102_OFFSET_START, samplv1_lv2:P103_OFFSET_END,
 		samplv1_lv2:P104_LOOP_START, samplv1_lv2:P105_LOOP_END,
 		samplv1_lv2:P106_LOOP_FADE, samplv1_lv2:P107_LOOP_ZERO ;
-	lv2ui:ui samplv1_lv2:ui, samplv1_lv2:ui_x11, samplv1_lv2:ui_external ;
+	lv2ui:ui samplv1_lv2:ui_x11, samplv1_lv2:ui_external ;
 	lv2:port [
 		a lv2:InputPort, lv2atom:AtomPort ;
 		lv2atom:bufferType lv2atom:Sequence ;
