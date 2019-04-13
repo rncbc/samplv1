@@ -6,6 +6,7 @@ ChangeLog
 
 GIT HEAD
 
+- Corrected sample offset and loop range internal reset.
 - All audio input now get through without being processed
   by any or whole effects stage anymore. (EXPERIMENTAL)
 - Re-defined all JACK stand-alone client application UNIX
