@@ -4,6 +4,12 @@ samplv1 (0.9.6-43) unstable; urgency=low
 
  -- Rui Nuno Capela <rncbc@rncbc.org>  Mon, 18 Mar 2019 19:00:00 +0000
 
+samplv1 (0.9.7-44) unstable; urgency=low
+
+  * A Spring-Break'19 release.
+
+ -- Rui Nuno Capela <rncbc@rncbc.org>  Sun, 14 Apr 2019 19:00:00 +0000
+
 samplv1 (0.9.5-42) unstable; urgency=low
 
   * The End of Winter'19 release.
