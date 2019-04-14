@@ -4,15 +4,15 @@ samplv1 - an old-school polyphonic sampler
 ChangeLog
 
 
-GIT HEAD
+0.9.7  2019-04-14  A Spring-Break'19 Release.
 
 - Corrected sample offset and loop range internal reset.
 - All audio input now get through without being processed
-  by any or whole effects stage anymore. (EXPERIMENTAL)
+  by any or whole effects stage anymore.
 - Re-defined all JACK stand-alone client application UNIX
-  signal handling. (EXPERIMENTAL)
+  signal handling.
 - Probable fix to sample offset and loop range changes across
-  native UI and loading and saving state. (EXPERIMENTAL)
+  native UI and loading and saving state.
 
 
 0.9.6  2019-03-18  Pre-LAC2019 Release Frenzy.
