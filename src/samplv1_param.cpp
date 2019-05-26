@@ -431,6 +431,7 @@ bool samplv1_param::loadPreset (
 
 	file.close();
 
+	pSampl->stabilize();
 	pSampl->reset();
 	pSampl->running(running);
 
