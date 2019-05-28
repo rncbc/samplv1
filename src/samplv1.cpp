@@ -1668,23 +1668,23 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 				// generate
 				pv->gen1.start();
 				// frequencies
-				const float tuning1
+				const float gen1_tuning
 					= *m_gen1.octave * OCTAVE_SCALE
 					+ *m_gen1.tuning * TUNING_SCALE;
-				pv->gen1_freq = m_freqs[key] * samplv1_freq2(tuning1);
+				pv->gen1_freq = m_freqs[key] * samplv1_freq2(gen1_tuning);
 				// filters
-				const int type1 = int(*m_dcf1.type);
-				pv->dcf11.reset(samplv1_filter1::Type(type1));
-				pv->dcf12.reset(samplv1_filter1::Type(type1));
-				pv->dcf13.reset(samplv1_filter2::Type(type1));
-				pv->dcf14.reset(samplv1_filter2::Type(type1));
-				pv->dcf15.reset(samplv1_filter3::Type(type1));
-				pv->dcf16.reset(samplv1_filter3::Type(type1));
+				const int dcf1_type = int(*m_dcf1.type);
+				pv->dcf11.reset(samplv1_filter1::Type(dcf1_type));
+				pv->dcf12.reset(samplv1_filter1::Type(dcf1_type));
+				pv->dcf13.reset(samplv1_filter2::Type(dcf1_type));
+				pv->dcf14.reset(samplv1_filter2::Type(dcf1_type));
+				pv->dcf15.reset(samplv1_filter3::Type(dcf1_type));
+				pv->dcf16.reset(samplv1_filter3::Type(dcf1_type));
 				// formant filters
-				const float cutoff1 = *m_dcf1.cutoff;
-				const float reso1 = *m_dcf1.reso;
-				pv->dcf17.reset_filters(cutoff1, reso1);
-				pv->dcf18.reset_filters(cutoff1, reso1);
+				const float dcf1_cutoff = *m_dcf1.cutoff;
+				const float dcf1_reso = *m_dcf1.reso;
+				pv->dcf17.reset_filters(dcf1_cutoff, dcf1_reso);
+				pv->dcf18.reset_filters(dcf1_cutoff, dcf1_reso);
 				// envelopes
 				m_dcf1.env.start(&pv->dcf1_env);
 				m_lfo1.env.start(&pv->lfo1_env);
@@ -1696,9 +1696,9 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 					= get_bpm(*m_lfo1.bpm) / (60.01f - *m_lfo1.rate * 60.0f);
 				pv->lfo1_sample = pv->lfo1.start(lfo1_pshift, lfo1_freq);
 				// glides (portamentoa)
-				const float frames
+				const float gen1_frames
 					= uint32_t(*m_gen1.glide * *m_gen1.glide * m_srate);
-				pv->gen1_glide.reset(frames, pv->gen1_freq);
+				pv->gen1_glide.reset(gen1_frames, pv->gen1_freq);
 				// sustain
 				pv->sustain = false;
 				// allocated
