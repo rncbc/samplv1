@@ -658,6 +658,7 @@ struct samplv1_dcf
 
 
 // lfo
+struct samplv1_voice;
 
 struct samplv1_lfo
 {
@@ -674,6 +675,8 @@ struct samplv1_lfo
 	samplv1_port2 volume;
 
 	samplv1_env   env;
+
+	samplv1_voice *psync;
 };
 
 
@@ -1096,6 +1099,9 @@ protected:
 
 	void free_voice ( samplv1_voice *pv )
 	{
+		if (m_lfo1.psync == pv)
+			m_lfo1.psync = NULL;
+
 		m_play_list.remove(pv);
 		m_free_list.append(pv);
 		--m_nvoices;
@@ -1155,7 +1161,6 @@ private:
 	samplv1_fx_comp    *m_comp;
 
 	samplv1_reverb m_reverb;
-	samplv1_phasor m_phasor;
 
 	// process direct note on/off...
 	volatile uint16_t m_direct_note;
@@ -1697,10 +1702,10 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 				m_dca1.env.start(&pv->dca1_env);
 				// lfos
 				const float lfo1_pshift
-					= (*m_lfo1.sync > 0.0f ? m_phasor.pshift() : 0.0f);
-				const float lfo1_freq
-					= get_bpm(*m_lfo1.bpm) / (60.01f - *m_lfo1.rate * 60.0f);
-				pv->lfo1_sample = pv->lfo1.start(lfo1_pshift, lfo1_freq);
+					= (m_lfo1.psync ? m_lfo1.psync->lfo1.pshift() : 0.0f);
+				pv->lfo1_sample = pv->lfo1.start(lfo1_pshift);
+				if (*m_lfo1.sync > 0.0f && m_lfo1.psync == NULL)
+					m_lfo1.psync = pv;
 				// glides (portamentoa)
 				const float gen1_frames
 					= uint32_t(*m_gen1.glide * *m_gen1.glide * m_srate);
@@ -1862,6 +1867,8 @@ void samplv1_impl::allNotesOff (void)
 	}
 
 	gen1_last = 0.0f;
+
+	m_lfo1.psync = NULL;
 
 	m_direct_note = 0;
 }
@@ -2257,8 +2264,6 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 	}
 
 	// post-processing
-	m_phasor.process(nframes);
-
 	m_dca1.volume.tick(nframes);
 	m_out1.width.tick(nframes);
 	m_out1.panning.tick(nframes);

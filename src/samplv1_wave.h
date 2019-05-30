@@ -58,6 +58,10 @@ public:
 	uint32_t size() const
 		{ return m_nsize; }
 
+	// phase-zero (for slave reset)
+	float phase0() const
+		{ return m_phase0; }
+
 	// init.
 	void reset(Shape shape, float width);
 
@@ -201,6 +205,13 @@ public:
 	// iterate.
 	float sample(float freq)
 		{ return m_wave->sample(m_phase, freq); }
+
+	// phase-shift accessor.
+	float pshift() const
+	{
+		const float pshift = m_wave->phase0() + m_phase;
+		return (pshift >= 1.0f ? pshift - 1.0f : pshift);
+	}
 
 private:
 

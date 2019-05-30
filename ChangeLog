@@ -6,7 +6,7 @@ ChangeLog
 
 GIT HEAD
 
-- Fixed all LFO Panning and Volume modulation, now being
+- Fixed all LFO Sync, Panning and Volume modulation, now
   correctly isolated on a per voice basis. (EXPERIMENTAL)
 - Fixed initial LFO wave shapes on LV2 plug-in UI.
 - Minor update to Debian packaging control file.
