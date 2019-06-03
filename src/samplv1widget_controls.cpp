@@ -1,7 +1,7 @@
 // samplv1widget_controls.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2015, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2019, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -24,11 +24,39 @@
 #include "samplv1_controls.h"
 #include "samplv1_config.h"
 
+#include <QItemDelegate>
 #include <QHeaderView>
-
 #include <QSpinBox>
 #include <QLineEdit>
 #include <QComboBox>
+
+
+//----------------------------------------------------------------------------
+// samplv1widget_controls::ItemDelegate -- Custom (tree) list item delegate.
+
+class samplv1widget_controls::ItemDelegate : public QItemDelegate
+{
+public:
+
+	// ctor.
+	ItemDelegate(QObject *pParent = 0);
+
+	// QItemDelegate interface...
+	QSize sizeHint(
+		const QStyleOptionViewItem& option,
+		const QModelIndex& index) const;
+
+	QWidget *createEditor(QWidget *pParent,
+		const QStyleOptionViewItem& option,
+		const QModelIndex& index) const;
+
+	void setEditorData(QWidget *pEditor,
+		const QModelIndex& index) const;
+
+	void setModelData(QWidget *pEditor,
+		QAbstractItemModel *pModel,
+		const QModelIndex& index) const;
+};
 
 
 //----------------------------------------------------------------------------
@@ -420,17 +448,17 @@ QString controlParamName (
 
 
 //----------------------------------------------------------------------------
-// samplv1widget_controls_item_delegate -- Custom (tree) list item delegate.
+// samplv1widget_controls::ItemDelegate -- Custom (tree) list item delegate.
 
 // ctor.
-samplv1widget_controls_item_delegate::samplv1widget_controls_item_delegate (
-	QObject *pParent ) : QItemDelegate(pParent)
+samplv1widget_controls::ItemDelegate::ItemDelegate ( QObject *pParent )
+	: QItemDelegate(pParent)
 {
 }
 
 
 // QItemDelegate interface...
-QSize samplv1widget_controls_item_delegate::sizeHint (
+QSize samplv1widget_controls::ItemDelegate::sizeHint (
 	const QStyleOptionViewItem& option, const QModelIndex& index ) const
 {
 	const int x = (index.column() == 1 ? 32 : 4); // Type is special.
@@ -438,7 +466,7 @@ QSize samplv1widget_controls_item_delegate::sizeHint (
 }
 
 
-QWidget *samplv1widget_controls_item_delegate::createEditor ( QWidget *pParent,
+QWidget *samplv1widget_controls::ItemDelegate::createEditor ( QWidget *pParent,
 	const QStyleOptionViewItem& /*option*/, const QModelIndex& index ) const
 {
 	QWidget *pEditor = NULL;
@@ -496,7 +524,7 @@ QWidget *samplv1widget_controls_item_delegate::createEditor ( QWidget *pParent,
 	}
 
 #ifdef CONFIG_DEBUG_0
-	qDebug("samplv1widget_controls_item_delegate::createEditor(%p, %d, %d) = %p",
+	qDebug("samplv1widget_controls::ItemDelegate::createEditor(%p, %d, %d) = %p",
 		pParent, index.row(), index.column(), pEditor);
 #endif
 
@@ -504,11 +532,11 @@ QWidget *samplv1widget_controls_item_delegate::createEditor ( QWidget *pParent,
 }
 
 
-void samplv1widget_controls_item_delegate::setEditorData (
+void samplv1widget_controls::ItemDelegate::setEditorData (
 	QWidget *pEditor, const QModelIndex& index ) const
 {
 #ifdef CONFIG_DEBUG_0
-	qDebug("samplv1widget_controls_item_delegate::setEditorData(%p, %d, %d)",
+	qDebug("samplv1widget_controls::ItemDelegate::setEditorData(%p, %d, %d)",
 		pEditor, index.row(), index.column());
 #endif
 
@@ -567,7 +595,7 @@ void samplv1widget_controls_item_delegate::setEditorData (
 }
 
 
-void samplv1widget_controls_item_delegate::setModelData ( QWidget *pEditor,
+void samplv1widget_controls::ItemDelegate::setModelData ( QWidget *pEditor,
 	QAbstractItemModel *pModel,	const QModelIndex& index ) const
 {
 #ifdef CONFIG_DEBUG_0
@@ -663,7 +691,7 @@ samplv1widget_controls::samplv1widget_controls ( QWidget *pParent )
 #endif
 //	pHeaderView->hide();
 
-	QTreeWidget::setItemDelegate(new samplv1widget_controls_item_delegate(this));
+	QTreeWidget::setItemDelegate(new ItemDelegate(this));
 
 	QObject::connect(this,
 		SIGNAL(itemChanged(QTreeWidgetItem *, int)),

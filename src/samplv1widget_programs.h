@@ -1,7 +1,7 @@
 // samplv1widget_programs.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2015, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2019, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -22,43 +22,11 @@
 #ifndef __samplv1widget_programs_h
 #define __samplv1widget_programs_h
 
-#include <QItemDelegate>
 #include <QTreeWidget>
 
 
 // forward decls.
 class samplv1_programs;
-
-
-//----------------------------------------------------------------------------
-// samplv1widget_programs_item_delegate -- Custom (tree) list item delegate.
-
-class samplv1widget_programs_item_delegate : public QItemDelegate
-{
-	Q_OBJECT
-
-public:
-
-	// ctor.
-	samplv1widget_programs_item_delegate(QObject *pParent = 0);
-
-	// QItemDelegate interface...
-	QSize sizeHint(
-		const QStyleOptionViewItem& option,
-		const QModelIndex& index) const;
-
-	QWidget *createEditor(QWidget *pParent,
-		const QStyleOptionViewItem& option,
-		const QModelIndex& index) const;
-
-	void setEditorData(QWidget *pEditor,
-		const QModelIndex& index) const;
-
-	void setModelData(QWidget *pEditor,
-		QAbstractItemModel *pModel,
-		const QModelIndex& index) const;
-};
-
 
 
 //----------------------------------------------------------------------------
@@ -96,6 +64,9 @@ protected slots:
 	void itemCollapsedSlot(QTreeWidgetItem *);
 
 protected:
+
+	// item delegate decl..
+	class ItemDelegate;
 
 	// factory methods.
 	QTreeWidgetItem *newBankItem();
