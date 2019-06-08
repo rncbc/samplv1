@@ -647,6 +647,7 @@ protected:
 
 struct samplv1_dcf
 {
+	samplv1_port  enabled;
 	samplv1_port2 cutoff;
 	samplv1_port2 reso;
 	samplv1_port  type;
@@ -662,6 +663,7 @@ struct samplv1_voice;
 
 struct samplv1_lfo
 {
+	samplv1_port  enabled;
 	samplv1_port  shape;
 	samplv1_port  width;
 	samplv1_port2 bpm;
@@ -1494,6 +1496,7 @@ samplv1_port *samplv1_impl::paramPort ( samplv1::ParamIndex index )
 	case samplv1::GEN1_TUNING:    pParamPort = &m_gen1.tuning;      break;
 	case samplv1::GEN1_GLIDE:     pParamPort = &m_gen1.glide;       break;
 	case samplv1::GEN1_ENVTIME:   pParamPort = &m_gen1.envtime;     break;
+	case samplv1::DCF1_ENABLED:   pParamPort = &m_dcf1.enabled;     break;
 	case samplv1::DCF1_CUTOFF:    pParamPort = &m_dcf1.cutoff;      break;
 	case samplv1::DCF1_RESO:      pParamPort = &m_dcf1.reso;        break;
 	case samplv1::DCF1_TYPE:      pParamPort = &m_dcf1.type;        break;
@@ -1503,6 +1506,7 @@ samplv1_port *samplv1_impl::paramPort ( samplv1::ParamIndex index )
 	case samplv1::DCF1_DECAY:     pParamPort = &m_dcf1.env.decay;   break;
 	case samplv1::DCF1_SUSTAIN:   pParamPort = &m_dcf1.env.sustain; break;
 	case samplv1::DCF1_RELEASE:   pParamPort = &m_dcf1.env.release; break;
+	case samplv1::LFO1_ENABLED:   pParamPort = &m_lfo1.enabled;     break;
 	case samplv1::LFO1_SHAPE:     pParamPort = &m_lfo1.shape;       break;
 	case samplv1::LFO1_WIDTH:     pParamPort = &m_lfo1.width;       break;
 	case samplv1::LFO1_BPM:       pParamPort = &m_lfo1.bpm;         break;
@@ -2056,10 +2060,17 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 	const uint16_t k12 = (gen1_sample.channels() > 1 ? 1 : 0);
 
 	// controls
-	const float lfo1_freq
-		= get_bpm(*m_lfo1.bpm) / (60.01f - *m_lfo1.rate * 60.0f);
 
-	const float modwheel1 = m_ctl1.modwheel + PITCH_SCALE * *m_lfo1.pitch;
+	const bool lfo1_enabled = (*m_lfo1.enabled > 0.0f);
+	
+	const float lfo1_freq = (lfo1_enabled
+		? get_bpm(*m_lfo1.bpm) / (60.01f - *m_lfo1.rate * 60.0f) : 0.0f);
+
+	const float modwheel1 = (lfo1_enabled
+		? m_ctl1.modwheel + PITCH_SCALE * *m_lfo1.pitch : 0.0f);
+
+	const bool dcf1_enabled = (*m_dcf1.enabled > 0.0f);
+	
 	const float fxsend1 = *m_out1.fxsend * *m_out1.fxsend;
 
 	if (m_gen1.sample0 != *m_gen1.sample) {
@@ -2072,8 +2083,10 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 		updateEnvTimes();
 	}
 
-	lfo1_wave.reset_test(
-		samplv1_wave::Shape(*m_lfo1.shape), *m_lfo1.width);
+	if (lfo1_enabled) {
+		lfo1_wave.reset_test(
+			samplv1_wave::Shape(*m_lfo1.shape), *m_lfo1.width);
+	}
 
 	// per voice
 
@@ -2114,8 +2127,10 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 
 				// generators
 
-				const float lfo1_env = pv->lfo1_env.tick();
-				const float lfo1 = pv->lfo1_sample * lfo1_env;
+				const float lfo1_env
+					= (lfo1_enabled ? pv->lfo1_env.tick() : 0.0f);
+				const float lfo1
+					= (lfo1_enabled ? pv->lfo1_sample * lfo1_env : 0.0f);
 
 				pv->gen1.next(pv->gen1_freq
 					* (m_ctl1.pitchbend + modwheel1 * lfo1)
@@ -2124,36 +2139,39 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 				float gen1 = pv->gen1.value(k11);
 				float gen2 = pv->gen1.value(k12);
 
-				pv->lfo1_sample = pv->lfo1.sample(lfo1_freq
-					* (1.0f + SWEEP_SCALE * *m_lfo1.sweep * lfo1_env));
+				if (lfo1_enabled) {
+					pv->lfo1_sample = pv->lfo1.sample(lfo1_freq
+						* (1.0f + SWEEP_SCALE * *m_lfo1.sweep * lfo1_env));
+				}
 
 				// filters
 
-				const float env1 = 0.5f * (1.0f + vel1
-					* *m_dcf1.envelope * pv->dcf1_env.tick());
-				const float cutoff1 = samplv1_sigmoid_1(*m_dcf1.cutoff
-					* env1 * (1.0f + *m_lfo1.cutoff * lfo1));
-				const float reso1 = samplv1_sigmoid_1(*m_dcf1.reso
-					* env1 * (1.0f + *m_lfo1.reso * lfo1));
-
-				switch (int(*m_dcf1.slope)) {
-				case 3: // Formant
-					gen1 = pv->dcf17.output(gen1, cutoff1, reso1);
-					gen2 = pv->dcf18.output(gen2, cutoff1, reso1);
-					break;
-				case 2: // Biquad
-					gen1 = pv->dcf15.output(gen1, cutoff1, reso1);
-					gen2 = pv->dcf16.output(gen2, cutoff1, reso1);
-					break;
-				case 1: // 24db/octave
-					gen1 = pv->dcf13.output(gen1, cutoff1, reso1);
-					gen2 = pv->dcf14.output(gen2, cutoff1, reso1);
-					break;
-				case 0: // 12db/octave
-				default:
-					gen1 = pv->dcf11.output(gen1, cutoff1, reso1);
-					gen2 = pv->dcf12.output(gen2, cutoff1, reso1);
-					break;
+				if (dcf1_enabled) {
+					const float env1 = 0.5f * (1.0f + vel1
+						* *m_dcf1.envelope * pv->dcf1_env.tick());
+					const float cutoff1 = samplv1_sigmoid_1(*m_dcf1.cutoff
+						* env1 * (1.0f + *m_lfo1.cutoff * lfo1));
+					const float reso1 = samplv1_sigmoid_1(*m_dcf1.reso
+						* env1 * (1.0f + *m_lfo1.reso * lfo1));
+					switch (int(*m_dcf1.slope)) {
+					case 3: // Formant
+						gen1 = pv->dcf17.output(gen1, cutoff1, reso1);
+						gen2 = pv->dcf18.output(gen2, cutoff1, reso1);
+						break;
+					case 2: // Biquad
+						gen1 = pv->dcf15.output(gen1, cutoff1, reso1);
+						gen2 = pv->dcf16.output(gen2, cutoff1, reso1);
+						break;
+					case 1: // 24db/octave
+						gen1 = pv->dcf13.output(gen1, cutoff1, reso1);
+						gen2 = pv->dcf14.output(gen2, cutoff1, reso1);
+						break;
+					case 0: // 12db/octave
+					default:
+						gen1 = pv->dcf11.output(gen1, cutoff1, reso1);
+						gen2 = pv->dcf12.output(gen2, cutoff1, reso1);
+						break;
+					}
 				}
 
 				// volumes

@@ -60,6 +60,7 @@ struct ParamInfo {
 	{ "GEN1_TUNING",   PARAM_FLOAT,   0.0f,  -1.0f,   1.0f }, // GEN1 Tuning
 	{ "GEN1_GLIDE",    PARAM_FLOAT,   0.0f,   0.0f,   1.0f }, // GEN1 Glide
 	{ "GEN1_ENVTIME",  PARAM_FLOAT,   0.5f,   0.0f,   1.0f }, // GEN1 Env.Time
+	{ "DCF1_ENABLED",  PARAM_BOOL,    1.0f,   0.0f,   1.0f }, // DCF1 Enabled
 	{ "DCF1_CUTOFF",   PARAM_FLOAT,   1.0f,   0.0f,   1.0f }, // DCF1 Cutoff
 	{ "DCF1_RESO",     PARAM_FLOAT,   0.0f,   0.0f,   1.0f }, // DCF1 Resonance
 	{ "DCF1_TYPE",     PARAM_INT,     0.0f,   0.0f,   3.0f }, // DCF1 Type
@@ -69,6 +70,7 @@ struct ParamInfo {
 	{ "DCF1_DECAY",    PARAM_FLOAT,   0.2f,   0.0f,   1.0f }, // DCF1 Decay
 	{ "DCF1_SUSTAIN",  PARAM_FLOAT,   0.5f,   0.0f,   1.0f }, // DCF1 Sustain
 	{ "DCF1_RELEASE",  PARAM_FLOAT,   0.5f,   0.0f,   1.0f }, // DCF1 Release
+	{ "LFO1_ENABLED",  PARAM_BOOL,    1.0f,   0.0f,   1.0f }, // LFO1 Enabled
 	{ "LFO1_SHAPE",    PARAM_INT,     1.0f,   0.0f,   4.0f }, // LFO1 Wave Shape
 	{ "LFO1_WIDTH",    PARAM_FLOAT,   1.0f,   0.0f,   1.0f }, // LFO1 Wave Width
 	{ "LFO1_BPM",      PARAM_FLOAT, 180.0f,   0.0f, 360.0f }, // LFO1 BPM

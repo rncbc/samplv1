@@ -375,9 +375,12 @@
         </widget>
        </item>
        <item row="1" column="0" rowspan="2" colspan="5">
-        <widget class="QGroupBox" name="Dcf1GroupBox">
+        <widget class="samplv1widget_group" name="Dcf1GroupBox">
          <property name="title">
           <string>DCF</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
          </property>
          <layout class="QVBoxLayout">
           <item>
@@ -496,9 +499,12 @@
         </widget>
        </item>
        <item row="1" column="5" rowspan="2" colspan="8">
-        <widget class="QGroupBox" name="Lfo1GroupBox">
+        <widget class="samplv1widget_group" name="Lfo1GroupBox">
          <property name="title">
           <string>LFO</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
          </property>
          <layout class="QVBoxLayout">
           <item>
@@ -1417,6 +1423,11 @@
   <customwidget>
    <class>samplv1widget_check</class>
    <extends>QCheckBox</extends>
+   <header>samplv1widget_param.h</header>
+  </customwidget>
+  <customwidget>
+   <class>samplv1widget_group</class>
+   <extends>QGroupBox</extends>
    <header>samplv1widget_param.h</header>
   </customwidget>
   <customwidget>
