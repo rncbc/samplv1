@@ -376,6 +376,9 @@
        </item>
        <item row="1" column="0" rowspan="2" colspan="5">
         <widget class="samplv1widget_group" name="Dcf1GroupBox">
+         <property name="toolTip">
+          <string>DCF1 Enabled</string>
+         </property>
          <property name="title">
           <string>DCF</string>
          </property>
@@ -500,6 +503,9 @@
        </item>
        <item row="1" column="5" rowspan="2" colspan="8">
         <widget class="samplv1widget_group" name="Lfo1GroupBox">
+         <property name="toolTip">
+          <string>LFO1 Enabled</string>
+         </property>
          <property name="title">
           <string>LFO</string>
          </property>

@@ -425,6 +425,9 @@ public:
 	~samplv1widget_group();
 
 	// Accessors.
+	void setToolTip(const QString& sToolTip);
+	QString toolTip() const;
+
 	samplv1widget_param *param() const;
 
 protected slots:
