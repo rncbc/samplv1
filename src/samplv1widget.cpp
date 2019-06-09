@@ -768,6 +768,20 @@ void samplv1widget::updateParamEx (
 		pSamplUi->setLoop(bool(fValue > 0.0f));
 		if (!bIter) updateOffsetLoop(pSamplUi->sample());
 		break;
+	case samplv1::DCF1_ENABLED:
+		if (m_ui.Lfo1GroupBox->isChecked()) {
+			const bool bDcf1Enabled = (fValue > 0.5f);
+			m_ui.Lfo1CutoffKnob->setEnabled(bDcf1Enabled);
+			m_ui.Lfo1ResoKnob->setEnabled(bDcf1Enabled);
+		}
+		break;
+	case samplv1::LFO1_ENABLED:
+		if (fValue > 0.5f) {
+			const bool bDcf1Enabled = m_ui.Dcf1GroupBox->isChecked();
+			m_ui.Lfo1CutoffKnob->setEnabled(bDcf1Enabled);
+			m_ui.Lfo1ResoKnob->setEnabled(bDcf1Enabled);
+		}
+		break;
 	case samplv1::DCF1_SLOPE:
 		if (m_ui.Dcf1GroupBox->isChecked())
 			m_ui.Dcf1TypeKnob->setEnabled(int(fValue) != 3); // !Formant
