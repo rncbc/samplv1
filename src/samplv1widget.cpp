@@ -769,7 +769,8 @@ void samplv1widget::updateParamEx (
 		if (!bIter) updateOffsetLoop(pSamplUi->sample());
 		break;
 	case samplv1::DCF1_SLOPE:
-		m_ui.Dcf1TypeKnob->setEnabled(int(fValue) != 3); // !Formant
+		if (m_ui.Dcf1GroupBox->isChecked())
+			m_ui.Dcf1TypeKnob->setEnabled(int(fValue) != 3); // !Formant
 		break;
 	case samplv1::LFO1_SHAPE:
 		m_ui.Lfo1Wave->setWaveShape(fValue);
