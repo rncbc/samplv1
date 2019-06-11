@@ -413,6 +413,18 @@ struct samplv1_env
 		}
 	}
 
+	void idle(State *p)
+	{
+		p->running = false;
+		p->stage = Idle;
+		p->frames = 0;
+		p->phase = 0.0f;
+		p->delta = 0.0f;
+		p->value = 0.0f;
+		p->c1 = 0.0f;
+		p->c0 = 0.0f;
+	}
+
 	// parameters
 
 	samplv1_port attack;
@@ -686,6 +698,7 @@ struct samplv1_lfo
 
 struct samplv1_dca
 {
+	samplv1_port enabled;
 	samplv1_port volume;
 
 	samplv1_env  env;
@@ -1522,6 +1535,7 @@ samplv1_port *samplv1_impl::paramPort ( samplv1::ParamIndex index )
 	case samplv1::LFO1_DECAY:     pParamPort = &m_lfo1.env.decay;   break;
 	case samplv1::LFO1_SUSTAIN:   pParamPort = &m_lfo1.env.sustain; break;
 	case samplv1::LFO1_RELEASE:   pParamPort = &m_lfo1.env.release; break;
+	case samplv1::DCA1_ENABLED:   pParamPort = &m_dca1.enabled;     break;
 	case samplv1::DCA1_VOLUME:    pParamPort = &m_dca1.volume;      break;
 	case samplv1::DCA1_ATTACK:    pParamPort = &m_dca1.env.attack;  break;
 	case samplv1::DCA1_DECAY:     pParamPort = &m_dca1.env.decay;   break;
@@ -1701,9 +1715,18 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 				pv->dcf17.reset_filters(dcf1_cutoff, dcf1_reso);
 				pv->dcf18.reset_filters(dcf1_cutoff, dcf1_reso);
 				// envelopes
-				m_dcf1.env.start(&pv->dcf1_env);
-				m_lfo1.env.start(&pv->lfo1_env);
-				m_dca1.env.start(&pv->dca1_env);
+				if (*m_dcf1.enabled > 0.0f)
+					m_dcf1.env.start(&pv->dcf1_env);
+				else
+					m_dcf1.env.idle(&pv->dcf1_env);
+				if (*m_lfo1.enabled > 0.0f)
+					m_lfo1.env.start(&pv->lfo1_env);
+				else
+					m_lfo1.env.idle(&pv->lfo1_env);
+				if (*m_dca1.enabled > 0.0f)
+					m_dca1.env.start(&pv->dca1_env);
+				else
+					m_dca1.env.idle(&pv->dca1_env);
 				// lfos
 				const float lfo1_pshift
 					= (m_lfo1.psync ? m_lfo1.psync->lfo1.pshift() : 0.0f);
@@ -2070,7 +2093,8 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 		? m_ctl1.modwheel + PITCH_SCALE * *m_lfo1.pitch : 0.0f);
 
 	const bool dcf1_enabled = (*m_dcf1.enabled > 0.0f);
-	
+	const bool dca1_enabled = (*m_dca1.enabled > 0.0f);
+
 	const float fxsend1 = *m_out1.fxsend * *m_out1.fxsend;
 
 	if (m_gen1.sample0 != *m_gen1.sample) {
@@ -2180,7 +2204,7 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 				const float mid1 = 0.5f * (gen1 + gen2);
 				const float sid1 = 0.5f * (gen1 - gen2);
 				const float vol1 = vel1 * m_vol1.value(j)
-					* pv->dca1_env.tick()
+					* (dca1_enabled ? pv->dca1_env.tick() : 1.0f)
 					* pv->out1_vol.value(j);
 
 				// outputs
@@ -2218,7 +2242,8 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 			if (pv->dca1_env.running && pv->dca1_env.frames == 0)
 				m_dca1.env.next(&pv->dca1_env);
 
-			if (pv->dca1_env.stage == samplv1_env::Idle || pv->gen1.isOver()) {
+			if (pv->gen1.isOver() ||
+				(dca1_enabled && pv->dca1_env.stage == samplv1_env::Idle)) {
 				if (pv->note < 0)
 					free_voice(pv);
 				nblock = 0;

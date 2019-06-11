@@ -276,7 +276,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	setParamKnob(samplv1::GEN1_ENVTIME, m_ui.Gen1EnvTimeKnob);
 
 	// DCF1
-	setParamKnob(samplv1::DCF1_ENABLED,	 m_ui.Dcf1GroupBox->param());
+	setParamKnob(samplv1::DCF1_ENABLED,  m_ui.Dcf1GroupBox->param());
 	setParamKnob(samplv1::DCF1_CUTOFF,   m_ui.Dcf1CutoffKnob);
 	setParamKnob(samplv1::DCF1_RESO,     m_ui.Dcf1ResoKnob);
 	setParamKnob(samplv1::DCF1_TYPE,     m_ui.Dcf1TypeKnob);
@@ -337,7 +337,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 		m_ui.Dcf1Env, SLOT(setRelease(float)));
 
 	// LFO1
-	setParamKnob(samplv1::LFO1_ENABLED,	m_ui.Lfo1GroupBox->param());
+	setParamKnob(samplv1::LFO1_ENABLED, m_ui.Lfo1GroupBox->param());
 	setParamKnob(samplv1::LFO1_SHAPE,   m_ui.Lfo1ShapeKnob);
 	setParamKnob(samplv1::LFO1_WIDTH,   m_ui.Lfo1WidthKnob);
 	setParamKnob(samplv1::LFO1_BPM,     m_ui.Lfo1BpmKnob);
@@ -396,6 +396,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 		m_ui.Lfo1Env, SLOT(setRelease(float)));
 
 	// DCA1
+	setParamKnob(samplv1::DCA1_ENABLED, m_ui.Dca1GroupBox->param());
 	setParamKnob(samplv1::DCA1_VOLUME,  m_ui.Dca1VolumeKnob);
 	setParamKnob(samplv1::DCA1_ATTACK,  m_ui.Dca1AttackKnob);
 	setParamKnob(samplv1::DCA1_DECAY,   m_ui.Dca1DecayKnob);
