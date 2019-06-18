@@ -413,6 +413,18 @@ struct samplv1_env
 		}
 	}
 
+	void idle(State *p)
+	{
+		p->running = false;
+		p->stage = Idle;
+		p->frames = 0;
+		p->phase = 0.0f;
+		p->delta = 0.0f;
+		p->value = 0.0f;
+		p->c1 = 0.0f;
+		p->c0 = 0.0f;
+	}
+
 	// parameters
 
 	samplv1_port attack;
@@ -448,23 +460,6 @@ struct samplv1_ctl
 	float panning;
 	float volume;
 	bool  sustain;
-};
-
-
-// internal control
-
-struct samplv1_aux
-{
-	samplv1_aux() { reset(); }
-
-	void reset()
-	{
-		panning = 0.0f;
-		volume = 1.0f;
-	}
-
-	float panning;
-	float volume;
 };
 
 
@@ -664,6 +659,7 @@ protected:
 
 struct samplv1_dcf
 {
+	samplv1_port  enabled;
 	samplv1_port2 cutoff;
 	samplv1_port2 reso;
 	samplv1_port  type;
@@ -675,9 +671,11 @@ struct samplv1_dcf
 
 
 // lfo
+struct samplv1_voice;
 
 struct samplv1_lfo
 {
+	samplv1_port  enabled;
 	samplv1_port  shape;
 	samplv1_port  width;
 	samplv1_port2 bpm;
@@ -691,6 +689,8 @@ struct samplv1_lfo
 	samplv1_port2 volume;
 
 	samplv1_env   env;
+
+	samplv1_voice *psync;
 };
 
 
@@ -698,6 +698,7 @@ struct samplv1_lfo
 
 struct samplv1_dca
 {
+	samplv1_port enabled;
 	samplv1_port volume;
 
 	samplv1_env  env;
@@ -851,26 +852,47 @@ private:
 };
 
 
-// panning smoother (3 parameters)
+// balance smoother (1 parameters)
 
-class samplv1_pan : public samplv1_ramp3
+class samplv1_bal1 : public samplv1_ramp1
 {
 public:
 
-	samplv1_pan() : samplv1_ramp3(2) {}
+	samplv1_bal1() : samplv1_ramp1(2) {}
 
 protected:
 
 	float evaluate(uint16_t i)
 	{
-		samplv1_ramp3::update();
+		samplv1_ramp1::update();
 
-		const float wpan = 0.25f * M_PI
+		const float wbal = 0.25f * M_PI
+			* (1.0f + m_param1_v);
+
+		return M_SQRT2 * (i & 1 ? ::sinf(wbal) : ::cosf(wbal));
+	}
+};
+
+
+// balance smoother (2 parameters)
+
+class samplv1_bal2 : public samplv1_ramp2
+{
+public:
+
+	samplv1_bal2() : samplv1_ramp2(2) {}
+
+protected:
+
+	float evaluate(uint16_t i)
+	{
+		samplv1_ramp2::update();
+
+		const float wbal = 0.25f * M_PI
 			* (1.0f + m_param1_v)
-			* (1.0f + m_param2_v)
-			* (1.0f + m_param3_v);
+			* (1.0f + m_param2_v);
 
-		return M_SQRT2 * (i == 0 ? ::cosf(wpan) : ::sinf(wpan));
+		return M_SQRT2 * (i & 1 ? ::sinf(wbal) : ::cosf(wbal));
 	}
 };
 
@@ -955,6 +977,12 @@ struct samplv1_voice : public samplv1_list<samplv1_voice>
 	samplv1_glide gen1_glide;					// glides (portamento)
 
 	samplv1_pre dca1_pre;
+
+	float out1_panning;
+	float out1_volume;
+
+	samplv1_bal1  out1_pan;						// output panning
+	samplv1_ramp1 out1_vol;						// output volume
 
 	bool sustain;
 };
@@ -1086,6 +1114,9 @@ protected:
 
 	void free_voice ( samplv1_voice *pv )
 	{
+		if (m_lfo1.psync == pv)
+			m_lfo1.psync = NULL;
+
 		m_play_list.remove(pv);
 		m_free_list.append(pv);
 		--m_nvoices;
@@ -1131,11 +1162,9 @@ private:
 	samplv1_list<samplv1_voice> m_free_list;
 	samplv1_list<samplv1_voice> m_play_list;
 
-	samplv1_aux   m_aux1;
-
 	samplv1_ramp1 m_wid1;
-	samplv1_pan   m_pan1;
-	samplv1_ramp4 m_vol1;
+	samplv1_bal2  m_pan1;
+	samplv1_ramp3 m_vol1;
 
 	float  **m_sfxs;
 	uint32_t m_nsize;
@@ -1147,7 +1176,6 @@ private:
 	samplv1_fx_comp    *m_comp;
 
 	samplv1_reverb m_reverb;
-	samplv1_phasor m_phasor;
 
 	// process direct note on/off...
 	volatile uint16_t m_direct_note;
@@ -1447,8 +1475,7 @@ void samplv1_impl::setParamPort ( samplv1::ParamIndex index, float *pfParam )
 		m_vol1.reset(
 			m_out1.volume.value_ptr(),
 			m_dca1.volume.value_ptr(),
-			&m_ctl1.volume,
-			&m_aux1.volume);
+			&m_ctl1.volume);
 		break;
 	case samplv1::OUT1_WIDTH:
 		m_wid1.reset(
@@ -1457,8 +1484,7 @@ void samplv1_impl::setParamPort ( samplv1::ParamIndex index, float *pfParam )
 	case samplv1::OUT1_PANNING:
 		m_pan1.reset(
 			m_out1.panning.value_ptr(),
-			&m_ctl1.panning,
-			&m_aux1.panning);
+			&m_ctl1.panning);
 		break;
 	default:
 		break;
@@ -1483,6 +1509,7 @@ samplv1_port *samplv1_impl::paramPort ( samplv1::ParamIndex index )
 	case samplv1::GEN1_TUNING:    pParamPort = &m_gen1.tuning;      break;
 	case samplv1::GEN1_GLIDE:     pParamPort = &m_gen1.glide;       break;
 	case samplv1::GEN1_ENVTIME:   pParamPort = &m_gen1.envtime;     break;
+	case samplv1::DCF1_ENABLED:   pParamPort = &m_dcf1.enabled;     break;
 	case samplv1::DCF1_CUTOFF:    pParamPort = &m_dcf1.cutoff;      break;
 	case samplv1::DCF1_RESO:      pParamPort = &m_dcf1.reso;        break;
 	case samplv1::DCF1_TYPE:      pParamPort = &m_dcf1.type;        break;
@@ -1492,6 +1519,7 @@ samplv1_port *samplv1_impl::paramPort ( samplv1::ParamIndex index )
 	case samplv1::DCF1_DECAY:     pParamPort = &m_dcf1.env.decay;   break;
 	case samplv1::DCF1_SUSTAIN:   pParamPort = &m_dcf1.env.sustain; break;
 	case samplv1::DCF1_RELEASE:   pParamPort = &m_dcf1.env.release; break;
+	case samplv1::LFO1_ENABLED:   pParamPort = &m_lfo1.enabled;     break;
 	case samplv1::LFO1_SHAPE:     pParamPort = &m_lfo1.shape;       break;
 	case samplv1::LFO1_WIDTH:     pParamPort = &m_lfo1.width;       break;
 	case samplv1::LFO1_BPM:       pParamPort = &m_lfo1.bpm;         break;
@@ -1507,6 +1535,7 @@ samplv1_port *samplv1_impl::paramPort ( samplv1::ParamIndex index )
 	case samplv1::LFO1_DECAY:     pParamPort = &m_lfo1.env.decay;   break;
 	case samplv1::LFO1_SUSTAIN:   pParamPort = &m_lfo1.env.sustain; break;
 	case samplv1::LFO1_RELEASE:   pParamPort = &m_lfo1.env.release; break;
+	case samplv1::DCA1_ENABLED:   pParamPort = &m_dca1.enabled;     break;
 	case samplv1::DCA1_VOLUME:    pParamPort = &m_dca1.volume;      break;
 	case samplv1::DCA1_ATTACK:    pParamPort = &m_dca1.env.attack;  break;
 	case samplv1::DCA1_DECAY:     pParamPort = &m_dca1.env.decay;   break;
@@ -1668,35 +1697,52 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 				// generate
 				pv->gen1.start();
 				// frequencies
-				const float tuning1
+				const float gen1_tuning
 					= *m_gen1.octave * OCTAVE_SCALE
 					+ *m_gen1.tuning * TUNING_SCALE;
-				pv->gen1_freq = m_freqs[key] * samplv1_freq2(tuning1);
+				pv->gen1_freq = m_freqs[key] * samplv1_freq2(gen1_tuning);
 				// filters
-				const int type1 = int(*m_dcf1.type);
-				pv->dcf11.reset(samplv1_filter1::Type(type1));
-				pv->dcf12.reset(samplv1_filter1::Type(type1));
-				pv->dcf13.reset(samplv1_filter2::Type(type1));
-				pv->dcf14.reset(samplv1_filter2::Type(type1));
-				pv->dcf15.reset(samplv1_filter3::Type(type1));
-				pv->dcf16.reset(samplv1_filter3::Type(type1));
+				const int dcf1_type = int(*m_dcf1.type);
+				pv->dcf11.reset(samplv1_filter1::Type(dcf1_type));
+				pv->dcf12.reset(samplv1_filter1::Type(dcf1_type));
+				pv->dcf13.reset(samplv1_filter2::Type(dcf1_type));
+				pv->dcf14.reset(samplv1_filter2::Type(dcf1_type));
+				pv->dcf15.reset(samplv1_filter3::Type(dcf1_type));
+				pv->dcf16.reset(samplv1_filter3::Type(dcf1_type));
 				// formant filters
-				const float cutoff1 = *m_dcf1.cutoff;
-				const float reso1 = *m_dcf1.reso;
-				pv->dcf17.reset_filters(cutoff1, reso1);
-				pv->dcf18.reset_filters(cutoff1, reso1);
+				const float dcf1_cutoff = *m_dcf1.cutoff;
+				const float dcf1_reso = *m_dcf1.reso;
+				pv->dcf17.reset_filters(dcf1_cutoff, dcf1_reso);
+				pv->dcf18.reset_filters(dcf1_cutoff, dcf1_reso);
 				// envelopes
-				m_dcf1.env.start(&pv->dcf1_env);
-				m_lfo1.env.start(&pv->lfo1_env);
-				m_dca1.env.start(&pv->dca1_env);
+				if (*m_dcf1.enabled > 0.0f)
+					m_dcf1.env.start(&pv->dcf1_env);
+				else
+					m_dcf1.env.idle(&pv->dcf1_env);
+				if (*m_lfo1.enabled > 0.0f)
+					m_lfo1.env.start(&pv->lfo1_env);
+				else
+					m_lfo1.env.idle(&pv->lfo1_env);
+				if (*m_dca1.enabled > 0.0f)
+					m_dca1.env.start(&pv->dca1_env);
+				else
+					m_dca1.env.idle(&pv->dca1_env);
 				// lfos
-				const float pshift1
-					= (*m_lfo1.sync > 0.0f ? m_phasor.pshift() : 0.0f);
-				pv->lfo1_sample = pv->lfo1.start(pshift1);
+				const float lfo1_pshift
+					= (m_lfo1.psync ? m_lfo1.psync->lfo1.pshift() : 0.0f);
+				pv->lfo1_sample = pv->lfo1.start(lfo1_pshift);
+				if (*m_lfo1.sync > 0.0f && m_lfo1.psync == NULL)
+					m_lfo1.psync = pv;
 				// glides (portamentoa)
-				const float frames
+				const float gen1_frames
 					= uint32_t(*m_gen1.glide * *m_gen1.glide * m_srate);
-				pv->gen1_glide.reset(frames, pv->gen1_freq);
+				pv->gen1_glide.reset(gen1_frames, pv->gen1_freq);
+				// panning
+				pv->out1_panning = 0.0f;
+				pv->out1_pan.reset(&pv->out1_panning);
+				// volume
+				pv->out1_volume = 0.0f;
+				pv->out1_vol.reset(&pv->out1_volume);
 				// sustain
 				pv->sustain = false;
 				// allocated
@@ -1849,7 +1895,7 @@ void samplv1_impl::allNotesOff (void)
 
 	gen1_last = 0.0f;
 
-	m_aux1.reset();
+	m_lfo1.psync = NULL;
 
 	m_direct_note = 0;
 }
@@ -1956,12 +2002,10 @@ void samplv1_impl::reset (void)
 	m_vol1.reset(
 		m_out1.volume.value_ptr(),
 		m_dca1.volume.value_ptr(),
-		&m_ctl1.volume,
-		&m_aux1.volume);
+		&m_ctl1.volume);
 	m_pan1.reset(
 		m_out1.panning.value_ptr(),
-		&m_ctl1.panning,
-		&m_aux1.panning);
+		&m_ctl1.panning);
 	m_wid1.reset(
 		m_out1.width.value_ptr());
 
@@ -2039,10 +2083,18 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 	const uint16_t k12 = (gen1_sample.channels() > 1 ? 1 : 0);
 
 	// controls
-	const float lfo1_freq
-		= get_bpm(*m_lfo1.bpm) / (60.01f - *m_lfo1.rate * 60.0f);
 
-	const float modwheel1 = m_ctl1.modwheel + PITCH_SCALE * *m_lfo1.pitch;
+	const bool lfo1_enabled = (*m_lfo1.enabled > 0.0f);
+	
+	const float lfo1_freq = (lfo1_enabled
+		? get_bpm(*m_lfo1.bpm) / (60.01f - *m_lfo1.rate * 60.0f) : 0.0f);
+
+	const float modwheel1 = (lfo1_enabled
+		? m_ctl1.modwheel + PITCH_SCALE * *m_lfo1.pitch : 0.0f);
+
+	const bool dcf1_enabled = (*m_dcf1.enabled > 0.0f);
+	const bool dca1_enabled = (*m_dca1.enabled > 0.0f);
+
 	const float fxsend1 = *m_out1.fxsend * *m_out1.fxsend;
 
 	if (m_gen1.sample0 != *m_gen1.sample) {
@@ -2055,8 +2107,10 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 		updateEnvTimes();
 	}
 
-	lfo1_wave.reset_test(
-		samplv1_wave::Shape(*m_lfo1.shape), *m_lfo1.width);
+	if (lfo1_enabled) {
+		lfo1_wave.reset_test(
+			samplv1_wave::Shape(*m_lfo1.shape), *m_lfo1.width);
+	}
 
 	// per voice
 
@@ -2097,8 +2151,10 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 
 				// generators
 
-				const float lfo1_env = pv->lfo1_env.tick();
-				const float lfo1 = pv->lfo1_sample * lfo1_env;
+				const float lfo1_env
+					= (lfo1_enabled ? pv->lfo1_env.tick() : 0.0f);
+				const float lfo1
+					= (lfo1_enabled ? pv->lfo1_sample * lfo1_env : 0.0f);
 
 				pv->gen1.next(pv->gen1_freq
 					* (m_ctl1.pitchbend + modwheel1 * lfo1)
@@ -2107,36 +2163,39 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 				float gen1 = pv->gen1.value(k11);
 				float gen2 = pv->gen1.value(k12);
 
-				pv->lfo1_sample = pv->lfo1.sample(lfo1_freq
-					* (1.0f + SWEEP_SCALE * *m_lfo1.sweep * lfo1_env));
+				if (lfo1_enabled) {
+					pv->lfo1_sample = pv->lfo1.sample(lfo1_freq
+						* (1.0f + SWEEP_SCALE * *m_lfo1.sweep * lfo1_env));
+				}
 
 				// filters
 
-				const float env1 = 0.5f * (1.0f + vel1
-					* *m_dcf1.envelope * pv->dcf1_env.tick());
-				const float cutoff1 = samplv1_sigmoid_1(*m_dcf1.cutoff
-					* env1 * (1.0f + *m_lfo1.cutoff * lfo1));
-				const float reso1 = samplv1_sigmoid_1(*m_dcf1.reso
-					* env1 * (1.0f + *m_lfo1.reso * lfo1));
-
-				switch (int(*m_dcf1.slope)) {
-				case 3: // Formant
-					gen1 = pv->dcf17.output(gen1, cutoff1, reso1);
-					gen2 = pv->dcf18.output(gen2, cutoff1, reso1);
-					break;
-				case 2: // Biquad
-					gen1 = pv->dcf15.output(gen1, cutoff1, reso1);
-					gen2 = pv->dcf16.output(gen2, cutoff1, reso1);
-					break;
-				case 1: // 24db/octave
-					gen1 = pv->dcf13.output(gen1, cutoff1, reso1);
-					gen2 = pv->dcf14.output(gen2, cutoff1, reso1);
-					break;
-				case 0: // 12db/octave
-				default:
-					gen1 = pv->dcf11.output(gen1, cutoff1, reso1);
-					gen2 = pv->dcf12.output(gen2, cutoff1, reso1);
-					break;
+				if (dcf1_enabled) {
+					const float env1 = 0.5f * (1.0f + vel1
+						* *m_dcf1.envelope * pv->dcf1_env.tick());
+					const float cutoff1 = samplv1_sigmoid_1(*m_dcf1.cutoff
+						* env1 * (1.0f + *m_lfo1.cutoff * lfo1));
+					const float reso1 = samplv1_sigmoid_1(*m_dcf1.reso
+						* env1 * (1.0f + *m_lfo1.reso * lfo1));
+					switch (int(*m_dcf1.slope)) {
+					case 3: // Formant
+						gen1 = pv->dcf17.output(gen1, cutoff1, reso1);
+						gen2 = pv->dcf18.output(gen2, cutoff1, reso1);
+						break;
+					case 2: // Biquad
+						gen1 = pv->dcf15.output(gen1, cutoff1, reso1);
+						gen2 = pv->dcf16.output(gen2, cutoff1, reso1);
+						break;
+					case 1: // 24db/octave
+						gen1 = pv->dcf13.output(gen1, cutoff1, reso1);
+						gen2 = pv->dcf14.output(gen2, cutoff1, reso1);
+						break;
+					case 0: // 12db/octave
+					default:
+						gen1 = pv->dcf11.output(gen1, cutoff1, reso1);
+						gen2 = pv->dcf12.output(gen2, cutoff1, reso1);
+						break;
+					}
 				}
 
 				// volumes
@@ -2145,14 +2204,17 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 				const float mid1 = 0.5f * (gen1 + gen2);
 				const float sid1 = 0.5f * (gen1 - gen2);
 				const float vol1 = vel1 * m_vol1.value(j)
-					* pv->dca1_env.tick();
+					* (dca1_enabled ? pv->dca1_env.tick() : 1.0f)
+					* pv->out1_vol.value(j);
 
 				// outputs
 
-				const float out1
-					= vol1 * (mid1 + sid1 * wid1) * m_pan1.value(j, 0);
-				const float out2
-					= vol1 * (mid1 - sid1 * wid1) * m_pan1.value(j, 1);
+				const float out1 = vol1 * (mid1 + sid1 * wid1)
+					* pv->out1_pan.value(j, 0)
+					* m_pan1.value(j, 0);
+				const float out2 = vol1 * (mid1 - sid1 * wid1)
+					* pv->out1_pan.value(j, 1)
+					* m_pan1.value(j, 1);
 
 				for (k = 0; k < m_nchannels; ++k) {
 					const float dry = (k & 1 ? out2 : out1);
@@ -2162,8 +2224,8 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 				}
 
 				if (j == 0) {
-					m_aux1.panning = lfo1 * *m_lfo1.panning;
-					m_aux1.volume  = lfo1 * *m_lfo1.volume + 1.0f;
+					pv->out1_panning = lfo1 * *m_lfo1.panning;
+					pv->out1_volume  = lfo1 * *m_lfo1.volume + 1.0f;
 				}
 			}
 
@@ -2172,13 +2234,16 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 			// voice ramps countdown
 
 			pv->dca1_pre.process(ngen);
+			pv->out1_pan.process(ngen);
+			pv->out1_vol.process(ngen);
 
 			// envelope countdowns
 
 			if (pv->dca1_env.running && pv->dca1_env.frames == 0)
 				m_dca1.env.next(&pv->dca1_env);
 
-			if (pv->dca1_env.stage == samplv1_env::Idle || pv->gen1.isOver()) {
+			if (pv->gen1.isOver() ||
+				(dca1_enabled && pv->dca1_env.stage == samplv1_env::Idle)) {
 				if (pv->note < 0)
 					free_voice(pv);
 				nblock = 0;
@@ -2242,8 +2307,6 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 	}
 
 	// post-processing
-	m_phasor.process(nframes);
-
 	m_dca1.volume.tick(nframes);
 	m_out1.width.tick(nframes);
 	m_out1.panning.tick(nframes);
