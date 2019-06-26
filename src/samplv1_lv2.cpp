@@ -815,7 +815,7 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 	if (offset_start < offset_end)
 		pPlugin->setOffsetRange(offset_start, offset_end);
 
-	// Retrieve all remaining state as XML chunk...
+	// Retrieve any remaining state as XML chunk...
 	//
 	key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "state");
 	if (key == 0)
@@ -831,28 +831,20 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 
 	value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
 
-	if (size < 2)
-		return LV2_STATE_ERR_UNKNOWN;
-
-	if (type != chunk_type)
-		return LV2_STATE_ERR_BAD_TYPE;
-
-	if ((flags & (LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE)) == 0)
-		return LV2_STATE_ERR_BAD_FLAGS;
-
-	if (value == NULL)
-		return LV2_STATE_ERR_UNKNOWN;
-
-	QDomDocument doc(SAMPLV1_TITLE);
-	if (doc.setContent(QByteArray(value, size))) {
-		for (QDomNode nChild = doc.documentElement();
-				!nChild.isNull();
-					nChild = nChild.nextSibling()) {
-			QDomElement eChild = nChild.toElement();
-			if (eChild.isNull())
-				continue;
-			if (eChild.tagName() == "tuning")
-				samplv1_param::loadTuning(pPlugin, eChild);
+	if (value != NULL && size > 2 && type == chunk_type
+		&& (flags & (LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE))) {
+		
+		QDomDocument doc(SAMPLV1_TITLE);
+		if (doc.setContent(QByteArray(value, size))) {
+			for (QDomNode nChild = doc.documentElement();
+					!nChild.isNull();
+						nChild = nChild.nextSibling()) {
+				QDomElement eChild = nChild.toElement();
+				if (eChild.isNull())
+					continue;
+				if (eChild.tagName() == "tuning")
+					samplv1_param::loadTuning(pPlugin, eChild);
+			}
 		}
 	}
 
