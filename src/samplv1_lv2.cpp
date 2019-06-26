@@ -20,7 +20,7 @@
 *****************************************************************************/
 
 #include "samplv1_lv2.h"
-
+#include "samplv1_config.h"
 #include "samplv1_sched.h"
 #include "samplv1_sample.h"
 
@@ -57,6 +57,7 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include <QDomDocument>
 #include <QFileInfo>
 
 
@@ -531,8 +532,7 @@ static LV2_State_Status samplv1_lv2_state_save ( LV2_Handle instance,
 
 	size_t size = ::strlen(value) + 1;
 
-	const LV2_State_Status result
-		= (*store)(handle, key, value, size, type, flags);
+	(*store)(handle, key, value, size, type, flags);
 
 	if (map_path)
 		::free((void *) value);
@@ -583,7 +583,33 @@ static LV2_State_Status samplv1_lv2_state_save ( LV2_Handle instance,
 			(*store)(handle, key, value, size, type, flags);
 	}
 
-	return result;
+	// Save all remaining state as XML chunk...
+	//
+	key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "state");
+	if (key == 0)
+		return LV2_STATE_ERR_NO_PROPERTY;
+
+	type = pPlugin->urid_map(LV2_ATOM__Chunk);
+	if (type == 0)
+		return LV2_STATE_ERR_BAD_TYPE;
+#if 0
+	if ((flags & (LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE)) == 0)
+		return LV2_STATE_ERR_BAD_FLAGS;
+#else
+	flags |= (LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE);
+#endif
+
+	QDomDocument doc(SAMPLV1_TITLE);
+
+	QDomElement eTuning = doc.createElement("tuning");
+	samplv1_param::saveTuning(pPlugin, doc, eTuning);
+	doc.appendChild(eTuning);
+
+	const QByteArray data(doc.toByteArray());
+	value = data.constData();
+	size = data.size();
+
+	return (*store)(handle, key, value, size, type, flags);
 }
 
 
@@ -788,6 +814,47 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 
 	if (offset_start < offset_end)
 		pPlugin->setOffsetRange(offset_start, offset_end);
+
+	// Retrieve all remaining state as XML chunk...
+	//
+	key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "state");
+	if (key == 0)
+		return LV2_STATE_ERR_NO_PROPERTY;
+
+	const uint32_t chunk_type = pPlugin->urid_map(LV2_ATOM__Chunk);
+	if (chunk_type == 0)
+		return LV2_STATE_ERR_BAD_TYPE;
+
+	size = 0;
+	type = 0;
+//	flags = 0;
+
+	value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
+
+	if (size < 2)
+		return LV2_STATE_ERR_UNKNOWN;
+
+	if (type != chunk_type)
+		return LV2_STATE_ERR_BAD_TYPE;
+
+	if ((flags & (LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE)) == 0)
+		return LV2_STATE_ERR_BAD_FLAGS;
+
+	if (value == NULL)
+		return LV2_STATE_ERR_UNKNOWN;
+
+	QDomDocument doc(SAMPLV1_TITLE);
+	if (doc.setContent(QByteArray(value, size))) {
+		for (QDomNode nChild = doc.documentElement();
+				!nChild.isNull();
+					nChild = nChild.nextSibling()) {
+			QDomElement eChild = nChild.toElement();
+			if (eChild.isNull())
+				continue;
+			if (eChild.tagName() == "tuning")
+				samplv1_param::loadTuning(pPlugin, eChild);
+		}
+	}
 
 	pPlugin->reset();
 
