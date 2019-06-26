@@ -114,6 +114,11 @@ private:
 		LV2_URID p106_loop_fade;
 		LV2_URID p107_loop_zero;
 		LV2_URID gen1_update;
+		LV2_URID t101_ref_pitch;
+		LV2_URID t102_ref_note;
+		LV2_URID t103_scale_file;
+		LV2_URID t104_keymap_file;
+		LV2_URID tun1_update;
 		LV2_URID atom_Blank;
 		LV2_URID atom_Object;
 		LV2_URID atom_Float;

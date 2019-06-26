@@ -37,7 +37,7 @@ class samplv1_sched
 public:
 
 	// plausible sched types.
-	enum Type { Sample, Programs, Controls, Controller, MidiIn };
+	enum Type { Sample, Programs, Controls, Controller, MidiIn, Tuning };
 
 	// ctor.
 	samplv1_sched(samplv1 *pSampl, Type stype, uint32_t nsize = 8);
