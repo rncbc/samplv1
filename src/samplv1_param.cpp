@@ -267,26 +267,14 @@ void samplv1_param::saveSamples (
 	if (pszSampleFile == NULL)
 		return;
 
-	QFileInfo fi(QString::fromUtf8(pszSampleFile));
-	if (bSymLink && fi.absolutePath() != QDir::current().absolutePath()) {
-		const QString& sPath = fi.absoluteFilePath();
-		const QString& sName = fi.baseName();
-		const QString& sExt  = fi.completeSuffix();
-		const QString& sLink = sName
-			+ '-' + QString::number(qHash(sPath), 16)
-			+ '.' + sExt;
-		QFile(sPath).link(sLink);
-		fi.setFile(QDir::current(), sLink);
-	}
-	else if (fi.isSymLink()) fi.setFile(fi.symLinkTarget());
-
 	QDomElement eSample = doc.createElement("sample");
 	eSample.setAttribute("index", 0);
 	eSample.setAttribute("name", "GEN1_SAMPLE");
 
 	QDomElement eFilename = doc.createElement("filename");
 	eFilename.appendChild(doc.createTextNode(
-		QDir::current().relativeFilePath(fi.absoluteFilePath())));
+		QDir::current().relativeFilePath(
+			saveFilename(QString::fromUtf8(pszSampleFile), bSymLink))));
 	eSample.appendChild(eFilename);
 
 	const uint32_t iOffsetStart = pSampl->offsetStart();
@@ -488,6 +476,25 @@ bool samplv1_param::savePreset (
 	QDir::setCurrent(currentDir.absolutePath());
 
 	return true;
+}
+
+
+// Save and convert into absolute filename helper.
+QString samplv1_param::saveFilename ( const QString& sFilename, bool bSymLink )
+{
+	QFileInfo fi(sFilename);
+	if (bSymLink && fi.absolutePath() != QDir::current().absolutePath()) {
+		const QString& sPath = fi.absoluteFilePath();
+		const QString& sName = fi.baseName();
+		const QString& sExt  = fi.completeSuffix();
+		const QString& sLink = sName
+			+ '-' + QString::number(qHash(sPath), 16)
+			+ '.' + sExt;
+		QFile(sPath).link(sLink);
+		fi.setFile(QDir::current(), sLink);
+	}
+	else if (fi.isSymLink()) fi.setFile(fi.symLinkTarget());
+	return fi.absoluteFilePath();
 }
 
 

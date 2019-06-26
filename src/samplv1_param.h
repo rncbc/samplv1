@@ -58,6 +58,9 @@ namespace samplv1_param
 	float paramValue(samplv1::ParamIndex index, float fScale);
 	float paramScale(samplv1::ParamIndex index, float fValue);
 	bool paramFloat(samplv1::ParamIndex index);
+
+	// Save and convert into absolute filename helper.
+	QString saveFilename(const QString& sFilename, bool bSymLink);
 };
 
 
