@@ -182,141 +182,6 @@ float samplv1_param::paramValue ( samplv1::ParamIndex index, float fScale )
 }
 
 
-// Sample serialization methods.
-void samplv1_param::loadSamples (
-	samplv1 *pSampl, const QDomElement& eSamples )
-{
-	if (pSampl == NULL)
-		return;
-
-	for (QDomNode nSample = eSamples.firstChild();
-			!nSample.isNull();
-				nSample = nSample.nextSibling()) {
-		QDomElement eSample = nSample.toElement();
-		if (eSample.isNull())
-			continue;
-		if (eSample.tagName() == "sample") {
-		//	int index = eSample.attribute("index").toInt();
-			QString sFilename;
-			uint32_t iOffsetStart = 0;
-			uint32_t iOffsetEnd = 0;
-			uint32_t iLoopStart = 0;
-			uint32_t iLoopEnd = 0;
-			uint32_t iLoopFade = 0;
-			bool bLoopZero = true;
-			for (QDomNode nChild = eSample.firstChild();
-					!nChild.isNull();
-						nChild = nChild.nextSibling()) {
-				QDomElement eChild = nChild.toElement();
-				if (eChild.isNull())
-					continue;
-				if (eChild.tagName() == "filename") {
-					sFilename = eChild.text();
-				}
-				else
-				if (eChild.tagName() == "offset-start") {
-					iOffsetStart = eChild.text().toULong();
-				}
-				else
-				if (eChild.tagName() == "offset-end") {
-					iOffsetEnd = eChild.text().toULong();
-				}
-				else
-				if (eChild.tagName() == "loop-start") {
-					iLoopStart = eChild.text().toULong();
-				}
-				else
-				if (eChild.tagName() == "loop-end") {
-					iLoopEnd = eChild.text().toULong();
-				}
-				else
-				if (eChild.tagName() == "loop-fade") {
-					iLoopFade = eChild.text().toULong();
-				}
-				else
-				if (eChild.tagName() == "loop-zero") {
-					bLoopZero = (eChild.text().toInt() > 0);
-				}
-			}
-			// Legacy loader...
-			if (sFilename.isEmpty())
-				sFilename = eSample.text();
-			// Done it.
-			QFileInfo fi(sFilename);
-			if (fi.isSymLink())
-				fi.setFile(fi.symLinkTarget());
-			pSampl->setSampleFile(
-				fi.canonicalFilePath().toUtf8().constData());
-			// Set actual sample loop points...
-			pSampl->setLoopZero(bLoopZero);
-			pSampl->setLoopFade(iLoopFade);
-			pSampl->setLoopRange(iLoopStart, iLoopEnd);
-			pSampl->setOffsetRange(iOffsetStart, iOffsetEnd);
-		}
-	}
-}
-
-
-void samplv1_param::saveSamples (
-	samplv1 *pSampl, QDomDocument& doc, QDomElement& eSamples, bool bSymLink )
-{
-	if (pSampl == NULL)
-		return;
-
-	const char *pszSampleFile = pSampl->sampleFile();
-	if (pszSampleFile == NULL)
-		return;
-
-	QDomElement eSample = doc.createElement("sample");
-	eSample.setAttribute("index", 0);
-	eSample.setAttribute("name", "GEN1_SAMPLE");
-
-	QDomElement eFilename = doc.createElement("filename");
-	eFilename.appendChild(doc.createTextNode(
-		QDir::current().relativeFilePath(
-			saveFilename(QString::fromUtf8(pszSampleFile), bSymLink))));
-	eSample.appendChild(eFilename);
-
-	const uint32_t iOffsetStart = pSampl->offsetStart();
-	const uint32_t iOffsetEnd   = pSampl->offsetEnd();
-	if (iOffsetStart < iOffsetEnd) {
-		QDomElement eOffsetStart = doc.createElement("offset-start");
-		eOffsetStart.appendChild(doc.createTextNode(
-			QString::number(iOffsetStart)));
-		eSample.appendChild(eOffsetStart);
-		QDomElement eOffsetEnd = doc.createElement("offset-end");
-		eOffsetEnd.appendChild(doc.createTextNode(
-			QString::number(iOffsetEnd)));
-		eSample.appendChild(eOffsetEnd);
-	}
-
-	const uint32_t iLoopStart = pSampl->loopStart();
-	const uint32_t iLoopEnd   = pSampl->loopEnd();
-	const uint32_t iLoopFade  = pSampl->loopFade();
-	const bool     bLoopZero  = pSampl->isLoopZero();
-	if (iLoopStart < iLoopEnd) {
-		QDomElement eLoopStart = doc.createElement("loop-start");
-		eLoopStart.appendChild(doc.createTextNode(
-			QString::number(iLoopStart)));
-		eSample.appendChild(eLoopStart);
-		QDomElement eLoopEnd = doc.createElement("loop-end");
-		eLoopEnd.appendChild(doc.createTextNode(
-			QString::number(iLoopEnd)));
-		eSample.appendChild(eLoopEnd);
-		QDomElement eLoopFade = doc.createElement("loop-fade");
-		eLoopFade.appendChild(doc.createTextNode(
-			QString::number(iLoopFade)));
-		eSample.appendChild(eLoopFade);
-		QDomElement eLoopZero = doc.createElement("loop-zero");
-		eLoopZero.appendChild(doc.createTextNode(
-			QString::number(int(bLoopZero))));
-		eSample.appendChild(eLoopZero);
-	}
-
-	eSamples.appendChild(eSample);
-}
-
-
 float samplv1_param::paramScale ( samplv1::ParamIndex index, float fValue )
 {
 	const ParamInfo& param = samplv1_params[index];
@@ -390,10 +255,6 @@ bool samplv1_param::loadPreset (
 				QDomElement eChild = nChild.toElement();
 				if (eChild.isNull())
 					continue;
-				if (eChild.tagName() == "samples") {
-					samplv1_param::loadSamples(pSampl, eChild);
-				}
-				else
 				if (eChild.tagName() == "params") {
 					for (QDomNode nParam = eChild.firstChild();
 							!nParam.isNull();
@@ -415,6 +276,14 @@ bool samplv1_param::loadPreset (
 								samplv1_param::paramSafeValue(index, fValue));
 						}
 					}
+				}
+				else
+				if (eChild.tagName() == "samples") {
+					samplv1_param::loadSamples(pSampl, eChild);
+				}
+				else
+				if (eChild.tagName() == "tuning") {
+					samplv1_param::loadTuning(pSampl, eChild);
 				}
 			}
 		}
@@ -464,6 +333,11 @@ bool samplv1_param::savePreset (
 		eParams.appendChild(eParam);
 	}
 	ePreset.appendChild(eParams);
+
+	QDomElement eTuning = doc.createElement("tuning");
+	samplv1_param::saveTuning(pSampl, doc, eTuning, bSymLink);
+	ePreset.appendChild(eTuning);
+
 	doc.appendChild(ePreset);
 
 	QFile file(fi.filePath());
@@ -479,7 +353,236 @@ bool samplv1_param::savePreset (
 }
 
 
-// Save and convert into absolute filename helper.
+// Sample serialization methods.
+void samplv1_param::loadSamples (
+	samplv1 *pSampl, const QDomElement& eSamples )
+{
+	if (pSampl == NULL)
+		return;
+
+	for (QDomNode nSample = eSamples.firstChild();
+			!nSample.isNull();
+				nSample = nSample.nextSibling()) {
+		QDomElement eSample = nSample.toElement();
+		if (eSample.isNull())
+			continue;
+		if (eSample.tagName() == "sample") {
+		//	int index = eSample.attribute("index").toInt();
+			QString sSampleFile;
+			uint32_t iOffsetStart = 0;
+			uint32_t iOffsetEnd = 0;
+			uint32_t iLoopStart = 0;
+			uint32_t iLoopEnd = 0;
+			uint32_t iLoopFade = 0;
+			bool bLoopZero = true;
+			for (QDomNode nChild = eSample.firstChild();
+					!nChild.isNull();
+						nChild = nChild.nextSibling()) {
+				QDomElement eChild = nChild.toElement();
+				if (eChild.isNull())
+					continue;
+				if (eChild.tagName() == "filename") {
+					sSampleFile = eChild.text();
+				}
+				else
+				if (eChild.tagName() == "offset-start") {
+					iOffsetStart = eChild.text().toULong();
+				}
+				else
+				if (eChild.tagName() == "offset-end") {
+					iOffsetEnd = eChild.text().toULong();
+				}
+				else
+				if (eChild.tagName() == "loop-start") {
+					iLoopStart = eChild.text().toULong();
+				}
+				else
+				if (eChild.tagName() == "loop-end") {
+					iLoopEnd = eChild.text().toULong();
+				}
+				else
+				if (eChild.tagName() == "loop-fade") {
+					iLoopFade = eChild.text().toULong();
+				}
+				else
+				if (eChild.tagName() == "loop-zero") {
+					bLoopZero = (eChild.text().toInt() > 0);
+				}
+			}
+			// Legacy loader...
+			if (sSampleFile.isEmpty())
+				sSampleFile = eSample.text();
+			// Done it.
+			const QByteArray aSampleFile
+				= samplv1_param::loadFilename(sSampleFile).toUtf8();
+			pSampl->setSampleFile(aSampleFile.constData());
+			// Set actual sample loop points...
+			pSampl->setLoopZero(bLoopZero);
+			pSampl->setLoopFade(iLoopFade);
+			pSampl->setLoopRange(iLoopStart, iLoopEnd);
+			pSampl->setOffsetRange(iOffsetStart, iOffsetEnd);
+		}
+	}
+}
+
+
+void samplv1_param::saveSamples (
+	samplv1 *pSampl, QDomDocument& doc, QDomElement& eSamples, bool bSymLink )
+{
+	if (pSampl == NULL)
+		return;
+
+	const char *pszSampleFile = pSampl->sampleFile();
+	if (pszSampleFile == NULL)
+		return;
+
+	QDomElement eSample = doc.createElement("sample");
+	eSample.setAttribute("index", 0);
+	eSample.setAttribute("name", "GEN1_SAMPLE");
+
+	QDomElement eFilename = doc.createElement("filename");
+	eFilename.appendChild(doc.createTextNode(
+		QDir::current().relativeFilePath(
+			samplv1_param::saveFilename(
+				QString::fromUtf8(pszSampleFile), bSymLink))));
+	eSample.appendChild(eFilename);
+
+	const uint32_t iOffsetStart = pSampl->offsetStart();
+	const uint32_t iOffsetEnd   = pSampl->offsetEnd();
+	if (iOffsetStart < iOffsetEnd) {
+		QDomElement eOffsetStart = doc.createElement("offset-start");
+		eOffsetStart.appendChild(doc.createTextNode(
+			QString::number(iOffsetStart)));
+		eSample.appendChild(eOffsetStart);
+		QDomElement eOffsetEnd = doc.createElement("offset-end");
+		eOffsetEnd.appendChild(doc.createTextNode(
+			QString::number(iOffsetEnd)));
+		eSample.appendChild(eOffsetEnd);
+	}
+
+	const uint32_t iLoopStart = pSampl->loopStart();
+	const uint32_t iLoopEnd   = pSampl->loopEnd();
+	const uint32_t iLoopFade  = pSampl->loopFade();
+	const bool     bLoopZero  = pSampl->isLoopZero();
+	if (iLoopStart < iLoopEnd) {
+		QDomElement eLoopStart = doc.createElement("loop-start");
+		eLoopStart.appendChild(doc.createTextNode(
+			QString::number(iLoopStart)));
+		eSample.appendChild(eLoopStart);
+		QDomElement eLoopEnd = doc.createElement("loop-end");
+		eLoopEnd.appendChild(doc.createTextNode(
+			QString::number(iLoopEnd)));
+		eSample.appendChild(eLoopEnd);
+		QDomElement eLoopFade = doc.createElement("loop-fade");
+		eLoopFade.appendChild(doc.createTextNode(
+			QString::number(iLoopFade)));
+		eSample.appendChild(eLoopFade);
+		QDomElement eLoopZero = doc.createElement("loop-zero");
+		eLoopZero.appendChild(doc.createTextNode(
+			QString::number(int(bLoopZero))));
+		eSample.appendChild(eLoopZero);
+	}
+
+	eSamples.appendChild(eSample);
+}
+
+
+// Tuning serialization methods.
+void samplv1_param::loadTuning (
+	samplv1 *pSampl, const QDomElement& eTuning )
+{
+	if (pSampl == NULL)
+		return;
+
+	for (QDomNode nChild = eTuning.firstChild();
+			!nChild.isNull();
+				nChild = nChild.nextSibling()) {
+		QDomElement eChild = nChild.toElement();
+		if (eChild.isNull())
+			continue;
+		if (eChild.tagName() == "ref-pitch") {
+			pSampl->setTuningRefPitch(eChild.text().toFloat());
+		}
+		else
+		if (eChild.tagName() == "ref-note") {
+			pSampl->setTuningRefNote(eChild.text().toInt());
+		}
+		else
+		if (eChild.tagName() == "scale-file") {
+			const QString& sScaleFile
+				= eChild.text();
+			const QByteArray aScaleFile
+				= samplv1_param::loadFilename(sScaleFile).toUtf8();
+			pSampl->setTuningScaleFile(aScaleFile.constData());
+		}
+		else
+		if (eChild.tagName() == "keymap-file") {
+			const QString& sKeyMapFile
+				= eChild.text();
+			const QByteArray aKeyMapFile
+				= samplv1_param::loadFilename(sKeyMapFile).toUtf8();
+			pSampl->setTuningScaleFile(aKeyMapFile.constData());
+		}
+	}
+	// Consolidate tuning scale...
+	pSampl->updateTuning();
+}
+
+
+void samplv1_param::saveTuning (
+	samplv1 *pSampl, QDomDocument& doc, QDomElement& eTuning, bool bSymLink )
+{
+	if (pSampl == NULL)
+		return;
+
+	QDomElement eRefPitch = doc.createElement("ref-pitch");
+	eRefPitch.appendChild(doc.createTextNode(
+		QString::number(pSampl->tuningRefPitch())));
+	eTuning.appendChild(eRefPitch);
+
+	QDomElement eRefNote = doc.createElement("ref-note");
+	eRefNote.appendChild(doc.createTextNode(
+		QString::number(pSampl->tuningRefNote())));
+	eTuning.appendChild(eRefNote);
+
+	const char *pszScaleFile = pSampl->tuningScaleFile();
+	if (pszScaleFile) {
+		const QString& sScaleFile
+			= QString::fromUtf8(pszScaleFile);
+		if (!sScaleFile.isEmpty()) {
+			QDomElement eScaleFile = doc.createElement("scale-file");
+			eScaleFile.appendChild(doc.createTextNode(
+				QDir::current().relativeFilePath(
+					samplv1_param::saveFilename(sScaleFile, bSymLink))));
+			eTuning.appendChild(eScaleFile);
+		}
+	}
+
+	const char *pszKeyMapFile = pSampl->tuningKeyMapFile();
+	if (pszKeyMapFile) {
+		const QString& sKeyMapFile
+			= QString::fromUtf8(pszKeyMapFile);
+		if (!sKeyMapFile.isEmpty()) {
+			QDomElement eKeyMapFile = doc.createElement("keymap-file");
+			eKeyMapFile.appendChild(doc.createTextNode(
+				QDir::current().relativeFilePath(
+					samplv1_param::saveFilename(sKeyMapFile, bSymLink))));
+			eTuning.appendChild(eKeyMapFile);
+		}
+	}
+}
+
+
+// Load/save and convert canonical/absolute filename helpers.
+QString samplv1_param::loadFilename ( const QString& sFilename )
+{
+	QFileInfo fi(sFilename);
+	if (fi.isSymLink())
+		fi.setFile(fi.symLinkTarget());
+	return fi.canonicalFilePath();
+}
+
+
 QString samplv1_param::saveFilename ( const QString& sFilename, bool bSymLink )
 {
 	QFileInfo fi(sFilename);
