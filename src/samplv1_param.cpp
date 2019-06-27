@@ -129,7 +129,7 @@ struct ParamInfo {
 	{ "REV1_WIDTH",    PARAM_FLOAT,   0.0f,  -1.0f,   1.0f }, // Reverb Width
 	{ "DYN1_COMPRESS", PARAM_BOOL,    0.0f,   0.0f,   1.0f }, // Dynamic Compressor
 	{ "DYN1_LIMITER",  PARAM_BOOL,    1.0f,   0.0f,   1.0f }, // Dynamic Limiter
-	{ "TUN1_ENABLED",  PARAM_BOOL,    0.0f,   0.0f,   1.0f }, // Tuning Enabled
+
 	{ "KEY1_LOW",      PARAM_INT,     0.0f,   0.0f, 127.0f }, // Keynoard Low
 	{ "KEY1_HIGH",     PARAM_INT,   127.0f,   0.0f, 127.0f }  // Keyboard High
 };
@@ -231,6 +231,7 @@ bool samplv1_param::loadPreset (
 
 	const bool running = pSampl->running(false);
 
+	pSampl->setTuningEnabled(false);
 	pSampl->reset();
 
 	static QHash<QString, samplv1::ParamIndex> s_hash;
@@ -334,9 +335,11 @@ bool samplv1_param::savePreset (
 	}
 	ePreset.appendChild(eParams);
 
-	QDomElement eTuning = doc.createElement("tuning");
-	samplv1_param::saveTuning(pSampl, doc, eTuning, bSymLink);
-	ePreset.appendChild(eTuning);
+	if (pSampl->isTuningEnabled()) {
+		QDomElement eTuning = doc.createElement("tuning");
+		samplv1_param::saveTuning(pSampl, doc, eTuning, bSymLink);
+		ePreset.appendChild(eTuning);
+	}
 
 	doc.appendChild(ePreset);
 
@@ -494,12 +497,17 @@ void samplv1_param::loadTuning (
 	if (pSampl == NULL)
 		return;
 
+	pSampl->setTuningEnabled(eTuning.attribute("enabled").toInt() > 0);
+
 	for (QDomNode nChild = eTuning.firstChild();
 			!nChild.isNull();
 				nChild = nChild.nextSibling()) {
 		QDomElement eChild = nChild.toElement();
 		if (eChild.isNull())
 			continue;
+		if (eChild.tagName() == "enabled") {
+			pSampl->setTuningEnabled(eChild.text().toInt() > 0);
+		}
 		if (eChild.tagName() == "ref-pitch") {
 			pSampl->setTuningRefPitch(eChild.text().toFloat());
 		}
@@ -524,7 +532,8 @@ void samplv1_param::loadTuning (
 			pSampl->setTuningScaleFile(aKeyMapFile.constData());
 		}
 	}
-	// Consolidate tuning scale...
+
+	// Consolidate tuning state...
 	pSampl->updateTuning();
 }
 
@@ -534,6 +543,8 @@ void samplv1_param::saveTuning (
 {
 	if (pSampl == NULL)
 		return;
+
+	eTuning.setAttribute("enabled", int(pSampl->isTuningEnabled()));
 
 	QDomElement eRefPitch = doc.createElement("ref-pitch");
 	eRefPitch.appendChild(doc.createTextNode(

@@ -1030,19 +1030,16 @@ public:
 
 	// ctor.
 	samplv1_tun(samplv1 *pSampl) : samplv1_sched(pSampl, Tuning),
-		refPitch(440.0f), refNote(69), enabled0(false) {}
+		enabled(false), refPitch(440.0f), refNote(69) {}
 
 	// processor.
 	void process(int) { instance()->updateTuning(); }
 
-	samplv1_port enabled;
-
+	bool    enabled;
 	float   refPitch;
 	int     refNote;
 	QString scaleFile;
 	QString keyMapFile;
-
-	bool    enabled0;
 };
 
 
@@ -1081,6 +1078,9 @@ public:
 
 	samplv1_controls *controls();
 	samplv1_programs *programs();
+
+	void setTuningEnabled(bool enabled);
+	bool isTuningEnabled() const;
 
 	void setTuningRefPitch(float refPitch);
 	float tuningRefPitch() const;
@@ -1614,7 +1614,6 @@ samplv1_port *samplv1_impl::paramPort ( samplv1::ParamIndex index )
 	case samplv1::REV1_WIDTH:     pParamPort = &m_rev.width;        break;
 	case samplv1::DYN1_COMPRESS:  pParamPort = &m_dyn.compress;     break;
 	case samplv1::DYN1_LIMITER:   pParamPort = &m_dyn.limiter;      break;
-	case samplv1::TUN1_ENABLED:   pParamPort = &m_tun.enabled;      break;
 	case samplv1::KEY1_LOW:       pParamPort = &m_key.low;          break;
 	case samplv1::KEY1_HIGH:      pParamPort = &m_key.high;         break;
 	default: break;
@@ -1999,6 +1998,17 @@ samplv1_programs *samplv1_impl::programs (void)
 
 // Micro-tuning support
 
+void samplv1_impl::setTuningEnabled ( bool enabled )
+{
+	m_tun.enabled = enabled;
+}
+
+bool samplv1_impl::isTuningEnabled (void) const
+{
+	return m_tun.enabled;
+}
+
+
 void samplv1_impl::setTuningRefPitch ( float refPitch )
 {
 	m_tun.refPitch = refPitch;
@@ -2008,6 +2018,7 @@ float samplv1_impl::tuningRefPitch (void) const
 {
 	return m_tun.refPitch;
 }
+
 
 void samplv1_impl::setTuningRefNote ( int refNote )
 {
@@ -2044,7 +2055,7 @@ const char *samplv1_impl::tuningKeyMapFile (void) const
 
 void samplv1_impl::updateTuning (void)
 {
-	if (m_tun.enabled0) {
+	if (m_tun.enabled) {
 		// Instance micro-tuning, possibly from Scala keymap and scale files...
 		samplv1_tuning tuning(
 			m_tun.refPitch,
@@ -2207,11 +2218,6 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 	if (lfo1_enabled) {
 		lfo1_wave.reset_test(
 			samplv1_wave::Shape(*m_lfo1.shape), *m_lfo1.width);
-	}
-
-	if (m_tun.enabled0 != *m_tun.enabled) {
-		m_tun.enabled0  = *m_tun.enabled;
-		m_tun.schedule();
 	}
 
 	// per voice
@@ -2829,6 +2835,17 @@ void samplv1::directNoteOn ( int note, int vel )
 
 
 // Micro-tuning support
+void samplv1::setTuningEnabled ( bool enabled )
+{
+	m_pImpl->setTuningEnabled(enabled);
+}
+
+bool samplv1::isTuningEnabled (void) const
+{
+	return m_pImpl->isTuningEnabled();
+}
+
+
 void samplv1::setTuningRefPitch ( float refPitch )
 {
 	m_pImpl->setTuningRefPitch(refPitch);
@@ -2838,6 +2855,7 @@ float samplv1::tuningRefPitch (void) const
 {
 	return m_pImpl->tuningRefPitch();
 }
+
 
 void samplv1::setTuningRefNote ( int refNote )
 {
