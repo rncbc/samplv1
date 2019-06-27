@@ -620,6 +620,12 @@ void samplv1_jack::updateSample (void)
 }
 
 
+void samplv1_jack::updateTuning (void)
+{
+	samplv1::resetTuning();
+}
+
+
 void samplv1_jack::shutdown (void)
 {
 	samplv1_jack_application *pApp = samplv1_jack_application::getInstance();

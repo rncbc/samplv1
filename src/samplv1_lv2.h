@@ -84,6 +84,7 @@ protected:
 
 	void updatePreset(bool bDirty);
 	void updateSample();
+	void updateTuning();
 
 	bool state_changed();
 
@@ -119,6 +120,7 @@ private:
 		LV2_URID p203_tuning_refNote;
 		LV2_URID p204_tuning_scaleFile;
 		LV2_URID p205_tuning_keyMapFile;
+		LV2_URID tun1_update;
 		LV2_URID atom_Blank;
 		LV2_URID atom_Object;
 		LV2_URID atom_Float;

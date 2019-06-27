@@ -1024,16 +1024,11 @@ private:
 
 // micro-tuning/instance implementation
 
-class samplv1_tun : public samplv1_sched
+class samplv1_tun
 {
 public:
 
-	// ctor.
-	samplv1_tun(samplv1 *pSampl) : samplv1_sched(pSampl, Tuning),
-		enabled(false), refPitch(440.0f), refNote(69) {}
-
-	// processor.
-	void process(int) { instance()->updateTuning(); }
+	samplv1_tun() : enabled(false), refPitch(440.0f), refNote(69) {}
 
 	bool    enabled;
 	float   refPitch;
@@ -1094,7 +1089,7 @@ public:
 	void setTuningKeyMapFile(const char *pszKeyMapFile);
 	const char *tuningKeyMapFile() const;
 
-	void updateTuning();
+	void resetTuning();
 
 	void process_midi(uint8_t *data, uint32_t size);
 	void process(float **ins, float **outs, uint32_t nframes);
@@ -1250,8 +1245,7 @@ samplv1_voice::samplv1_voice ( samplv1_impl *pImpl ) :
 samplv1_impl::samplv1_impl (
 	samplv1 *pSampl, uint16_t nchannels, float srate )
 		: gen1_sample(srate), m_controls(pSampl), m_programs(pSampl),
-			m_midi_in(pSampl), m_tun(pSampl), m_bpm(180.0f),
-			m_gen1(pSampl), m_running(false)
+			m_midi_in(pSampl), m_bpm(180.0f), m_gen1(pSampl), m_running(false)
 {
 	// null sample.
 	m_gen1.sample0 = 0.0f;
@@ -1290,7 +1284,7 @@ samplv1_impl::samplv1_impl (
 	m_comp = NULL;
 
 	// Micro-tuning support, if any...
-	updateTuning();
+	resetTuning();
 
 	// load controllers & programs database...
 	m_config.loadControls(&m_controls);
@@ -2053,7 +2047,7 @@ const char *samplv1_impl::tuningKeyMapFile (void) const
 }
 
 
-void samplv1_impl::updateTuning (void)
+void samplv1_impl::resetTuning (void)
 {
 	if (m_tun.enabled) {
 		// Instance micro-tuning, possibly from Scala keymap and scale files...
@@ -2890,9 +2884,9 @@ const char *samplv1::tuningKeyMapFile (void) const
 }
 
 
-void samplv1::updateTuning (void)
+void samplv1::resetTuning (void)
 {
-	m_pImpl->updateTuning();
+	m_pImpl->resetTuning();
 }
 
 

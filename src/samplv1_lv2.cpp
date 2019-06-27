@@ -133,6 +133,8 @@ samplv1_lv2::samplv1_lv2 (
 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "P204_TUNING_SCALE_FILE");
 				m_urids.p205_tuning_keyMapFile = m_urid_map->map(
 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "P205_TUNING_KEYMAP_FILE");
+				m_urids.tun1_update = m_urid_map->map(
+					m_urid_map->handle, SAMPLV1_LV2_PREFIX "TUN1_UPDATE");
 				m_urids.atom_Blank = m_urid_map->map(
 					m_urid_map->handle, LV2_ATOM__Blank);
 				m_urids.atom_Object = m_urid_map->map(
@@ -934,6 +936,18 @@ void samplv1_lv2::updateSample (void)
 }
 
 
+void samplv1_lv2::updateTuning (void)
+{
+	if (m_schedule) {
+		samplv1_lv2_worker_message mesg;
+		mesg.atom.type = m_urids.tun1_update;
+		mesg.atom.size = 0; // nothing else matters.
+		m_schedule->schedule_work(
+			m_schedule->handle, sizeof(mesg), &mesg);
+	}
+}
+
+
 bool samplv1_lv2::worker_work ( const void *data, uint32_t size )
 {
 	if (size != sizeof(samplv1_lv2_worker_message))
@@ -954,6 +968,11 @@ bool samplv1_lv2::worker_work ( const void *data, uint32_t size )
 	#endif
 		) {
 		samplv1::setSampleFile(mesg->sample_path);
+		return true;
+	}
+	else
+	if (mesg->atom.type == m_urids.tun1_update) {
+		samplv1::resetTuning();
 		return true;
 	}
 
@@ -1032,17 +1051,17 @@ bool samplv1_lv2::patch_put ( uint32_t ndelta )
 	lv2_atom_forge_bool(&m_forge, pSample->isLoopZeroCrossing());
 
 	lv2_atom_forge_key(&m_forge, m_urids.p201_tuning_enabled);
-	lv2_atom_forge_bool(&m_forge, isTuningEnabled());
+	lv2_atom_forge_bool(&m_forge, samplv1::isTuningEnabled());
 	lv2_atom_forge_key(&m_forge, m_urids.p202_tuning_refPitch);
-	lv2_atom_forge_float(&m_forge, tuningRefPitch());
+	lv2_atom_forge_float(&m_forge, samplv1::tuningRefPitch());
 	lv2_atom_forge_key(&m_forge, m_urids.p203_tuning_refNote);
-	lv2_atom_forge_int(&m_forge, tuningRefNote());
-	const char *pszScaleFile = tuningScaleFile();
+	lv2_atom_forge_int(&m_forge, samplv1::tuningRefNote());
+	const char *pszScaleFile = samplv1::tuningScaleFile();
 	if (pszScaleFile == NULL)
 		pszScaleFile = s_szNull;
 	lv2_atom_forge_key(&m_forge, m_urids.p204_tuning_scaleFile);
 	lv2_atom_forge_path(&m_forge, pszScaleFile, ::strlen(pszScaleFile) + 1);
-	const char *pszKeyMapFile = tuningKeyMapFile();
+	const char *pszKeyMapFile = samplv1::tuningKeyMapFile();
 	if (pszKeyMapFile == NULL)
 		pszKeyMapFile = s_szNull;
 	lv2_atom_forge_key(&m_forge, m_urids.p205_tuning_keyMapFile);
