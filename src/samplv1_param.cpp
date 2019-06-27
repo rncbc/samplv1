@@ -534,7 +534,7 @@ void samplv1_param::loadTuning (
 	}
 
 	// Consolidate tuning state...
-	pSampl->updateTuning();
+	pSampl->resetTuning();
 }
 
 
