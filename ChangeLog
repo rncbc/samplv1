@@ -6,7 +6,10 @@ ChangeLog
 
 GIT HEAD
 
-- Per instance micro-tuning implementation. (EXPERIMENTAL)
+- Per instance custom tuning (micro-tonal) option has
+  been added to the previously existing global settings
+  (cf. Help > Configure... > Tuning > Global, Instance).
+  (EXPERIMENTAL)
 - New DCF, LFO and DCA Enabled parameters. (EXPERIMENTAL)
 - Configure updated to check for qtchooser availability.
 
