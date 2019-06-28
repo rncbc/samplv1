@@ -213,9 +213,64 @@ void samplv1_ui::directNoteOn ( int note, int vel )
 }
 
 
-void samplv1_ui::updateTuning (void)
+void samplv1_ui::setTuningEnabled ( bool enabled )
 {
-	m_pSampl->updateTuning();
+	m_pSampl->setTuningEnabled(enabled);
+}
+
+bool samplv1_ui::isTuningEnabled (void) const
+{
+	return m_pSampl->isTuningEnabled();
+}
+
+
+void samplv1_ui::setTuningRefPitch ( float refPitch )
+{
+	m_pSampl->setTuningRefPitch(refPitch);
+}
+
+float samplv1_ui::tuningRefPitch (void) const
+{
+	return m_pSampl->tuningRefPitch();
+}
+
+
+void samplv1_ui::setTuningRefNote ( int refNote )
+{
+	m_pSampl->setTuningRefNote(refNote);
+}
+
+int samplv1_ui::tuningRefNote (void) const
+{
+	return m_pSampl->tuningRefNote();
+}
+
+
+void samplv1_ui::setTuningScaleFile ( const char *pszScaleFile )
+{
+	m_pSampl->setTuningScaleFile(pszScaleFile);
+}
+
+const char *samplv1_ui::tuningScaleFile (void) const
+{
+	return m_pSampl->tuningScaleFile();
+}
+
+
+void samplv1_ui::setTuningKeyMapFile ( const char *pszKeyMapFile )
+{
+	m_pSampl->setTuningKeyMapFile(pszKeyMapFile);
+}
+
+const char *samplv1_ui::tuningKeyMapFile (void) const
+{
+	return m_pSampl->tuningKeyMapFile();
+}
+
+
+void samplv1_ui::resetTuning (void)
+{
+	m_pSampl->resetTuning();
 }
 
 

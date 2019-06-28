@@ -1061,22 +1061,25 @@ bool samplv1_lv2::patch_put ( uint32_t ndelta )
 	lv2_atom_forge_key(&m_forge, m_urids.p107_loop_zero);
 	lv2_atom_forge_bool(&m_forge, pSample->isLoopZeroCrossing());
 
+	const bool bTuningEnabled = samplv1::isTuningEnabled();
 	lv2_atom_forge_key(&m_forge, m_urids.p201_tuning_enabled);
-	lv2_atom_forge_bool(&m_forge, samplv1::isTuningEnabled());
-	lv2_atom_forge_key(&m_forge, m_urids.p202_tuning_refPitch);
-	lv2_atom_forge_float(&m_forge, samplv1::tuningRefPitch());
-	lv2_atom_forge_key(&m_forge, m_urids.p203_tuning_refNote);
-	lv2_atom_forge_int(&m_forge, samplv1::tuningRefNote());
-	const char *pszScaleFile = samplv1::tuningScaleFile();
-	if (pszScaleFile == NULL)
-		pszScaleFile = s_szNull;
-	lv2_atom_forge_key(&m_forge, m_urids.p204_tuning_scaleFile);
-	lv2_atom_forge_path(&m_forge, pszScaleFile, ::strlen(pszScaleFile) + 1);
-	const char *pszKeyMapFile = samplv1::tuningKeyMapFile();
-	if (pszKeyMapFile == NULL)
-		pszKeyMapFile = s_szNull;
-	lv2_atom_forge_key(&m_forge, m_urids.p205_tuning_keyMapFile);
-	lv2_atom_forge_path(&m_forge, pszKeyMapFile, ::strlen(pszKeyMapFile) + 1);
+	lv2_atom_forge_bool(&m_forge, bTuningEnabled);
+	if (bTuningEnabled) {
+		lv2_atom_forge_key(&m_forge, m_urids.p202_tuning_refPitch);
+		lv2_atom_forge_float(&m_forge, samplv1::tuningRefPitch());
+		lv2_atom_forge_key(&m_forge, m_urids.p203_tuning_refNote);
+		lv2_atom_forge_int(&m_forge, samplv1::tuningRefNote());
+		const char *pszScaleFile = samplv1::tuningScaleFile();
+		if (pszScaleFile == NULL)
+			pszScaleFile = s_szNull;
+		lv2_atom_forge_key(&m_forge, m_urids.p204_tuning_scaleFile);
+		lv2_atom_forge_path(&m_forge, pszScaleFile, ::strlen(pszScaleFile) + 1);
+		const char *pszKeyMapFile = samplv1::tuningKeyMapFile();
+		if (pszKeyMapFile == NULL)
+			pszKeyMapFile = s_szNull;
+		lv2_atom_forge_key(&m_forge, m_urids.p205_tuning_keyMapFile);
+		lv2_atom_forge_path(&m_forge, pszKeyMapFile, ::strlen(pszKeyMapFile) + 1);
+	}
 
 	lv2_atom_forge_pop(&m_forge, &body_frame);
 	lv2_atom_forge_pop(&m_forge, &patch_frame);
