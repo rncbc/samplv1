@@ -709,7 +709,7 @@ samplv1_jack_application::samplv1_jack_application ( int& argc, char **argv )
 	else
 		m_pApp = new QCoreApplication(argc, argv);
 
-#if QT_VERSION >= 0x050600
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
 	if (m_bGui) m_pApp->setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
 
