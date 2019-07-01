@@ -276,7 +276,7 @@ public:
 						m_index1 = int(m_phase1);
 						m_alpha1 = m_phase1 - float(m_index1);
 						m_phase1 += delta;
-						m_xgain1 -= 1.0f / xfade1;
+						m_xgain1 -= delta / xfade1;
 						if (m_xgain1 < 0.0f)
 							m_xgain1 = 0.0f;
 					} else {
