@@ -7,8 +7,8 @@ ChangeLog
 GIT HEAD
 
 - Zero-crossing detection algorithm has been improved,
-  most specially to mitigate clicks across loop points.
-  (EXPERIMENTAL) 
+  most specially to mitigate transient clicks across
+  offset and loop points. (EXPERIMENTAL) 
 - Updated for the newer Qt5 development tools (>= 5.13).
 - Per instance custom tuning (micro-tonal) option has
   been added to the previously existing global settings
