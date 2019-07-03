@@ -164,8 +164,8 @@ protected:
 	void reverse_sync();
 
 	// zero-crossing aliasing .
-	uint32_t zero_crossing_k(uint32_t i, uint16_t k, int *slope) const;
 	uint32_t zero_crossing(uint32_t i, int *slope) const;
+	float zero_crossing_k(uint32_t i) const;
 
 	// offset/loop update.
 	void updateOffset();
