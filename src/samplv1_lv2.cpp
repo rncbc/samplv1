@@ -465,7 +465,7 @@ void samplv1_lv2::run ( uint32_t nframes )
 				}
 				else
 				if (object->body.otype == m_urids.patch_Get) {
-					// put property values (probably to UI)
+					// put all property values (probably to UI)
 					patch_put(ndelta);
 				}
 			#endif	// CONFIG_LV2_PATCH
@@ -1010,7 +1010,7 @@ bool samplv1_lv2::worker_response ( const void *data, uint32_t size )
 	samplv1_sched::sync_notify(this, samplv1_sched::Sample, 0);
 
 #ifdef CONFIG_LV2_PATCH
-	return patch_put(m_ndelta);
+	return patch_put(m_ndelta, mesg->atom.type);
 #else
 	return true;
 #endif
@@ -1031,9 +1031,12 @@ bool samplv1_lv2::state_changed (void)
 
 #ifdef CONFIG_LV2_PATCH
 
-bool samplv1_lv2::patch_put ( uint32_t ndelta )
+bool samplv1_lv2::patch_put ( uint32_t ndelta, uint32_t type )
 {
 	static char s_szNull[1] = {'\0'};
+
+	if (type == m_urids.patch_Put)
+		type = 0;
 
 	samplv1_sample *pSample = samplv1::sample();
 	if (pSample == NULL)
@@ -1048,37 +1051,58 @@ bool samplv1_lv2::patch_put ( uint32_t ndelta )
 	LV2_Atom_Forge_Frame body_frame;
 	lv2_atom_forge_object(&m_forge, &body_frame, 0, 0);
 
-	const char *pszSampleFile = pSample->filename();
-	if (pszSampleFile == NULL)
-		pszSampleFile = s_szNull;
-	lv2_atom_forge_key(&m_forge, m_urids.p101_sample_file);
-	lv2_atom_forge_path(&m_forge, pszSampleFile, ::strlen(pszSampleFile) + 1);
-	lv2_atom_forge_key(&m_forge, m_urids.p102_offset_start);
-	lv2_atom_forge_int(&m_forge, pSample->offsetStart());
-	lv2_atom_forge_key(&m_forge, m_urids.p103_offset_end);
-	lv2_atom_forge_int(&m_forge, pSample->offsetEnd());
-	lv2_atom_forge_key(&m_forge, m_urids.p104_loop_start);
-	lv2_atom_forge_int(&m_forge, pSample->loopStart());
-	lv2_atom_forge_key(&m_forge, m_urids.p105_loop_end);
-	lv2_atom_forge_int(&m_forge, pSample->loopEnd());
-	lv2_atom_forge_key(&m_forge, m_urids.p106_loop_fade);
-	lv2_atom_forge_int(&m_forge, pSample->loopCrossFade());
-	lv2_atom_forge_key(&m_forge, m_urids.p107_loop_zero);
-	lv2_atom_forge_bool(&m_forge, pSample->isLoopZeroCrossing());
+	if (type == 0 || type == m_urids.p101_sample_file) {
+		const char *pszSampleFile = pSample->filename();
+		if (pszSampleFile == NULL)
+			pszSampleFile = s_szNull;
+		lv2_atom_forge_key(&m_forge, m_urids.p101_sample_file);
+		lv2_atom_forge_path(&m_forge, pszSampleFile, ::strlen(pszSampleFile) + 1);
+	}
+	if (type == 0 || type == m_urids.p102_offset_start) {
+		lv2_atom_forge_key(&m_forge, m_urids.p102_offset_start);
+		lv2_atom_forge_int(&m_forge, pSample->offsetStart());
+	}
+	if (type == 0 || type == m_urids.p103_offset_end) {
+		lv2_atom_forge_key(&m_forge, m_urids.p103_offset_end);
+		lv2_atom_forge_int(&m_forge, pSample->offsetEnd());
+	}
+	if (type == 0 || type == m_urids.p104_loop_start) {
+		lv2_atom_forge_key(&m_forge, m_urids.p104_loop_start);
+		lv2_atom_forge_int(&m_forge, pSample->loopStart());
+	}
+	if (type == 0 || type == m_urids.p105_loop_end) {
+		lv2_atom_forge_key(&m_forge, m_urids.p105_loop_end);
+		lv2_atom_forge_int(&m_forge, pSample->loopEnd());
+	}
+	if (type == 0 || type == m_urids.p106_loop_fade) {
+		lv2_atom_forge_key(&m_forge, m_urids.p106_loop_fade);
+		lv2_atom_forge_int(&m_forge, pSample->loopCrossFade());
+	}
+	if (type == 0 || type == m_urids.p107_loop_zero) {
+		lv2_atom_forge_key(&m_forge, m_urids.p107_loop_zero);
+		lv2_atom_forge_bool(&m_forge, pSample->isLoopZeroCrossing());
+	}
 
-	const bool bTuningEnabled = samplv1::isTuningEnabled();
-	lv2_atom_forge_key(&m_forge, m_urids.p201_tuning_enabled);
-	lv2_atom_forge_bool(&m_forge, bTuningEnabled);
-	if (bTuningEnabled) {
+	if (type == 0 || type == m_urids.p201_tuning_enabled) {
+		lv2_atom_forge_key(&m_forge, m_urids.p201_tuning_enabled);
+		lv2_atom_forge_bool(&m_forge, samplv1::isTuningEnabled());
+	}
+	if (type == 0 || type == m_urids.p202_tuning_refPitch) {
 		lv2_atom_forge_key(&m_forge, m_urids.p202_tuning_refPitch);
 		lv2_atom_forge_float(&m_forge, samplv1::tuningRefPitch());
+	}
+	if (type == 0 || type == m_urids.p203_tuning_refNote) {
 		lv2_atom_forge_key(&m_forge, m_urids.p203_tuning_refNote);
 		lv2_atom_forge_int(&m_forge, samplv1::tuningRefNote());
+	}
+	if (type == 0 || type == m_urids.p204_tuning_scaleFile) {
 		const char *pszScaleFile = samplv1::tuningScaleFile();
 		if (pszScaleFile == NULL)
 			pszScaleFile = s_szNull;
 		lv2_atom_forge_key(&m_forge, m_urids.p204_tuning_scaleFile);
 		lv2_atom_forge_path(&m_forge, pszScaleFile, ::strlen(pszScaleFile) + 1);
+	}
+	if (type == 0 || type == m_urids.p205_tuning_keyMapFile) {
 		const char *pszKeyMapFile = samplv1::tuningKeyMapFile();
 		if (pszKeyMapFile == NULL)
 			pszKeyMapFile = s_szNull;
