@@ -27,6 +27,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <math.h>
+
 
 // forward decls.
 class samplv1;
@@ -268,7 +270,7 @@ public:
 				if (m_phase >= m_loop_phase2 - xfade1) {
 					if (//m_sample->isOver(m_index) ||
 						m_phase >= m_loop_phase2) {
-						m_phase -= m_loop_phase1 * std::ceil(delta/m_loop_phase1);
+						m_phase -= m_loop_phase1 * ::ceilf(delta / m_loop_phase1);
 						if (m_phase < m_phase0)
 							m_phase = m_phase0;
 					}
@@ -296,7 +298,7 @@ public:
 			}
 			else
 			if (m_phase >= m_loop_phase2) {
-				m_phase -= m_loop_phase1 * std::ceil(delta/m_loop_phase1);
+				m_phase -= m_loop_phase1 * ::ceilf(delta / m_loop_phase1);
 				if (m_phase < m_phase0)
 					m_phase = m_phase0;
 			}
