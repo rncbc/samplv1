@@ -268,7 +268,7 @@ public:
 				if (m_phase >= m_loop_phase2 - xfade1) {
 					if (//m_sample->isOver(m_index) ||
 						m_phase >= m_loop_phase2) {
-						m_phase -= m_loop_phase1;
+						m_phase -= m_loop_phase1 * std::ceil(delta/m_loop_phase1);
 						if (m_phase < m_phase0)
 							m_phase = m_phase0;
 					}
@@ -296,7 +296,7 @@ public:
 			}
 			else
 			if (m_phase >= m_loop_phase2) {
-				m_phase -= m_loop_phase1;
+				m_phase -= m_loop_phase1 * std::ceil(delta/m_loop_phase1);
 				if (m_phase < m_phase0)
 					m_phase = m_phase0;
 			}
