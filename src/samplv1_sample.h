@@ -27,6 +27,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <math.h>
+
 
 // forward decls.
 class samplv1;
@@ -164,8 +166,8 @@ protected:
 	void reverse_sync();
 
 	// zero-crossing aliasing .
-	uint32_t zero_crossing_k(uint32_t i, uint16_t k, int *slope) const;
 	uint32_t zero_crossing(uint32_t i, int *slope) const;
+	float zero_crossing_k(uint32_t i) const;
 
 	// offset/loop update.
 	void updateOffset();
@@ -268,7 +270,7 @@ public:
 				if (m_phase >= m_loop_phase2 - xfade1) {
 					if (//m_sample->isOver(m_index) ||
 						m_phase >= m_loop_phase2) {
-						m_phase -= m_loop_phase1;
+						m_phase -= m_loop_phase1 * ::ceilf(delta / m_loop_phase1);
 						if (m_phase < m_phase0)
 							m_phase = m_phase0;
 					}
@@ -276,7 +278,7 @@ public:
 						m_index1 = int(m_phase1);
 						m_alpha1 = m_phase1 - float(m_index1);
 						m_phase1 += delta;
-						m_xgain1 -= 1.0f / xfade1;
+						m_xgain1 -= delta / xfade1;
 						if (m_xgain1 < 0.0f)
 							m_xgain1 = 0.0f;
 					} else {
@@ -296,7 +298,7 @@ public:
 			}
 			else
 			if (m_phase >= m_loop_phase2) {
-				m_phase -= m_loop_phase1;
+				m_phase -= m_loop_phase1 * ::ceilf(delta / m_loop_phase1);
 				if (m_phase < m_phase0)
 					m_phase = m_phase0;
 			}

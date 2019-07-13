@@ -281,17 +281,15 @@ void samplv1_sample::updateLoop (void)
 }
 
 
-// zero-crossing aliasing (single channel).
-uint32_t samplv1_sample::zero_crossing_k (
-	uint32_t i, uint16_t k, int *slope ) const
+// zero-crossing aliasing (all channels).
+uint32_t samplv1_sample::zero_crossing ( uint32_t i, int *slope ) const
 {
-	const float *frames = m_pframes[k];
 	const int s0 = (slope ? *slope : 0);
 
 	if (i > 0) --i;
-	float v0 = frames[i];
+	float v0 = zero_crossing_k(i);
 	for (++i; i < m_nframes; ++i) {
-		const float v1 = frames[i];
+		const float v1 = zero_crossing_k(i);
 		if ((0 >= s0 && v0 >= 0.0f && 0.0f >= v1) ||
 			(s0 >= 0 && v1 >= 0.0f && 0.0f >= v0)) {
 			if (slope && s0 == 0) *slope = (v1 < v0 ? -1 : +1);
@@ -305,12 +303,12 @@ uint32_t samplv1_sample::zero_crossing_k (
 
 
 // zero-crossing aliasing (median).
-uint32_t samplv1_sample::zero_crossing ( uint32_t i, int *slope ) const
+float samplv1_sample::zero_crossing_k ( uint32_t i ) const
 {
-	uint32_t sum = 0;
+	float sum = 0.0f;
 	for (uint16_t k = 0; k < m_nchannels; ++k)
-		sum += zero_crossing_k(i, k, slope);
-	return (sum / m_nchannels);
+		sum += m_pframes[k][i];
+	return (sum / float(m_nchannels));
 }
 
 

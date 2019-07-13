@@ -74,6 +74,7 @@ protected:
 
 	void updatePreset(bool bDirty);
 	void updateSample();
+	void updateTuning();
 
 private:
 

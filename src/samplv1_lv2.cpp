@@ -20,7 +20,7 @@
 *****************************************************************************/
 
 #include "samplv1_lv2.h"
-
+#include "samplv1_config.h"
 #include "samplv1_sched.h"
 #include "samplv1_sample.h"
 
@@ -57,6 +57,7 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include <QDomDocument>
 #include <QFileInfo>
 
 
@@ -122,6 +123,18 @@ samplv1_lv2::samplv1_lv2 (
 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "P107_LOOP_ZERO");
 				m_urids.gen1_update = m_urid_map->map(
 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_UPDATE");
+				m_urids.p201_tuning_enabled = m_urid_map->map(
+					m_urid_map->handle, SAMPLV1_LV2_PREFIX "P201_TUNING_ENABLED");
+				m_urids.p202_tuning_refPitch = m_urid_map->map(
+					m_urid_map->handle, SAMPLV1_LV2_PREFIX "P202_TUNING_REF_PITCH");
+				m_urids.p203_tuning_refNote = m_urid_map->map(
+					m_urid_map->handle, SAMPLV1_LV2_PREFIX "P203_TUNING_REF_NOTE");
+				m_urids.p204_tuning_scaleFile = m_urid_map->map(
+					m_urid_map->handle, SAMPLV1_LV2_PREFIX "P204_TUNING_SCALE_FILE");
+				m_urids.p205_tuning_keyMapFile = m_urid_map->map(
+					m_urid_map->handle, SAMPLV1_LV2_PREFIX "P205_TUNING_KEYMAP_FILE");
+				m_urids.tun1_update = m_urid_map->map(
+					m_urid_map->handle, SAMPLV1_LV2_PREFIX "TUN1_UPDATE");
 				m_urids.atom_Blank = m_urid_map->map(
 					m_urid_map->handle, LV2_ATOM__Blank);
 				m_urids.atom_Object = m_urid_map->map(
@@ -390,12 +403,9 @@ void samplv1_lv2::run ( uint32_t nframes )
 							|| key == m_urids.gen1_loop_fade
 						#endif
 							) && type == m_urids.atom_Int) {
-							samplv1_sample *pSample = samplv1::sample();
-							if (pSample) {
-								const uint32_t loop_fade
-									= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
-								setLoopFade(loop_fade);
-							}
+							const uint32_t loop_fade
+								= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
+							setLoopFade(loop_fade);
 						}
 						else
 						if ((key == m_urids.p107_loop_zero
@@ -407,18 +417,55 @@ void samplv1_lv2::run ( uint32_t nframes )
 							|| type == m_urids.atom_Int
 						#endif
 							)) {
-							samplv1_sample *pSample = samplv1::sample();
-							if (pSample) {
-								const uint32_t loop_zero
-									= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
-								setLoopZero(loop_zero > 0);
-							}
+							const uint32_t loop_zero
+								= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
+							setLoopZero(loop_zero > 0);
+						}
+						else
+						if (key == m_urids.p201_tuning_enabled
+							&& type == m_urids.atom_Bool) {
+							const uint32_t enabled
+								= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
+							samplv1::setTuningEnabled(enabled > 0);
+							updateTuning();
+						}
+						else
+						if (key == m_urids.p202_tuning_refPitch
+							&& type == m_urids.atom_Float) {
+							const float refPitch
+								= *(float *) LV2_ATOM_BODY_CONST(value);
+							samplv1::setTuningRefPitch(refPitch);
+							updateTuning();
+						}
+						else
+						if (key == m_urids.p203_tuning_refNote
+							&& type == m_urids.atom_Int) {
+							const uint32_t refNote
+								= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
+							samplv1::setTuningRefNote(refNote);
+							updateTuning();
+						}
+						else
+						if (key == m_urids.p204_tuning_scaleFile
+							&& type == m_urids.atom_Path) {
+							const char *scaleFile
+								= (const char *) LV2_ATOM_BODY_CONST(value);
+							samplv1::setTuningScaleFile(scaleFile);
+							updateTuning();
+						}
+						else
+						if (key == m_urids.p205_tuning_keyMapFile
+							&& type == m_urids.atom_Path) {
+							const char *keyMapFile
+								= (const char *) LV2_ATOM_BODY_CONST(value);
+							samplv1::setTuningKeyMapFile(keyMapFile);
+							updateTuning();
 						}
 					}
 				}
 				else
 				if (object->body.otype == m_urids.patch_Get) {
-					// put property values (probably to UI)
+					// put all property values (probably to UI)
 					patch_put(ndelta);
 				}
 			#endif	// CONFIG_LV2_PATCH
@@ -499,8 +546,7 @@ static LV2_State_Status samplv1_lv2_state_save ( LV2_Handle instance,
 
 	size_t size = ::strlen(value) + 1;
 
-	const LV2_State_Status result
-		= (*store)(handle, key, value, size, type, flags);
+	(*store)(handle, key, value, size, type, flags);
 
 	if (map_path)
 		::free((void *) value);
@@ -551,7 +597,41 @@ static LV2_State_Status samplv1_lv2_state_save ( LV2_Handle instance,
 			(*store)(handle, key, value, size, type, flags);
 	}
 
-	return result;
+	// FIXME: At this time, only micro-tonal (aka. tuning) settings
+	// are posed to be saved into some XML chunk as state...
+	if (!pPlugin->isTuningEnabled())
+		return LV2_STATE_SUCCESS;
+
+	// Save all remaining state as XML chunk...
+	//
+	key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "state");
+	if (key == 0)
+		return LV2_STATE_ERR_NO_PROPERTY;
+
+	type = pPlugin->urid_map(LV2_ATOM__Chunk);
+	if (type == 0)
+		return LV2_STATE_ERR_BAD_TYPE;
+#if 0
+	if ((flags & (LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE)) == 0)
+		return LV2_STATE_ERR_BAD_FLAGS;
+#else
+	flags |= (LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE);
+#endif
+
+	QDomDocument doc(SAMPLV1_TITLE);
+	QDomElement eState = doc.createElement("state");
+
+	QDomElement eTuning = doc.createElement("tuning");
+	samplv1_param::saveTuning(pPlugin, doc, eTuning);
+	eState.appendChild(eTuning);
+
+	doc.appendChild(eState);
+
+	const QByteArray data(doc.toByteArray());
+	value = data.constData();
+	size = data.size();
+
+	return (*store)(handle, key, value, size, type, flags);
 }
 
 
@@ -757,6 +837,42 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 	if (offset_start < offset_end)
 		pPlugin->setOffsetRange(offset_start, offset_end);
 
+	// Retrieve any remaining state as XML chunk...
+	//
+	key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "state");
+	if (key == 0)
+		return LV2_STATE_ERR_NO_PROPERTY;
+
+	const uint32_t chunk_type = pPlugin->urid_map(LV2_ATOM__Chunk);
+	if (chunk_type == 0)
+		return LV2_STATE_ERR_BAD_TYPE;
+
+	size = 0;
+	type = 0;
+//	flags = 0;
+
+	value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
+
+	if (value != NULL && size > 2 && type == chunk_type
+		&& (flags & (LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE))) {
+		
+		QDomDocument doc(SAMPLV1_TITLE);
+		if (doc.setContent(QByteArray(value, size))) {
+			QDomElement eState = doc.documentElement();
+			if (eState.tagName() == "state") {
+				for (QDomNode nChild = eState.firstChild();
+						!nChild.isNull();
+							nChild = nChild.nextSibling()) {
+					QDomElement eChild = nChild.toElement();
+					if (eChild.isNull())
+						continue;
+					if (eChild.tagName() == "tuning")
+						samplv1_param::loadTuning(pPlugin, eChild);
+				}
+			}
+		}
+	}
+
 	pPlugin->reset();
 
 	samplv1_sched::sync_notify(pPlugin, samplv1_sched::Sample, 1);
@@ -836,6 +952,18 @@ void samplv1_lv2::updateSample (void)
 }
 
 
+void samplv1_lv2::updateTuning (void)
+{
+	if (m_schedule) {
+		samplv1_lv2_worker_message mesg;
+		mesg.atom.type = m_urids.tun1_update;
+		mesg.atom.size = 0; // nothing else matters.
+		m_schedule->schedule_work(
+			m_schedule->handle, sizeof(mesg), &mesg);
+	}
+}
+
+
 bool samplv1_lv2::worker_work ( const void *data, uint32_t size )
 {
 	if (size != sizeof(samplv1_lv2_worker_message))
@@ -858,6 +986,11 @@ bool samplv1_lv2::worker_work ( const void *data, uint32_t size )
 		samplv1::setSampleFile(mesg->sample_path);
 		return true;
 	}
+	else
+	if (mesg->atom.type == m_urids.tun1_update) {
+		samplv1::resetTuning();
+		return true;
+	}
 
 	return false;
 }
@@ -877,7 +1010,7 @@ bool samplv1_lv2::worker_response ( const void *data, uint32_t size )
 	samplv1_sched::sync_notify(this, samplv1_sched::Sample, 0);
 
 #ifdef CONFIG_LV2_PATCH
-	return patch_put(m_ndelta);
+	return patch_put(m_ndelta, mesg->atom.type);
 #else
 	return true;
 #endif
@@ -898,15 +1031,16 @@ bool samplv1_lv2::state_changed (void)
 
 #ifdef CONFIG_LV2_PATCH
 
-bool samplv1_lv2::patch_put ( uint32_t ndelta )
+bool samplv1_lv2::patch_put ( uint32_t ndelta, uint32_t type )
 {
 	static char s_szNull[1] = {'\0'};
-	const char *pszSampleFile = NULL;
+
+	if (type == m_urids.patch_Put)
+		type = 0;
+
 	samplv1_sample *pSample = samplv1::sample();
-	if (pSample)
-		pszSampleFile = pSample->filename();
-	if (pszSampleFile == NULL)
-		pszSampleFile = s_szNull;
+	if (pSample == NULL)
+		return false;
 
 	lv2_atom_forge_frame_time(&m_forge, ndelta);
 
@@ -916,20 +1050,65 @@ bool samplv1_lv2::patch_put ( uint32_t ndelta )
 
 	LV2_Atom_Forge_Frame body_frame;
 	lv2_atom_forge_object(&m_forge, &body_frame, 0, 0);
-	lv2_atom_forge_key(&m_forge, m_urids.p101_sample_file);
-	lv2_atom_forge_path(&m_forge, pszSampleFile, ::strlen(pszSampleFile) + 1);
-	lv2_atom_forge_key(&m_forge, m_urids.p102_offset_start);
-	lv2_atom_forge_int(&m_forge, pSample->offsetStart());
-	lv2_atom_forge_key(&m_forge, m_urids.p103_offset_end);
-	lv2_atom_forge_int(&m_forge, pSample->offsetEnd());
-	lv2_atom_forge_key(&m_forge, m_urids.p104_loop_start);
-	lv2_atom_forge_int(&m_forge, pSample->loopStart());
-	lv2_atom_forge_key(&m_forge, m_urids.p105_loop_end);
-	lv2_atom_forge_int(&m_forge, pSample->loopEnd());
-	lv2_atom_forge_key(&m_forge, m_urids.p106_loop_fade);
-	lv2_atom_forge_int(&m_forge, pSample->loopCrossFade());
-	lv2_atom_forge_key(&m_forge, m_urids.p107_loop_zero);
-	lv2_atom_forge_bool(&m_forge, pSample->isLoopZeroCrossing());
+
+	if (type == 0 || type == m_urids.p101_sample_file) {
+		const char *pszSampleFile = pSample->filename();
+		if (pszSampleFile == NULL)
+			pszSampleFile = s_szNull;
+		lv2_atom_forge_key(&m_forge, m_urids.p101_sample_file);
+		lv2_atom_forge_path(&m_forge, pszSampleFile, ::strlen(pszSampleFile) + 1);
+	}
+	if (type == 0 || type == m_urids.p102_offset_start) {
+		lv2_atom_forge_key(&m_forge, m_urids.p102_offset_start);
+		lv2_atom_forge_int(&m_forge, pSample->offsetStart());
+	}
+	if (type == 0 || type == m_urids.p103_offset_end) {
+		lv2_atom_forge_key(&m_forge, m_urids.p103_offset_end);
+		lv2_atom_forge_int(&m_forge, pSample->offsetEnd());
+	}
+	if (type == 0 || type == m_urids.p104_loop_start) {
+		lv2_atom_forge_key(&m_forge, m_urids.p104_loop_start);
+		lv2_atom_forge_int(&m_forge, pSample->loopStart());
+	}
+	if (type == 0 || type == m_urids.p105_loop_end) {
+		lv2_atom_forge_key(&m_forge, m_urids.p105_loop_end);
+		lv2_atom_forge_int(&m_forge, pSample->loopEnd());
+	}
+	if (type == 0 || type == m_urids.p106_loop_fade) {
+		lv2_atom_forge_key(&m_forge, m_urids.p106_loop_fade);
+		lv2_atom_forge_int(&m_forge, pSample->loopCrossFade());
+	}
+	if (type == 0 || type == m_urids.p107_loop_zero) {
+		lv2_atom_forge_key(&m_forge, m_urids.p107_loop_zero);
+		lv2_atom_forge_bool(&m_forge, pSample->isLoopZeroCrossing());
+	}
+
+	if (type == 0 || type == m_urids.p201_tuning_enabled) {
+		lv2_atom_forge_key(&m_forge, m_urids.p201_tuning_enabled);
+		lv2_atom_forge_bool(&m_forge, samplv1::isTuningEnabled());
+	}
+	if (type == 0 || type == m_urids.p202_tuning_refPitch) {
+		lv2_atom_forge_key(&m_forge, m_urids.p202_tuning_refPitch);
+		lv2_atom_forge_float(&m_forge, samplv1::tuningRefPitch());
+	}
+	if (type == 0 || type == m_urids.p203_tuning_refNote) {
+		lv2_atom_forge_key(&m_forge, m_urids.p203_tuning_refNote);
+		lv2_atom_forge_int(&m_forge, samplv1::tuningRefNote());
+	}
+	if (type == 0 || type == m_urids.p204_tuning_scaleFile) {
+		const char *pszScaleFile = samplv1::tuningScaleFile();
+		if (pszScaleFile == NULL)
+			pszScaleFile = s_szNull;
+		lv2_atom_forge_key(&m_forge, m_urids.p204_tuning_scaleFile);
+		lv2_atom_forge_path(&m_forge, pszScaleFile, ::strlen(pszScaleFile) + 1);
+	}
+	if (type == 0 || type == m_urids.p205_tuning_keyMapFile) {
+		const char *pszKeyMapFile = samplv1::tuningKeyMapFile();
+		if (pszKeyMapFile == NULL)
+			pszKeyMapFile = s_szNull;
+		lv2_atom_forge_key(&m_forge, m_urids.p205_tuning_keyMapFile);
+		lv2_atom_forge_path(&m_forge, pszKeyMapFile, ::strlen(pszKeyMapFile) + 1);
+	}
 
 	lv2_atom_forge_pop(&m_forge, &body_frame);
 	lv2_atom_forge_pop(&m_forge, &patch_frame);

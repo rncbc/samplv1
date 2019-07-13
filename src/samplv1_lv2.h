@@ -84,11 +84,12 @@ protected:
 
 	void updatePreset(bool bDirty);
 	void updateSample();
+	void updateTuning();
 
 	bool state_changed();
 
 #ifdef CONFIG_LV2_PATCH
-	bool patch_put(uint32_t ndelta);
+	bool patch_put(uint32_t ndelta, uint32_t type = 0);
 #endif
 
 private:
@@ -114,6 +115,12 @@ private:
 		LV2_URID p106_loop_fade;
 		LV2_URID p107_loop_zero;
 		LV2_URID gen1_update;
+		LV2_URID p201_tuning_enabled;
+		LV2_URID p202_tuning_refPitch;
+		LV2_URID p203_tuning_refNote;
+		LV2_URID p204_tuning_scaleFile;
+		LV2_URID p205_tuning_keyMapFile;
+		LV2_URID tun1_update;
 		LV2_URID atom_Blank;
 		LV2_URID atom_Object;
 		LV2_URID atom_Float;

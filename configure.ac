@@ -132,6 +132,7 @@ AC_ARG_ENABLE(lv2-patch,
   [ac_lv2_patch="$enableval"],
   [ac_lv2_patch="yes"])
 
+
 # Enable liblo availability.
 AC_ARG_ENABLE(liblo,
   AS_HELP_STRING([--enable-liblo], [enable liblo interface (default=yes)]),
@@ -645,7 +646,6 @@ if test "x$ac_lv2_patch" = "xyes"; then
       AC_MSG_WARN([*** LV2 Patch support will be disabled.])
    fi
 fi
-
 
 
 # Check for NSM support.
