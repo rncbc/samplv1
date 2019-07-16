@@ -6,6 +6,8 @@ ChangeLog
 
 GIT HEAD
 
+- Randomization of current parameters is now available
+  through a new top-level push-button. (EXPERIMENTAL)
 - Zero-crossing detection algorithm has been improved,
   most specially to mitigate transient clicks across
   offset and loop points. (EXPERIMENTAL) 

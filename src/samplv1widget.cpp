@@ -880,7 +880,23 @@ void samplv1widget::randomParams (void)
 
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
 		const samplv1::ParamIndex index = samplv1::ParamIndex(i);
-		// TODO: Filter non-randomizable parameters!...
+		// Filter out some non-randomizable parameters!...
+		if (index == samplv1::GEN1_SAMPLE   ||
+		    index == samplv1::GEN1_OFFSET   ||
+		    index == samplv1::GEN1_OFFSET_1 ||
+		    index == samplv1::GEN1_OFFSET_2 ||
+		    index == samplv1::GEN1_LOOP     ||
+		    index == samplv1::GEN1_LOOP_1   ||
+		    index == samplv1::GEN1_LOOP_2   ||
+			index == samplv1::GEN1_OCTAVE   ||
+			index == samplv1::GEN1_TUNING   ||
+			index == samplv1::GEN1_ENVTIME  ||
+			index == samplv1::DCF1_ENABLED  ||
+			index == samplv1::LFO1_ENABLED  ||
+			index == samplv1::DCA1_ENABLED) 
+			continue;
+		if (index >= samplv1::OUT1_WIDTH)
+			break;
 		samplv1widget_param *pParam = paramKnob(index);
 		if (pParam) {
 			const float v = pParam->value();
