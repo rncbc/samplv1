@@ -67,6 +67,9 @@ public:
 	// Special time-formatted spinbox option.
 	int iFrameTimeFormat;
 
+	// Default randomize factor (percent).
+	float fRandomizePercent;
+
 	// Special persistent options.
 	bool bControlsEnabled;
 	bool bProgramsEnabled;

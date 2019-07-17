@@ -42,6 +42,8 @@
 #include <QShowEvent>
 #include <QHideEvent>
 
+#include <math.h>
+
 
 //-------------------------------------------------------------------------
 // samplv1widget - impl.
@@ -555,6 +557,11 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 		SIGNAL(customContextMenuRequested(const QPoint&)),
 		SLOT(spinboxContextMenu(const QPoint&)));
 
+	// Randomize params...
+	QObject::connect(m_ui.RandomParamsButton,
+		SIGNAL(clicked()),
+		SLOT(randomParams()));
+
 	// Swap params A/B
 	QObject::connect(m_ui.SwapParamsAButton,
 		SIGNAL(toggled(bool)),
@@ -855,6 +862,66 @@ void samplv1widget::resetParams (void)
 
 	m_ui.StatusBar->showMessage(tr("Reset preset"), 5000);
 	updateDirtyPreset(false);
+}
+
+
+// Randomize params (partial).
+void samplv1widget::randomParams (void)
+{
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi == NULL)
+		return;
+
+	float p = 1.0f;
+
+	samplv1_config *pConfig = samplv1_config::getInstance();
+	if (pConfig)
+		p = 0.01f * pConfig->fRandomizePercent;
+
+	if (QMessageBox::warning(this,
+		tr("Warning") + " - " SAMPLV1_TITLE,
+		tr("About to randomize current parameter values:\n\n"
+		"-/+ %1%.\n\n"
+		"Are you sure?").arg(100.0f * p),
+		QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Cancel)
+		return;
+
+	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
+		const samplv1::ParamIndex index = samplv1::ParamIndex(i);
+		// Filter out some non-randomizable parameters!...
+		if (index == samplv1::GEN1_SAMPLE   ||
+		    index == samplv1::GEN1_OFFSET   ||
+		    index == samplv1::GEN1_OFFSET_1 ||
+		    index == samplv1::GEN1_OFFSET_2 ||
+		    index == samplv1::GEN1_LOOP     ||
+		    index == samplv1::GEN1_LOOP_1   ||
+		    index == samplv1::GEN1_LOOP_2   ||
+			index == samplv1::GEN1_OCTAVE   ||
+			index == samplv1::GEN1_TUNING   ||
+			index == samplv1::GEN1_ENVTIME  ||
+			index == samplv1::DCF1_ENABLED  ||
+			index == samplv1::LFO1_ENABLED  ||
+			index == samplv1::DCA1_ENABLED) 
+			continue;
+		if (index >= samplv1::OUT1_WIDTH)
+			break;
+		samplv1widget_param *pParam = paramKnob(index);
+		if (pParam) {
+			const float v = pParam->value();
+			const float q = 1000.0f * ::fabsf(pParam->maximum() - pParam->minimum());
+			const float r = pParam->minimum() + 0.001f * float(::rand() % int(q + 1));
+			float fValue = v;
+			if (samplv1_param::paramFloat(index))
+				fValue += p * (r - v);
+			else
+				fValue += ::roundf(r - v);
+			setParamValue(index, fValue);
+			updateParam(index, fValue);
+		}
+	}
+
+	m_ui.StatusBar->showMessage(tr("Randomize"), 5000);
+	updateDirtyPreset(true);
 }
 
 
