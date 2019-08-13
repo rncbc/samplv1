@@ -79,7 +79,7 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	m_ui.setupUi(this);
 
 	// Init sched notifier.
-	m_sched_notifier = NULL;
+	m_sched_notifier = nullptr;
 
 	// Init swapable params A/B to default.
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i)
@@ -636,7 +636,7 @@ void samplv1widget::openSchedNotifier (void)
 		return;
 
 	samplv1_ui *pSamplUi = ui_instance();
-	if (pSamplUi == NULL)
+	if (pSamplUi == nullptr)
 		return;
 
 	m_sched_notifier = new samplv1widget_sched(pSamplUi->instance(), this);
@@ -653,7 +653,7 @@ void samplv1widget::closeSchedNotifier (void)
 {
 	if (m_sched_notifier) {
 		delete m_sched_notifier;
-		m_sched_notifier = NULL;
+		m_sched_notifier = nullptr;
 	}
 
 	samplv1_ui *pSamplUi = ui_instance();
@@ -700,7 +700,7 @@ void samplv1widget::setParamKnob ( samplv1::ParamIndex index, samplv1widget_para
 
 samplv1widget_param *samplv1widget::paramKnob ( samplv1::ParamIndex index ) const
 {
-	return m_paramKnobs.value(index, NULL);
+	return m_paramKnobs.value(index, nullptr);
 }
 
 
@@ -760,7 +760,7 @@ void samplv1widget::updateParamEx (
 	samplv1::ParamIndex index, float fValue, bool bIter )
 {
 	samplv1_ui *pSamplUi = ui_instance();
-	if (pSamplUi == NULL)
+	if (pSamplUi == nullptr)
 		return;
 
 	++m_iUpdate;
@@ -842,7 +842,7 @@ void samplv1widget::updateSchedParam ( samplv1::ParamIndex index, float fValue )
 void samplv1widget::resetParams (void)
 {
 	samplv1_ui *pSamplUi = ui_instance();
-	if (pSamplUi == NULL)
+	if (pSamplUi == nullptr)
 		return;
 
 	pSamplUi->reset();
@@ -871,7 +871,7 @@ void samplv1widget::resetParams (void)
 void samplv1widget::randomParams (void)
 {
 	samplv1_ui *pSamplUi = ui_instance();
-	if (pSamplUi == NULL)
+	if (pSamplUi == nullptr)
 		return;
 
 	float p = 1.0f;
@@ -888,7 +888,7 @@ void samplv1widget::randomParams (void)
 		QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Cancel)
 		return;
 
-	std::default_random_engine re(::time(NULL));
+	std::default_random_engine re(::time(nullptr));
 
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
 		const samplv1::ParamIndex index = samplv1::ParamIndex(i);
@@ -938,7 +938,7 @@ void samplv1widget::swapParams ( bool bOn )
 		return;
 
 	samplv1_ui *pSamplUi = ui_instance();
-	if (pSamplUi == NULL)
+	if (pSamplUi == nullptr)
 		return;
 
 #ifdef CONFIG_DEBUG
@@ -980,7 +980,7 @@ void samplv1widget::updateParamValues (void)
 	resetSwapParams();
 
 	samplv1_ui *pSamplUi = ui_instance();
-	if (pSamplUi == NULL)
+	if (pSamplUi == nullptr)
 		return;
 
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
@@ -1001,7 +1001,7 @@ void samplv1widget::resetParamValues (void)
 	resetSwapParams();
 
 	samplv1_ui *pSamplUi = ui_instance();
-	if (pSamplUi == NULL)
+	if (pSamplUi == nullptr)
 		return;
 
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
@@ -1137,9 +1137,9 @@ void samplv1widget::clearSampleFile (void)
 
 	samplv1_ui *pSamplUi = ui_instance();
 	if (pSamplUi)
-		pSamplUi->setSampleFile(NULL);
+		pSamplUi->setSampleFile(nullptr);
 
-	updateSample(NULL);
+	updateSample(nullptr);
 }
 
 
@@ -1162,14 +1162,14 @@ void samplv1widget::loadSampleFile ( const QString& sFilename )
 void samplv1widget::updateSample ( samplv1_sample *pSample, bool bDirty )
 {
 	samplv1_ui *pSamplUi = ui_instance();
-	if (m_ui.Gen1Sample->instance() == NULL)
+	if (m_ui.Gen1Sample->instance() == nullptr)
 		m_ui.Gen1Sample->setInstance(pSamplUi);
 
 	m_ui.Gen1Sample->setSample(pSample);
 
 	++m_iUpdate;
 	if (pSample) {
-		activateParamKnobs(pSample->filename() != NULL);
+		activateParamKnobs(pSample->filename() != nullptr);
 		updateOffsetLoop(pSample);
 		// Set current preset name if empty...
 		if (pSample->filename() && m_ui.Preset->preset().isEmpty()) {
@@ -1178,7 +1178,7 @@ void samplv1widget::updateSample ( samplv1_sample *pSample, bool bDirty )
 		}
 	} else {
 		activateParamKnobs(false);
-		updateOffsetLoop(NULL);
+		updateOffsetLoop(nullptr);
 	}
 	--m_iUpdate;
 
@@ -1506,22 +1506,22 @@ void samplv1widget::contextMenuRequest ( const QPoint& pos )
 	QAction *pAction;
 
 	samplv1_ui *pSamplUi = ui_instance();
-	const char *pszSampleFile = NULL;
+	const char *pszSampleFile = nullptr;
 	if (pSamplUi)
 		pszSampleFile = pSamplUi->sampleFile();
 
 	pAction = menu.addAction(
 		QIcon(":/images/fileOpen.png"),
 		tr("Open Sample..."), this, SLOT(openSample()));
-	pAction->setEnabled(pSamplUi != NULL);
+	pAction->setEnabled(pSamplUi != nullptr);
 	pAction = menu.addAction(
 		QIcon(":/images/playSample.png"),
 		tr("Play"), this, SLOT(playSample()));
-	pAction->setEnabled(pSamplUi != NULL);
+	pAction->setEnabled(pSamplUi != nullptr);
 	menu.addSeparator();
 	pAction = menu.addAction(
 		tr("Reset"), this, SLOT(clearSample()));
-	pAction->setEnabled(pszSampleFile != NULL);
+	pAction->setEnabled(pszSampleFile != nullptr);
 
 	menu.exec(static_cast<QWidget *> (sender())->mapToGlobal(pos));
 }
@@ -1547,7 +1547,7 @@ void samplv1widget::updateLoadPreset ( const QString& sPreset )
 void samplv1widget::updateSchedNotify ( int stype, int sid )
 {
 	samplv1_ui *pSamplUi = ui_instance();
-	if (pSamplUi == NULL)
+	if (pSamplUi == nullptr)
 		return;
 
 #ifdef CONFIG_DEBUG_0
@@ -1646,7 +1646,7 @@ void samplv1widget::midiInLedTimeout (void)
 void samplv1widget::helpConfigure (void)
 {
 	samplv1_ui *pSamplUi = ui_instance();
-	if (pSamplUi == NULL)
+	if (pSamplUi == nullptr)
 		return;
 
 	samplv1widget_config(pSamplUi, this).exec();
@@ -1726,15 +1726,15 @@ void samplv1widget::paramContextMenu ( const QPoint& pos )
 {
 	samplv1widget_param *pParam
 		= qobject_cast<samplv1widget_param *> (sender());
-	if (pParam == NULL)
+	if (pParam == nullptr)
 		return;
 
 	samplv1_ui *pSamplUi = ui_instance();
-	if (pSamplUi == NULL)
+	if (pSamplUi == nullptr)
 		return;
 
 	samplv1_controls *pControls = pSamplUi->controls();
-	if (pControls == NULL)
+	if (pControls == nullptr)
 		return;
 
 	if (!pControls->enabled())
@@ -1759,7 +1759,7 @@ void samplv1widget::spinboxContextMenu ( const QPoint& pos )
 {
 	samplv1widget_spinbox *pSpinBox
 		= qobject_cast<samplv1widget_spinbox *> (sender());
-	if (pSpinBox == NULL)
+	if (pSpinBox == nullptr)
 		return;
 
 	samplv1widget_spinbox::Format format = pSpinBox->format();
@@ -1778,7 +1778,7 @@ void samplv1widget::spinboxContextMenu ( const QPoint& pos )
 	pAction->setData(int(samplv1widget_spinbox::Time));
 
 	pAction = menu.exec(pSpinBox->mapToGlobal(pos));
-	if (pAction == NULL)
+	if (pAction == nullptr)
 		return;
 
 	format = samplv1widget_spinbox::Format(pAction->data().toInt());

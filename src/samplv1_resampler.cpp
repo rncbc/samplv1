@@ -1,7 +1,7 @@
 // samplv1_resampler.cpp
 //
 /****************************************************************************
-   Copyright (C) 2017, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2017-2019, rncbc aka Rui Nuno Capela. All rights reserved.
    Copyright (C) 2006-2012 Fons Adriaensen <fons@linuxaudio.org>
 
    This program is free software; you can redistribute it and/or
@@ -51,13 +51,13 @@ static float wind ( float x )
 }
 
 
-samplv1_resampler::Table *samplv1_resampler::Table::g_list = NULL;
+samplv1_resampler::Table *samplv1_resampler::Table::g_list = nullptr;
 samplv1_resampler::Mutex  samplv1_resampler::Table::g_mutex;
 
 
 samplv1_resampler::Table::Table (
 	float fr0, unsigned int hl0, unsigned int np0 )
-	: next(NULL), refc(0), ctab(NULL), fr(fr0), hl(hl0), np(np0)
+	: next(nullptr), refc(0), ctab(nullptr), fr(fr0), hl(hl0), np(np0)
 {
 	unsigned int i, j;
 	float t;
@@ -123,7 +123,7 @@ void samplv1_resampler::Table::destroy ( samplv1_resampler::Table *table )
 		table->refc--;
 		if (table->refc == 0) {
 			p = g_list;
-			q = NULL;
+			q = nullptr;
 			while (p) {
 				if (p == table) {
 					if (q)
@@ -169,7 +169,7 @@ static unsigned int gcd ( unsigned int a, unsigned int b )
 
 
 samplv1_resampler::samplv1_resampler (void)
-	: m_table(NULL), m_nchan(0), m_buff(NULL)
+	: m_table(nullptr), m_nchan(0), m_buff(nullptr)
 {
 	reset();
 }
@@ -242,8 +242,8 @@ void samplv1_resampler::clear (void)
 
 	delete [] m_buff;
 
-	m_buff  = NULL;
-	m_table = NULL;
+	m_buff  = nullptr;
+	m_table = nullptr;
 	m_nchan = 0;
 	m_inmax = 0;
 	m_pstep = 0;
@@ -272,13 +272,13 @@ int samplv1_resampler::inpsize (void) const
 
 bool samplv1_resampler::reset (void)
 {
-	if (m_table == NULL)
+	if (m_table == nullptr)
 		return false;
 
 	inp_count = 0;
 	out_count = 0;
-	inp_data  = NULL;
-	out_data  = NULL;
+	inp_data  = nullptr;
+	out_data  = nullptr;
 
 	m_index = 0;
 	m_nread = 0;
@@ -299,7 +299,7 @@ bool samplv1_resampler::process (void)
 	unsigned int hl, ph, np, dp, in, nr, nz, i, n, c;
 	float *p1, *p2;
 
-	if (m_table == NULL)
+	if (m_table == nullptr)
 		return false;
 
 	hl = m_table->hl;

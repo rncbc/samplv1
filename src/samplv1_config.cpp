@@ -32,7 +32,7 @@
 //
 
 // Singleton instance accessor (static).
-samplv1_config *samplv1_config::g_pSettings = NULL;
+samplv1_config *samplv1_config::g_pSettings = nullptr;
 
 samplv1_config *samplv1_config::getInstance (void)
 {
@@ -55,7 +55,7 @@ samplv1_config::~samplv1_config (void)
 {
 	save();
 
-	g_pSettings = NULL;
+	g_pSettings = nullptr;
 }
 
 

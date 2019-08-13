@@ -231,7 +231,7 @@ class samplv1widget_sched : public QObject
 public:
 
 	// ctor.
-	samplv1widget_sched(samplv1 *pSampl, QObject *pParent = NULL)
+	samplv1widget_sched(samplv1 *pSampl, QObject *pParent = nullptr)
 		: QObject(pParent), m_notifier(pSampl, this) {}
 
 signals:

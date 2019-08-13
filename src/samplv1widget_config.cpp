@@ -297,7 +297,7 @@ void samplv1widget_config::controlsContextMenuRequested ( const QPoint& pos )
 	QMenu menu(this);
 	QAction *pAction;
 
-	bool bEnabled = (m_pSamplUi && m_pSamplUi->controls() != NULL);
+	bool bEnabled = (m_pSamplUi && m_pSamplUi->controls() != nullptr);
 
 	pAction = menu.addAction(QIcon(":/images/samplv1_preset.png"),
 		tr("&Add Controller"), this, SLOT(controlsAddItem()));
@@ -305,7 +305,7 @@ void samplv1widget_config::controlsContextMenuRequested ( const QPoint& pos )
 
 	menu.addSeparator();
 
-	bEnabled = bEnabled && (pItem != NULL);
+	bEnabled = bEnabled && (pItem != nullptr);
 
 	pAction = menu.addAction(QIcon(":/images/presetEdit.png"),
 		tr("&Edit"), this, SLOT(controlsEditItem()));
@@ -392,7 +392,7 @@ void samplv1widget_config::programsContextMenuRequested ( const QPoint& pos )
 	QMenu menu(this);
 	QAction *pAction;
 
-	bool bEnabled = (m_pSamplUi && m_pSamplUi->programs() != NULL);
+	bool bEnabled = (m_pSamplUi && m_pSamplUi->programs() != nullptr);
 
 	pAction = menu.addAction(QIcon(":/images/presetBank.png"),
 		tr("Add &Bank"), this, SLOT(programsAddBankItem()));
@@ -404,7 +404,7 @@ void samplv1widget_config::programsContextMenuRequested ( const QPoint& pos )
 
 	menu.addSeparator();
 
-	bEnabled = bEnabled && (pItem != NULL);
+	bEnabled = bEnabled && (pItem != nullptr);
 
 	pAction = menu.addAction(QIcon(":/images/presetEdit.png"),
 		tr("&Edit"), this, SLOT(programsEditItem()));
@@ -516,7 +516,7 @@ void samplv1widget_config::tuningRefNoteClicked (void)
 void samplv1widget_config::tuningScaleFileClicked (void)
 {
 	samplv1_config *pConfig = samplv1_config::getInstance();
-	if (pConfig == NULL)
+	if (pConfig == nullptr)
 		return;
 
 	QString sTuningScaleFile = m_ui.TuningScaleFileComboBox->currentText();
@@ -529,7 +529,7 @@ void samplv1widget_config::tuningScaleFileClicked (void)
 	filters.append(tr("All files (*.*)"));
 	const QString& sFilter = filters.join(";;");
 
-	QWidget *pParentWidget = NULL;
+	QWidget *pParentWidget = nullptr;
 	QFileDialog::Options options = 0;
 	if (pConfig->bDontUseNativeDialogs) {
 		options |= QFileDialog::DontUseNativeDialog;
@@ -537,7 +537,7 @@ void samplv1widget_config::tuningScaleFileClicked (void)
 	}
 #if 1//QT_VERSION < QT_VERSION_CHECK(4, 4, 0)
 	sTuningScaleFile = QFileDialog::getOpenFileName(pParentWidget,
-		sTitle, pConfig->sTuningScaleDir, sFilter, NULL, options);
+		sTitle, pConfig->sTuningScaleDir, sFilter, nullptr, options);
 #else
 	QFileDialog fileDialog(pParentWidget,
 		sTitle, sTuningScaleFile, sFilter);
@@ -565,7 +565,7 @@ void samplv1widget_config::tuningScaleFileClicked (void)
 void samplv1widget_config::tuningKeyMapFileClicked (void)
 {
 	samplv1_config *pConfig = samplv1_config::getInstance();
-	if (pConfig == NULL)
+	if (pConfig == nullptr)
 		return;
 
 	QString sTuningKeyMapFile = m_ui.TuningKeyMapFileComboBox->currentText();
@@ -578,7 +578,7 @@ void samplv1widget_config::tuningKeyMapFileClicked (void)
 	filters.append(tr("All files (*.*)"));
 	const QString& sFilter = filters.join(";;");
 
-	QWidget *pParentWidget = NULL;
+	QWidget *pParentWidget = nullptr;
 	QFileDialog::Options options = 0;
 	if (pConfig->bDontUseNativeDialogs) {
 		options |= QFileDialog::DontUseNativeDialog;
@@ -586,7 +586,7 @@ void samplv1widget_config::tuningKeyMapFileClicked (void)
 	}
 #if 1//QT_VERSION < QT_VERSION_CHECK(4, 4, 0)
 	sTuningKeyMapFile = QFileDialog::getOpenFileName(pParentWidget,
-		sTitle, pConfig->sTuningKeyMapDir, sFilter, NULL, options);
+		sTitle, pConfig->sTuningKeyMapDir, sFilter, nullptr, options);
 #else
 	QFileDialog fileDialog(pParentWidget,
 		sTitle, sTuningScaleFile, sFilter);
@@ -632,19 +632,19 @@ void samplv1widget_config::optionsChanged (void)
 void samplv1widget_config::stabilize (void)
 {
 	QTreeWidgetItem *pItem = m_ui.ControlsTreeWidget->currentItem();
-	bool bEnabled = (m_pSamplUi && m_pSamplUi->controls() != NULL);
+	bool bEnabled = (m_pSamplUi && m_pSamplUi->controls() != nullptr);
 	m_ui.ControlsAddItemToolButton->setEnabled(bEnabled);
-	bEnabled = bEnabled && (pItem != NULL);
+	bEnabled = bEnabled && (pItem != nullptr);
 	m_ui.ControlsEditToolButton->setEnabled(bEnabled);
 	m_ui.ControlsDeleteToolButton->setEnabled(bEnabled);
 
 	pItem = m_ui.ProgramsTreeWidget->currentItem();
-	bEnabled = (m_pSamplUi && m_pSamplUi->programs() != NULL);
+	bEnabled = (m_pSamplUi && m_pSamplUi->programs() != nullptr);
 	m_ui.ProgramsPreviewCheckBox->setEnabled(
 		bEnabled && m_ui.ProgramsEnabledCheckBox->isChecked());
 	m_ui.ProgramsAddBankToolButton->setEnabled(bEnabled);
 	m_ui.ProgramsAddItemToolButton->setEnabled(bEnabled);
-	bEnabled = bEnabled && (pItem != NULL);
+	bEnabled = bEnabled && (pItem != nullptr);
 	m_ui.ProgramsEditToolButton->setEnabled(bEnabled);
 	m_ui.ProgramsDeleteToolButton->setEnabled(bEnabled);
 
@@ -811,7 +811,7 @@ void samplv1widget_config::reject (void)
 void samplv1widget_config::loadComboBoxHistory ( QComboBox *pComboBox )
 {
 	samplv1_config *pConfig = samplv1_config::getInstance();
-	if (pConfig == NULL)
+	if (pConfig == nullptr)
 		return;
 
 	// Load combobox list from configuration settings file...
@@ -835,7 +835,7 @@ void samplv1widget_config::loadComboBoxHistory ( QComboBox *pComboBox )
 void samplv1widget_config::saveComboBoxHistory ( QComboBox *pComboBox )
 {
 	samplv1_config *pConfig = samplv1_config::getInstance();
-	if (pConfig == NULL)
+	if (pConfig == nullptr)
 		return;
 
 	// Save combobox list to configuration settings file...
