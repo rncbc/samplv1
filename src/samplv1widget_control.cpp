@@ -1,7 +1,7 @@
 // samplv1widget_control.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2018, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2019, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -35,7 +35,7 @@
 // samplv1widget_control -- UI wrapper form.
 
 // Kind of singleton reference.
-samplv1widget_control *samplv1widget_control::g_pInstance = NULL;
+samplv1widget_control *samplv1widget_control::g_pInstance = nullptr;
 
 
 // Constructor.
@@ -207,7 +207,7 @@ samplv1::ParamIndex samplv1widget_control::controlIndex (void) const
 void samplv1widget_control::closeEvent ( QCloseEvent *pCloseEvent )
 {
 	// Pseudo-singleton reference setup.
-	g_pInstance = NULL;
+	g_pInstance = nullptr;
 
 	// Sure acceptance and probable destruction (cf. WA_DeleteOnClose).
 	QDialog::closeEvent(pCloseEvent);
@@ -276,7 +276,7 @@ void samplv1widget_control::clicked ( QAbstractButton *pButton )
 // Reset settings (Reset button slot).
 void samplv1widget_control::reset (void)
 {
-	if (m_pControls == NULL)
+	if (m_pControls == nullptr)
 		return;
 
 #ifdef CONFIG_DEBUG_0
@@ -307,7 +307,7 @@ void samplv1widget_control::reset (void)
 // Accept settings (OK button slot).
 void samplv1widget_control::accept (void)
 {
-	if (m_pControls == NULL)
+	if (m_pControls == nullptr)
 		return;
 
 #ifdef CONFIG_DEBUG_0

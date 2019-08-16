@@ -78,13 +78,13 @@ samplv1_lv2::samplv1_lv2 (
 {
 	::memset(&m_urids, 0, sizeof(m_urids));
 
-	m_urid_map = NULL;
-	m_atom_in  = NULL;
-	m_atom_out = NULL;
-	m_schedule = NULL;
+	m_urid_map = nullptr;
+	m_atom_in  = nullptr;
+	m_atom_out = nullptr;
+	m_schedule = nullptr;
 	m_ndelta   = 0;
 
-	const LV2_Options_Option *host_options = NULL;
+	const LV2_Options_Option *host_options = nullptr;
 
 	for (int i = 0; host_features && host_features[i]; ++i) {
 		const LV2_Feature *host_feature = host_features[i];
@@ -219,7 +219,7 @@ samplv1_lv2::samplv1_lv2 (
 	m_ins  = new float * [nchannels];
 	m_outs = new float * [nchannels];
 	for (uint16_t k = 0; k < nchannels; ++k)
-		m_ins[k] = m_outs[k] = NULL;
+		m_ins[k] = m_outs[k] = nullptr;
 }
 
 
@@ -277,7 +277,7 @@ void samplv1_lv2::run ( uint32_t nframes )
 
 	if (m_atom_in) {
 		LV2_ATOM_SEQUENCE_FOREACH(m_atom_in, event) {
-			if (event == NULL)
+			if (event == nullptr)
 				continue;
 			if (event->body.type == m_urids.midi_MidiEvent) {
 				uint8_t *data = (uint8_t *) LV2_ATOM_BODY(&event->body);
@@ -300,9 +300,9 @@ void samplv1_lv2::run ( uint32_t nframes )
 				const LV2_Atom_Object *object
 					= (LV2_Atom_Object *) &event->body;
 				if (object->body.otype == m_urids.time_Position) {
-					LV2_Atom *atom = NULL;
+					LV2_Atom *atom = nullptr;
 					lv2_atom_object_get(object,
-						m_urids.time_beatsPerMinute, &atom, NULL);
+						m_urids.time_beatsPerMinute, &atom, nullptr);
 					if (atom && atom->type == m_urids.atom_Float) {
 						const float host_bpm = ((LV2_Atom_Float *) atom)->body;
 						if (::fabsf(host_bpm - samplv1::tempo()) > 0.001f)
@@ -313,8 +313,8 @@ void samplv1_lv2::run ( uint32_t nframes )
 				else 
 				if (object->body.otype == m_urids.patch_Set) {
 					// set property value
-					const LV2_Atom *property = NULL;
-					const LV2_Atom *value = NULL;
+					const LV2_Atom *property = nullptr;
+					const LV2_Atom *value = nullptr;
 					lv2_atom_object_get(object,
 						m_urids.patch_property, &property,
 						m_urids.patch_value, &value, 0);
@@ -473,7 +473,7 @@ void samplv1_lv2::run ( uint32_t nframes )
 		}
 		// remember last time for worker response
 		m_ndelta = ndelta;
-	//	m_atom_in = NULL;
+	//	m_atom_in = nullptr;
 	}
 
 	if (nframes > ndelta)
@@ -511,10 +511,10 @@ static LV2_State_Status samplv1_lv2_state_save ( LV2_Handle instance,
 	uint32_t flags, const LV2_Feature *const *features )
 {
 	samplv1_lv2 *pPlugin = static_cast<samplv1_lv2 *> (instance);
-	if (pPlugin == NULL)
+	if (pPlugin == nullptr)
 		return LV2_STATE_ERR_UNKNOWN;
 
-	LV2_State_Map_Path *map_path = NULL;
+	LV2_State_Map_Path *map_path = nullptr;
 	for (int i = 0; features && features[i]; ++i) {
 		if (::strcmp(features[i]->URI, LV2_STATE__mapPath) == 0) {
 			map_path = (LV2_State_Map_Path *) features[i]->data;
@@ -541,7 +541,7 @@ static LV2_State_Status samplv1_lv2_state_save ( LV2_Handle instance,
 	if (value && map_path)
 		value = (*map_path->abstract_path)(map_path->handle, value);
 
-	if (value == NULL)
+	if (value == nullptr)
 		return LV2_STATE_ERR_UNKNOWN;
 
 	size_t size = ::strlen(value) + 1;
@@ -640,10 +640,10 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 	uint32_t flags, const LV2_Feature *const *features )
 {
 	samplv1_lv2 *pPlugin = static_cast<samplv1_lv2 *> (instance);
-	if (pPlugin == NULL)
+	if (pPlugin == nullptr)
 		return LV2_STATE_ERR_UNKNOWN;
 
-	LV2_State_Map_Path *map_path = NULL;
+	LV2_State_Map_Path *map_path = nullptr;
 	for (int i = 0; features && features[i]; ++i) {
 		if (::strcmp(features[i]->URI, LV2_STATE__mapPath) == 0) {
 			map_path = (LV2_State_Map_Path *) features[i]->data;
@@ -670,7 +670,7 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 	const char *value
 		= (const char *) (*retrieve)(handle, key, &size, &type, &flags);
 #if 1//SAMPLV1_LV2_LEGACY
-	if (value == NULL) {
+	if (value == nullptr) {
 		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_SAMPLE");
 		if (key) {
 			size = 0;
@@ -692,7 +692,7 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 	if (value && map_path)
 		value = (*map_path->absolute_path)(map_path->handle, value);
 
-	if (value == NULL)
+	if (value == nullptr)
 		return LV2_STATE_ERR_UNKNOWN;
 
 	// Make sure to get rid of any symlinks...
@@ -719,7 +719,7 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 			type = 0;
 			value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
 		#if 1//SAMPLV1_LV2_LEGACY
-			if (value == NULL) {
+			if (value == nullptr) {
 				key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_OFFSET_START");
 				if (key) {
 					size = 0;
@@ -737,7 +737,7 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 			type = 0;
 			value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
 		#if 1//SAMPLV1_LV2_LEGACY
-			if (value == NULL) {
+			if (value == nullptr) {
 				key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_OFFSET_END");
 				if (key) {
 					size = 0;
@@ -755,7 +755,7 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 			type = 0;
 			value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
 		#if 1//SAMPLV1_LV2_LEGACY
-			if (value == NULL) {
+			if (value == nullptr) {
 				key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_START");
 				if (key) {
 					size = 0;
@@ -773,7 +773,7 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 			type = 0;
 			value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
 		#if 1//SAMPLV1_LV2_LEGACY
-			if (value == NULL) {
+			if (value == nullptr) {
 				key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_END");
 				if (key) {
 					size = 0;
@@ -791,7 +791,7 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 			type = 0;
 			value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
 		#if 1//SAMPLV1_LV2_LEGACY
-			if (value == NULL) {
+			if (value == nullptr) {
 				key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_FADE");
 				if (key) {
 					size = 0;
@@ -813,7 +813,7 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 			type = 0;
 			value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
 		#if 1//SAMPLV1_LV2_LEGACY
-			if (value == NULL) {
+			if (value == nullptr) {
 				key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "GEN1_LOOP_ZERO");
 				if (key) {
 					size = 0;
@@ -853,7 +853,7 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 
 	value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
 
-	if (value != NULL && size > 2 && type == chunk_type
+	if (value != nullptr && size > 2 && type == chunk_type
 		&& (flags & (LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE))) {
 		
 		QDomDocument doc(SAMPLV1_TITLE);
@@ -915,7 +915,7 @@ const LV2_Program_Descriptor *samplv1_lv2::get_program ( uint32_t index )
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 void samplv1_lv2::select_program ( uint32_t bank, uint32_t program )
@@ -932,7 +932,7 @@ void samplv1_lv2::updatePreset ( bool /*bDirty*/ )
 		samplv1_lv2_worker_message mesg;
 		mesg.atom.type = m_urids.state_StateChanged;
 		mesg.atom.size = 0; // nothing else matters.
-		mesg.sample_path = NULL;
+		mesg.sample_path = nullptr;
 		m_schedule->schedule_work(
 			m_schedule->handle, sizeof(mesg), &mesg);
 	}
@@ -1039,7 +1039,7 @@ bool samplv1_lv2::patch_put ( uint32_t ndelta, uint32_t type )
 		type = 0;
 
 	samplv1_sample *pSample = samplv1::sample();
-	if (pSample == NULL)
+	if (pSample == nullptr)
 		return false;
 
 	lv2_atom_forge_frame_time(&m_forge, ndelta);
@@ -1053,7 +1053,7 @@ bool samplv1_lv2::patch_put ( uint32_t ndelta, uint32_t type )
 
 	if (type == 0 || type == m_urids.p101_sample_file) {
 		const char *pszSampleFile = pSample->filename();
-		if (pszSampleFile == NULL)
+		if (pszSampleFile == nullptr)
 			pszSampleFile = s_szNull;
 		lv2_atom_forge_key(&m_forge, m_urids.p101_sample_file);
 		lv2_atom_forge_path(&m_forge, pszSampleFile, ::strlen(pszSampleFile) + 1);
@@ -1097,14 +1097,14 @@ bool samplv1_lv2::patch_put ( uint32_t ndelta, uint32_t type )
 	}
 	if (type == 0 || type == m_urids.p204_tuning_scaleFile) {
 		const char *pszScaleFile = samplv1::tuningScaleFile();
-		if (pszScaleFile == NULL)
+		if (pszScaleFile == nullptr)
 			pszScaleFile = s_szNull;
 		lv2_atom_forge_key(&m_forge, m_urids.p204_tuning_scaleFile);
 		lv2_atom_forge_path(&m_forge, pszScaleFile, ::strlen(pszScaleFile) + 1);
 	}
 	if (type == 0 || type == m_urids.p205_tuning_keyMapFile) {
 		const char *pszKeyMapFile = samplv1::tuningKeyMapFile();
-		if (pszKeyMapFile == NULL)
+		if (pszKeyMapFile == nullptr)
 			pszKeyMapFile = s_szNull;
 		lv2_atom_forge_key(&m_forge, m_urids.p205_tuning_keyMapFile);
 		lv2_atom_forge_path(&m_forge, pszKeyMapFile, ::strlen(pszKeyMapFile) + 1);
@@ -1181,7 +1181,7 @@ static const LV2_Program_Descriptor *samplv1_lv2_programs_get_program (
 	if (pPlugin)
 		return pPlugin->get_program(index);
 	else
-		return NULL;
+		return nullptr;
 }
 
 static void samplv1_lv2_programs_select_program (
@@ -1230,7 +1230,7 @@ static const LV2_Worker_Interface samplv1_lv2_worker_interface =
 {
 	samplv1_lv2_worker_work,
 	samplv1_lv2_worker_response,
-	NULL
+	nullptr
 };
 
 
@@ -1247,7 +1247,7 @@ static const void *samplv1_lv2_extension_data ( const char *uri )
 	if (::strcmp(uri, LV2_STATE__interface) == 0)
 		return &samplv1_lv2_state_interface;
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -1266,7 +1266,7 @@ static const LV2_Descriptor samplv1_lv2_descriptor =
 
 LV2_SYMBOL_EXPORT const LV2_Descriptor *lv2_descriptor ( uint32_t index )
 {
-	return (index == 0 ? &samplv1_lv2_descriptor : NULL);
+	return (index == 0 ? &samplv1_lv2_descriptor : nullptr);
 }
 
 

@@ -58,7 +58,7 @@
 samplv1widget_jack::samplv1widget_jack ( samplv1_jack *pSampl )
 	: samplv1widget(), m_pSampl(pSampl)
 	#ifdef CONFIG_NSM
-		, m_pNsmClient(NULL)
+		, m_pNsmClient(nullptr)
 	#endif
 {
 	// Special style paths...

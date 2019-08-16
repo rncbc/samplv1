@@ -1,7 +1,7 @@
 // samplv1widget_sample.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2018, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2019, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -52,8 +52,8 @@
 // Constructor.
 samplv1widget_sample::samplv1widget_sample (
 	QWidget *pParent, Qt::WindowFlags wflags )
-	: QFrame(pParent, wflags), m_pSamplUi(NULL),
-		m_pSample(NULL), m_iChannels(0), m_ppPolyg(NULL)
+	: QFrame(pParent, wflags), m_pSamplUi(nullptr),
+		m_pSample(nullptr), m_iChannels(0), m_ppPolyg(nullptr)
 {
 	QFrame::setMouseTracking(true);
 	QFrame::setFocusPolicy(Qt::ClickFocus);
@@ -74,7 +74,7 @@ samplv1widget_sample::samplv1widget_sample (
 	m_iLoopStart = m_iLoopEnd = 0;
 
 	m_dragCursor  = DragNone;
-	m_pDragSample = NULL;
+	m_pDragSample = nullptr;
 
 	m_iDirectNoteOn = -1;
 
@@ -85,7 +85,7 @@ samplv1widget_sample::samplv1widget_sample (
 // Destructor.
 samplv1widget_sample::~samplv1widget_sample (void)
 {
-	setSample(NULL);
+	setSample(nullptr);
 }
 
 
@@ -121,7 +121,7 @@ void samplv1widget_sample::setSample ( samplv1_sample *pSample )
 //	m_bLoop = false;
 //	m_iLoopStart = m_iLoopEnd = 0;
 
-	m_pDragSample = NULL;
+	m_pDragSample = nullptr;
 
 	if (m_pSample)
 		m_iChannels = m_pSample->channels();
@@ -622,7 +622,7 @@ void samplv1widget_sample::mouseReleaseEvent ( QMouseEvent *pMouseEvent )
 
 	directNoteOff();
 
-	m_pDragSample = NULL;
+	m_pDragSample = nullptr;
 	resetDragState();
 }
 
@@ -638,7 +638,7 @@ void samplv1widget_sample::keyPressEvent ( QKeyEvent *pKeyEvent )
 {
 	switch (pKeyEvent->key()) {
 	case Qt::Key_Escape:
-		m_pDragSample = NULL;
+		m_pDragSample = nullptr;
 		resetDragState();
 		update();
 		break;
@@ -816,7 +816,7 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 void samplv1widget_sample::openSample (void)
 {
 	samplv1_config *pConfig = samplv1_config::getInstance();
-	if (pConfig == NULL)
+	if (pConfig == nullptr)
 		return;
 
 	QString sFilename = pConfig->sSampleDir;
@@ -831,10 +831,10 @@ void samplv1widget_sample::openSample (void)
 		QStringList exts;
 		SF_FORMAT_INFO sffinfo;
 		int iCount = 0;
-		::sf_command(NULL, SFC_GET_FORMAT_MAJOR_COUNT, &iCount, sizeof(int));
+		::sf_command(nullptr, SFC_GET_FORMAT_MAJOR_COUNT, &iCount, sizeof(int));
 		for (int i = 0 ; i < iCount; ++i) {
 			sffinfo.format = i;
-			::sf_command(NULL, SFC_GET_FORMAT_MAJOR, &sffinfo, sizeof(sffinfo));
+			::sf_command(nullptr, SFC_GET_FORMAT_MAJOR, &sffinfo, sizeof(sffinfo));
 			const QString sFilterName = QString(sffinfo.name)
 				.replace('/', '-') // Replace some illegal characters.
 				.remove('(').remove(')');
@@ -855,7 +855,7 @@ void samplv1widget_sample::openSample (void)
 
 	const QString& sTitle  = tr("Open Sample") + " - " SAMPLV1_TITLE;
 	const QString& sFilter = s_filters.join(";;");
-	QWidget *pParentWidget = NULL;
+	QWidget *pParentWidget = nullptr;
 	QFileDialog::Options options = 0;
 	if (pConfig->bDontUseNativeDialogs) {
 		options |= QFileDialog::DontUseNativeDialog;
@@ -863,7 +863,7 @@ void samplv1widget_sample::openSample (void)
 	}
 #if 1//QT_VERSION < QT_VERSION_CHECK(4, 4, 0)
 	sFilename = QFileDialog::getOpenFileName(pParentWidget,
-		sTitle, sFilename, sFilter, NULL, options);
+		sTitle, sFilename, sFilter, nullptr, options);
 #else
 	QFileDialog fileDialog(pParentWidget, sTitle, sFilename, sFilter);
 	fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
@@ -958,7 +958,7 @@ QSize samplv1widget_sample::sizeHint (void) const
 // Direct note-on/off methods.
 void samplv1widget_sample::directNoteOn (void)
 {
-	if (m_pSamplUi == NULL || m_pSample == NULL)
+	if (m_pSamplUi == nullptr || m_pSample == nullptr)
 		return;
 
 	const int key = int(m_pSamplUi->paramValue(samplv1::GEN1_SAMPLE));
@@ -975,7 +975,7 @@ void samplv1widget_sample::directNoteOn (void)
 
 void samplv1widget_sample::directNoteOff (void)
 {
-	if (m_pSamplUi == NULL || m_iDirectNoteOn < 0)
+	if (m_pSamplUi == nullptr || m_iDirectNoteOn < 0)
 		return;
 
 	m_pSamplUi->directNoteOn(m_iDirectNoteOn, 0); // note-off!

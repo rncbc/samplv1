@@ -1,7 +1,7 @@
 // samplv1widget_lv2.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2018, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2019, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -39,7 +39,7 @@ samplv1widget_lv2::samplv1widget_lv2 ( samplv1_lv2 *pSampl,
 	m_pSamplUi = new samplv1_lv2ui(pSampl, controller, write_function);
 
 #ifdef CONFIG_LV2_UI_EXTERNAL
-	m_external_host = NULL;
+	m_external_host = nullptr;
 #endif
 #ifdef CONFIG_LV2_UI_IDLE
 	m_bIdleClosed = false;

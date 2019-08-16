@@ -208,7 +208,7 @@ bool samplv1_param::paramFloat ( samplv1::ParamIndex index )
 bool samplv1_param::loadPreset (
 	samplv1 *pSampl, const QString& sFilename )
 {
-	if (pSampl == NULL)
+	if (pSampl == nullptr)
 		return false;
 
 	QFileInfo fi(sFilename);
@@ -305,7 +305,7 @@ bool samplv1_param::loadPreset (
 bool samplv1_param::savePreset (
 	samplv1 *pSampl, const QString& sFilename, bool bSymLink )
 {
-	if (pSampl == NULL)
+	if (pSampl == nullptr)
 		return false;
 
 	pSampl->stabilize();
@@ -360,7 +360,7 @@ bool samplv1_param::savePreset (
 void samplv1_param::loadSamples (
 	samplv1 *pSampl, const QDomElement& eSamples )
 {
-	if (pSampl == NULL)
+	if (pSampl == nullptr)
 		return;
 
 	for (QDomNode nSample = eSamples.firstChild();
@@ -432,11 +432,11 @@ void samplv1_param::loadSamples (
 void samplv1_param::saveSamples (
 	samplv1 *pSampl, QDomDocument& doc, QDomElement& eSamples, bool bSymLink )
 {
-	if (pSampl == NULL)
+	if (pSampl == nullptr)
 		return;
 
 	const char *pszSampleFile = pSampl->sampleFile();
-	if (pszSampleFile == NULL)
+	if (pszSampleFile == nullptr)
 		return;
 
 	QDomElement eSample = doc.createElement("sample");
@@ -494,7 +494,7 @@ void samplv1_param::saveSamples (
 void samplv1_param::loadTuning (
 	samplv1 *pSampl, const QDomElement& eTuning )
 {
-	if (pSampl == NULL)
+	if (pSampl == nullptr)
 		return;
 
 	pSampl->setTuningEnabled(eTuning.attribute("enabled").toInt() > 0);
@@ -541,7 +541,7 @@ void samplv1_param::loadTuning (
 void samplv1_param::saveTuning (
 	samplv1 *pSampl, QDomDocument& doc, QDomElement& eTuning, bool bSymLink )
 {
-	if (pSampl == NULL)
+	if (pSampl == nullptr)
 		return;
 
 	eTuning.setAttribute("enabled", int(pSampl->isTuningEnabled()));

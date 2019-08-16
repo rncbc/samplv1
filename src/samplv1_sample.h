@@ -210,7 +210,7 @@ class samplv1_generator
 public:
 
 	// ctor.
-	samplv1_generator(samplv1_sample *sample = NULL) { reset(sample); }
+	samplv1_generator(samplv1_sample *sample = nullptr) { reset(sample); }
 
 	// sample accessor.
 	samplv1_sample *sample() const
