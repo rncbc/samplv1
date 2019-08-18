@@ -911,13 +911,11 @@ void samplv1widget::randomParams (void)
 			break;
 		samplv1widget_param *pParam = paramKnob(index);
 		if (pParam) {
-			const float q = 0.5f * p * (pParam->maximum() - pParam->minimum());
-			float fValue = pParam->value();
-			std::normal_distribution<float> nd(fValue, q);
-			if (samplv1_param::paramFloat(index))
-				fValue = nd(re);
-			else
-				fValue = std::round(nd(re));
+			std::normal_distribution<float> nd;
+			const float q = p * (pParam->maximum() - pParam->minimum());
+			float fValue = pParam->value() + q * nd(re);
+			if (!samplv1_param::paramFloat(index))
+				fValue = std::round(fValue);
 			if (fValue < pParam->minimum())
 				fValue = pParam->minimum();
 			else
