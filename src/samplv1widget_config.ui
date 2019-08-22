@@ -31,7 +31,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Configure - samplv1</string>
+   <string>Configure</string>
   </property>
   <property name="windowIcon">
    <iconset resource="samplv1.qrc">:/images/samplv1.png</iconset>

@@ -881,7 +881,7 @@ void samplv1widget::randomParams (void)
 		p = 0.01f * pConfig->fRandomizePercent;
 
 	if (QMessageBox::warning(this,
-		tr("Warning") + " - " SAMPLV1_TITLE,
+		tr("Warning"),
 		tr("About to randomize current parameter values:\n\n"
 		"-/+ %1%.\n\n"
 		"Are you sure?").arg(100.0f * p),
@@ -1699,7 +1699,7 @@ void samplv1widget::helpAbout (void)
 	sText += "</small>";
 	sText += "</p>\n";
 
-	QMessageBox::about(this, tr("About") + " " SAMPLV1_TITLE, sText);
+	QMessageBox::about(this, tr("About"), sText);
 }
 
 
