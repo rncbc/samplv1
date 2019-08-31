@@ -853,7 +853,7 @@ void samplv1widget_sample::openSample (void)
 		s_filters.append(sFilterMask.arg(tr("All files")).arg("*.*"));
 	}
 
-	const QString& sTitle  = tr("Open Sample") + " - " SAMPLV1_TITLE;
+	const QString& sTitle  = tr("Open Sample");
 	const QString& sFilter = s_filters.join(";;");
 	QWidget *pParentWidget = nullptr;
 	QFileDialog::Options options = 0;

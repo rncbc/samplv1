@@ -22,9 +22,6 @@
  </comment>
  <class>samplv1widget</class>
  <widget class="QWidget" name="samplv1widget">
-  <property name="windowTitle">
-   <string>samplv1</string>
-  </property>
   <property name="windowIcon" >
    <iconset resource="samplv1.qrc" >:/images/samplv1.png</iconset>
   </property>

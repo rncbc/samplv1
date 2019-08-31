@@ -458,7 +458,7 @@ void samplv1widget_config::tuningTabChanged ( int iTuningTab )
 	// Prevent loss of some tuning changes here...
 	if (m_iDirtyTuning > 0 &&
 		QMessageBox::warning(this,
-			tr("Warning") + " - " SAMPLV1_TITLE,
+			tr("Warning"),
 			tr("%1 tuning settings have been changed.\n\n"
 			"Do you want to discard the changes?")
 			.arg(m_ui.TuningTabBar->tabText(1 - iTuningTab).remove('&')),
@@ -522,7 +522,7 @@ void samplv1widget_config::tuningScaleFileClicked (void)
 	QString sTuningScaleFile = m_ui.TuningScaleFileComboBox->currentText();
 
 	const QString  sExt("scl");
-	const QString& sTitle  = tr("Open Scale File") + " - " SAMPLV1_TITLE;
+	const QString& sTitle  = tr("Open Scale File");
 
 	QStringList filters;
 	filters.append(tr("Scale files (*.%1)").arg(sExt));
@@ -571,7 +571,7 @@ void samplv1widget_config::tuningKeyMapFileClicked (void)
 	QString sTuningKeyMapFile = m_ui.TuningKeyMapFileComboBox->currentText();
 
 	const QString  sExt("kbm");
-	const QString& sTitle  = tr("Open Key Map File") + " - " SAMPLV1_TITLE;
+	const QString& sTitle  = tr("Open Key Map File");
 
 	QStringList filters;
 	filters.append(tr("Key Map files (*.%1)").arg(sExt));
@@ -761,7 +761,7 @@ void samplv1widget_config::accept (void)
 		// Show restart message if needed...
  		if (iNeedRestart > 0) {
 			QMessageBox::information(this,
-				tr("Information") + " - " SAMPLV1_TITLE,
+				tr("Information"),
 				tr("Some settings may be only effective\n"
 				"next time you start this application."));
 		}
@@ -788,7 +788,7 @@ void samplv1widget_config::reject (void)
 		if (m_ui.DialogButtonBox->button(QDialogButtonBox::Ok)->isEnabled())
 			buttons |= QMessageBox::Apply;
 		switch (QMessageBox::warning(this,
-			tr("Warning") + " - " SAMPLV1_TITLE,
+			tr("Warning"),
 			tr("Some settings have been changed.\n\n"
 			"Do you want to apply the changes?"),
 			buttons)) {
