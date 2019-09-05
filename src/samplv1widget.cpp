@@ -766,6 +766,9 @@ void samplv1widget::updateParamEx (
 	++m_iUpdate;
 
 	switch (index) {
+	case samplv1::GEN1_SAMPLE:
+		m_ui.StatusBar->keybd()->setNoteKey(int(fValue));
+		break;
 	case samplv1::GEN1_REVERSE:
 		pSamplUi->setReverse(bool(fValue > 0.0f));
 		if (!bIter) updateSample(pSamplUi->sample());
