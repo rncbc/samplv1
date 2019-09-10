@@ -6,6 +6,8 @@ ChangeLog
 
 GIT HEAD
 
+- Highlight current element/sample/key on the virtual
+  piano keyboard widget. (EXPERIMENTAL)
 - Added alternate yet non-official CMake build option.
   (EXPERIMENTAL)
 - Fix HiDPI display screen effective support (Qt >= 5.6).
