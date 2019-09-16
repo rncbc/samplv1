@@ -1,0 +1,6 @@
+debian/tmp/usr/bin/samplv1_jack
+debian/tmp/usr/share/metainfo/samplv1.appdata.xml
+debian/tmp/usr/share/applications/samplv1.desktop
+debian/tmp/usr/share/icons/hicolor/32x32/apps/samplv1.png
+debian/tmp/usr/share/icons/hicolor/scalable/apps/samplv1.svg
+debian/tmp/usr/share/man/man1/samplv1*.1.gz
