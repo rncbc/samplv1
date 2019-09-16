@@ -22,7 +22,6 @@ Architecture: any
 Depends: samplv1-common (= ${binary:Version}),
  ${misc:Depends},
  ${shlibs:Depends},
-Provides: samplv1_lv2, samplv1_lv2ui
 Description: An old-school polyphonic sampler - LV2 plugin
   An old-school all-digital polyphonic sampler synthesizer with stereo fx.
   .
@@ -33,7 +32,6 @@ Architecture: any
 Depends: samplv1-common (= ${binary:Version}),
  ${misc:Depends},
  ${shlibs:Depends},
-Provides: samplv1_core, samplv1_ui
 Description: An old-school polyphonic sampler - Common files
   An old-school all-digital polyphonic sampler synthesizer with stereo fx.
   .
