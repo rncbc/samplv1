@@ -6,6 +6,9 @@ ChangeLog
 
 GIT HEAD
 
+- Upstream packaging is now split on JACK standalone,
+  LV2 plugin and common core and UI packages, similar
+  to recent Debian practice. (EXPERIMENTAL)
 - Highlight current element/sample/key on the virtual
   piano keyboard widget. (EXPERIMENTAL)
 - Added alternate yet non-official CMake build option.

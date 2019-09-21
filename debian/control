@@ -10,7 +10,31 @@ Standards-Version: 3.9.7
 
 Package: samplv1
 Architecture: any
-Depends: libjack0, ${shlibs:Depends}, ${misc:Depends}
-Description: an old-school polyphonic sampler
-  An old-school polyphonic sampler synthesizer with stereo fx.
+Depends: padthv1-common (= ${binary:Version}),
+  libjack0, ${shlibs:Depends}, ${misc:Depends}
+Description: An old-school polyphonic sampler - JACK standalone
+  An old-school all-digital polyphonic sampler synthesizer with stereo fx.
+  .
+  This package provides the standalone JACK client application (samplv1_jack)
+
+Package: samplv1-lv2
+Architecture: any
+Depends: samplv1-common (= ${binary:Version}),
+ ${misc:Depends},
+ ${shlibs:Depends},
+Description: An old-school polyphonic sampler - LV2 plugin
+  An old-school all-digital polyphonic sampler synthesizer with stereo fx.
+  .
+  This package provides the LV2 plugin (http://samplv1.sourceforge.net/lv2)
+
+Package: samplv1-common
+Architecture: any
+Depends: samplv1-common (= ${binary:Version}),
+ ${misc:Depends},
+ ${shlibs:Depends},
+Description: An old-school polyphonic sampler - Common files
+  An old-school all-digital polyphonic sampler synthesizer with stereo fx.
+  .
+  This package provides files shared by both the LV2 plugin and the
+  standalone JACK client application.
 
