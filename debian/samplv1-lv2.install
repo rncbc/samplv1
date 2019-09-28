@@ -2,4 +2,3 @@ debian/tmp/usr/lib*/lv2/samplv1.lv2/manifest.ttl
 debian/tmp/usr/lib*/lv2/samplv1.lv2/samplv1.ttl
 debian/tmp/usr/lib*/lv2/samplv1.lv2/samplv1.so
 debian/tmp/usr/lib*/lv2/samplv1.lv2/samplv1_ui.ttl
-debian/tmp/usr/lib*/lv2/samplv1.lv2/samplv1_ui.so

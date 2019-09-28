@@ -1,5 +1,0 @@
-debian/tmp/usr/lib*/libsamplv1.so*
-debian/tmp/usr/lib*/libsamplv1_ui.so*
-debian/tmp/usr/share/mime/packages/samplv1.xml
-debian/tmp/usr/share/icons/hicolor/32x32/mimetypes/application-x-samplv1*.png
-debian/tmp/usr/share/icons/hicolor/scalable/mimetypes/application-x-samplv1*.svg

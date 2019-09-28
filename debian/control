@@ -3,17 +3,13 @@ Section: contrib/sound
 Priority: extra
 Maintainer: Rui Nuno Capela <rncbc@rncbc.org>
 Build-Depends: debhelper (>= 5), automake, pkg-config,
-  qtchooser, qtbase5-dev (>= 5.1), qtbase5-dev-tools (>= 5.1),
-  qttools5-dev-tools (>= 5.1), libjack-dev | libjack-jackd2-dev,
+  qtbase-static (>= 5.13.1), libjack-dev | libjack-jackd2-dev,
   libasound2-dev, lv2-dev, liblo-dev, libsndfile-dev
 Standards-Version: 3.9.7
 
 Package: samplv1
 Architecture: any
-Depends: samplv1-common (= ${binary:Version}),
-  libjack0 | libjack-jackd2-0,
-  ${shlibs:Depends},
-  ${misc:Depends}
+Depends: libjack0 | libjack-jackd2-0, ${misc:Depends}, ${shlibs:Depends}
 Description: An old-school polyphonic sampler - JACK standalone
   An old-school all-digital polyphonic sampler synthesizer with stereo fx.
   .
@@ -21,22 +17,8 @@ Description: An old-school polyphonic sampler - JACK standalone
 
 Package: samplv1-lv2
 Architecture: any
-Depends: samplv1-common (= ${binary:Version}),
-  ${misc:Depends},
-  ${shlibs:Depends},
+Depends: ${misc:Depends}, ${shlibs:Depends}
 Description: An old-school polyphonic sampler - LV2 plugin
   An old-school all-digital polyphonic sampler synthesizer with stereo fx.
   .
   This package provides the LV2 plugin (http://samplv1.sourceforge.net/lv2)
-
-Package: samplv1-common
-Architecture: any
-Depends: samplv1-common (= ${binary:Version}),
-  ${misc:Depends},
-  ${shlibs:Depends},
-Description: An old-school polyphonic sampler - Common files
-  An old-school all-digital polyphonic sampler synthesizer with stereo fx.
-  .
-  This package provides files shared by both the LV2 plugin and the
-  standalone JACK client application.
-
