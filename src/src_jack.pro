@@ -4,7 +4,8 @@ NAME = samplv1
 
 TARGET = $${NAME}_jack
 TEMPLATE = app
-LIBS += -L.
+
+unix { LIBS += -L. -l$${NAME} -l$${NAME}_ui }
 
 include(src_jack.pri)
 
