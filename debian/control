@@ -10,14 +10,17 @@ Standards-Version: 3.9.7
 Package: samplv1
 Architecture: any
 Depends: libjack0 | libjack-jackd2-0, ${misc:Depends}, ${shlibs:Depends}
+Replaces: samplv1-common (<= ${source:Version})
 Description: An old-school polyphonic sampler - JACK standalone
   An old-school all-digital polyphonic sampler synthesizer with stereo fx.
   .
   This package provides the standalone JACK client application (samplv1_jack)
+Replaces: samplv1-common
 
 Package: samplv1-lv2
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}
+Replaces: samplv1-common (<= ${source:Version})
 Description: An old-school polyphonic sampler - LV2 plugin
   An old-school all-digital polyphonic sampler synthesizer with stereo fx.
   .
