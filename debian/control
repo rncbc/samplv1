@@ -15,7 +15,6 @@ Description: An old-school polyphonic sampler - JACK standalone
   An old-school all-digital polyphonic sampler synthesizer with stereo fx.
   .
   This package provides the standalone JACK client application (samplv1_jack)
-Replaces: samplv1-common
 
 Package: samplv1-lv2
 Architecture: any
