@@ -75,8 +75,6 @@ unix {
 
 	mimetypes_scalable.path = $${DATADIR}/icons/hicolor/scalable/mimetypes
 	mimetypes_scalable.files += mimetypes/application-x-$${NAME}-preset.svg
-
-	LIBS += -l$${NAME} -l$${NAME}_ui
 }
 
 QT += widgets xml
