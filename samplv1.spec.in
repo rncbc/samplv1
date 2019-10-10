@@ -67,7 +67,6 @@ Obsoletes:	%{name}-common <= %{version}
 
 %build
 %configure --with-qt=/opt/qtbase5-static/5.13.1
-%configure
 %__make %{?_smp_mflags}
 
 %install
