@@ -57,6 +57,7 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include <QApplication>
 #include <QDomDocument>
 #include <QFileInfo>
 
@@ -1123,10 +1124,22 @@ bool samplv1_lv2::patch_put ( uint32_t ndelta, uint32_t type )
 // samplv1_lv2 - LV2 desc.
 //
 
+static QApplication *samplv1_lv2_qapp_instance = nullptr;
+static unsigned int  samplv1_lv2_qapp_refcount = 0;
+
 static LV2_Handle samplv1_lv2_instantiate (
 	const LV2_Descriptor *, double sample_rate, const char *,
 	const LV2_Feature *const *host_features )
 {
+	if (qApp == nullptr && samplv1_lv2_qapp_instance == nullptr) {
+		static int s_argc = 1;
+		static const char *s_argv[] = { __func__, nullptr };
+		samplv1_lv2_qapp_instance = new QApplication(s_argc, (char **) s_argv);
+	}
+
+	if (samplv1_lv2_qapp_instance)
+		samplv1_lv2_qapp_refcount++;
+
 	return new samplv1_lv2(sample_rate, host_features);
 }
 
@@ -1169,6 +1182,11 @@ static void samplv1_lv2_cleanup ( LV2_Handle instance )
 	samplv1_lv2 *pPlugin = static_cast<samplv1_lv2 *> (instance);
 	if (pPlugin)
 		delete pPlugin;
+
+	if (samplv1_lv2_qapp_instance && --samplv1_lv2_qapp_refcount == 0) {
+		delete samplv1_lv2_qapp_instance;
+		samplv1_lv2_qapp_instance = nullptr;
+	}
 }
 
 
