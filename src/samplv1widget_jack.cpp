@@ -21,6 +21,8 @@
 
 #include "samplv1widget_jack.h"
 
+#include "samplv1widget_palette.h"
+
 #include "samplv1_jack.h"
 
 #ifdef CONFIG_NSM
@@ -65,10 +67,20 @@ samplv1widget_jack::samplv1widget_jack ( samplv1_jack *pSampl )
 	if (QDir(CONFIG_PLUGINSDIR).exists())
 		QApplication::addLibraryPath(CONFIG_PLUGINSDIR);
 
-	// Custom style theme...
+	// Custom color/style theme...
 	samplv1_config *pConfig = samplv1_config::getInstance();
-	if (pConfig && !pConfig->sCustomStyleTheme.isEmpty())
-		QApplication::setStyle(QStyleFactory::create(pConfig->sCustomStyleTheme));
+	if (pConfig) {
+		if (!pConfig->sCustomColorTheme.isEmpty()) {
+			QPalette pal;
+			if (samplv1widget_palette::namedPalette(
+					pConfig, pConfig->sCustomColorTheme, pal))
+				QApplication::setPalette(pal);
+		}
+		if (!pConfig->sCustomStyleTheme.isEmpty()) {
+			QApplication::setStyle(
+				QStyleFactory::create(pConfig->sCustomStyleTheme));
+		}
+	}
 
 	// Initialize (user) interface stuff...
 	m_pSamplUi = new samplv1_ui(m_pSampl, false);

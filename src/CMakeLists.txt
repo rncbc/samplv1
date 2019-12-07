@@ -58,6 +58,7 @@ set (HEADERS_UI
   samplv1widget_programs.h
   samplv1widget_controls.h
   samplv1widget_control.h
+  samplv1widget_palette.h
   samplv1widget_config.h
 )
 
@@ -76,6 +77,7 @@ set (SOURCES_UI
   samplv1widget_programs.cpp
   samplv1widget_controls.cpp
   samplv1widget_control.cpp
+  samplv1widget_palette.cpp
   samplv1widget_config.cpp
 )
 

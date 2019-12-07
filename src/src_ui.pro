@@ -29,6 +29,7 @@ HEADERS = \
 	samplv1widget_programs.h \
 	samplv1widget_controls.h \
 	samplv1widget_control.h \
+	samplv1widget_palette.h \
 	samplv1widget_config.h
 
 SOURCES = \
@@ -46,11 +47,13 @@ SOURCES = \
 	samplv1widget_programs.cpp \
 	samplv1widget_controls.cpp \
 	samplv1widget_control.cpp \
+	samplv1widget_palette.cpp \
 	samplv1widget_config.cpp
 
 FORMS = \
 	samplv1widget.ui \
 	samplv1widget_control.ui \
+	samplv1widget_palette.ui \
 	samplv1widget_config.ui
 
 RESOURCES += samplv1.qrc

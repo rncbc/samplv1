@@ -78,7 +78,8 @@ public:
 	// Run-time special non-persistent options.
 	bool bDontUseNativeDialogs;
 
-	// Custom widget style theme.
+	// Custom color palette/widget style themes.
+	QString sCustomColorTheme;
 	QString sCustomStyleTheme;
 
 	// Micro-tuning options.
