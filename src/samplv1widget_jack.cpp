@@ -67,7 +67,7 @@ samplv1widget_jack::samplv1widget_jack ( samplv1_jack *pSampl )
 	if (QDir(CONFIG_PLUGINSDIR).exists())
 		QApplication::addLibraryPath(CONFIG_PLUGINSDIR);
 
-	// Custom color/style theme...
+	// Custom color/style themes...
 	samplv1_config *pConfig = samplv1_config::getInstance();
 	if (pConfig) {
 		if (!pConfig->sCustomColorTheme.isEmpty()) {
