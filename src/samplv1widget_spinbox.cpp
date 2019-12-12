@@ -1,7 +1,7 @@
 // samplv1widget_spinbox.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2018, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2019, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -227,7 +227,11 @@ QString samplv1widget_spinbox::textFromValue (
 	}
 
 	const uint32_t zzz = uint32_t(secs * 1000.0f);
+#if QT_VERSION < QT_VERSION_CHECK(5, 5, 0)
 	return QString().sprintf("%02u:%02u:%02u.%03u", hh, mm, ss, zzz);
+#else
+	return QString::asprintf("%02u:%02u:%02u.%03u", hh, mm, ss, zzz);
+#endif
 }
 
 
