@@ -18,23 +18,23 @@ license:
 
 website:
 
-  http://samplv1.sourceforge.net
   https://samplv1.sourceforge.io
+  http://samplv1.sourceforge.net
 
 project page:
 
-  http://sourceforge.net/projects/samplv1
+  https://sourceforge.net/projects/samplv1
 
 git repos:
 
-  http://git.code.sf.net/p/samplv1/code
+  https://git.code.sf.net/p/samplv1/code
   https://github.com/rncbc/samplv1.git
   https://gitlab.com/rncbc/samplv1.git
   https://bitbucket.org/rncbc/samplv1.git
 
 weblog:
 
-  http://www.rncbc.org
+  https://www.rncbc.org
 
 
 requirements:
@@ -43,7 +43,7 @@ requirements:
 
   - Qt framework, C++ class library and tools for
     cross-platform application and UI development
-    http://qt.io/
+    https://qt.io/
 
   - libsndfile, C library for reading and writing
     files containing sampled sound
@@ -52,10 +52,10 @@ requirements:
   optional (opted-in at build time),
 
   - JACK Audio Connection Kit
-    http://jackaudio.org/
+    https://jackaudio.org/
 
   - ALSA, Advanced Linux Sound Architecture
-    http://www.alsa-project.org/
+    https://www.alsa-project.org/
 
   - LV2, Audio Plugin Standard, the extensible successor of LADSPA
     http://lv2plug.in/
@@ -93,4 +93,4 @@ cheers && enjoy.
 --
 rncbc aka. Rui Nuno Capela
 rncbc@rncbc.org
-http://www.rncbc.org
+https://www.rncbc.org
