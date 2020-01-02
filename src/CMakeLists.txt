@@ -84,6 +84,7 @@ set (SOURCES_UI
 set (FORMS_UI
   samplv1widget.ui
   samplv1widget_control.ui
+  samplv1widget_palette.ui
   samplv1widget_config.ui
 )
 
@@ -178,9 +179,9 @@ endif ()
 
 if (UNIX AND NOT APPLE AND NOT CONFIG_DEBUG)
   add_custom_command(TARGET ${NAME}_lv2  POST_BUILD
-    COMMAND strip -v lib${NAME}_lv2.so)
+    COMMAND strip lib${NAME}_lv2.so)
   add_custom_command(TARGET ${NAME}_jack POST_BUILD
-    COMMAND strip -v ${NAME}_jack)
+    COMMAND strip ${NAME}_jack)
 endif ()
 
 
