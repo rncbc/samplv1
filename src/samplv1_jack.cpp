@@ -244,8 +244,8 @@ int samplv1_jack::process ( jack_nframes_t nframes )
 						outs[k] += nread;
 					}
 				}
+				ndelta = event.time;
 			}
-			ndelta = event.time;
 			samplv1::process_midi(event.buffer, event.size);
 		}
 	}
