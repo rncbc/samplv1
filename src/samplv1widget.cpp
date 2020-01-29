@@ -1,7 +1,7 @@
 // samplv1widget.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2019, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2020, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -448,6 +448,10 @@ samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
 	setParamKnob(samplv1::OUT1_PANNING, m_ui.Out1PanningKnob);
 	setParamKnob(samplv1::OUT1_FXSEND,  m_ui.Out1FxSendKnob);
 	setParamKnob(samplv1::OUT1_VOLUME,  m_ui.Out1VolumeKnob);
+
+    // added by scotty to try to support linnstruments need for bigger bend range
+    m_ui.Def1PitchbendKnob->setMinimum(0.0f);
+    m_ui.Def1PitchbendKnob->setMaximum(+4.0f);
 
 
 	// Effects
