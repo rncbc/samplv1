@@ -1795,7 +1795,7 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 					m_dca1.env.note_off(&pv->dca1_env);
 					m_dcf1.env.note_off(&pv->dcf1_env);
 					m_lfo1.env.note_off(&pv->lfo1_env);
-					pv->gen1.setLoop(false);
+				//	pv->gen1.setLoop(false);
 				}
 				m_notes[pv->note] = nullptr;
 				pv->note = -1;

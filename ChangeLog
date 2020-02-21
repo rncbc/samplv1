@@ -6,6 +6,8 @@ ChangeLog
 
 GIT HEAD
 
+- Always keep the current sample loop-cycle on note-off, 
+  while entering a DCA Release stage. (EXPERIMENTAL)
 - Maximum pitch-bend range has been expanded to 0..400%,
   allegedly to support some PME driven instruments (as
   proposed by sacarlson, to synthv1). (EXPERIMENTAL)
