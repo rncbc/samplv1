@@ -590,7 +590,7 @@ QString samplv1_param::loadFilename ( const QString& sFilename )
 	QFileInfo fi(sFilename);
 	if (fi.isSymLink())
 		fi.setFile(fi.symLinkTarget());
-	return fi.filePath();
+	return fi.absoluteFilePath();
 }
 
 
