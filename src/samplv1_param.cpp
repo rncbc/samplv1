@@ -32,7 +32,23 @@
 
 
 //-------------------------------------------------------------------------
-// state params description.
+// Abstract/absolute path functors.
+
+QString samplv1_param::map_path::absolutePath (
+	const QString& sAbstractPath ) const
+{
+	return QDir::current().absoluteFilePath(sAbstractPath);
+}
+
+QString samplv1_param::map_path::abstractPath (
+	const QString& sAbsolutePath ) const
+{
+	return QDir::current().relativeFilePath(sAbsolutePath);
+}
+
+
+//-------------------------------------------------------------------------
+// State params description.
 
 enum ParamType { PARAM_FLOAT = 0, PARAM_INT, PARAM_BOOL };
 
@@ -320,7 +336,7 @@ bool samplv1_param::savePreset (
 	ePreset.setAttribute("version", CONFIG_BUILD_VERSION);
 
 	QDomElement eSamples = doc.createElement("samples");
-	samplv1_param::saveSamples(pSampl, doc, eSamples, bSymLink);
+	samplv1_param::saveSamples(pSampl, doc, eSamples, map_path(), bSymLink);
 	ePreset.appendChild(eSamples);
 
 	QDomElement eParams = doc.createElement("params");
@@ -358,7 +374,8 @@ bool samplv1_param::savePreset (
 
 // Sample serialization methods.
 void samplv1_param::loadSamples (
-	samplv1 *pSampl, const QDomElement& eSamples )
+	samplv1 *pSampl, const QDomElement& eSamples,
+	const samplv1_param::map_path& mapPath )
 {
 	if (pSampl == nullptr)
 		return;
@@ -417,7 +434,8 @@ void samplv1_param::loadSamples (
 				sSampleFile = eSample.text();
 			// Done it.
 			const QByteArray aSampleFile
-				= samplv1_param::loadFilename(sSampleFile).toUtf8();
+				= mapPath.absolutePath(
+					samplv1_param::loadFilename(sSampleFile)).toUtf8();
 			pSampl->setSampleFile(aSampleFile.constData());
 			// Set actual sample loop points...
 			pSampl->setLoopZero(bLoopZero);
@@ -430,7 +448,8 @@ void samplv1_param::loadSamples (
 
 
 void samplv1_param::saveSamples (
-	samplv1 *pSampl, QDomDocument& doc, QDomElement& eSamples, bool bSymLink )
+	samplv1 *pSampl, QDomDocument& doc, QDomElement& eSamples,
+	const samplv1_param::map_path& mapPath, bool bSymLink )
 {
 	if (pSampl == nullptr)
 		return;
@@ -444,10 +463,9 @@ void samplv1_param::saveSamples (
 	eSample.setAttribute("name", "GEN1_SAMPLE");
 
 	QDomElement eFilename = doc.createElement("filename");
-	eFilename.appendChild(doc.createTextNode(
-		QDir::current().relativeFilePath(
-			samplv1_param::saveFilename(
-				QString::fromUtf8(pszSampleFile), bSymLink))));
+	eFilename.appendChild(doc.createTextNode(mapPath.abstractPath(
+		samplv1_param::saveFilename(
+			QString::fromUtf8(pszSampleFile), bSymLink))));
 	eSample.appendChild(eFilename);
 
 	const uint32_t iOffsetStart = pSampl->offsetStart();
@@ -590,7 +608,7 @@ QString samplv1_param::loadFilename ( const QString& sFilename )
 	QFileInfo fi(sFilename);
 	if (fi.isSymLink())
 		fi.setFile(fi.symLinkTarget());
-	return fi.absoluteFilePath();
+	return fi.filePath();
 }
 
 

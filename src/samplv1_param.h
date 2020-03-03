@@ -37,6 +37,15 @@ class QDomDocument;
 
 namespace samplv1_param
 {
+	// Abstract/absolute path functors.
+	class map_path
+	{
+	public:
+
+		virtual QString absolutePath(const QString& sAbstractPath) const;
+		virtual QString abstractPath(const QString& sAbsolutePath) const;
+	};
+
 	// Preset serialization methods.
 	bool loadPreset(samplv1 *pSampl,
 		const QString& sFilename);
@@ -46,9 +55,11 @@ namespace samplv1_param
 
 	// Sample serialization methods.
 	void loadSamples(samplv1 *pSampl,
-		const QDomElement& eSamples);
+		const QDomElement& eSamples,
+		const map_path& mapPath = map_path());
 	void saveSamples(samplv1 *pSampl,
 		QDomDocument& doc, QDomElement& eSamples,
+		const map_path& mapPath = map_path(),
 		bool bSymLink = false);
 
 	// Tuning serialization methods.
