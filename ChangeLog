@@ -4,13 +4,13 @@ samplv1 - an old-school polyphonic sampler
 ChangeLog
 
 
-GIT HEAD
+0.9.13  2020-03-26  A Spring'20 Release.
 
 - Always keep the current sample loop-cycle on note-off, 
-  while entering a DCA Release stage. (EXPERIMENTAL)
+  while entering a DCA Release stage.
 - Maximum pitch-bend range has been expanded to 0..400%,
   allegedly to support some PME driven instruments (as
-  proposed by sacarlson, to synthv1). (EXPERIMENTAL)
+  proposed by sacarlson, to synthv1).
 - Make man page compression reproducible (after request
   by Jelle van der Waa, thanks).
 - Fixed crash when showing the tooltip of a negative note
