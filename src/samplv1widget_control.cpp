@@ -1,7 +1,7 @@
 // samplv1widget_control.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2019, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2020, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -39,9 +39,8 @@ samplv1widget_control *samplv1widget_control::g_pInstance = nullptr;
 
 
 // Constructor.
-samplv1widget_control::samplv1widget_control (
-	QWidget *pParent, Qt::WindowFlags wflags )
-	: QDialog(pParent, wflags), p_ui(new Ui::samplv1widget_control), m_ui(*p_ui)
+samplv1widget_control::samplv1widget_control ( QWidget *pParent )
+	: QDialog(pParent), p_ui(new Ui::samplv1widget_control), m_ui(*p_ui)
 {
 	// Setup UI struct...
 	m_ui.setupUi(this);
@@ -129,13 +128,13 @@ samplv1widget_control *samplv1widget_control::getInstance (void)
 // Pseudo-constructor.
 void samplv1widget_control::showInstance (
 	samplv1_controls *pControls, samplv1::ParamIndex index,
-	const QString& sTitle, QWidget *pParent, Qt::WindowFlags wflags )
+	const QString& sTitle, QWidget *pParent )
 {
 	samplv1widget_control *pInstance = samplv1widget_control::getInstance();
 	if (pInstance)
 		pInstance->close();
 
-	pInstance = new samplv1widget_control(pParent, wflags);
+	pInstance = new samplv1widget_control(pParent);
 	pInstance->setWindowTitle(sTitle);
 	pInstance->setControls(pControls, index);
 	pInstance->show();

@@ -50,7 +50,7 @@ class samplv1widget : public QWidget
 public:
 
 	// Constructor
-	samplv1widget(QWidget *pParent = 0, Qt::WindowFlags wflags = 0);
+	samplv1widget(QWidget *pParent = nullptr);
 
 	// Destructor.
 	virtual ~samplv1widget();

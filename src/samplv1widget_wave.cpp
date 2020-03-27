@@ -42,9 +42,8 @@ inline float safe_value ( float x )
 // samplv1widget_wave -- Custom widget
 
 // Constructor.
-samplv1widget_wave::samplv1widget_wave (
-	QWidget *pParent, Qt::WindowFlags wflags )
-	: QFrame(pParent, wflags),
+samplv1widget_wave::samplv1widget_wave ( QWidget *pParent )
+	: QFrame(pParent),
 		m_bDragging(false), m_iDragShape(0)
 {
 	m_pWave = new samplv1_wave_lf(128);
@@ -221,7 +220,7 @@ void samplv1widget_wave::mouseDoubleClickEvent ( QMouseEvent *pMouseEvent )
 
 void samplv1widget_wave::wheelEvent ( QWheelEvent *pWheelEvent )
 {
-	const int delta = (pWheelEvent->delta() / 60);
+	const int delta = (pWheelEvent->angleDelta().y() / 60);
 
 	if (pWheelEvent->modifiers() & (Qt::ShiftModifier | Qt::ControlModifier)) {
 		setWaveShape(waveShape() + (delta < 0 ? -1 : +1));

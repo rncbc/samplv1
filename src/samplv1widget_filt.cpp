@@ -40,9 +40,8 @@ inline float safe_value ( float x )
 // samplv1widget_filt -- Custom widget
 
 // Constructor.
-samplv1widget_filt::samplv1widget_filt (
-	QWidget *pParent, Qt::WindowFlags wflags )
-	: QFrame(pParent, wflags),
+samplv1widget_filt::samplv1widget_filt ( QWidget *pParent )
+	: QFrame(pParent),
 		m_fCutoff(0.0f), m_fReso(0.0f), m_fType(0.0f), m_fSlope(0.0f),
 		m_bDragging(false)
 {
@@ -315,7 +314,7 @@ void samplv1widget_filt::mouseReleaseEvent ( QMouseEvent *pMouseEvent )
 
 void samplv1widget_filt::wheelEvent ( QWheelEvent *pWheelEvent )
 {
-	const int delta = (pWheelEvent->delta() / 60);
+	const int delta = (pWheelEvent->angleDelta().y() / 60);
 
 	if (pWheelEvent->modifiers() & (Qt::ShiftModifier | Qt::ControlModifier)) {
 		const int h2 = (height() >> 1);

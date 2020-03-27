@@ -50,7 +50,7 @@ public:
 	// Pseudo-constructor.
 	static void showInstance(
 		samplv1_controls *pControls, samplv1::ParamIndex index,
-		const QString& sTitle, QWidget *pParent = 0, Qt::WindowFlags wflags = 0);
+		const QString& sTitle, QWidget *pParent = nullptr);
 
 	// Control accessors.
 	void setControls(samplv1_controls *pControls, samplv1::ParamIndex index);
@@ -79,7 +79,7 @@ protected slots:
 protected:
 
 	// Constructor.
-	samplv1widget_control(QWidget *pParent = 0, Qt::WindowFlags wflags = 0);
+	samplv1widget_control(QWidget *pParent = nullptr);
 
 	// Destructor.
 	~samplv1widget_control();

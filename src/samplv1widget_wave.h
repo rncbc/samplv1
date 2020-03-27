@@ -39,7 +39,7 @@ class samplv1widget_wave : public QFrame
 public:
 
 	// Constructor.
-	samplv1widget_wave(QWidget *pParent = 0, Qt::WindowFlags wflags = 0);
+	samplv1widget_wave(QWidget *pParent = nullptr);
 	// Destructor.
 	~samplv1widget_wave();
 

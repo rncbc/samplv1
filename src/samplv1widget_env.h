@@ -35,7 +35,7 @@ class samplv1widget_env : public QFrame
 public:
 
 	// Constructor.
-	samplv1widget_env(QWidget *pParent = 0, Qt::WindowFlags wflags = 0);
+	samplv1widget_env(QWidget *pParent = nullptr);
 	// Destructor.
 	~samplv1widget_env();
 

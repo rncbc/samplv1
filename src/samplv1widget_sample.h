@@ -1,7 +1,7 @@
 // samplv1widget_sample.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2019, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2020, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -45,7 +45,7 @@ class samplv1widget_sample : public QFrame
 public:
 
 	// Constructor.
-	samplv1widget_sample(QWidget *pParent = 0, Qt::WindowFlags wflags = 0);
+	samplv1widget_sample(QWidget *pParent = nullptr);
 	// Destructor.
 	~samplv1widget_sample();
 

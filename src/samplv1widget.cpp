@@ -52,8 +52,8 @@
 //
 
 // Constructor.
-samplv1widget::samplv1widget ( QWidget *pParent, Qt::WindowFlags wflags )
-	: QWidget(pParent, wflags), p_ui(new Ui::samplv1widget), m_ui(*p_ui)
+samplv1widget::samplv1widget ( QWidget *pParent )
+	: QWidget(pParent), p_ui(new Ui::samplv1widget), m_ui(*p_ui)
 {
 	Q_INIT_RESOURCE(samplv1);
 

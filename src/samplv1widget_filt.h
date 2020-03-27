@@ -35,7 +35,7 @@ class samplv1widget_filt : public QFrame
 public:
 
 	// Constructor.
-	samplv1widget_filt(QWidget *pParent = 0, Qt::WindowFlags wflags = 0);
+	samplv1widget_filt(QWidget *pParent = nullptr);
 	// Destructor.
 	~samplv1widget_filt();
 
