@@ -756,7 +756,22 @@ void samplv1widget_config::accept (void)
 		pConfig->iFrameTimeFormat = m_ui.FrameTimeFormatComboBox->currentIndex();
 		pConfig->fRandomizePercent = float(m_ui.RandomizePercentSpinBox->value());
 		int iNeedRestart = 0;
+		if (pConfig->sCustomStyleTheme != sOldCustomStyleTheme) {
+		#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+			++iNeedRestart;
+		#else		
+			if (pConfig->sCustomStyleTheme.isEmpty()) {
+				++iNeedRestart;
+			} else {
+				QApplication::setStyle(
+					QStyleFactory::create(pConfig->sCustomStyleTheme));
+			}
+		#endif
+ 		}
  		if (pConfig->sCustomColorTheme != sOldCustomColorTheme) {
+		#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+			++iNeedRestart;
+		#else		
 			if (pConfig->sCustomColorTheme.isEmpty()) {
 				++iNeedRestart;
 			} else {
@@ -765,17 +780,10 @@ void samplv1widget_config::accept (void)
 						pConfig, pConfig->sCustomColorTheme, pal))
 					QApplication::setPalette(pal);
 			}
+		#endif
 		}
 		if (pConfig->iFrameTimeFormat != iOldFrameTimeFormat)
 			++iNeedRestart;
-		if (pConfig->sCustomStyleTheme != sOldCustomStyleTheme) {
-			if (pConfig->sCustomStyleTheme.isEmpty()) {
-				++iNeedRestart;
-			} else {
-				QApplication::setStyle(
-					QStyleFactory::create(pConfig->sCustomStyleTheme));
-			}
- 		}
 		// Show restart message if needed...
  		if (iNeedRestart > 0) {
 			QMessageBox::information(this,
