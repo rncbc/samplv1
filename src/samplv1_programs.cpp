@@ -1,7 +1,7 @@
 // samplv1_programs.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2016, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2020, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -29,7 +29,8 @@
 // ctor.
 samplv1_programs::samplv1_programs ( samplv1 *pSampl )
 	: m_enabled(false), m_sched(pSampl),
-		m_bank_msb(0), m_bank_lsb(0), m_bank(0), m_prog(0)
+		m_bank_msb(0), m_bank_lsb(0),
+		m_bank(nullptr), m_prog(nullptr)
 {
 }
 
@@ -44,7 +45,7 @@ samplv1_programs::~samplv1_programs (void)
 // prog. managers
 samplv1_programs::Prog *samplv1_programs::Bank::find_prog ( uint16_t prog_id ) const
 {
-	return m_progs.value(prog_id, 0);
+	return m_progs.value(prog_id, nullptr);
 }
 
 
@@ -80,7 +81,7 @@ void samplv1_programs::Bank::clear_progs (void)
 // bank managers
 samplv1_programs::Bank *samplv1_programs::find_bank ( uint16_t bank_id ) const
 {
-	return m_banks.value(bank_id, 0);
+	return m_banks.value(bank_id, nullptr);
 }
 
 
@@ -111,8 +112,8 @@ void samplv1_programs::clear_banks (void)
 	m_bank_msb = 0;
 	m_bank_lsb = 0;
 
-	m_bank = 0;
-	m_prog = 0;
+	m_bank = nullptr;
+	m_prog = nullptr;
 
 	qDeleteAll(m_banks);
 	m_banks.clear();
@@ -162,8 +163,14 @@ void samplv1_programs::prog_change ( uint16_t prog_id )
 
 void samplv1_programs::select_program ( uint16_t bank_id, uint16_t prog_id )
 {
-	if (enabled())
-		m_sched.select_program(bank_id, prog_id);
+	if (!enabled())
+		return;
+
+	if (m_bank && m_bank->id() == bank_id &&
+		m_prog && m_prog->id() == prog_id)
+		return;
+
+	m_sched.select_program(bank_id, prog_id);
 }
 
 
@@ -171,7 +178,7 @@ void samplv1_programs::process_program (
 	samplv1 *pSampl, uint16_t bank_id, uint16_t prog_id )
 {
 	m_bank = find_bank(bank_id);
-	m_prog = (m_bank ? m_bank->find_prog(prog_id) : 0);
+	m_prog = (m_bank ? m_bank->find_prog(prog_id) : nullptr);
 
 	if (m_prog)
 		samplv1_param::loadPreset(pSampl, m_prog->name());
