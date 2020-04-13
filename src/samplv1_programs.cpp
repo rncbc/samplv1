@@ -182,6 +182,7 @@ void samplv1_programs::process_program (
 
 	if (m_prog) {
 		samplv1_param::loadPreset(pSampl, m_prog->name());
+		pSampl->updateSample();
 		pSampl->updateParams();
 	}
 }

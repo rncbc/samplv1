@@ -476,7 +476,7 @@ void samplv1_lv2::run ( uint32_t nframes )
 				else
 				if (object->body.otype == m_urids.patch_Get) {
 					// put all property values (probably to UI)
-					patch_put(ndelta);
+					patch_put();
 				}
 			#endif	// CONFIG_LV2_PATCH
 			}
@@ -1091,7 +1091,7 @@ bool samplv1_lv2::worker_response ( const void *data, uint32_t size )
 	samplv1_sched::sync_notify(this, samplv1_sched::Sample, 0);
 
 #ifdef CONFIG_LV2_PATCH
-	return patch_put(m_ndelta, mesg->atom.type);
+	return patch_put();
 #else
 	return true;
 #endif
@@ -1112,7 +1112,7 @@ bool samplv1_lv2::state_changed (void)
 
 #ifdef CONFIG_LV2_PATCH
 
-bool samplv1_lv2::patch_put ( uint32_t ndelta, uint32_t type )
+bool samplv1_lv2::patch_put ( uint32_t type )
 {
 	static char s_szNull[1] = {'\0'};
 
@@ -1123,7 +1123,7 @@ bool samplv1_lv2::patch_put ( uint32_t ndelta, uint32_t type )
 	if (pSample == nullptr)
 		return false;
 
-	lv2_atom_forge_frame_time(&m_forge, ndelta);
+	lv2_atom_forge_frame_time(&m_forge, m_ndelta);
 
 	LV2_Atom_Forge_Frame patch_frame;
 	lv2_atom_forge_object(&m_forge, &patch_frame, 0, m_urids.patch_Put);
