@@ -1,7 +1,7 @@
 // samplv1_lv2.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2019, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2020, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -54,6 +54,10 @@
 #define LV2_STATE__StateChanged LV2_STATE_PREFIX "StateChanged"
 #endif
 
+#ifndef LV2_ATOM__portEvent
+#define LV2_ATOM__portEvent LV2_ATOM_PREFIX "portEvent"
+#endif
+
 #include <stdlib.h>
 #include <math.h>
 
@@ -69,7 +73,10 @@
 // atom-like message used internally with worker/schedule
 typedef struct {
 	LV2_Atom atom;
-	const char *sample_path;
+	union {
+		uint32_t    key;
+		const char *path;
+	} data;
 } samplv1_lv2_worker_message;
 
 
@@ -148,6 +155,8 @@ samplv1_lv2::samplv1_lv2 (
 					m_urid_map->handle, LV2_ATOM__Bool);
 				m_urids.atom_Path = m_urid_map->map(
 					m_urid_map->handle, LV2_ATOM__Path);
+				m_urids.atom_portEvent = m_urid_map->map(
+					m_urid_map->handle, LV2_ATOM__portEvent);
 				m_urids.time_Position = m_urid_map->map(
 					m_urid_map->handle, LV2_TIME__Position);
 				m_urids.time_beatsPerMinute = m_urid_map->map(
@@ -330,8 +339,8 @@ void samplv1_lv2::run ( uint32_t nframes )
 							if (m_schedule) {
 								samplv1_lv2_worker_message mesg;
 								mesg.atom.type = key;
-								mesg.atom.size = sizeof(mesg.sample_path);
-								mesg.sample_path
+								mesg.atom.size = sizeof(mesg.data.path);
+								mesg.data.path
 									= (const char *) LV2_ATOM_BODY_CONST(value);
 								// schedule loading new sample
 								m_schedule->schedule_work(
@@ -969,7 +978,6 @@ void samplv1_lv2::updatePreset ( bool /*bDirty*/ )
 		samplv1_lv2_worker_message mesg;
 		mesg.atom.type = m_urids.state_StateChanged;
 		mesg.atom.size = 0; // nothing else matters.
-		mesg.sample_path = nullptr;
 		m_schedule->schedule_work(
 			m_schedule->handle, sizeof(mesg), &mesg);
 	}
@@ -981,8 +989,33 @@ void samplv1_lv2::updateSample (void)
 	if (m_schedule) {
 		samplv1_lv2_worker_message mesg;
 		mesg.atom.type = m_urids.gen1_update;
-		mesg.atom.size = sizeof(mesg.sample_path);
-		mesg.sample_path = samplv1::sampleFile();
+		mesg.atom.size = sizeof(mesg.data.path);
+		mesg.data.path = samplv1::sampleFile();
+		m_schedule->schedule_work(
+			m_schedule->handle, sizeof(mesg), &mesg);
+	}
+}
+
+
+void samplv1_lv2::updateParam ( samplv1::ParamIndex index )
+{
+	if (m_schedule) {
+		samplv1_lv2_worker_message mesg;
+		mesg.atom.type = m_urids.atom_portEvent;
+		mesg.atom.size = sizeof(mesg.data.key);
+		mesg.data.key  = uint32_t(index);
+		m_schedule->schedule_work(
+			m_schedule->handle, sizeof(mesg), &mesg);
+	}
+}
+
+
+void samplv1_lv2::updateParams (void)
+{
+	if (m_schedule) {
+		samplv1_lv2_worker_message mesg;
+		mesg.atom.type = m_urids.atom_portEvent;
+		mesg.atom.size = 0; // nothing else matters.
 		m_schedule->schedule_work(
 			m_schedule->handle, sizeof(mesg), &mesg);
 	}
@@ -1009,6 +1042,9 @@ bool samplv1_lv2::worker_work ( const void *data, uint32_t size )
 	const samplv1_lv2_worker_message *mesg
 		= (const samplv1_lv2_worker_message *) data;
 
+	if (mesg->atom.type == m_urids.atom_portEvent)
+		return true;
+	else
 	if (mesg->atom.type == m_urids.state_StateChanged)
 		return true;
 	else
@@ -1020,7 +1056,7 @@ bool samplv1_lv2::worker_work ( const void *data, uint32_t size )
 		|| mesg->atom.type == m_urids.gen1_sample
 	#endif
 		) {
-		samplv1::setSampleFile(mesg->sample_path);
+		samplv1::setSampleFile(mesg->data.path);
 		return true;
 	}
 	else
@@ -1040,6 +1076,14 @@ bool samplv1_lv2::worker_response ( const void *data, uint32_t size )
 
 	const samplv1_lv2_worker_message *mesg
 		= (const samplv1_lv2_worker_message *) data;
+
+	if (mesg->atom.type == m_urids.atom_portEvent) {
+		if (mesg->atom.size > 0)
+			return port_event(samplv1::ParamIndex(mesg->data.key));
+		else
+			return port_events();
+	}
+	else
 	if (mesg->atom.type == m_urids.state_StateChanged)
 		return state_changed();
 
@@ -1154,6 +1198,41 @@ bool samplv1_lv2::patch_put ( uint32_t ndelta, uint32_t type )
 }
 
 #endif	// CONFIG_LV2_PATCH
+
+
+bool samplv1_lv2::port_event ( samplv1::ParamIndex index )
+{
+	lv2_atom_forge_frame_time(&m_forge, m_ndelta);
+
+	LV2_Atom_Forge_Frame frame;
+	lv2_atom_forge_object(&m_forge, &frame, 0, m_urids.atom_portEvent);
+
+	lv2_atom_forge_key(&m_forge, uint32_t(ParamBase + index));
+	lv2_atom_forge_float(&m_forge, samplv1::paramValue(index));
+
+	lv2_atom_forge_pop(&m_forge, &frame);
+
+	return true;
+}
+
+
+bool samplv1_lv2::port_events (void)
+{
+	lv2_atom_forge_frame_time(&m_forge, m_ndelta);
+
+	LV2_Atom_Forge_Frame frame;
+	lv2_atom_forge_object(&m_forge, &frame, 0, m_urids.atom_portEvent);
+
+	for (int i = 0; i < samplv1::NUM_PARAMS; ++i) {
+		samplv1::ParamIndex index = samplv1::ParamIndex(i);
+		lv2_atom_forge_key(&m_forge, uint32_t(ParamBase + index));
+		lv2_atom_forge_float(&m_forge, samplv1::paramValue(index));
+	}
+
+	lv2_atom_forge_pop(&m_forge, &frame);
+
+	return true;
+}
 
 
 //-------------------------------------------------------------------------

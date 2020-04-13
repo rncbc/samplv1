@@ -1,7 +1,7 @@
 // samplv1_controls.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2019, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2020, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -26,6 +26,8 @@
 #include "samplv1_sched.h"
 
 #include <QMap>
+
+#include <math.h>
 
 
 //-------------------------------------------------------------------------
@@ -179,17 +181,29 @@ protected:
 
 		// ctor.
 		SchedOut (samplv1 *pSampl)
-			: samplv1_sched(pSampl, Controls) {}
+			: samplv1_sched(pSampl, Controls), m_value(0.0f) {}
 
-		void schedule_event(samplv1::ParamIndex index, float fValue)
+		void schedule_event(samplv1::ParamIndex index, float value)
 		{
-			instance()->setParamValue(index, fValue);
-
-			schedule(int(index));
+			if (::fabsf(value - m_value) > 0.001f) {
+				m_value = value;
+				schedule(int(index));
+			}
 		}
 
 		// process (virtual stub).
-		void process(int) {}
+		void process(int sid)
+		{
+			samplv1 *pSampl = instance();
+			samplv1::ParamIndex index = samplv1::ParamIndex(sid);
+			pSampl->setParamValue(index, m_value);
+			pSampl->updateParam(index);
+		}
+
+	private:
+
+		// instance variables
+		float m_value;
 	};
 
 private:

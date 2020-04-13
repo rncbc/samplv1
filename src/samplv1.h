@@ -196,6 +196,8 @@ public:
 	void sampleOffsetLoopTest();
 
 	virtual void updatePreset(bool bDirty) = 0;
+	virtual void updateParam(ParamIndex index) = 0;
+	virtual void updateParams() = 0;
 
 	void midiInEnabled(bool on);
 	uint32_t midiInCount();

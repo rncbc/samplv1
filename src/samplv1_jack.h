@@ -73,6 +73,8 @@ public:
 protected:
 
 	void updatePreset(bool bDirty);
+	void updateParam(samplv1::ParamIndex index);
+	void updateParams();
 	void updateSample();
 	void updateTuning();
 

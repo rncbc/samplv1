@@ -620,6 +620,18 @@ void samplv1_jack::updateSample (void)
 }
 
 
+void samplv1_jack::updateParam ( samplv1::ParamIndex /*index*/ )
+{
+	// nothing to do here...
+}
+
+
+void samplv1_jack::updateParams (void)
+{
+	// nothing to do here...
+}
+
+
 void samplv1_jack::updateTuning (void)
 {
 	samplv1::resetTuning();
