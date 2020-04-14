@@ -1204,13 +1204,18 @@ bool samplv1_lv2::port_event ( samplv1::ParamIndex index )
 {
 	lv2_atom_forge_frame_time(&m_forge, m_ndelta);
 
-	LV2_Atom_Forge_Frame frame;
-	lv2_atom_forge_object(&m_forge, &frame, 0, m_urids.atom_portEvent);
+	LV2_Atom_Forge_Frame obj_frame;
+	lv2_atom_forge_object(&m_forge, &obj_frame, 0, m_urids.atom_portEvent);
+	lv2_atom_forge_key(&m_forge, m_forge.Tuple);
 
-	lv2_atom_forge_key(&m_forge, uint32_t(ParamBase + index));
+	LV2_Atom_Forge_Frame tup_frame;
+	lv2_atom_forge_tuple(&m_forge, &tup_frame);
+
+	lv2_atom_forge_int(&m_forge, int32_t(ParamBase + index));
 	lv2_atom_forge_float(&m_forge, samplv1::paramValue(index));
 
-	lv2_atom_forge_pop(&m_forge, &frame);
+	lv2_atom_forge_pop(&m_forge, &tup_frame);
+	lv2_atom_forge_pop(&m_forge, &obj_frame);
 
 	return true;
 }
@@ -1220,16 +1225,21 @@ bool samplv1_lv2::port_events (void)
 {
 	lv2_atom_forge_frame_time(&m_forge, m_ndelta);
 
-	LV2_Atom_Forge_Frame frame;
-	lv2_atom_forge_object(&m_forge, &frame, 0, m_urids.atom_portEvent);
+	LV2_Atom_Forge_Frame obj_frame;
+	lv2_atom_forge_object(&m_forge, &obj_frame, 0, m_urids.atom_portEvent);
+	lv2_atom_forge_key(&m_forge, m_forge.Tuple);
+
+	LV2_Atom_Forge_Frame tup_frame;
+	lv2_atom_forge_tuple(&m_forge, &tup_frame);
 
 	for (int i = 0; i < samplv1::NUM_PARAMS; ++i) {
 		samplv1::ParamIndex index = samplv1::ParamIndex(i);
-		lv2_atom_forge_key(&m_forge, uint32_t(ParamBase + index));
+		lv2_atom_forge_int(&m_forge, int32_t(ParamBase + index));
 		lv2_atom_forge_float(&m_forge, samplv1::paramValue(index));
 	}
 
-	lv2_atom_forge_pop(&m_forge, &frame);
+	lv2_atom_forge_pop(&m_forge, &tup_frame);
+	lv2_atom_forge_pop(&m_forge, &obj_frame);
 
 	return true;
 }

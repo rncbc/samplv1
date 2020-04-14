@@ -54,7 +54,7 @@
 		lv2atom:bufferType lv2atom:Sequence ;
 		lv2atom:supports lv2patch:Message ;
 		lv2:designation lv2:control ;
-		lv2resize:minimumSize 4096 ;
+		lv2resize:minimumSize 5120 ;
 		lv2:index 1 ;
 		lv2:symbol "notify";
 		lv2:name "Notify";
