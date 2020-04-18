@@ -54,8 +54,12 @@
 #define LV2_STATE__StateChanged LV2_STATE_PREFIX "StateChanged"
 #endif
 
-#ifndef LV2_ATOM__portEvent
-#define LV2_ATOM__portEvent LV2_ATOM_PREFIX "portEvent"
+#ifndef LV2_ATOM__PortEvent
+#define LV2_ATOM__PortEvent LV2_ATOM_PREFIX "PortEvent"
+#endif
+
+#ifndef LV2_ATOM__portTuple
+#define LV2_ATOM__portTuple LV2_ATOM_PREFIX "portTuple"
 #endif
 
 #include <stdlib.h>
@@ -155,8 +159,10 @@ samplv1_lv2::samplv1_lv2 (
 					m_urid_map->handle, LV2_ATOM__Bool);
 				m_urids.atom_Path = m_urid_map->map(
 					m_urid_map->handle, LV2_ATOM__Path);
-				m_urids.atom_portEvent = m_urid_map->map(
-					m_urid_map->handle, LV2_ATOM__portEvent);
+				m_urids.atom_PortEvent = m_urid_map->map(
+					m_urid_map->handle, LV2_ATOM__PortEvent);
+				m_urids.atom_portTuple = m_urid_map->map(
+					m_urid_map->handle, LV2_ATOM__portTuple);
 				m_urids.time_Position = m_urid_map->map(
 					m_urid_map->handle, LV2_TIME__Position);
 				m_urids.time_beatsPerMinute = m_urid_map->map(
@@ -1001,7 +1007,7 @@ void samplv1_lv2::updateParam ( samplv1::ParamIndex index )
 {
 	if (m_schedule) {
 		samplv1_lv2_worker_message mesg;
-		mesg.atom.type = m_urids.atom_portEvent;
+		mesg.atom.type = m_urids.atom_PortEvent;
 		mesg.atom.size = sizeof(mesg.data.key);
 		mesg.data.key  = uint32_t(index);
 		m_schedule->schedule_work(
@@ -1014,7 +1020,7 @@ void samplv1_lv2::updateParams (void)
 {
 	if (m_schedule) {
 		samplv1_lv2_worker_message mesg;
-		mesg.atom.type = m_urids.atom_portEvent;
+		mesg.atom.type = m_urids.atom_PortEvent;
 		mesg.atom.size = 0; // nothing else matters.
 		m_schedule->schedule_work(
 			m_schedule->handle, sizeof(mesg), &mesg);
@@ -1042,7 +1048,7 @@ bool samplv1_lv2::worker_work ( const void *data, uint32_t size )
 	const samplv1_lv2_worker_message *mesg
 		= (const samplv1_lv2_worker_message *) data;
 
-	if (mesg->atom.type == m_urids.atom_portEvent)
+	if (mesg->atom.type == m_urids.atom_PortEvent)
 		return true;
 	else
 	if (mesg->atom.type == m_urids.state_StateChanged)
@@ -1077,7 +1083,7 @@ bool samplv1_lv2::worker_response ( const void *data, uint32_t size )
 	const samplv1_lv2_worker_message *mesg
 		= (const samplv1_lv2_worker_message *) data;
 
-	if (mesg->atom.type == m_urids.atom_portEvent) {
+	if (mesg->atom.type == m_urids.atom_PortEvent) {
 		if (mesg->atom.size > 0)
 			return port_event(samplv1::ParamIndex(mesg->data.key));
 		else
@@ -1205,8 +1211,8 @@ bool samplv1_lv2::port_event ( samplv1::ParamIndex index )
 	lv2_atom_forge_frame_time(&m_forge, m_ndelta);
 
 	LV2_Atom_Forge_Frame obj_frame;
-	lv2_atom_forge_object(&m_forge, &obj_frame, 0, m_urids.atom_portEvent);
-	lv2_atom_forge_key(&m_forge, m_forge.Tuple);
+	lv2_atom_forge_object(&m_forge, &obj_frame, 0, m_urids.atom_PortEvent);
+	lv2_atom_forge_key(&m_forge, m_urids.atom_portTuple);
 
 	LV2_Atom_Forge_Frame tup_frame;
 	lv2_atom_forge_tuple(&m_forge, &tup_frame);
@@ -1226,8 +1232,8 @@ bool samplv1_lv2::port_events (void)
 	lv2_atom_forge_frame_time(&m_forge, m_ndelta);
 
 	LV2_Atom_Forge_Frame obj_frame;
-	lv2_atom_forge_object(&m_forge, &obj_frame, 0, m_urids.atom_portEvent);
-	lv2_atom_forge_key(&m_forge, m_forge.Tuple);
+	lv2_atom_forge_object(&m_forge, &obj_frame, 0, m_urids.atom_PortEvent);
+	lv2_atom_forge_key(&m_forge, m_urids.atom_portTuple);
 
 	LV2_Atom_Forge_Frame tup_frame;
 	lv2_atom_forge_tuple(&m_forge, &tup_frame);
