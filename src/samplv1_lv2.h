@@ -99,7 +99,8 @@ protected:
 	bool state_changed();
 
 #ifdef CONFIG_LV2_PATCH
-	bool patch_put(uint32_t type = 0);
+	bool patch_set(LV2_URID key);
+	bool patch_get();
 #endif
 
 	bool port_event(samplv1::ParamIndex index);
@@ -152,8 +153,6 @@ private:
 	#ifdef CONFIG_LV2_PATCH
 		LV2_URID patch_Get;
 		LV2_URID patch_Set;
-		LV2_URID patch_Put;
-		LV2_URID patch_body;
 		LV2_URID patch_property;
 		LV2_URID patch_value;
 	#endif
