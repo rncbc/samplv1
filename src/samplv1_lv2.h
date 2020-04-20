@@ -96,7 +96,6 @@ protected:
 
 	void updateSample();
 
-	void updateSampleFile();
 	void updateOffsetRange();
 	void updateLoopRange();
 	void updateLoopFade();

@@ -632,12 +632,6 @@ void samplv1_jack::updateSample (void)
 }
 
 
-void samplv1_jack::updateSampleFile (void)
-{
-	// nothing to do here...
-}
-
-
 void samplv1_jack::updateOffsetRange (void)
 {
 	// nothing to do here...

@@ -201,7 +201,6 @@ public:
 
 	virtual void updateSample() = 0;
 
-	virtual void updateSampleFile() = 0;
 	virtual void updateOffsetRange() = 0;
 	virtual void updateLoopRange() = 0;
 	virtual void updateLoopFade() = 0;

@@ -2592,7 +2592,7 @@ void samplv1::setReverse ( bool bReverse, bool bSync )
 	m_pImpl->gen1_sample.setReverse(bReverse);
 	m_pImpl->sampleReverseSync();
 
-	if (bSync) updateSampleFile();
+	if (bSync) updateSample();
 }
 
 bool samplv1::isReverse (void) const
