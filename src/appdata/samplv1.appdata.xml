@@ -19,7 +19,7 @@
  <launchable type="desktop-id">samplv1.desktop</launchable>
  <provides>
 ​  <binary>samplv1_jack</binary>
-​ </provides>
+ </provides>
  <screenshots>
   <screenshot type="default">
    <image>https://samplv1.sourceforge.io/image/samplv1-screenshot9.png</image>
