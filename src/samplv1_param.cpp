@@ -444,6 +444,9 @@ void samplv1_param::loadSamples (
 			pSampl->setOffsetRange(iOffsetStart, iOffsetEnd);
 		}
 	}
+
+	// Consolidate sample state...
+	pSampl->updateSample();
 }
 
 
@@ -552,7 +555,7 @@ void samplv1_param::loadTuning (
 	}
 
 	// Consolidate tuning state...
-	pSampl->resetTuning();
+	pSampl->updateTuning();
 }
 
 

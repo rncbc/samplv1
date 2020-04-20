@@ -614,12 +614,6 @@ void samplv1_jack::updatePreset ( bool /*bDirty*/ )
 }
 
 
-void samplv1_jack::updateSample (void)
-{
-	// nothing to do here...
-}
-
-
 void samplv1_jack::updateParam ( samplv1::ParamIndex /*index*/ )
 {
 	// nothing to do here...
@@ -627,6 +621,42 @@ void samplv1_jack::updateParam ( samplv1::ParamIndex /*index*/ )
 
 
 void samplv1_jack::updateParams (void)
+{
+	// nothing to do here...
+}
+
+
+void samplv1_jack::updateSample (void)
+{
+	// nothing to do here...
+}
+
+
+void samplv1_jack::updateSampleFile (void)
+{
+	// nothing to do here...
+}
+
+
+void samplv1_jack::updateOffsetRange (void)
+{
+	// nothing to do here...
+}
+
+
+void samplv1_jack::updateLoopRange (void)
+{
+	// nothing to do here...
+}
+
+
+void samplv1_jack::updateLoopFade (void)
+{
+	// nothing to do here...
+}
+
+
+void samplv1_jack::updateLoopZero (void)
 {
 	// nothing to do here...
 }

@@ -93,7 +93,15 @@ protected:
 	void updatePreset(bool bDirty);
 	void updateParam(samplv1::ParamIndex index);
 	void updateParams();
+
 	void updateSample();
+
+	void updateSampleFile();
+	void updateOffsetRange();
+	void updateLoopRange();
+	void updateLoopFade();
+	void updateLoopZero();
+
 	void updateTuning();
 
 	bool state_changed();

@@ -361,7 +361,7 @@ void samplv1_lv2::run ( uint32_t nframes )
 									= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
 								const uint32_t offset_end
 									= pSample->offsetEnd();
-								setOffsetRange(offset_start, offset_end);
+								setOffsetRange(offset_start, offset_end, true);
 							}
 						}
 						else
@@ -376,7 +376,7 @@ void samplv1_lv2::run ( uint32_t nframes )
 									= pSample->offsetStart();
 								const uint32_t offset_end
 									= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
-								setOffsetRange(offset_start, offset_end);
+								setOffsetRange(offset_start, offset_end, true);
 							}
 						}
 						else
@@ -391,7 +391,7 @@ void samplv1_lv2::run ( uint32_t nframes )
 									= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
 								const uint32_t loop_end
 									= pSample->loopEnd();
-								setLoopRange(loop_start, loop_end);
+								setLoopRange(loop_start, loop_end, true);
 							}
 						}
 						else
@@ -406,7 +406,7 @@ void samplv1_lv2::run ( uint32_t nframes )
 									= pSample->loopStart();
 								const uint32_t loop_end
 									= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
-								setLoopRange(loop_start, loop_end);
+								setLoopRange(loop_start, loop_end, true);
 							}
 						}
 						else
@@ -417,7 +417,7 @@ void samplv1_lv2::run ( uint32_t nframes )
 							) && type == m_urids.atom_Int) {
 							const uint32_t loop_fade
 								= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
-							setLoopFade(loop_fade);
+							setLoopFade(loop_fade, true);
 						}
 						else
 						if ((key == m_urids.p107_loop_zero
@@ -431,7 +431,7 @@ void samplv1_lv2::run ( uint32_t nframes )
 							)) {
 							const uint32_t loop_zero
 								= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
-							setLoopZero(loop_zero > 0);
+							setLoopZero(loop_zero > 0, true);
 						}
 						else
 						if (key == m_urids.p201_tuning_enabled
@@ -992,19 +992,6 @@ void samplv1_lv2::updatePreset ( bool /*bDirty*/ )
 }
 
 
-void samplv1_lv2::updateSample (void)
-{
-	if (m_schedule) {
-		samplv1_lv2_worker_message mesg;
-		mesg.atom.type = m_urids.gen1_update;
-		mesg.atom.size = sizeof(mesg.data.path);
-		mesg.data.path = samplv1::sampleFile();
-		m_schedule->schedule_work(
-			m_schedule->handle, sizeof(mesg), &mesg);
-	}
-}
-
-
 void samplv1_lv2::updateParam ( samplv1::ParamIndex index )
 {
 	if (m_schedule) {
@@ -1023,6 +1010,85 @@ void samplv1_lv2::updateParams (void)
 	if (m_schedule) {
 		samplv1_lv2_worker_message mesg;
 		mesg.atom.type = m_urids.atom_PortEvent;
+		mesg.atom.size = 0; // nothing else matters.
+		m_schedule->schedule_work(
+			m_schedule->handle, sizeof(mesg), &mesg);
+	}
+}
+
+
+void samplv1_lv2::updateSample (void)
+{
+	if (m_schedule) {
+		samplv1_lv2_worker_message mesg;
+		mesg.atom.type = m_urids.gen1_update;
+		mesg.atom.size = 0; // nothing else matters.
+		m_schedule->schedule_work(
+			m_schedule->handle, sizeof(mesg), &mesg);
+	}
+}
+
+
+void samplv1_lv2::updateSampleFile (void)
+{
+	if (m_schedule) {
+		samplv1_lv2_worker_message mesg;
+		mesg.atom.type = m_urids.p101_sample_file;
+		mesg.atom.size = sizeof(mesg.data.path);
+		mesg.data.path = samplv1::sampleFile();
+		m_schedule->schedule_work(
+			m_schedule->handle, sizeof(mesg), &mesg);
+	}
+}
+
+
+void samplv1_lv2::updateOffsetRange (void)
+{
+	if (m_schedule) {
+		samplv1_lv2_worker_message mesg;
+		mesg.atom.type = m_urids.p102_offset_start;
+		mesg.atom.size = 0; // nothing else matters.
+		m_schedule->schedule_work(
+			m_schedule->handle, sizeof(mesg), &mesg);
+		mesg.atom.type = m_urids.p103_offset_end;
+		m_schedule->schedule_work(
+			m_schedule->handle, sizeof(mesg), &mesg);
+	}
+}
+
+
+void samplv1_lv2::updateLoopRange (void)
+{
+	if (m_schedule) {
+		samplv1_lv2_worker_message mesg;
+		mesg.atom.type = m_urids.p104_loop_start;
+		mesg.atom.size = 0; // nothing else matters.
+		m_schedule->schedule_work(
+			m_schedule->handle, sizeof(mesg), &mesg);
+		mesg.atom.type = m_urids.p105_loop_end;
+		m_schedule->schedule_work(
+			m_schedule->handle, sizeof(mesg), &mesg);
+	}
+}
+
+
+void samplv1_lv2::updateLoopFade (void)
+{
+	if (m_schedule) {
+		samplv1_lv2_worker_message mesg;
+		mesg.atom.type = m_urids.p106_loop_fade;
+		mesg.atom.size = 0; // nothing else matters.
+		m_schedule->schedule_work(
+			m_schedule->handle, sizeof(mesg), &mesg);
+	}
+}
+
+
+void samplv1_lv2::updateLoopZero (void)
+{
+	if (m_schedule) {
+		samplv1_lv2_worker_message mesg;
+		mesg.atom.type = m_urids.p107_loop_zero;
 		mesg.atom.size = 0; // nothing else matters.
 		m_schedule->schedule_work(
 			m_schedule->handle, sizeof(mesg), &mesg);
@@ -1050,30 +1116,13 @@ bool samplv1_lv2::worker_work ( const void *data, uint32_t size )
 	const samplv1_lv2_worker_message *mesg
 		= (const samplv1_lv2_worker_message *) data;
 
-	if (mesg->atom.type == m_urids.atom_PortEvent)
-		return true;
-	else
-	if (mesg->atom.type == m_urids.state_StateChanged)
-		return true;
-	else
-	if (mesg->atom.type == m_urids.gen1_update)
-		return true;
-	else
-	if (mesg->atom.type == m_urids.p101_sample_file
-	#if 0//SAMPLV1_LV2_LEGACY
-		|| mesg->atom.type == m_urids.gen1_sample
-	#endif
-		) {
+	if (mesg->atom.type == m_urids.p101_sample_file)
 		samplv1::setSampleFile(mesg->data.path);
-		return true;
-	}
 	else
-	if (mesg->atom.type == m_urids.tun1_update) {
+	if (mesg->atom.type == m_urids.tun1_update)
 		samplv1::resetTuning();
-		return true;
-	}
 
-	return false;
+	return true;
 }
 
 
@@ -1099,7 +1148,7 @@ bool samplv1_lv2::worker_response ( const void *data, uint32_t size )
 	samplv1_sched::sync_notify(this, samplv1_sched::Sample, 0);
 
 #ifdef CONFIG_LV2_PATCH
-	return patch_get(0);
+	return patch_get(mesg->atom.type);
 #else
 	return true;
 #endif
@@ -1193,21 +1242,27 @@ bool samplv1_lv2::patch_set ( LV2_URID key )
 
 bool samplv1_lv2::patch_get ( LV2_URID key )
 {
-	if (key) return patch_set(key);
+	if (key == 0 || key == m_urids.gen1_update) {
+		patch_set(m_urids.p101_sample_file);
+		patch_set(m_urids.p102_offset_start);
+		patch_set(m_urids.p103_offset_end);
+		patch_set(m_urids.p104_loop_start);
+		patch_set(m_urids.p105_loop_end);
+		patch_set(m_urids.p106_loop_fade);
+		patch_set(m_urids.p107_loop_zero);
+		if (key) return true;
+	}
 
-	patch_set(m_urids.p101_sample_file);
-	patch_set(m_urids.p102_offset_start);
-	patch_set(m_urids.p103_offset_end);
-	patch_set(m_urids.p104_loop_start);
-	patch_set(m_urids.p105_loop_end);
-	patch_set(m_urids.p106_loop_fade);
-	patch_set(m_urids.p107_loop_zero);
+	if (key == 0 || key == m_urids.tun1_update) {
+		patch_set(m_urids.p201_tuning_enabled);
+		patch_set(m_urids.p202_tuning_refPitch);
+		patch_set(m_urids.p203_tuning_refNote);
+		patch_set(m_urids.p204_tuning_scaleFile);
+		patch_set(m_urids.p205_tuning_keyMapFile);
+		if (key) return true;
+	}
 
-	patch_set(m_urids.p201_tuning_enabled);
-	patch_set(m_urids.p202_tuning_refPitch);
-	patch_set(m_urids.p203_tuning_refNote);
-	patch_set(m_urids.p204_tuning_scaleFile);
-	patch_set(m_urids.p205_tuning_keyMapFile);
+	if (key) patch_set(key);
 
 	return true;
 }

@@ -52,7 +52,7 @@ public:
 	void setSampleRate(float srate);
 	float sampleRate() const;
 
-	void setSampleFile(const char *pszSampleFile);
+	void setSampleFile(const char *pszSampleFile, bool bSync = false);
 	const char *sampleFile() const;
 
 	samplv1_sample *sample() const;
@@ -63,21 +63,21 @@ public:
 	void setOffset(bool bOffset, bool bSync = false);
 	bool isOffset() const;
 
-	void setOffsetRange(uint32_t iOffsetStart, uint32_t iOffsetEnd);
+	void setOffsetRange(uint32_t iOffsetStart, uint32_t iOffsetEnd, bool bSync = false);
 	uint32_t offsetStart() const;
 	uint32_t offsetEnd() const;
 
 	void setLoop(bool bLoop, bool bSync = false);
 	bool isLoop() const;
 
-	void setLoopRange(uint32_t iLoopStart, uint32_t iLoopEnd);
+	void setLoopRange(uint32_t iLoopStart, uint32_t iLoopEnd, bool bSync = false);
 	uint32_t loopStart() const;
 	uint32_t loopEnd() const;
 
-	void setLoopFade(uint32_t iLoopFade);
+	void setLoopFade(uint32_t iLoopFade, bool bSync = false);
 	uint32_t loopFade() const;
 
-	void setLoopZero(bool bLoopZero);
+	void setLoopZero(bool bLoopZero, bool bSync = false);
 	bool isLoopZero() const;
 
 	void setBufferSize(uint32_t nsize);
@@ -199,6 +199,14 @@ public:
 	virtual void updateParam(ParamIndex index) = 0;
 	virtual void updateParams() = 0;
 
+	virtual void updateSample() = 0;
+
+	virtual void updateSampleFile() = 0;
+	virtual void updateOffsetRange() = 0;
+	virtual void updateLoopRange() = 0;
+	virtual void updateLoopFade() = 0;
+	virtual void updateLoopZero() = 0;
+
 	void midiInEnabled(bool on);
 	uint32_t midiInCount();
 
@@ -222,8 +230,6 @@ public:
 	void resetTuning();
 
 	virtual void updateTuning() = 0;
-
-	virtual void updateSample() = 0;
 
 private:
 

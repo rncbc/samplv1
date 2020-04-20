@@ -1,7 +1,7 @@
 // samplv1_ui.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2019, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2020, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -48,7 +48,7 @@ bool samplv1_ui::isPlugin (void) const
 
 void samplv1_ui::setSampleFile ( const char *pszSampleFile )
 {
-	m_pSampl->setSampleFile(pszSampleFile);
+	m_pSampl->setSampleFile(pszSampleFile, true);
 }
 
 const char *samplv1_ui::sampleFile (void) const
@@ -86,7 +86,7 @@ bool samplv1_ui::isOffset (void) const
 
 void samplv1_ui::setOffsetRange ( uint32_t iOffsetStart, uint32_t iOffsetEnd )
 {
-	m_pSampl->setOffsetRange(iOffsetStart, iOffsetEnd);
+	m_pSampl->setOffsetRange(iOffsetStart, iOffsetEnd, true);
 }
 
 uint32_t samplv1_ui::offsetStart (void) const
@@ -113,7 +113,7 @@ bool samplv1_ui::isLoop (void) const
 
 void samplv1_ui::setLoopRange ( uint32_t iLoopStart, uint32_t iLoopEnd )
 {
-	m_pSampl->setLoopRange(iLoopStart, iLoopEnd);
+	m_pSampl->setLoopRange(iLoopStart, iLoopEnd, true);
 }
 
 uint32_t samplv1_ui::loopStart (void) const
@@ -129,7 +129,7 @@ uint32_t samplv1_ui::loopEnd (void) const
 
 void samplv1_ui::setLoopFade ( uint32_t iLoopFade )
 {
-	m_pSampl->setLoopFade(iLoopFade);
+	m_pSampl->setLoopFade(iLoopFade, true);
 }
 
 uint32_t samplv1_ui::loopFade (void) const
@@ -140,7 +140,7 @@ uint32_t samplv1_ui::loopFade (void) const
 
 void samplv1_ui::setLoopZero ( bool bLoopZero )
 {
-	m_pSampl->setLoopZero(bLoopZero);
+	m_pSampl->setLoopZero(bLoopZero, true);
 }
 
 bool samplv1_ui::isLoopZero (void) const
