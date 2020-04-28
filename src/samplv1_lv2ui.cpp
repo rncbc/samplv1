@@ -1,7 +1,7 @@
 // samplv1_lv2ui.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2019, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2020, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -250,6 +250,7 @@ static LV2UI_Handle samplv1_lv2ui_x11_instantiate (
 struct samplv1_lv2ui_external_widget
 {
 	LV2_External_UI_Widget external;
+	LV2_External_UI_Host  *external_host;
 	samplv1widget_lv2     *widget;
 };
 
@@ -268,6 +269,11 @@ static void samplv1_lv2ui_external_show ( LV2_External_UI_Widget *ui_external )
 	if (pExtWidget) {
 		samplv1widget_lv2 *widget = pExtWidget->widget;
 		if (widget) {
+			if (pExtWidget->external_host &&
+				pExtWidget->external_host->plugin_human_id) {
+				widget->setWindowTitle(QString::fromLocal8Bit(
+					pExtWidget->external_host->plugin_human_id));
+			}
 			widget->show();
 			widget->raise();
 			widget->activateWindow();
@@ -289,12 +295,12 @@ static LV2UI_Handle samplv1_lv2ui_external_instantiate (
 	LV2UI_Controller controller, LV2UI_Widget *widget,
 	const LV2_Feature *const *ui_features )
 {
-	samplv1_lv2 *pSynth = nullptr;
+	samplv1_lv2 *pSampl = nullptr;
 	LV2_External_UI_Host *external_host = nullptr;
 
 	for (int i = 0; ui_features[i] && !external_host; ++i) {
 		if (::strcmp(ui_features[i]->URI, LV2_INSTANCE_ACCESS_URI) == 0)
-			pSynth = static_cast<samplv1_lv2 *> (ui_features[i]->data);
+			pSampl = static_cast<samplv1_lv2 *> (ui_features[i]->data);
 		else
 		if (::strcmp(ui_features[i]->URI, LV2_EXTERNAL_UI__Host) == 0 ||
 			::strcmp(ui_features[i]->URI, LV2_EXTERNAL_UI_DEPRECATED_URI) == 0) {
@@ -306,7 +312,8 @@ static LV2UI_Handle samplv1_lv2ui_external_instantiate (
 	pExtWidget->external.run  = samplv1_lv2ui_external_run;
 	pExtWidget->external.show = samplv1_lv2ui_external_show;
 	pExtWidget->external.hide = samplv1_lv2ui_external_hide;
-	pExtWidget->widget = new samplv1widget_lv2(pSynth, controller, write_function);
+	pExtWidget->external_host = external_host;
+	pExtWidget->widget = new samplv1widget_lv2(pSampl, controller, write_function);
 	if (external_host)
 		pExtWidget->widget->setExternalHost(external_host);
 	*widget = pExtWidget;
