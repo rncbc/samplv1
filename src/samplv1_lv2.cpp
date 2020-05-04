@@ -57,7 +57,6 @@
 #ifndef LV2_ATOM__PortEvent
 #define LV2_ATOM__PortEvent LV2_ATOM_PREFIX "PortEvent"
 #endif
-
 #ifndef LV2_ATOM__portTuple
 #define LV2_ATOM__portTuple LV2_ATOM_PREFIX "portTuple"
 #endif
@@ -159,10 +158,12 @@ samplv1_lv2::samplv1_lv2 (
 					m_urid_map->handle, LV2_ATOM__Bool);
 				m_urids.atom_Path = m_urid_map->map(
 					m_urid_map->handle, LV2_ATOM__Path);
+			#ifdef CONFIG_LV2_PORT_EVENT
 				m_urids.atom_PortEvent = m_urid_map->map(
 					m_urid_map->handle, LV2_ATOM__PortEvent);
 				m_urids.atom_portTuple = m_urid_map->map(
 					m_urid_map->handle, LV2_ATOM__portTuple);
+			#endif
 				m_urids.time_Position = m_urid_map->map(
 					m_urid_map->handle, LV2_TIME__Position);
 				m_urids.time_beatsPerMinute = m_urid_map->map(
@@ -994,6 +995,7 @@ void samplv1_lv2::updatePreset ( bool /*bDirty*/ )
 
 void samplv1_lv2::updateParam ( samplv1::ParamIndex index )
 {
+#ifdef CONFIG_LV2_PORT_EVENT
 	if (m_schedule) {
 		samplv1_lv2_worker_message mesg;
 		mesg.atom.type = m_urids.atom_PortEvent;
@@ -1002,11 +1004,15 @@ void samplv1_lv2::updateParam ( samplv1::ParamIndex index )
 		m_schedule->schedule_work(
 			m_schedule->handle, sizeof(mesg), &mesg);
 	}
+#else
+	(void) index; // STFU dang compiler!
+#endif
 }
 
 
 void samplv1_lv2::updateParams (void)
 {
+#ifdef CONFIG_LV2_PORT_EVENT
 	if (m_schedule) {
 		samplv1_lv2_worker_message mesg;
 		mesg.atom.type = m_urids.atom_PortEvent;
@@ -1014,6 +1020,7 @@ void samplv1_lv2::updateParams (void)
 		m_schedule->schedule_work(
 			m_schedule->handle, sizeof(mesg), &mesg);
 	}
+#endif
 }
 
 
@@ -1121,6 +1128,7 @@ bool samplv1_lv2::worker_response ( const void *data, uint32_t size )
 	const samplv1_lv2_worker_message *mesg
 		= (const samplv1_lv2_worker_message *) data;
 
+#ifdef CONFIG_LV2_PORT_EVENT
 	if (mesg->atom.type == m_urids.atom_PortEvent) {
 		if (mesg->atom.size > 0)
 			return port_event(samplv1::ParamIndex(mesg->data.key));
@@ -1128,6 +1136,7 @@ bool samplv1_lv2::worker_response ( const void *data, uint32_t size )
 			return port_events();
 	}
 	else
+#endif
 	if (mesg->atom.type == m_urids.state_StateChanged)
 		return state_changed();
 
@@ -1257,6 +1266,8 @@ bool samplv1_lv2::patch_get ( LV2_URID key )
 #endif	// CONFIG_LV2_PATCH
 
 
+#ifdef CONFIG_LV2_PORT_EVENT
+
 bool samplv1_lv2::port_event ( samplv1::ParamIndex index )
 {
 	lv2_atom_forge_frame_time(&m_forge, m_ndelta);
@@ -1300,6 +1311,8 @@ bool samplv1_lv2::port_events (void)
 
 	return true;
 }
+
+#endif	// CONFIG_LV2_PORT_EVENT
 
 
 //-------------------------------------------------------------------------

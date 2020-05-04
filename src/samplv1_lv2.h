@@ -110,8 +110,10 @@ protected:
 	bool patch_get(LV2_URID key);
 #endif
 
+#ifdef CONFIG_LV2_PORT_EVENT
 	bool port_event(samplv1::ParamIndex index);
 	bool port_events();
+#endif
 
 private:
 
@@ -148,8 +150,10 @@ private:
 		LV2_URID atom_Int;
 		LV2_URID atom_Bool;
 		LV2_URID atom_Path;
+	#ifdef CONFIG_LV2_PORT_EVENT
 		LV2_URID atom_PortEvent;
 		LV2_URID atom_portTuple;
+	#endif
 		LV2_URID time_Position;
 		LV2_URID time_beatsPerMinute;
 		LV2_URID midi_MidiEvent;
