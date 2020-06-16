@@ -128,7 +128,7 @@ samplv1widget::samplv1widget ( QWidget *pParent )
 	// Note names.
 	QStringList notes;
 	for (int note = 0; note < 128; ++note)
-		notes << samplv1_ui::noteName(note).remove(QRegExp("/\\S+"));
+		notes << samplv1_ui::noteName(note).remove(QRegularExpression("/\\S+"));
 
 	m_ui.Gen1SampleKnob->setScale(1000.0f);
 	m_ui.Gen1SampleKnob->insertItems(0, notes);

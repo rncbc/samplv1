@@ -152,7 +152,7 @@ samplv1widget_param::samplv1widget_param ( QWidget *pParent ) : QWidget(pParent)
 	QWidget::setMaximumSize(QSize(52, 72));
 
 	QGridLayout *pGridLayout = new QGridLayout();
-	pGridLayout->setMargin(0);
+	pGridLayout->setContentsMargins(0, 0, 0, 0);
 	pGridLayout->setSpacing(0);
 	QWidget::setLayout(pGridLayout);
 }
