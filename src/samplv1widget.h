@@ -116,6 +116,9 @@ protected slots:
 	// Swap params A/B.
 	void swapParams(bool bOn);
 
+	// Panic: all-notes/sound-off (reset).
+	void panic();
+	
 	// Offset point changed.
 	void offsetStartChanged();
 	void offsetEndChanged();
