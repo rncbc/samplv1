@@ -25,6 +25,7 @@
 		foaf:homepage <https://www.rncbc.org> ;
 		foaf:mbox <mailto:rncbc@rncbc.org> ;
 	] ;
+	doap:license <http://usefulinc.com/doap/licenses/gpl> ;
 	lv2:requiredFeature lv2urid:map, lv2worker:schedule ;
 	lv2:optionalFeature lv2:hardRTCapable ;
 	lv2:extensionData lv2state:interface, lv2worker:interface ;
