@@ -164,6 +164,10 @@ if (CONFIG_SNDFILE)
   target_link_libraries (${NAME} PRIVATE ${SNDFILE_LIBRARIES})
 endif ()
 
+if (CONFIG_LIBRUBBERBAND)
+  target_link_libraries (${NAME} PRIVATE ${RUBBERBAND_LIBRARIES})
+endif ()
+
 if (CONFIG_JACK)
   target_link_libraries (${NAME}_jack PRIVATE ${JACK_LIBRARIES})
 endif ()

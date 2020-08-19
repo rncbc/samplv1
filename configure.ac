@@ -137,6 +137,11 @@ AC_ARG_ENABLE(lv2-port-event,
   [ac_lv2_port_event="$enableval"],
   [ac_lv2_port_event="yes"])
 
+# Enable librubberband availability.
+AC_ARG_ENABLE(librubberband,
+  AS_HELP_STRING([--enable-librubberband], [enable librubberband interface (default=yes)]),
+  [ac_librubberband="$enableval"],
+  [ac_librubberband="yes"])
 
 # Enable liblo availability.
 AC_ARG_ENABLE(liblo,
@@ -195,6 +200,11 @@ AC_ARG_WITH(lv2,
 # Set for alternate libsndfile installation dir.
 AC_ARG_WITH(sndfile,
   AS_HELP_STRING([--with-sndfile=PATH], [use alternate libsndfile path]),
+  [ac_with_paths="$ac_with_paths $withval"])
+
+# Set for alternate librubberband installation dir.
+AC_ARG_WITH(librubberband,
+  AS_HELP_STRING([--with-librubberband=PATH], [use alternate librubberband path]),
   [ac_with_paths="$ac_with_paths $withval"])
 
 # Set for alternate liblo installation dir.
@@ -409,6 +419,19 @@ if test "x$ac_sndfile" = "xyes"; then
    ac_libs="$ac_libs $SNDFILE_LIBS"
 else
    AC_MSG_ERROR([*** SNDFILE library not found.])
+fi
+
+# Check for optional RUBBERBAND library.
+if test "x$ac_librubberband" = "xyes"; then
+   PKG_CHECK_MODULES([RUBBERBAND], [rubberband], [ac_librubberband="yes"], [ac_librubberband="no"])
+   if test "x$ac_librubberband" = "xyes"; then
+      AC_DEFINE(CONFIG_LIBRUBBERBAND, 1, [Define if RUBBERBAND library is available.])
+      ac_cflags="$ac_cflags $RUBBERBAND_CFLAGS"
+      ac_libs="$ac_libs $RUBBERBAND_LIBS"
+   else
+      AC_MSG_WARN([*** RUBBERBAND library not found.])
+      AC_MSG_WARN([*** Pitch-shifting support will be disabled.])
+   fi
 fi
 
 ac_jack_cflags="$ac_cflags"
@@ -747,6 +770,7 @@ echo "  LV2 plug-in UI Resize interface support  . . . . .: $ac_lv2_ui_resize"
 echo "  LV2 plug-in Programs support . . . . . . . . . . .: $ac_lv2_programs"
 echo "  LV2 plug-in Patch support  . . . . . . . . . . . .: $ac_lv2_patch"
 echo "  LV2 plug-in Port-event support (EXPERIMENTAL)  . .: $ac_lv2_port_event"
+echo "  Pitch-shifting support (librubberband) . . . . . .: $ac_librubberband"
 echo "  OSC service support (liblo)  . . . . . . . . . . .: $ac_liblo"
 echo "  NSM (New Session Management) support . . . . . . .: $ac_nsm"
 echo

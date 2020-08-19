@@ -40,6 +40,9 @@
 /* Define if SNDFILE library is available. */
 #cmakedefine CONFIG_SNDFILE @CONFIG_SNDFILE@
 
+/* Define if RUBBERBAND library is available. */
+#cmakedefine CONFIG_LIBRUBBERBAND @CONFIG_LIBRUBBERBAND@
+
 /* Define if JACK library is available. */
 #cmakedefine CONFIG_JACK @CONFIG_JACK@
 

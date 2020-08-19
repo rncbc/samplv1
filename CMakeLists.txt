@@ -88,6 +88,9 @@ option (CONFIG_LV2_PATCH "Enable LV2 plug-in Patch support (default=yes)" 1)
 option (CONFIG_LV2_PORT_EVENT "Enable LV2 plug-in Port-event support (EXPERIMENTAL) (default=yes)" 1)
 
 
+# Enable librubberband availability.
+option (CONFIG_LIBRUBBERBAND "Enable librubberband interface (default=yes)" 1)
+
 # Enable liblo availability.
 option (CONFIG_LIBLO "Enable liblo interface (default=yes)" 1)
 
@@ -187,6 +190,20 @@ if (NOT CONFIG_JACK)
   set (CONFIG_ALSA_MIDI 0)
   set (CONFIG_LIBLO 0)
   set (CONFIG_NSM 0)
+endif ()
+
+# Check for RUBBERBAND libraries.
+if (CONFIG_LIBRUBBERBAND)
+  pkg_check_modules (RUBBERBAND rubberband)
+  if (RUBBERBAND_FOUND)
+    include_directories (${RUBBERBAND_INCLUDE_DIRS})
+    link_directories (${RUBBERBAND_LIBRARY_DIRS})
+    link_libraries (${RUBBERBAND_LIBRARIES})
+  # set (CMAKE_REQUIRED_LIBRARIES "${RUBBERBAND_LIBRARIES};${CMAKE_REQUIRED_LIBRARIES}")
+  else ()
+    message (WARNING "*** RUBBERBAND library not found.")
+    set (CONFIG_LIBRUBBERBAND 0)
+  endif ()
 endif ()
 
 # Check for LIBLO libraries.
@@ -310,6 +327,7 @@ show_option ("  LV2 plug-in UI Resize interface support  . . . . ." CONFIG_LV2_U
 show_option ("  LV2 plug-in Programs support . . . . . . . . . . ." CONFIG_LV2_PROGRAMS)
 show_option ("  LV2 plug-in Patch support  . . . . . . . . . . . ." CONFIG_LV2_PATCH)
 show_option ("  LV2 plug-in Port-event support (EXPERIMENTAL)  . ." CONFIG_LV2_PORT_EVENT)
+show_option ("  Pitch-shifting support (librubberband) . . . . . ." CONFIG_LIBRUBBERBAND)
 show_option ("  OSC service support (liblo)  . . . . . . . . . . ." CONFIG_LIBLO)
 show_option ("  NSM (New Session Management) support . . . . . . ." CONFIG_NSM)
 message   ("\n  Install prefix . . . . . . . . . . . . . . . . . .: ${CMAKE_INSTALL_PREFIX}")

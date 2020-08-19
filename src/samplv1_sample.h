@@ -126,7 +126,7 @@ public:
 		{ return m_loop_xzero; }
 
 	// init.
-	bool open(const char *filename, float freq0 = 1.0f);
+	bool open(const char *filename, float freq0 = 1.0f, bool otabs = false);
 	void close();
 
 	// accessors.
@@ -152,9 +152,40 @@ public:
 		m_ratio = m_rate0 / (m_freq0 * m_srate);
 	}
 
+	// sample table index.
+	uint16_t itab(float freq) const
+	{
+		int ret = int(m_ntabs >> 1) + fast_ilog2f(freq / m_freq0);
+
+		if (ret < 0)
+			ret = 0;
+		else
+		if (ret > m_ntabs)
+			ret = m_ntabs;
+
+		return ret;
+	}
+
+	// sample table ratio.
+	float ftab(uint16_t itab) const
+	{
+		float ret = 1.0f;
+
+		const uint16_t itab0 = (m_ntabs >> 1);
+		if (itab < itab0)
+			ret *= float((itab0 - itab) << 1);
+		else
+		if (itab > itab0)
+			ret /= float((itab - itab0) << 1);
+
+		return ret;
+	}
+
 	// frame value.
+	float *frames(uint16_t itab, uint16_t k) const
+		{ return m_pframes[itab][k]; }
 	float *frames(uint16_t k) const
-		{ return m_pframes[k]; }
+		{ return frames(m_ntabs >> 1, k); }
 
 	// predicate.
 	bool isOver(uint32_t index) const
@@ -173,17 +204,31 @@ protected:
 	void updateOffset();
 	void updateLoop();
 
+	// fast log2f approximation.
+	static inline float fast_log2f ( float x )
+	{
+		union { float f; uint32_t i; } u;
+		u.f = x;
+		return (u.i * 1.192092896e-7f) - 126.943612f;
+	}
+
+	static inline int fast_ilog2f ( float x )
+		{ return ::lrintf(fast_log2f(x)); }
+
 private:
 
 	// instance variables.
 	float    m_srate;
+	uint16_t m_ntabs;
+
 	char    *m_filename;
 	uint16_t m_nchannels;
 	float    m_rate0;
 	float    m_freq0;
 	float    m_ratio;
+
 	uint32_t m_nframes;
-	float  **m_pframes;
+	float ***m_pframes;
 	bool     m_reverse;
 
 	bool     m_offset;
@@ -221,7 +266,7 @@ public:
 	{
 		m_sample = sample;
 
-		start();
+		start(m_sample ? m_sample->freq() : 1.0f);
 	}
 
 	// reset loop.
@@ -239,8 +284,11 @@ public:
 	}
 
 	// begin.
-	void start()
+	void start(float freq)
 	{
+		m_itab   = (m_sample ? m_sample->itab(freq) : 0);
+		m_ftab   = (m_sample ? m_sample->ftab(m_itab) : 1.0f);
+
 		m_phase0 = (m_sample ? m_sample->offsetPhase0() : 0.0f);
 		m_phase  = m_phase0;
 		m_index  = 0;
@@ -257,7 +305,8 @@ public:
 	// iterate.
 	void next(float freq)
 	{
-		const float delta = freq * (m_sample ? m_sample->ratio() : 1.0f);
+		const float ratio = (m_sample ? m_sample->ratio() : 1.0f);
+		const float delta = freq * ratio * m_ftab;
 
 		m_index  = uint32_t(m_phase);
 		m_alpha  = m_phase - float(m_index);
@@ -327,7 +376,7 @@ protected:
 	// sample (cubic interpolate).
 	float interp(uint16_t k, uint32_t index, float alpha) const
 	{
-		const float *frames = m_sample->frames(k);
+		const float *frames = m_sample->frames(m_itab, k);
 
 		const float x0 = frames[index];
 		const float x1 = frames[index + 1];
@@ -347,6 +396,9 @@ private:
 
 	// iterator variables.
 	samplv1_sample *m_sample;
+
+	uint16_t m_itab;
+	float    m_ftab;
 
 	float    m_phase0;
 	float    m_phase;

@@ -19,12 +19,16 @@
 
 *****************************************************************************/
 
-#include "samplv1_sample.h"
+#include "config.h"
 
+#include "samplv1_sample.h"
 #include "samplv1_resampler.h"
 
 #include <sndfile.h>
 
+#ifdef CONFIG_LIBRUBBERBAND
+#include <rubberband/RubberBandStretcher.h>
+#endif
 
 //-------------------------------------------------------------------------
 // samplv1_sample - sampler wave table.
@@ -32,8 +36,8 @@
 
 // ctor.
 samplv1_sample::samplv1_sample ( float srate )
-	: m_srate(srate), m_filename(nullptr), m_nchannels(0),
-		m_rate0(0.0f), m_freq0(1.0f), m_ratio(0.0f),
+	: m_srate(srate), m_ntabs(0), m_filename(nullptr),
+		m_nchannels(0), m_rate0(0.0f), m_freq0(1.0f), m_ratio(0.0f),
 		m_nframes(0), m_pframes(nullptr), m_reverse(false),
 		m_offset(false), m_offset_start(0), m_offset_end(0),
 		m_offset_phase0(0.0f), m_offset_end2(0),
@@ -52,7 +56,7 @@ samplv1_sample::~samplv1_sample (void)
 
 
 // init.
-bool samplv1_sample::open ( const char *filename, float freq0 )
+bool samplv1_sample::open ( const char *filename, float freq0, bool otabs )
 {
 	if (filename == nullptr)
 		return false;
@@ -103,17 +107,47 @@ bool samplv1_sample::open ( const char *filename, float freq0 )
 		// resample end.
 	}
 
-	const uint32_t nsize = m_nframes + 4;
-	m_pframes = new float * [m_nchannels];
-	for (uint16_t k = 0; k < m_nchannels; ++k) {
-		m_pframes[k] = new float [nsize];
-		::memset(m_pframes[k], 0, nsize * sizeof(float));
-	}
+	m_freq0 = freq0;
+	m_ratio = m_rate0 / (m_freq0 * m_srate);
+#ifdef CONFIG_LIBRUBBERBAND
+	m_ntabs = (otabs ? 2 : 0);
+#endif
 
-	uint32_t i = 0;
-	for (uint32_t j = 0; j < m_nframes; ++j) {
-		for (uint16_t k = 0; k < m_nchannels; ++k)
-			m_pframes[k][j] = buffer[i++];
+	const uint16_t ntabs = (m_ntabs + 1);
+	const uint32_t nsize = (m_nframes + 4);
+	m_pframes = new float ** [ntabs];
+	for (uint16_t itab = 0; itab < ntabs; ++itab) {
+		float **pframes = new float * [m_nchannels];
+		for (uint16_t k = 0; k < m_nchannels; ++k) {
+			pframes[k] = new float [nsize];
+			::memset(pframes[k], 0, nsize * sizeof(float));
+		}
+		uint32_t i = 0;
+		for (uint32_t j = 0; j < m_nframes; ++j) {
+			for (uint16_t k = 0; k < m_nchannels; ++k)
+				pframes[k][j] = buffer[i++];
+		}
+	#ifdef CONFIG_LIBRUBBERBAND
+		const uint16_t itab0 = (m_ntabs >> 1);
+		if (itab != itab0) {
+			RubberBand::RubberBandStretcher stretcher(
+				size_t(m_srate), size_t(m_nchannels),
+				RubberBand::RubberBandStretcher::OptionWindowLong |
+				RubberBand::RubberBandStretcher::OptionThreadingNever |
+				RubberBand::RubberBandStretcher::OptionPitchHighQuality,
+				1.0, 1.0 / ftab(itab));
+		//	stretcher.setExpectedInputDuration(nsize);
+			stretcher.setMaxProcessSize(nsize);
+			stretcher.study(pframes, nsize, true);
+			stretcher.process(pframes, nsize, true);
+			uint32_t navail = stretcher.available();
+			if (navail > nsize)
+				navail = nsize;
+			if (navail > 0)
+				stretcher.retrieve(pframes, navail);
+		}
+	#endif
+		m_pframes[itab] = pframes;
 	}
 
 	delete [] buffer;
@@ -133,8 +167,13 @@ bool samplv1_sample::open ( const char *filename, float freq0 )
 void samplv1_sample::close (void)
 {
 	if (m_pframes) {
-		for (uint16_t k = 0; k < m_nchannels; ++k)
-			delete [] m_pframes[k];
+		const uint16_t ntabs = m_ntabs + 1;
+		for (uint16_t itab = 0; itab < ntabs; ++itab) {
+			float **pframes = m_pframes[itab];
+			for (uint16_t k = 0; k < m_nchannels; ++k)
+				delete [] pframes[k];
+			delete [] pframes;
+		}
 		delete [] m_pframes;
 		m_pframes = nullptr;
 	}
@@ -144,6 +183,7 @@ void samplv1_sample::close (void)
 	m_freq0     = 1.0f;
 	m_rate0     = 0.0f;
 	m_nchannels = 0;
+	m_ntabs     = 0;
 
 	setOffsetRange(0, 0);
 	setLoopRange(0, 0);
@@ -159,15 +199,19 @@ void samplv1_sample::close (void)
 void samplv1_sample::reverse_sync (void)
 {
 	if (m_nframes > 0 && m_pframes) {
+		const uint16_t ntabs  = (m_ntabs + 1);
 		const uint32_t nsize1 = (m_nframes - 1);
 		const uint32_t nsize2 = (m_nframes >> 1);
-		for (uint16_t k = 0; k < m_nchannels; ++k) {
-			float *frames = m_pframes[k];
-			for (uint32_t i = 0; i < nsize2; ++i) {
-				const uint32_t j = nsize1 - i;
-				const float sample = frames[i];
-				frames[i] = frames[j];
-				frames[j] = sample;
+		for (uint16_t itab = 0; itab < ntabs; ++itab) {
+			float **pframes = m_pframes[itab];
+			for (uint16_t k = 0; k < m_nchannels; ++k) {
+				float *frames = pframes[k];
+				for (uint32_t i = 0; i < nsize2; ++i) {
+					const uint32_t j = nsize1 - i;
+					const float sample = frames[i];
+					frames[i] = frames[j];
+					frames[j] = sample;
+				}
 			}
 		}
 	}
@@ -305,10 +349,15 @@ uint32_t samplv1_sample::zero_crossing ( uint32_t i, int *slope ) const
 // zero-crossing aliasing (median).
 float samplv1_sample::zero_crossing_k ( uint32_t i ) const
 {
-	float sum = 0.0f;
-	for (uint16_t k = 0; k < m_nchannels; ++k)
-		sum += m_pframes[k][i];
-	return (sum / float(m_nchannels));
+	float ret = 0.0f;
+	if (m_pframes && m_nchannels > 0) {
+		const uint16_t itab0 = (m_ntabs >> 1);
+		float **pframes = m_pframes[itab0];
+		for (uint16_t k = 0; k < m_nchannels; ++k)
+			ret += pframes[k][i];
+		ret /= float(m_nchannels);
+	}
+	return ret;
 }
 
 

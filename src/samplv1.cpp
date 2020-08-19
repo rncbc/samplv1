@@ -62,8 +62,6 @@ const uint8_t MAX_NOTES   = 128;
 const float MIN_ENV_MSECS = 0.5f;		// min 500 usec per stage
 const float MAX_ENV_MSECS = 5000.0f;	// max 5 sec per stage (default)
 
-const float DETUNE_SCALE  = 0.5f;
-const float PHASE_SCALE   = 0.5f;
 const float OCTAVE_SCALE  = 12.0f;
 const float TUNING_SCALE  = 1.0f;
 const float SWEEP_SCALE   = 0.5f;
@@ -1726,13 +1724,13 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 				pv->dca1_pre.reset(
 					m_def.pressure.value_ptr(),
 					&m_ctl1.pressure, &pv->pre);
-				// generate
-				pv->gen1.start();
 				// frequencies
 				const float gen1_tuning
 					= *m_gen1.octave * OCTAVE_SCALE
 					+ *m_gen1.tuning * TUNING_SCALE;
 				pv->gen1_freq = m_freqs[key] * samplv1_freq2(gen1_tuning);
+				// generator
+				pv->gen1.start(pv->gen1_freq);
 				// filters
 				const int dcf1_type = int(*m_dcf1.type);
 				pv->dcf11.reset(samplv1_filter1::Type(dcf1_type));
@@ -1808,7 +1806,7 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 						m_lfo1.env.restart(&pv->lfo1_env, legato);
 						m_dca1.env.restart(&pv->dca1_env, legato);
 						pv->gen1.setLoop(*m_gen1.loop > 0.0f);
-						if (!legato) pv->gen1.start();
+						if (!legato) pv->gen1.start(pv->gen1_freq);
 						m_notes[pv->note] = pv;
 					}
 				}
