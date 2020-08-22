@@ -22,6 +22,8 @@
 #ifndef __samplv1_sample_h
 #define __samplv1_sample_h
 
+#include "config.h"
+
 #include <stdint.h>
 
 #include <stdlib.h>
@@ -126,7 +128,7 @@ public:
 		{ return m_loop_xzero; }
 
 	// init.
-	bool open(const char *filename, float freq0 = 1.0f, bool otabs = false);
+	bool open(const char *filename, float freq0 = 1.0f, uint16_t otabs = 0);
 	void close();
 
 	// accessors.
@@ -170,14 +172,14 @@ public:
 	float ftab(uint16_t itab) const
 	{
 		float ret = 1.0f;
-
+	#ifdef CONFIG_LIBRUBBERBAND
 		const uint16_t itab0 = (m_ntabs >> 1);
 		if (itab < itab0)
 			ret *= float((itab0 - itab) << 1);
 		else
 		if (itab > itab0)
 			ret /= float((itab - itab0) << 1);
-
+	#endif
 		return ret;
 	}
 
@@ -213,7 +215,7 @@ protected:
 	}
 
 	static inline int fast_ilog2f ( float x )
-		{ return ::lrintf(fast_log2f(x)); }
+		{ return ::lrintf(0.5f * fast_log2f(x)); }
 
 private:
 

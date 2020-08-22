@@ -19,8 +19,6 @@
 
 *****************************************************************************/
 
-#include "config.h"
-
 #include "samplv1_sample.h"
 #include "samplv1_resampler.h"
 
@@ -56,7 +54,7 @@ samplv1_sample::~samplv1_sample (void)
 
 
 // init.
-bool samplv1_sample::open ( const char *filename, float freq0, bool otabs )
+bool samplv1_sample::open ( const char *filename, float freq0, uint16_t otabs )
 {
 	if (filename == nullptr)
 		return false;
@@ -109,9 +107,8 @@ bool samplv1_sample::open ( const char *filename, float freq0, bool otabs )
 
 	m_freq0 = freq0;
 	m_ratio = m_rate0 / (m_freq0 * m_srate);
-#ifdef CONFIG_LIBRUBBERBAND
-	m_ntabs = (otabs ? 2 : 0);
-#endif
+
+	m_ntabs = (otabs << 1);
 
 	const uint16_t ntabs = (m_ntabs + 1);
 	const uint32_t nsize = (m_nframes + 4);
@@ -133,6 +130,7 @@ bool samplv1_sample::open ( const char *filename, float freq0, bool otabs )
 			RubberBand::RubberBandStretcher stretcher(
 				size_t(m_srate), size_t(m_nchannels),
 				RubberBand::RubberBandStretcher::OptionWindowLong |
+				RubberBand::RubberBandStretcher::OptionChannelsTogether |
 				RubberBand::RubberBandStretcher::OptionThreadingNever |
 				RubberBand::RubberBandStretcher::OptionPitchHighQuality,
 				1.0, 1.0 / ftab(itab));
