@@ -119,6 +119,9 @@ protected slots:
 	// Panic: all-notes/sound-off (reset).
 	void panic();
 	
+	// Octaves change slot.
+	void octavesChanged(int iOctaves);
+
 	// Offset point changed.
 	void offsetStartChanged();
 	void offsetEndChanged();
@@ -177,7 +180,7 @@ protected:
 	void clearSampleFile();
 
 	// Sample loader.
-	void loadSampleFile(const QString& sFilename);
+	void loadSampleFile(const QString& sFilename, int iOctaves);
 
 	// Sample updater.
 	void updateSample(samplv1_sample *pSample, bool bDirty = false);

@@ -97,6 +97,8 @@ samplv1widget::samplv1widget ( QWidget *pParent )
 
 	// Offset/Loop range font.
 	const QFont& font = m_ui.Gen1ReverseKnob->font();
+	m_ui.Gen1OctavesTextLabel->setFont(font);
+	m_ui.Gen1OctavesComboBox->setFont(font);
 	m_ui.Gen1OffsetRangeLabel->setFont(font);
 	m_ui.Gen1OffsetStartSpinBox->setFont(font);
 	m_ui.Gen1OffsetEndSpinBox->setFont(font);
@@ -124,6 +126,13 @@ samplv1widget::samplv1widget ( QWidget *pParent )
 	m_ui.Gen1LoopStartSpinBox->setMinimum(0);
 	m_ui.Gen1LoopEndSpinBox->setMinimum(0);
 	m_ui.Gen1LoopFadeSpinBox->setMinimum(0);
+
+	// Sample octave tables.
+	m_ui.Gen1OctavesComboBox->clear();
+	m_ui.Gen1OctavesComboBox->addItem(tr("None (default)"));
+	m_ui.Gen1OctavesComboBox->addItem(tr("1 octave"));
+	for (int otabs = 2; otabs < 4; ++otabs)
+		m_ui.Gen1OctavesComboBox->addItem(tr("%1 octave(s)").arg(otabs));
 
 	// Note names.
 	QStringList notes;
@@ -495,6 +504,9 @@ samplv1widget::samplv1widget ( QWidget *pParent )
 	QObject::connect(m_ui.Gen1Sample,
 		SIGNAL(loadSampleFile(const QString&)),
 		SLOT(loadSample(const QString&)));
+	QObject::connect(m_ui.Gen1OctavesComboBox,
+		SIGNAL(activated(int)),
+		SLOT(octavesChanged(int)));
 
 	// Preset management
 	QObject::connect(m_ui.Preset,
@@ -603,6 +615,13 @@ samplv1widget::samplv1widget ( QWidget *pParent )
 	QObject::connect(m_ui.helpAboutQtAction,
 		SIGNAL(triggered(bool)),
 		SLOT(helpAboutQt()));
+
+#ifndef CONFIG_LIBRUBBERBAND
+	m_ui.Gen1OctavesTextLabel->setEnabled(false);
+	m_ui.Gen1OctavesComboBox->setEnabled(false);
+	m_ui.Gen1OctavesTextLabel->setVisible(false);
+	m_ui.Gen1OctavesComboBox->setVisible(false);
+#endif
 
 	// General knob/dial behavior init...
 	samplv1_config *pConfig = samplv1_config::getInstance();
@@ -1131,16 +1150,24 @@ void samplv1widget::clearSample (void)
 }
 
 
-// Sample file loader slot.
+// Sample file loader slots.
 void samplv1widget::loadSample ( const QString& sFilename )
 {
 	const QFileInfo info(sFilename);
+	const int iOctaves
+		= m_ui.Gen1OctavesComboBox->currentIndex();
 
-	loadSampleFile(info.canonicalFilePath());
+	loadSampleFile(info.canonicalFilePath(), iOctaves);
+}
 
-	m_ui.StatusBar->showMessage(
-		tr("Load sample: %1").arg(info.fileName()), 5000);
-	updateDirtyPreset(true);
+
+void samplv1widget::octavesChanged ( int iOctaves )
+{
+	samplv1_sample *pSample = m_ui.Gen1Sample->sample();
+	if (pSample == nullptr)
+		return;
+
+	loadSampleFile(pSample->filename(), iOctaves);
 }
 
 
@@ -1160,24 +1187,28 @@ void samplv1widget::clearSampleFile (void)
 
 	samplv1_ui *pSamplUi = ui_instance();
 	if (pSamplUi)
-		pSamplUi->setSampleFile(nullptr);
+		pSamplUi->setSampleFile(nullptr, 0);
 
 	updateSample(nullptr);
 }
 
 
 // Sample file loader.
-void samplv1widget::loadSampleFile ( const QString& sFilename )
+void samplv1widget::loadSampleFile ( const QString& sFilename, int iOctaves )
 {
 #ifdef CONFIG_DEBUG
-	qDebug("samplv1widget::loadSampleFile(\"%s\")", sFilename.toUtf8().constData());
+	qDebug("samplv1widget::loadSampleFile(\"%s\", %d)", sFilename.toUtf8().constData(), iOctaves);
 #endif
 
 	samplv1_ui *pSamplUi = ui_instance();
 	if (pSamplUi) {
-		pSamplUi->setSampleFile(sFilename.toUtf8().constData());
+		pSamplUi->setSampleFile(sFilename.toUtf8().constData(), iOctaves);
 		updateSample(pSamplUi->sample());
 	}
+
+	m_ui.StatusBar->showMessage(
+		tr("Load sample: %1 (%2)").arg(sFilename).arg(iOctaves), 5000);
+	updateDirtyPreset(true);
 }
 
 
@@ -1385,6 +1416,7 @@ void samplv1widget::loopRangeChanged (void)
 void samplv1widget::updateOffsetLoop ( samplv1_sample *pSample, bool bDirty )
 {
 	if (pSample && pSample->filename()) {
+		const uint16_t iOctaves   = pSample->otabs();
 		const bool     bOffset    = pSample->isOffset();
 		const uint32_t iOffsetStart = pSample->offsetStart();
 		const uint32_t iOffsetEnd = pSample->offsetEnd();
@@ -1395,6 +1427,7 @@ void samplv1widget::updateOffsetLoop ( samplv1_sample *pSample, bool bDirty )
 		const bool     bLoopZero  = pSample->isLoopZeroCrossing();
 		const uint32_t nframes    = pSample->length();
 		const float    srate      = pSample->sampleRate();
+		m_ui.Gen1OctavesComboBox->setCurrentIndex(iOctaves);
 		m_ui.Gen1OffsetRangeLabel->setEnabled(bOffset);
 		m_ui.Gen1OffsetStartSpinBox->setSampleRate(srate);
 		m_ui.Gen1OffsetStartSpinBox->setEnabled(bOffset);
