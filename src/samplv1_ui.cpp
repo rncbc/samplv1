@@ -46,14 +46,19 @@ bool samplv1_ui::isPlugin (void) const
 }
 
 
-void samplv1_ui::setSampleFile ( const char *pszSampleFile )
+void samplv1_ui::setSampleFile ( const char *pszSampleFile, uint16_t iOctaves )
 {
-	m_pSampl->setSampleFile(pszSampleFile, true);
+	m_pSampl->setSampleFile(pszSampleFile, iOctaves, true);
 }
 
 const char *samplv1_ui::sampleFile (void) const
 {
 	return m_pSampl->sampleFile();
+}
+
+uint16_t samplv1_ui::octaves (void) const
+{
+	return m_pSampl->octaves();
 }
 
 

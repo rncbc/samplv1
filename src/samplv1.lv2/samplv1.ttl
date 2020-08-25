@@ -39,6 +39,7 @@
 		samplv1_lv2:P105_LOOP_END,
 		samplv1_lv2:P106_LOOP_FADE,
 		samplv1_lv2:P107_LOOP_ZERO,
+		samplv1_lv2:P108_SAMPLE_OTABS,
 		samplv1_lv2:P201_TUNING_ENABLED,
 		samplv1_lv2:P202_TUNING_REF_PITCH,
 		samplv1_lv2:P203_TUNING_REF_NOTE,
@@ -906,6 +907,14 @@ samplv1_lv2:P107_LOOP_ZERO
 	a lv2:Parameter ;
 	rdfs:label "P107 Loop Zero-crossing" ;
 	rdfs:range lv2atom:Bool .
+
+samplv1_lv2:P108_SAMPLE_OTABS
+	a lv2:Parameter ;
+	rdfs:label "P109 Sample Octaves" ;
+	rdfs:range lv2atom:Int ;
+	lv2:default 0 ;
+	lv2:minimum 0 ;
+	lv2:maximum 4 .
 
 
 samplv1_lv2:P201_TUNING_ENABLED

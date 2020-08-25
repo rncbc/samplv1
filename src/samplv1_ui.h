@@ -41,8 +41,9 @@ public:
 
 	bool isPlugin() const;
 
-	void setSampleFile(const char *pszSampleFile);
+	void setSampleFile(const char *pszSampleFile, uint16_t iOctaves = 0);
 	const char *sampleFile() const;
+	uint16_t octaves() const;
 
 	samplv1_sample *sample() const;
 

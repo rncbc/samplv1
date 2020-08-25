@@ -389,6 +389,7 @@ void samplv1_param::loadSamples (
 		if (eSample.tagName() == "sample") {
 		//	int index = eSample.attribute("index").toInt();
 			QString sSampleFile;
+			uint16_t iOctaves = 0;
 			uint32_t iOffsetStart = 0;
 			uint32_t iOffsetEnd = 0;
 			uint32_t iLoopStart = 0;
@@ -403,6 +404,10 @@ void samplv1_param::loadSamples (
 					continue;
 				if (eChild.tagName() == "filename") {
 					sSampleFile = eChild.text();
+				}
+				else
+				if (eChild.tagName() == "octaves") {
+					iOctaves = eChild.text().toUInt();
 				}
 				else
 				if (eChild.tagName() == "offset-start") {
@@ -436,7 +441,7 @@ void samplv1_param::loadSamples (
 			const QByteArray aSampleFile
 				= mapPath.absolutePath(
 					samplv1_param::loadFilename(sSampleFile)).toUtf8();
-			pSampl->setSampleFile(aSampleFile.constData());
+			pSampl->setSampleFile(aSampleFile.constData(), iOctaves);
 			// Set actual sample loop points...
 			pSampl->setLoopZero(bLoopZero);
 			pSampl->setLoopFade(iLoopFade);
@@ -470,6 +475,14 @@ void samplv1_param::saveSamples (
 		samplv1_param::saveFilename(
 			QString::fromUtf8(pszSampleFile), bSymLink))));
 	eSample.appendChild(eFilename);
+
+	const uint16_t iOctaves = pSampl->octaves();
+	if (iOctaves > 0) {
+		QDomElement eOctaves = doc.createElement("octaves");
+		eOctaves.appendChild(doc.createTextNode(
+			QString::number(iOctaves)));
+		eSample.appendChild(eOctaves);
+	}
 
 	const uint32_t iOffsetStart = pSampl->offsetStart();
 	const uint32_t iOffsetEnd   = pSampl->offsetEnd();

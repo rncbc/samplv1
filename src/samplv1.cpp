@@ -1052,8 +1052,9 @@ public:
 	void setSampleRate(float srate);
 	float sampleRate() const;
 
-	void setSampleFile(const char *pszSampleFile);
+	void setSampleFile(const char *pszSampleFile, uint16_t otabs);
 	const char *sampleFile() const;
+	uint16_t octaves() const;
 
 	void setBufferSize(uint32_t nsize);
 	uint32_t bufferSize() const;
@@ -1313,7 +1314,7 @@ samplv1_impl::~samplv1_impl (void)
 #endif
 
 	// deallocate sample filenames
-	setSampleFile(0);
+	setSampleFile(nullptr, 0);
 
 	// deallocate voice pool.
 	for (int i = 0; i < MAX_VOICES; ++i)
@@ -1464,7 +1465,7 @@ void samplv1_impl::updateEnvTimes (void)
 }
 
 
-void samplv1_impl::setSampleFile ( const char *pszSampleFile )
+void samplv1_impl::setSampleFile ( const char *pszSampleFile, uint16_t otabs )
 {
 	reset();
 
@@ -1472,7 +1473,7 @@ void samplv1_impl::setSampleFile ( const char *pszSampleFile )
 
 	if (pszSampleFile) {
 		m_gen1.sample0 = *m_gen1.sample;
-		gen1_sample.open(pszSampleFile, samplv1_freq(m_gen1.sample0));
+		gen1_sample.open(pszSampleFile, samplv1_freq(m_gen1.sample0), otabs);
 	}
 }
 
@@ -1480,6 +1481,12 @@ void samplv1_impl::setSampleFile ( const char *pszSampleFile )
 const char *samplv1_impl::sampleFile (void) const
 {
 	return gen1_sample.filename();
+}
+
+
+uint16_t samplv1_impl::octaves (void) const
+{
+	return gen1_sample.otabs();
 }
 
 
@@ -2565,9 +2572,9 @@ float samplv1::sampleRate (void) const
 }
 
 
-void samplv1::setSampleFile ( const char *pszSampleFile, bool bSync )
+void samplv1::setSampleFile ( const char *pszSampleFile, uint16_t iOctaves, bool bSync )
 {
-	m_pImpl->setSampleFile(pszSampleFile);
+	m_pImpl->setSampleFile(pszSampleFile, iOctaves);
 
 	if (bSync) updateSample();
 }
@@ -2576,6 +2583,12 @@ void samplv1::setSampleFile ( const char *pszSampleFile, bool bSync )
 const char *samplv1::sampleFile (void) const
 {
 	return m_pImpl->sampleFile();
+}
+
+
+uint16_t samplv1::octaves (void) const
+{
+	return m_pImpl->octaves();
 }
 
 

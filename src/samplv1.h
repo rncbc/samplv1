@@ -52,8 +52,9 @@ public:
 	void setSampleRate(float srate);
 	float sampleRate() const;
 
-	void setSampleFile(const char *pszSampleFile, bool bSync = false);
+	void setSampleFile(const char *pszSampleFile, uint16_t iOctaves, bool bSync = false);
 	const char *sampleFile() const;
+	uint16_t octaves() const;
 
 	samplv1_sample *sample() const;
 

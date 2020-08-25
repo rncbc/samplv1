@@ -183,6 +183,10 @@ public:
 		return ret;
 	}
 
+	// number of pitch-shifted octaves.
+	uint16_t otabs() const
+		{ return m_ntabs >> 1; }
+
 	// frame value.
 	float *frames(uint16_t itab, uint16_t k) const
 		{ return m_pframes[itab][k]; }

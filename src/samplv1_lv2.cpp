@@ -132,6 +132,8 @@ samplv1_lv2::samplv1_lv2 (
 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "P106_LOOP_FADE");
 				m_urids.p107_loop_zero = m_urid_map->map(
 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "P107_LOOP_ZERO");
+				m_urids.p108_sample_otabs = m_urid_map->map(
+					m_urid_map->handle, SAMPLV1_LV2_PREFIX "P108_SAMPLE_OTABS");
 				m_urids.gen1_update = m_urid_map->map(
 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "GEN1_UPDATE");
 				m_urids.p201_tuning_enabled = m_urid_map->map(
@@ -435,6 +437,20 @@ void samplv1_lv2::run ( uint32_t nframes )
 							setLoopZero(loop_zero > 0, true);
 						}
 						else
+						if (key == m_urids.p108_sample_otabs
+							&& type == m_urids.atom_Int) {
+							if (m_schedule) {
+								samplv1_lv2_worker_message mesg;
+								mesg.atom.type = key;
+								mesg.atom.size = sizeof(mesg.data.key);
+								mesg.data.key
+									= *(uint32_t *) LV2_ATOM_BODY_CONST(value);
+								// schedule loading new sample
+								m_schedule->schedule_work(
+									m_schedule->handle, sizeof(mesg), &mesg);
+							}
+						}
+						else
 						if (key == m_urids.p201_tuning_enabled
 							&& type == m_urids.atom_Bool) {
 							const uint32_t enabled
@@ -610,6 +626,14 @@ static LV2_State_Status samplv1_lv2_state_save ( LV2_Handle instance,
 	size = sizeof(uint32_t);
 	type = pPlugin->urid_map(LV2_ATOM__Int);
 	if (type) {
+		// Sample octaves...
+		uint32_t otabs = pPlugin->octaves();
+		if (otabs > 0) {
+			value = (const char *) &otabs;
+			key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P108_SAMPLE_OTABS");
+			if (key)
+				(*store)(handle, key, value, size, type, flags);
+		}
 		// Offset state...
 		uint32_t offset_start = pPlugin->offsetStart();
 		uint32_t offset_end   = pPlugin->offsetEnd();
@@ -751,12 +775,27 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 		return LV2_STATE_ERR_UNKNOWN;
 
 	// Make sure to get rid of any symlinks...
-	pPlugin->setSampleFile(
-		QFileInfo(QString::fromUtf8(value))
-			.canonicalFilePath().toUtf8().constData());
+	const QString sSampleFile
+		= QFileInfo(QString::fromUtf8(value)).canonicalFilePath();
 
 	if (map_path)
 		::free((void *) value);
+
+	// open sample file, right away...
+	uint32_t otabs = 0;
+	const uint32_t int_type = pPlugin->urid_map(LV2_ATOM__Int);
+	if (int_type) {
+		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P108_SAMPLE_OTABS");
+		if (key) {
+			size = 0;
+			type = 0;
+			value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
+			if (value && size == sizeof(uint32_t) && type == int_type)
+				otabs = *(uint32_t *) value;
+		}
+	}
+
+	pPlugin->setSampleFile(sSampleFile.toUtf8().constData(), otabs);
 
 	// Restore state properties...
 	uint32_t offset_start = 0;
@@ -766,7 +805,6 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 	uint32_t loop_fade  = 0;
 	uint32_t loop_zero  = 1; // default: true.
 
-	const uint32_t int_type = pPlugin->urid_map(LV2_ATOM__Int);
 	if (int_type) {
 		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P102_OFFSET_START");
 		if (key) {
@@ -1111,7 +1149,10 @@ bool samplv1_lv2::worker_work ( const void *data, uint32_t size )
 		= (const samplv1_lv2_worker_message *) data;
 
 	if (mesg->atom.type == m_urids.p101_sample_file)
-		samplv1::setSampleFile(mesg->data.path);
+		samplv1::setSampleFile(mesg->data.path, samplv1::octaves());
+	else
+	if (mesg->atom.type == m_urids.p108_sample_otabs)
+		samplv1::setSampleFile(samplv1::sampleFile(), mesg->data.key);
 	else
 	if (mesg->atom.type == m_urids.tun1_update)
 		samplv1::resetTuning();
@@ -1208,6 +1249,9 @@ bool samplv1_lv2::patch_set ( LV2_URID key )
 	if (key == m_urids.p107_loop_zero)
 		lv2_atom_forge_bool(&m_forge, pSample->isLoopZeroCrossing());
 	else
+	if (key == m_urids.p108_sample_otabs)
+		lv2_atom_forge_int(&m_forge, pSample->otabs());
+	else
 	if (key == m_urids.p201_tuning_enabled)
 		lv2_atom_forge_bool(&m_forge, samplv1::isTuningEnabled());
 	else
@@ -1246,6 +1290,7 @@ bool samplv1_lv2::patch_get ( LV2_URID key )
 		patch_set(m_urids.p105_loop_end);
 		patch_set(m_urids.p106_loop_fade);
 		patch_set(m_urids.p107_loop_zero);
+		patch_set(m_urids.p108_sample_otabs);
 		if (key) return true;
 	}
 

@@ -137,6 +137,7 @@ private:
 		LV2_URID p105_loop_end;
 		LV2_URID p106_loop_fade;
 		LV2_URID p107_loop_zero;
+		LV2_URID p108_sample_otabs;
 		LV2_URID gen1_update;
 		LV2_URID p201_tuning_enabled;
 		LV2_URID p202_tuning_refPitch;
