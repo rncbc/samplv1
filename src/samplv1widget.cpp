@@ -109,6 +109,8 @@ samplv1widget::samplv1widget ( QWidget *pParent )
 	m_ui.Gen1LoopFadeSpinBox->setFont(font);
 
 	const QFontMetrics fm(font);
+	m_ui.Gen1OctavesComboBox->setMaximumWidth(48);
+	m_ui.Gen1OctavesComboBox->setMaximumHeight(fm.height() + 6);
 	m_ui.Gen1OffsetStartSpinBox->setMaximumHeight(fm.height() + 6);
 	m_ui.Gen1OffsetEndSpinBox->setMaximumHeight(fm.height() + 6);
 	m_ui.Gen1LoopStartSpinBox->setMaximumHeight(fm.height() + 6);
@@ -129,10 +131,8 @@ samplv1widget::samplv1widget ( QWidget *pParent )
 
 	// Sample octave tables.
 	m_ui.Gen1OctavesComboBox->clear();
-	m_ui.Gen1OctavesComboBox->addItem(tr("None (default)"));
-	m_ui.Gen1OctavesComboBox->addItem(tr("1 octave"));
-	for (int otabs = 2; otabs < 4; ++otabs)
-		m_ui.Gen1OctavesComboBox->addItem(tr("%1 octave(s)").arg(otabs));
+	for (int otabs = 0; otabs < 4; ++otabs)
+		m_ui.Gen1OctavesComboBox->addItem(QString::number(otabs));
 
 	// Note names.
 	QStringList notes;
