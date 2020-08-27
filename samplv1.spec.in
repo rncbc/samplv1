@@ -42,16 +42,17 @@ BuildRequires:	pkgconfig
 #BuildRequires:	qt5-qtbase-devel >= 5.1
 BuildRequires:	qt5-linguist
 BuildRequires:	alsa-lib-devel
+BuildRequires:	rubberband-devel
 %else
 BuildRequires:	pkg-config
 #BuildRequires:	libqt5-qtbase-devel >= 5.1
 BuildRequires:	libqt5-linguist
 BuildRequires:	alsa-devel
+BuildRequires:	librubberband-devel
 %endif
 BuildRequires:	qtbase5-static >= 5.13
 BuildRequires:	libjack-devel
 BuildRequires:	libsndfile-devel
-BuildRequires:	librubberband-devel
 BuildRequires:	liblo-devel
 BuildRequires:	lv2-devel
 
