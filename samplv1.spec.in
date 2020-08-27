@@ -51,6 +51,7 @@ BuildRequires:	alsa-devel
 BuildRequires:	qtbase5-static >= 5.13
 BuildRequires:	libjack-devel
 BuildRequires:	libsndfile-devel
+BuildRequires:	librubberband-devel
 BuildRequires:	liblo-devel
 BuildRequires:	lv2-devel
 
