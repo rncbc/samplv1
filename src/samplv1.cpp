@@ -1244,7 +1244,8 @@ samplv1_voice::samplv1_voice ( samplv1_impl *pImpl ) :
 samplv1_impl::samplv1_impl (
 	samplv1 *pSampl, uint16_t nchannels, float srate )
 		: gen1_sample(srate), m_controls(pSampl), m_programs(pSampl),
-			m_midi_in(pSampl), m_bpm(180.0f), m_gen1(pSampl), m_running(false)
+			m_midi_in(pSampl), m_bpm(180.0f), m_gen1(pSampl),
+			m_nvoices(0), m_running(false)
 {
 	// null sample.
 	m_gen1.sample0 = 0.0f;

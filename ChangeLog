@@ -3,10 +3,14 @@ samplv1 - an old-school polyphonic sampler
 
 ChangeLog
 
+
 GIT HEAD
 
 - Arbitrary octave pitch-shifted sample wave-tables is
   now an option (via librubberband) (EXPERIMENTAL)
+
+- Fixed unitialized number of voices variable; early-bird
+  adaptations to Qt6 (PREVIEW).
 
 
 0.9.16  2020-08-06  A Summer'20 Release.
