@@ -43,6 +43,9 @@
 /* Define if RUBBERBAND library is available. */
 #cmakedefine CONFIG_LIBRUBBERBAND @CONFIG_LIBRUBBERBAND@
 
+/* Define if FFTW3 library is available. */
+#cmakedefine CONFIG_FFTW3 @CONFIG_FFTW3@
+
 /* Define if JACK library is available. */
 #cmakedefine CONFIG_JACK @CONFIG_JACK@
 

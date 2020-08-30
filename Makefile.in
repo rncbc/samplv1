@@ -13,6 +13,7 @@ headers = \
 	src/$(name)_fx.h \
 	src/$(name)_filter.h \
 	src/$(name)_formant.h \
+	src/$(name)_pshifter.h \
 	src/$(name)_resampler.h \
 	src/$(name)_reverb.h \
 	src/$(name)_ramp.h \
@@ -32,6 +33,7 @@ sources = \
 	src/$(name)_wave.cpp \
 	src/$(name)_config.cpp \
 	src/$(name)_formant.cpp \
+	src/$(name)_pshifter.cpp \
 	src/$(name)_resampler.cpp \
 	src/$(name)_param.cpp \
 	src/$(name)_sched.cpp \

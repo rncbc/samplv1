@@ -616,13 +616,6 @@ samplv1widget::samplv1widget ( QWidget *pParent )
 		SIGNAL(triggered(bool)),
 		SLOT(helpAboutQt()));
 
-#ifndef CONFIG_LIBRUBBERBAND
-	m_ui.Gen1OctavesTextLabel->setEnabled(false);
-	m_ui.Gen1OctavesComboBox->setEnabled(false);
-	m_ui.Gen1OctavesTextLabel->setVisible(false);
-	m_ui.Gen1OctavesComboBox->setVisible(false);
-#endif
-
 	// General knob/dial behavior init...
 	samplv1_config *pConfig = samplv1_config::getInstance();
 	if (pConfig) {
@@ -1730,9 +1723,6 @@ void samplv1widget::helpAbout (void)
 #endif
 #ifndef CONFIG_LV2
 	list << tr("LV2 plug-in build disabled.");
-#endif
-#ifndef CONFIG_LIBRUBBERBAND
-	list << tr("Pitch-shifting support (librubberband) disabled.");
 #endif
 
 	QString sText = "<p>\n";

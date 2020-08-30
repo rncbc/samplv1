@@ -143,6 +143,12 @@ AC_ARG_ENABLE(librubberband,
   [ac_librubberband="$enableval"],
   [ac_librubberband="yes"])
 
+# Enable FFTW3 availability.
+AC_ARG_ENABLE(fftw3,
+  AS_HELP_STRING([--enable-fftw3], [enable FFTW3 interface (default=yes)]),
+  [ac_fftw3="$enableval"],
+  [ac_fftw3="yes"])
+
 # Enable liblo availability.
 AC_ARG_ENABLE(liblo,
   AS_HELP_STRING([--enable-liblo], [enable liblo interface (default=yes)]),
@@ -205,6 +211,11 @@ AC_ARG_WITH(sndfile,
 # Set for alternate librubberband installation dir.
 AC_ARG_WITH(librubberband,
   AS_HELP_STRING([--with-librubberband=PATH], [use alternate librubberband path]),
+  [ac_with_paths="$ac_with_paths $withval"])
+
+# Set for alternate FFTW3 installation dir.
+AC_ARG_WITH(fftw3,
+  AS_HELP_STRING([--with-fftw3=PATH], [use alternate FFTW3 path]),
   [ac_with_paths="$ac_with_paths $withval"])
 
 # Set for alternate liblo installation dir.
@@ -428,9 +439,21 @@ if test "x$ac_librubberband" = "xyes"; then
       AC_DEFINE(CONFIG_LIBRUBBERBAND, 1, [Define if RUBBERBAND library is available.])
       ac_cflags="$ac_cflags $RUBBERBAND_CFLAGS"
       ac_libs="$ac_libs $RUBBERBAND_LIBS"
+      ac_fftw3="no"
    else
       AC_MSG_WARN([*** RUBBERBAND library not found.])
-      AC_MSG_WARN([*** Pitch-shifting support will be disabled.])
+   fi
+fi
+
+# Check for optional FFTW3 library.
+if test "x$ac_fftw3" = "xyes"; then
+   PKG_CHECK_MODULES([FFTW3], [fftw3f], [ac_fftw3="yes"], [ac_fftw3="no"])
+   if test "x$ac_fftw3" = "xyes"; then
+      AC_DEFINE(CONFIG_FFTW3, 1, [Define if FFTW3 library is available.])
+      ac_cflags="$ac_cflags $FFTW3_CFLAGS"
+      ac_libs="$ac_libs $FFTW3_LIBS"
+   else
+      AC_MSG_WARN([*** FFTW3 library not found.])
    fi
 fi
 
@@ -770,7 +793,6 @@ echo "  LV2 plug-in UI Resize interface support  . . . . .: $ac_lv2_ui_resize"
 echo "  LV2 plug-in Programs support . . . . . . . . . . .: $ac_lv2_programs"
 echo "  LV2 plug-in Patch support  . . . . . . . . . . . .: $ac_lv2_patch"
 echo "  LV2 plug-in Port-event support (EXPERIMENTAL)  . .: $ac_lv2_port_event"
-echo "  Pitch-shifting support (librubberband) . . . . . .: $ac_librubberband"
 echo "  OSC service support (liblo)  . . . . . . . . . . .: $ac_liblo"
 echo "  NSM (New Session Management) support . . . . . . .: $ac_nsm"
 echo

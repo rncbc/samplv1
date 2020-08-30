@@ -21,12 +21,10 @@
 
 #include "samplv1_sample.h"
 #include "samplv1_resampler.h"
+#include "samplv1_pshifter.h"
 
 #include <sndfile.h>
 
-#ifdef CONFIG_LIBRUBBERBAND
-#include <rubberband/RubberBandStretcher.h>
-#endif
 
 //-------------------------------------------------------------------------
 // samplv1_sample - sampler wave table.
@@ -113,6 +111,11 @@ bool samplv1_sample::open ( const char *filename, float freq0, uint16_t otabs )
 	const uint16_t ntabs = (m_ntabs + 1);
 	const uint32_t nsize = (m_nframes + 4);
 	m_pframes = new float ** [ntabs];
+
+	samplv1_pshifter *pshifter = nullptr;
+	if (m_ntabs > 0)
+		pshifter = new samplv1_pshifter(m_nchannels, m_srate);
+
 	for (uint16_t itab = 0; itab < ntabs; ++itab) {
 		float **pframes = new float * [m_nchannels];
 		for (uint16_t k = 0; k < m_nchannels; ++k) {
@@ -124,29 +127,16 @@ bool samplv1_sample::open ( const char *filename, float freq0, uint16_t otabs )
 			for (uint16_t k = 0; k < m_nchannels; ++k)
 				pframes[k][j] = buffer[i++];
 		}
-	#ifdef CONFIG_LIBRUBBERBAND
 		const uint16_t itab0 = (m_ntabs >> 1);
-		if (itab != itab0) {
-			RubberBand::RubberBandStretcher stretcher(
-				size_t(m_srate), size_t(m_nchannels),
-				RubberBand::RubberBandStretcher::OptionWindowLong |
-				RubberBand::RubberBandStretcher::OptionChannelsTogether |
-				RubberBand::RubberBandStretcher::OptionThreadingNever |
-				RubberBand::RubberBandStretcher::OptionPitchHighQuality,
-				1.0, 1.0 / ftab(itab));
-		//	stretcher.setExpectedInputDuration(nsize);
-			stretcher.setMaxProcessSize(nsize);
-			stretcher.study(pframes, nsize, true);
-			stretcher.process(pframes, nsize, true);
-			uint32_t navail = stretcher.available();
-			if (navail > nsize)
-				navail = nsize;
-			if (navail > 0)
-				stretcher.retrieve(pframes, navail);
+		if (itab != itab0 && pshifter) {
+			const float pshift = 1.0f / ftab(itab);
+			pshifter->process(pframes, nsize, pshift);
 		}
-	#endif
 		m_pframes[itab] = pframes;
 	}
+
+	if (pshifter)
+		delete pshifter;
 
 	delete [] buffer;
 	::sf_close(file);
