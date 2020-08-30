@@ -87,9 +87,11 @@ option (CONFIG_LV2_PATCH "Enable LV2 plug-in Patch support (default=yes)" 1)
 
 option (CONFIG_LV2_PORT_EVENT "Enable LV2 plug-in Port-event support (EXPERIMENTAL) (default=yes)" 1)
 
-
 # Enable librubberband availability.
 option (CONFIG_LIBRUBBERBAND "Enable librubberband interface (default=yes)" 1)
+
+# Enable FFTW3 availability.
+option (CONFIG_FFTW3 "Enable FFTW3 interface support (default=yes)" 1)
 
 # Enable liblo availability.
 option (CONFIG_LIBLO "Enable liblo interface (default=yes)" 1)
@@ -200,9 +202,24 @@ if (CONFIG_LIBRUBBERBAND)
     link_directories (${RUBBERBAND_LIBRARY_DIRS})
     link_libraries (${RUBBERBAND_LIBRARIES})
   # set (CMAKE_REQUIRED_LIBRARIES "${RUBBERBAND_LIBRARIES};${CMAKE_REQUIRED_LIBRARIES}")
+    set (CONFIG_FFTW3 0)
   else ()
     message (WARNING "*** RUBBERBAND library not found.")
     set (CONFIG_LIBRUBBERBAND 0)
+  endif ()
+endif ()
+
+# Check for FFTW3 libraries.
+if (CONFIG_FFTW3)
+  pkg_check_modules (FFTW3 fftw3f)
+  if (FFTW3_FOUND)
+    include_directories (${FFTW3_INCLUDE_DIRS})
+    link_directories (${FFTW3_LIBRARY_DIRS})
+    link_libraries (${FFTW3_LIBRARIES})
+  # set (CMAKE_REQUIRED_LIBRARIES "${FFTW3_LIBRARIES};${CMAKE_REQUIRED_LIBRARIES}")
+  else ()
+    message (WARNING "*** FFTW3 library not found.")
+    set (CONFIG_FFTW3 0)
   endif ()
 endif ()
 
@@ -327,7 +344,6 @@ show_option ("  LV2 plug-in UI Resize interface support  . . . . ." CONFIG_LV2_U
 show_option ("  LV2 plug-in Programs support . . . . . . . . . . ." CONFIG_LV2_PROGRAMS)
 show_option ("  LV2 plug-in Patch support  . . . . . . . . . . . ." CONFIG_LV2_PATCH)
 show_option ("  LV2 plug-in Port-event support (EXPERIMENTAL)  . ." CONFIG_LV2_PORT_EVENT)
-show_option ("  Pitch-shifting support (librubberband) . . . . . ." CONFIG_LIBRUBBERBAND)
 show_option ("  OSC service support (liblo)  . . . . . . . . . . ." CONFIG_LIBLO)
 show_option ("  NSM (New Session Management) support . . . . . . ." CONFIG_NSM)
 message   ("\n  Install prefix . . . . . . . . . . . . . . . . . .: ${CMAKE_INSTALL_PREFIX}")

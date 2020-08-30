@@ -22,8 +22,6 @@
 #ifndef __samplv1_sample_h
 #define __samplv1_sample_h
 
-#include "config.h"
-
 #include <stdint.h>
 
 #include <stdlib.h>
@@ -172,14 +170,12 @@ public:
 	float ftab(uint16_t itab) const
 	{
 		float ret = 1.0f;
-	#ifdef CONFIG_LIBRUBBERBAND
 		const uint16_t itab0 = (m_ntabs >> 1);
 		if (itab < itab0)
 			ret *= float((itab0 - itab) << 1);
 		else
 		if (itab > itab0)
 			ret /= float((itab - itab0) << 1);
-	#endif
 		return ret;
 	}
 

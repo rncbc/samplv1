@@ -12,6 +12,7 @@ set (HEADERS
   samplv1_config.h
   samplv1_filter.h
   samplv1_formant.h
+  samplv1_pshifter.h
   samplv1_resampler.h
   samplv1_sample.h
   samplv1_wave.h
@@ -30,6 +31,7 @@ set (SOURCES
   samplv1.cpp
   samplv1_config.cpp
   samplv1_formant.cpp
+  samplv1_pshifter.cpp
   samplv1_resampler.cpp
   samplv1_sample.cpp
   samplv1_wave.cpp
@@ -166,6 +168,10 @@ endif ()
 
 if (CONFIG_LIBRUBBERBAND)
   target_link_libraries (${NAME} PRIVATE ${RUBBERBAND_LIBRARIES})
+endif ()
+
+if (CONFIG_FFTW3)
+  target_link_libraries (${NAME} PRIVATE ${FFTW3_LIBRARIES})
 endif ()
 
 if (CONFIG_JACK)
