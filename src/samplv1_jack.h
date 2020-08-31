@@ -43,7 +43,7 @@ class samplv1_jack : public samplv1
 {
 public:
 
-	samplv1_jack();
+	samplv1_jack(const char *client_name);
 
 	~samplv1_jack();
 
@@ -188,6 +188,7 @@ private:
 	// Instance variables.
 	QCoreApplication *m_pApp;
 	bool m_bGui;
+	QString m_client_name;
 
 	QStringList m_presets;
 

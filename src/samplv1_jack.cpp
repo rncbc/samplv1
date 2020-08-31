@@ -158,7 +158,7 @@ static void samplv1_jack_session_event (
 // samplv1_jack - impl.
 //
 
-samplv1_jack::samplv1_jack (void) : samplv1(2)
+samplv1_jack::samplv1_jack (const char *client_name) : samplv1(2)
 {
 	m_client = nullptr;
 
@@ -186,7 +186,7 @@ samplv1_jack::samplv1_jack (void) : samplv1(2)
 	samplv1::programs()->enabled(true);
 	samplv1::controls()->enabled(true);
 
-	open(SAMPLV1_TITLE);
+	open(client_name);
 	activate();
 }
 
@@ -723,7 +723,7 @@ static void samplv1_sigterm_handler ( int /*signo*/ )
 // Constructor.
 samplv1_jack_application::samplv1_jack_application ( int& argc, char **argv )
 	: QObject(nullptr), m_pApp(nullptr), m_bGui(true),
-		m_pSampl(nullptr), m_pWidget(nullptr)
+		m_client_name(SAMPLV1_TITLE), m_pSampl(nullptr), m_pWidget(nullptr)
 	  #ifdef CONFIG_NSM
 		, m_pNsmClient(nullptr)
 	  #endif
@@ -738,6 +738,8 @@ samplv1_jack_application::samplv1_jack_application ( int& argc, char **argv )
 		else
 		if (sArg == "-g" || sArg == "--no-gui")
 			m_bGui = false;
+		if (sArg == "-n" || sArg == "--client-name")
+			m_client_name = QString::fromLocal8Bit(i + 1 < argc ? argv[i + 1] : "");
 	}
 
 	if (m_bGui) {
@@ -828,6 +830,7 @@ bool samplv1_jack_application::parse_args (void)
 				SAMPLV1_TITLE " - " SAMPLV1_SUBTITLE "\n\n"
 				"Options:\n\n"
 				"  -g, --no-gui\n\tDisable the graphical user interface (GUI)\n\n"
+				"  -n, --client-name\n\tSet the JACK client name (default: samplv1)\n\n"
 				"  -h, --help\n\tShow help about command line options\n\n"
 				"  -v, --version\n\tShow version information\n\n")
 				.arg(args.at(0));
@@ -863,7 +866,8 @@ bool samplv1_jack_application::setup (void)
 		SIGNAL(shutdown_signal()),
 		SLOT(shutdown_slot()));
 
-	m_pSampl = new samplv1_jack();
+	QByteArray client_name = m_client_name.toLocal8Bit();
+	m_pSampl = new samplv1_jack(client_name.data());
 
 	if (m_bGui) {
 		m_pWidget = new samplv1widget_jack(m_pSampl);
