@@ -49,7 +49,7 @@ public:
 
 	jack_client_t *client() const;
 
-	void open(const char *client_id);
+	void open(const char *client_name);
 	void close();
 
 	void activate();
@@ -188,8 +188,8 @@ private:
 	// Instance variables.
 	QCoreApplication *m_pApp;
 	bool m_bGui;
-	QString m_client_name;
 
+	QString m_sClientName;
 	QStringList m_presets;
 
 	samplv1_jack *m_pSampl;
