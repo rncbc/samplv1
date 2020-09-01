@@ -918,12 +918,12 @@ void samplv1widget::randomParams (void)
 		const samplv1::ParamIndex index = samplv1::ParamIndex(i);
 		// Filter out some non-randomizable parameters!...
 		if (index == samplv1::GEN1_SAMPLE   ||
-		    index == samplv1::GEN1_OFFSET   ||
-		    index == samplv1::GEN1_OFFSET_1 ||
-		    index == samplv1::GEN1_OFFSET_2 ||
-		    index == samplv1::GEN1_LOOP     ||
-		    index == samplv1::GEN1_LOOP_1   ||
-		    index == samplv1::GEN1_LOOP_2   ||
+			index == samplv1::GEN1_OFFSET   ||
+			index == samplv1::GEN1_OFFSET_1 ||
+			index == samplv1::GEN1_OFFSET_2 ||
+			index == samplv1::GEN1_LOOP     ||
+			index == samplv1::GEN1_LOOP_1   ||
+			index == samplv1::GEN1_LOOP_2   ||
 			index == samplv1::GEN1_OCTAVE   ||
 			index == samplv1::GEN1_TUNING   ||
 			index == samplv1::GEN1_ENVTIME  ||
@@ -1480,7 +1480,7 @@ void samplv1widget::updateOffsetLoop ( samplv1_sample *pSample, bool bDirty )
 					.arg(m_ui.Gen1Sample->textFromValue(iLoopEnd)));
 			}
 			if (!sMessage.isEmpty())
-				m_ui.StatusBar->showMessage(sMessage, 3000);
+				m_ui.StatusBar->showMessage(sMessage, 5000);
 			updateDirtyPreset(true);
 		}
 	} else {

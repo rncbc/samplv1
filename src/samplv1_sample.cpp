@@ -173,8 +173,8 @@ void samplv1_sample::close (void)
 	m_nchannels = 0;
 	m_ntabs     = 0;
 
-	setOffsetRange(0, 0);
-	setLoopRange(0, 0);
+//	setOffsetRange(0, 0);
+//	setLoopRange(0, 0);
 
 	if (m_filename) {
 		::free(m_filename);
