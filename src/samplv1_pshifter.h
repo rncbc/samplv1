@@ -26,17 +26,9 @@
 
 #include <stdint.h>
 
-#ifdef CONFIG_LIBRUBBERBAND
-// nothing to include.
-#else
-#ifdef CONFIG_FFTW3
-#include <fftw3.h>
-#endif
-#endif	// CONFIG_LIBRUBBERBAND
-
 
 //---------------------------------------------------------------------------
-// samplv1_pshifter - Pitch-shift processor.
+// samplv1_pshifter - Base pitch-shift processor.
 //
 
 class samplv1_pshifter
@@ -44,14 +36,64 @@ class samplv1_pshifter
 public:
 
 	// Constructor.
-	samplv1_pshifter(
-		uint16_t nchannels = 2,
-		float srate = 44100.0f,
-		uint32_t nsize = 4096,
-		uint16_t nover = 8);
-	
+	samplv1_pshifter(uint16_t nchannels, float srate);
+
 	// Destructor.
-	~samplv1_pshifter();
+	virtual ~samplv1_pshifter();
+
+	// Processor.
+	virtual void process(float **pframes, uint32_t nframes, float pshift) = 0;
+
+protected:
+
+	// member variables
+	uint16_t m_nchannels;
+	float    m_srate;
+};
+
+
+#ifdef CONFIG_LIBRUBBERBAND
+
+//---------------------------------------------------------------------------
+// samplv1_rubberband_pshifter - RubberBand pitch-shift processor.
+//
+
+class samplv1_rubberband_pshifter : public samplv1_pshifter
+{
+public:
+
+	// Constructor.
+	samplv1_rubberband_pshifter(
+		uint16_t nchannels, float srate);
+
+	// Destructor.
+	~samplv1_rubberband_pshifter();
+
+	// Processor.
+	void process(float **pframes, uint32_t nframes, float pshift);
+};
+
+#else
+
+#ifdef CONFIG_FFTW3
+#include <fftw3.h>
+#endif
+
+//---------------------------------------------------------------------------
+// samplv1_smbernsee_pshifter - S.M.Bernsee pitch-shift processor.
+//
+
+class samplv1_smbernsee_pshifter : public samplv1_pshifter
+{
+public:
+
+	// Constructor.
+	samplv1_smbernsee_pshifter(
+		uint16_t nchannels, float srate,
+		uint16_t nsize = 4096, uint16_t nover = 8);
+
+	// Destructor.
+	~samplv1_smbernsee_pshifter();
 
 	// Processor.
 	void process(float **pframes, uint32_t nframes, float pshift);
@@ -64,14 +106,9 @@ protected:
 private:
 
 	// member variables
-	uint16_t m_nchannels;
-	float    m_srate;
 	uint32_t m_nsize;
 	uint16_t m_nover;
 
-#ifdef CONFIG_LIBRUBBERBAND
-	// nothing to decl.
-#else
 	float *m_fwind;
 	float *m_ififo;
 	float *m_ofifo;
@@ -92,9 +129,9 @@ private:
 	fftwf_plan m_aplan;
 	fftwf_plan m_splan;
 #endif
+};
 
 #endif	// !CONFIG_LIBRUBBERBAND
-};
 
 
 #endif  // __samplv1_pshifter_h

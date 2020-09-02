@@ -115,8 +115,13 @@ bool samplv1_sample::open ( const char *filename, float freq0, uint16_t otabs )
 	m_pframes = new float ** [ntabs];
 
 	samplv1_pshifter *pshifter = nullptr;
-	if (m_ntabs > 0)
-		pshifter = new samplv1_pshifter(m_nchannels, m_srate);
+	if (m_ntabs > 0) {
+	#ifdef CONFIG_LIBRUBBERBAND
+		pshifter = new samplv1_rubberband_pshifter(m_nchannels, m_srate);
+	#else
+		pshifter = new samplv1_smbernsee_pshifter(m_nchannels, m_srate);
+	#endif
+	}
 
 	for (uint16_t itab = 0; itab < ntabs; ++itab) {
 		float **pframes = new float * [m_nchannels];

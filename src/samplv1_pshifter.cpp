@@ -21,18 +21,74 @@
 
 #include "samplv1_pshifter.h"
 
+
+//---------------------------------------------------------------------------
+// samplv1_pshifter - Pitch-shift processor.
+//
+
+// Constructor.
+samplv1_pshifter::samplv1_pshifter (
+	uint16_t nchannels, float srate )
+	: m_nchannels(nchannels), m_srate(srate)
+{
+}
+
+
+// Destructor.
+samplv1_pshifter::~samplv1_pshifter (void)
+{
+}
+
+
 #ifdef CONFIG_LIBRUBBERBAND
+
 #include <rubberband/RubberBandStretcher.h>
-#else
 
-#include <stdlib.h>
-#include <string.h>
+//---------------------------------------------------------------------------
+// samplv1_rubberband_pshifter - RubberBand pitch-shift processor.
+//
 
-#include <math.h>
+// Constructor.
+samplv1_rubberband_pshifter::samplv1_rubberband_pshifter (
+	uint16_t nchannels, float srate )
+	: samplv1_pshifter(nchannels, srate)
+{
+}
 
-#ifdef CONFIG_FFTW3
-// nothing here.
-#else
+
+// Destructor.
+samplv1_rubberband_pshifter::~samplv1_rubberband_pshifter (void)
+{
+}
+
+
+// Processor.
+void samplv1_rubberband_pshifter::process (
+	float **pframes, uint32_t nframes, float pshift )
+{
+	RubberBand::RubberBandStretcher stretcher(
+		size_t(m_srate), size_t(m_nchannels),
+		RubberBand::RubberBandStretcher::OptionWindowLong |
+		RubberBand::RubberBandStretcher::OptionChannelsTogether |
+		RubberBand::RubberBandStretcher::OptionThreadingNever |
+		RubberBand::RubberBandStretcher::OptionPitchHighQuality,
+		1.0, double(pshift));
+
+//	stretcher.setExpectedInputDuration(nframes);
+	stretcher.setMaxProcessSize(nframes);
+	stretcher.study(pframes, nframes, true);
+	stretcher.process(pframes, nframes, true);
+
+	uint32_t navail = stretcher.available();
+	if (navail > nframes)
+		navail = nframes;
+	if (navail > 0)
+		stretcher.retrieve(pframes, navail);
+}
+
+
+#else	// CONFIG_LIBRUBBERBAND
+
 
 /*
 	Based on: smbPitchShift.cpp
@@ -52,6 +108,15 @@
 	THIS SOFTWARE IS PROVIDED "AS IS" WITHOUT EXPRESS OR IMPLIED WARRANTY OF
 	ANY KIND. See http://www.dspguru.com/wol.htm for more information.
 */ 
+
+#include <stdlib.h>
+#include <string.h>
+
+#include <math.h>
+
+#ifdef CONFIG_FFTW3
+// nothing here.
+#else
 
 /* 
 	FFT routine, (C) 1996 Stephan M. Bernsee.
@@ -117,22 +182,15 @@ void smbFft ( float *pframes, uint32_t nframes, int sign )
 
 #endif	// CONFIG_FFTW3
 
-#endif	// CONFIG_LIBRUBBERBAND
-
-
 //---------------------------------------------------------------------------
-// samplv1_pshifter - Pitch-shift processor.
+// samplv1_smbernsee_pshifter - S.M.Bernsee pitch-shift processor.
 //
 
 // Constructor.
-samplv1_pshifter::samplv1_pshifter (
-	uint16_t nchannels, float srate, uint32_t nsize, uint16_t nover)
-	: m_nchannels(nchannels), m_srate(srate), m_nsize(nsize), m_nover(nover)
+samplv1_smbernsee_pshifter::samplv1_smbernsee_pshifter (
+	uint16_t nchannels, float srate, uint16_t nsize, uint16_t nover )
+	: samplv1_pshifter(nchannels, srate), m_nsize(nsize), m_nover(nover)
 {
-#ifdef CONFIG_LIBRUBBERBAND
-	// nothing to ctor.
-#else
-
 	// allocate working arrays
 	m_fwind = new float [m_nsize];
 	m_ififo = new float [m_nsize];
@@ -172,20 +230,16 @@ samplv1_pshifter::samplv1_pshifter (
 	m_aplan = ::fftwf_plan_r2r_1d(nsize, m_iwork, m_owork, FFTW_R2HC, FFTW_ESTIMATE);
 	m_splan = ::fftwf_plan_r2r_1d(nsize, m_iwork, m_owork, FFTW_HC2R, FFTW_ESTIMATE);
 #endif
+
 	// pre-compute windowing table...
 	for (uint32_t j = 0; j < m_nsize; ++j)
 		m_fwind[j] = 0.5f - 0.5f * ::cosf(2.0f * M_PI * float(j) / float(m_nsize));
-
-#endif	// !CONFIG_LIBRUBBERBAND
 }
 
 
 // Destructor.
-samplv1_pshifter::~samplv1_pshifter (void)
+samplv1_smbernsee_pshifter::~samplv1_smbernsee_pshifter (void)
 {
-#ifdef CONFIG_LIBRUBBERBAND
-	// nothing to dtor.
-#else
 	// de-allocate working arrays
 	delete [] m_fwind;
 	delete [] m_ififo;
@@ -208,52 +262,26 @@ samplv1_pshifter::~samplv1_pshifter (void)
 	::fftwf_destroy_plan(m_aplan);
 	::fftwf_destroy_plan(m_splan);
 #endif
-#endif	// !CONFIG_LIBRUBBERBAND
 }
 
 
 // Processor.
-void samplv1_pshifter::process ( float **pframes, uint32_t nframes, float pshift )
+void samplv1_smbernsee_pshifter::process (
+	float **pframes, uint32_t nframes, float pshift )
 {
-#ifdef CONFIG_LIBRUBBERBAND
-
-	RubberBand::RubberBandStretcher stretcher(
-		size_t(m_srate), size_t(m_nchannels),
-		RubberBand::RubberBandStretcher::OptionWindowLong |
-		RubberBand::RubberBandStretcher::OptionChannelsTogether |
-		RubberBand::RubberBandStretcher::OptionThreadingNever |
-		RubberBand::RubberBandStretcher::OptionPitchHighQuality,
-		1.0, double(pshift));
-//	stretcher.setExpectedInputDuration(nframes);
-	stretcher.setMaxProcessSize(nframes);
-	stretcher.study(pframes, nframes, true);
-	stretcher.process(pframes, nframes, true);
-	uint32_t navail = stretcher.available();
-	if (navail > nframes)
-		navail = nframes;
-	if (navail > 0)
-		stretcher.retrieve(pframes, navail);
-
-#endif	// CONFIG_LIBRUBBERBAND
-
 	for (uint16_t k = 0; k < m_nchannels; ++k)
 		process_k(pframes[k], nframes, pshift);
 }
 
 
 // Channel processor.
-void samplv1_pshifter::process_k ( float *pframes, uint32_t nframes, float pshift )
+void samplv1_smbernsee_pshifter::process_k (
+	float *pframes, uint32_t nframes, float pshift )
 {
-#ifdef CONFIG_LIBRUBBERBAND
-#define UNUSED(x) (void)(x)
-	UNUSED(pshift);
-#undef UNUSED
-#else
-
 	// set up some handy variables
 	const uint32_t nsize2   = (m_nsize >> 1);
 	const uint32_t nstep    = (m_nsize / m_nover);
-	const uint32_t nlatency = m_nsize - nstep;
+	const uint32_t nlatency = (m_nsize - nstep);
 
 	const float freqb = m_srate / float(m_nsize); // frequency per bin.
 	const float expct = 2.0f * M_PI * float(nstep) / float(m_nsize);
@@ -422,24 +450,27 @@ void samplv1_pshifter::process_k ( float *pframes, uint32_t nframes, float pshif
 	// shift result
 	::memmove(pframes, pframes + nlatency, (nframes - nlatency) * sizeof(float));
 
-#endif	// CONFIG_LIBRUBBERBAND
-
-	// linear fade-in/out (avoid attack/release clicks and pops)
+	// run linear fade-in/out...
+	// avoid attack/release clicks and pops.
+	//
 	const float fstep = 1.0f / float(m_nover);
 	float fgain = 0.0f;
 
-	for (uint16_t n = 0; n < m_nover; ++n) {
+	for (i = 0; i < m_nover; ++i) {
 		*pframes++ *= fgain;
 		fgain += fstep;
 	}
 
 	pframes += (nframes - (m_nover << 1));
 
-	for (uint16_t n = 0; n < m_nover; ++n) {
+	for (i = 0; i < m_nover; ++i) {
 		*pframes++ *= fgain;
 		fgain -= fstep;
 	}
 }
+
+
+#endif	// CONFIG_LIBRUBBERBAND
 
 
 // end of samplv1_pshifter.cpp
