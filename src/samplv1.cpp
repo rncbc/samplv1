@@ -1470,11 +1470,11 @@ void samplv1_impl::setSampleFile ( const char *pszSampleFile, uint16_t otabs )
 {
 	reset();
 
-	gen1_sample.close();
-
 	if (pszSampleFile) {
 		m_gen1.sample0 = *m_gen1.sample;
 		gen1_sample.open(pszSampleFile, samplv1_freq(m_gen1.sample0), otabs);
+	} else {
+		gen1_sample.close();
 	}
 }
 

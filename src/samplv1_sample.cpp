@@ -57,9 +57,11 @@ bool samplv1_sample::open ( const char *filename, float freq0, uint16_t otabs )
 	if (filename == nullptr)
 		return false;
 
+	char *filename2 = ::strdup(filename);
+
 	close();
 
-	m_filename = ::strdup(filename);
+	m_filename = filename2;
 
 	SF_INFO info;
 	::memset(&info, 0, sizeof(info));
