@@ -422,12 +422,20 @@ void samplv1_pshifter::process_k ( float *pframes, uint32_t nframes, float pshif
 	// shift result
 	::memmove(pframes, pframes + nlatency, (nframes - nlatency) * sizeof(float));
 
-	// linear fade-in (avoid attack clicks and pops)
+
+	// linear fade-in/out (avoid attack/release clicks and pops)
 	const float fstep = 1.0f / float(m_nover);
 	float fgain = 0.0f;
 	for (i = 0; i < m_nover; ++i) {
 		*pframes++ *= fgain;
 		fgain += fstep;
+	}
+
+	pframes += (nframes - (m_nover << 1));
+
+	for (i = 0; i < m_nover; ++i) {
+		*pframes++ *= fgain;
+		fgain -= fstep;
 	}
 
 #endif	// CONFIG_LIBRUBBERBAND

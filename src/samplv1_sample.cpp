@@ -132,7 +132,7 @@ bool samplv1_sample::open ( const char *filename, float freq0, uint16_t otabs )
 		const uint16_t itab0 = (m_ntabs >> 1);
 		if (itab != itab0 && pshifter) {
 			const float pshift = 1.0f / ftab(itab);
-			pshifter->process(pframes, nsize, pshift);
+			pshifter->process(pframes, m_nframes, pshift);
 		}
 		m_pframes[itab] = pframes;
 	}
