@@ -216,6 +216,7 @@ samplv1_pshifter::~samplv1_pshifter (void)
 void samplv1_pshifter::process ( float **pframes, uint32_t nframes, float pshift )
 {
 #ifdef CONFIG_LIBRUBBERBAND
+
 	RubberBand::RubberBandStretcher stretcher(
 		size_t(m_srate), size_t(m_nchannels),
 		RubberBand::RubberBandStretcher::OptionWindowLong |
@@ -232,10 +233,11 @@ void samplv1_pshifter::process ( float **pframes, uint32_t nframes, float pshift
 		navail = nframes;
 	if (navail > 0)
 		stretcher.retrieve(pframes, navail);
-#else
+
+#endif	// CONFIG_LIBRUBBERBAND
+
 	for (uint16_t k = 0; k < m_nchannels; ++k)
 		process_k(pframes[k], nframes, pshift);
-#endif	// CONFIG_LIBRUBBERBAND
 }
 
 
@@ -244,8 +246,6 @@ void samplv1_pshifter::process_k ( float *pframes, uint32_t nframes, float pshif
 {
 #ifdef CONFIG_LIBRUBBERBAND
 #define UNUSED(x) (void)(x)
-	UNUSED(pframes);
-	UNUSED(nframes);
 	UNUSED(pshift);
 #undef UNUSED
 #else
@@ -422,23 +422,23 @@ void samplv1_pshifter::process_k ( float *pframes, uint32_t nframes, float pshif
 	// shift result
 	::memmove(pframes, pframes + nlatency, (nframes - nlatency) * sizeof(float));
 
+#endif	// CONFIG_LIBRUBBERBAND
 
 	// linear fade-in/out (avoid attack/release clicks and pops)
 	const float fstep = 1.0f / float(m_nover);
 	float fgain = 0.0f;
-	for (i = 0; i < m_nover; ++i) {
+
+	for (uint16_t n = 0; n < m_nover; ++n) {
 		*pframes++ *= fgain;
 		fgain += fstep;
 	}
 
 	pframes += (nframes - (m_nover << 1));
 
-	for (i = 0; i < m_nover; ++i) {
+	for (uint16_t n = 0; n < m_nover; ++n) {
 		*pframes++ *= fgain;
 		fgain -= fstep;
 	}
-
-#endif	// CONFIG_LIBRUBBERBAND
 }
 
 

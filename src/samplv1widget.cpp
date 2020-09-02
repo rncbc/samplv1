@@ -131,7 +131,7 @@ samplv1widget::samplv1widget ( QWidget *pParent )
 
 	// Sample octave tables.
 	m_ui.Gen1OctavesComboBox->clear();
-	for (int otabs = 0; otabs < 4; ++otabs)
+	for (int otabs = 0; otabs <= 4; ++otabs)
 		m_ui.Gen1OctavesComboBox->addItem(QString::number(otabs));
 
 	// Note names.

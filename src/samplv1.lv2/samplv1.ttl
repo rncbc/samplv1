@@ -914,7 +914,7 @@ samplv1_lv2:P108_SAMPLE_OTABS
 	rdfs:range lv2atom:Int ;
 	lv2:default 0 ;
 	lv2:minimum 0 ;
-	lv2:maximum 3 .
+	lv2:maximum 4 .
 
 
 samplv1_lv2:P201_TUNING_ENABLED
