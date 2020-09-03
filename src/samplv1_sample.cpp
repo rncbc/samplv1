@@ -116,11 +116,9 @@ bool samplv1_sample::open ( const char *filename, float freq0, uint16_t otabs )
 
 	samplv1_pshifter *pshifter = nullptr;
 	if (m_ntabs > 0) {
-	#ifdef CONFIG_LIBRUBBERBAND
-		pshifter = new samplv1_rubberband_pshifter(m_nchannels, m_srate);
-	#else
-		pshifter = new samplv1_smbernsee_pshifter(m_nchannels, m_srate);
-	#endif
+		pshifter = samplv1_pshifter::create(
+			samplv1_pshifter::Default, 
+			m_nchannels, m_srate);
 	}
 
 	for (uint16_t itab = 0; itab < ntabs; ++itab) {
@@ -143,7 +141,7 @@ bool samplv1_sample::open ( const char *filename, float freq0, uint16_t otabs )
 	}
 
 	if (pshifter)
-		delete pshifter;
+		samplv1_pshifter::destroy(pshifter);
 
 	delete [] buffer;
 	::sf_close(file);

@@ -442,7 +442,6 @@ if test "x$ac_librubberband" = "xyes"; then
       AC_DEFINE(CONFIG_LIBRUBBERBAND, 1, [Define if RUBBERBAND library is available.])
       ac_cflags="$ac_cflags $RUBBERBAND_CFLAGS"
       ac_libs="$ac_libs $RUBBERBAND_LIBS"
-      ac_fftw3="no"
    else
       AC_MSG_WARN([*** RUBBERBAND library not found.])
    fi
@@ -796,6 +795,8 @@ echo "  LV2 plug-in UI Resize interface support  . . . . .: $ac_lv2_ui_resize"
 echo "  LV2 plug-in Programs support . . . . . . . . . . .: $ac_lv2_programs"
 echo "  LV2 plug-in Patch support  . . . . . . . . . . . .: $ac_lv2_patch"
 echo "  LV2 plug-in Port-event support (EXPERIMENTAL)  . .: $ac_lv2_port_event"
+echo "  Pitch-shifting support (librubberband) . . . . . .: $ac_librubberband"
+echo "  Pitch-shifting support (fftw3) . . . . . . . . . .: $ac_fftw3"
 echo "  OSC service support (liblo)  . . . . . . . . . . .: $ac_liblo"
 echo "  NSM (New Session Management) support . . . . . . .: $ac_nsm"
 echo

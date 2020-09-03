@@ -40,6 +40,26 @@ samplv1_pshifter::~samplv1_pshifter (void)
 }
 
 
+// Factory methods (static)
+samplv1_pshifter *samplv1_pshifter::create ( Type type,
+	uint16_t nchannels, float srate, uint16_t nsize, uint16_t nover )
+{
+	if (type == RubberBand)
+#ifdef CONFIG_LIBRUBBERBAND
+		return new samplv1_rubberband_pshifter(nchannels, srate);
+#else
+		return nullptr;
+#endif
+	return new samplv1_smbernsee_pshifter(nchannels, srate, nsize, nover);
+}
+
+
+void samplv1_pshifter::destroy ( samplv1_pshifter *pshifter )
+{
+	if (pshifter) delete pshifter;
+}
+
+
 #ifdef CONFIG_LIBRUBBERBAND
 
 #include <rubberband/RubberBandStretcher.h>
@@ -87,10 +107,12 @@ void samplv1_rubberband_pshifter::process (
 }
 
 
-#else	// CONFIG_LIBRUBBERBAND
+#endif	// CONFIG_LIBRUBBERBAND
 
 
 /*
+	Name: samplv1_smbernsee_pshifter
+
 	Based on: smbPitchShift.cpp
 	Version: 1.2
 	URL: http://www.dspdimension.com
@@ -100,7 +122,7 @@ void samplv1_rubberband_pshifter::process (
 
 	COPYRIGHT 1999-2009 Stephan M. Bernsee <smb [AT] dspdimension [DOT] com>
 
-			The Wide Open License (WOL)
+						The Wide Open License (WOL)
 
 	Permission to use, copy, modify, distribute and sell this software and its
 	documentation for any purpose is hereby granted without fee, provided that
@@ -196,10 +218,10 @@ samplv1_smbernsee_pshifter::samplv1_smbernsee_pshifter (
 	m_ififo = new float [m_nsize];
 	m_ofifo = new float [m_nsize];
 #ifdef CONFIG_FFTW3
-	m_iwork = new float [m_nsize << 1];
-	m_owork = new float [m_nsize << 1];
+	m_idata = new float [m_nsize << 1];
+	m_odata = new float [m_nsize << 1];
 #else
-	m_fwork = new float [m_nsize << 1];
+	m_fdata = new float [m_nsize << 1];
 #endif
 	m_plast = new float [(m_nsize >> 1) + 1];
 	m_phase = new float [(m_nsize >> 1) + 1];
@@ -214,10 +236,10 @@ samplv1_smbernsee_pshifter::samplv1_smbernsee_pshifter (
 	::memset(m_ififo, 0, m_nsize * sizeof(float));
 	::memset(m_ofifo, 0, m_nsize * sizeof(float));
 #ifdef CONFIG_FFTW3
-	::memset(m_iwork, 0, (m_nsize << 1) * sizeof(float));
-	::memset(m_owork, 0, (m_nsize << 1) * sizeof(float));
+	::memset(m_idata, 0, (m_nsize << 1) * sizeof(float));
+	::memset(m_odata, 0, (m_nsize << 1) * sizeof(float));
 #else
-	::memset(m_fwork, 0, (m_nsize << 1) * sizeof(float));
+	::memset(m_fdata, 0, (m_nsize << 1) * sizeof(float));
 #endif
 	::memset(m_plast, 0, ((m_nsize >> 1) + 1) * sizeof(float));
 	::memset(m_phase, 0, ((m_nsize >> 1) + 1) * sizeof(float));
@@ -227,8 +249,8 @@ samplv1_smbernsee_pshifter::samplv1_smbernsee_pshifter (
 
 #ifdef CONFIG_FFTW3
 	// create plans
-	m_aplan = ::fftwf_plan_r2r_1d(nsize, m_iwork, m_owork, FFTW_R2HC, FFTW_ESTIMATE);
-	m_splan = ::fftwf_plan_r2r_1d(nsize, m_iwork, m_owork, FFTW_HC2R, FFTW_ESTIMATE);
+	m_aplan = ::fftwf_plan_r2r_1d(nsize, m_idata, m_odata, FFTW_R2HC, FFTW_ESTIMATE);
+	m_splan = ::fftwf_plan_r2r_1d(nsize, m_idata, m_odata, FFTW_HC2R, FFTW_ESTIMATE);
 #endif
 
 	// pre-compute windowing table...
@@ -240,28 +262,28 @@ samplv1_smbernsee_pshifter::samplv1_smbernsee_pshifter (
 // Destructor.
 samplv1_smbernsee_pshifter::~samplv1_smbernsee_pshifter (void)
 {
-	// de-allocate working arrays
-	delete [] m_fwind;
-	delete [] m_ififo;
-	delete [] m_ofifo;
-#ifdef CONFIG_FFTW3
-	delete [] m_iwork;
-	delete [] m_owork;
-#else
-	delete [] m_fwork;
-#endif
-	delete [] m_plast;
-	delete [] m_phase;
-	delete [] m_accum;
-	delete [] m_afreq;
-	delete [] m_amagn;
-	delete [] m_sfreq;
-	delete [] m_smagn;
 #ifdef CONFIG_FFTW3
 	// destroy plans
-	::fftwf_destroy_plan(m_aplan);
 	::fftwf_destroy_plan(m_splan);
+	::fftwf_destroy_plan(m_aplan);
 #endif
+	// de-allocate working arrays
+	delete [] m_smagn;
+	delete [] m_sfreq;
+	delete [] m_amagn;
+	delete [] m_afreq;
+	delete [] m_accum;
+	delete [] m_phase;
+	delete [] m_plast;
+#ifdef CONFIG_FFTW3
+	delete [] m_odata;
+	delete [] m_idata;
+#else
+	delete [] m_fdata;
+#endif
+	delete [] m_ofifo;
+	delete [] m_ififo;
+	delete [] m_fwind;
 }
 
 
@@ -307,13 +329,13 @@ void samplv1_smbernsee_pshifter::process_k (
 			// do windowing and real, imag interleave
 			for (j = 0; j < m_nsize; ++j) {
 			#ifdef CONFIG_FFTW3
-				m_iwork[j] = m_ififo[j] * m_fwind[j];
+				m_idata[j] = m_ififo[j] * m_fwind[j];
 				if (j > 0)
-					m_iwork[(m_nsize << 1) - j] = 0.0f;
+					m_idata[(m_nsize << 1) - j] = 0.0f;
 			#else
 				k = (j << 1);
-				m_fwork[k] = m_ififo[j] * m_fwind[j];
-				m_fwork[k + 1] = 0.0f;
+				m_fdata[k] = m_ififo[j] * m_fwind[j];
+				m_fdata[k + 1] = 0.0f;
 			#endif
 			}
 
@@ -322,7 +344,7 @@ void samplv1_smbernsee_pshifter::process_k (
 		#ifdef CONFIG_FFTW3
 			::fftwf_execute(m_aplan);
 		#else
-			smbFft(m_fwork, m_nsize, +1);
+			smbFft(m_fdata, m_nsize, +1);
 		#endif
 
 			// this is the analysis step...
@@ -330,12 +352,12 @@ void samplv1_smbernsee_pshifter::process_k (
 
 				// de-interlace FFT buffer
 			#ifdef CONFIG_FFTW3
-				const float real = m_owork[j];
-				const float imag = m_owork[m_nsize - j];
+				const float real = m_odata[j];
+				const float imag = m_odata[m_nsize - j];
 			#else
 				k = (j << 1);
-				const float real = m_fwork[k];
-				const float imag = m_fwork[k + 1];
+				const float real = m_fdata[k];
+				const float imag = m_fdata[k + 1];
 			#endif
 
 				// compute magnitude and phase
@@ -407,12 +429,12 @@ void samplv1_smbernsee_pshifter::process_k (
 
 				// get real and imag part and re-interleave 
 			#ifdef CONFIG_FFTW3
-				m_iwork[j] = magn * ::cosf(phase);
-				m_iwork[m_nsize - j] = magn * ::sinf(phase);
+				m_idata[j] = magn * ::cosf(phase);
+				m_idata[m_nsize - j] = magn * ::sinf(phase);
 			#else
 				k = (j << 1);
-				m_fwork[k] = magn * ::cosf(phase);
-				m_fwork[k + 1] = magn * ::sinf(phase);
+				m_fdata[k] = magn * ::cosf(phase);
+				m_fdata[k + 1] = magn * ::sinf(phase);
 			#endif
 			} 
 
@@ -423,16 +445,16 @@ void samplv1_smbernsee_pshifter::process_k (
 		#else
 			// zero negative frequencies
 			for (j = m_nsize + 2; j < (m_nsize << 1); ++j)
-				m_fwork[j] = 0.0f;
-			smbFft(m_fwork, m_nsize, -1);
+				m_fdata[j] = 0.0f;
+			smbFft(m_fdata, m_nsize, -1);
 		#endif
 
 			// do windowing and add to output accumulator
 			for (j = 0; j < m_nsize; ++j)
 			#ifdef CONFIG_FFTW3
-				m_accum[j] += m_fwind[j] * m_owork[j] / (nsize2 * m_nover);
+				m_accum[j] += m_fwind[j] * m_odata[j] / (nsize2 * m_nover);
 			#else
-				m_accum[j] += 2.0f * m_fwind[j] * m_fwork[j << 1] / (nsize2 * m_nover);
+				m_accum[j] += 2.0f * m_fwind[j] * m_fdata[j << 1] / (nsize2 * m_nover);
 			#endif
 
 			for (j = 0; j < nstep; ++j)
@@ -468,9 +490,6 @@ void samplv1_smbernsee_pshifter::process_k (
 		fgain -= fstep;
 	}
 }
-
-
-#endif	// CONFIG_LIBRUBBERBAND
 
 
 // end of samplv1_pshifter.cpp

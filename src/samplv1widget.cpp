@@ -109,7 +109,7 @@ samplv1widget::samplv1widget ( QWidget *pParent )
 	m_ui.Gen1LoopFadeSpinBox->setFont(font);
 
 	const QFontMetrics fm(font);
-	m_ui.Gen1OctavesComboBox->setMaximumWidth(48);
+	m_ui.Gen1OctavesComboBox->setMaximumWidth(76);
 	m_ui.Gen1OctavesComboBox->setMaximumHeight(fm.height() + 6);
 	m_ui.Gen1OffsetStartSpinBox->setMaximumHeight(fm.height() + 6);
 	m_ui.Gen1OffsetEndSpinBox->setMaximumHeight(fm.height() + 6);
@@ -129,10 +129,12 @@ samplv1widget::samplv1widget ( QWidget *pParent )
 	m_ui.Gen1LoopEndSpinBox->setMinimum(0);
 	m_ui.Gen1LoopFadeSpinBox->setMinimum(0);
 
-	// Sample octave tables.
+	// Sample octave tables (±otabs).
 	m_ui.Gen1OctavesComboBox->clear();
-	for (int otabs = 0; otabs <= 4; ++otabs)
-		m_ui.Gen1OctavesComboBox->addItem(QString::number(otabs));
+	m_ui.Gen1OctavesComboBox->addItem(tr("None"));
+	m_ui.Gen1OctavesComboBox->addItem(tr("1 octave"));
+	for (int otabs = 2; otabs <= 4; ++otabs)
+		m_ui.Gen1OctavesComboBox->addItem(tr("%1 octaves").arg(otabs));
 
 	// Note names.
 	QStringList notes;
@@ -1054,6 +1056,8 @@ void samplv1widget::resetParamValues (void)
 // Reset all knob default values.
 void samplv1widget::resetParamKnobs (void)
 {
+	m_ui.Gen1OctavesComboBox->setCurrentIndex(0);
+
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
 		samplv1widget_param *pParam = paramKnob(samplv1::ParamIndex(i));
 		if (pParam)

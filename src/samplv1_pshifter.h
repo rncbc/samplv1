@@ -44,6 +44,16 @@ public:
 	// Processor.
 	virtual void process(float **pframes, uint32_t nframes, float pshift) = 0;
 
+	// Available pitch-shifting algorithms.
+	enum Type { Default = 0, SMBernsee = 1, RubberBand = 2 };
+
+	// Factory methods.
+	static samplv1_pshifter *create(Type type = Default,
+		uint16_t nchannels = 2, float srate = 44100.0f, 
+		uint16_t nsize = 4096, uint16_t nover = 8);
+
+	static void destroy(samplv1_pshifter *pshifter);
+
 protected:
 
 	// member variables
@@ -73,15 +83,16 @@ public:
 	void process(float **pframes, uint32_t nframes, float pshift);
 };
 
-#else
+#endif	// CONFIG_LIBRUBBERBAND
 
-#ifdef CONFIG_FFTW3
-#include <fftw3.h>
-#endif
 
 //---------------------------------------------------------------------------
 // samplv1_smbernsee_pshifter - S.M.Bernsee pitch-shift processor.
 //
+
+#ifdef CONFIG_FFTW3
+#include <fftw3.h>
+#endif
 
 class samplv1_smbernsee_pshifter : public samplv1_pshifter
 {
@@ -113,10 +124,10 @@ private:
 	float *m_ififo;
 	float *m_ofifo;
 #ifdef CONFIG_FFTW3
-	float *m_iwork;
-	float *m_owork;
+	float *m_idata;
+	float *m_odata;
 #else
-	float *m_fwork;
+	float *m_fdata;
 #endif
 	float *m_plast;
 	float *m_phase;
@@ -130,8 +141,6 @@ private:
 	fftwf_plan m_splan;
 #endif
 };
-
-#endif	// !CONFIG_LIBRUBBERBAND
 
 
 #endif  // __samplv1_pshifter_h

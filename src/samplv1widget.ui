@@ -228,14 +228,14 @@
             <item row="3" column="1">
              <widget class="QLabel" name="Gen1OctavesTextLabel">
               <property name="text">
-               <string>Octaves:</string>
+               <string>Pitch-shift:</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
-            <item row="3" column="2">
+            <item row="3" column="2" colspan="2">
              <widget class="QComboBox" name="Gen1OctavesComboBox">
               <property name="toolTip">
                <string>GEN Octaves</string>
