@@ -82,6 +82,9 @@ public:
 	QString sCustomColorTheme;
 	QString sCustomStyleTheme;
 
+	// Pitch-shit algorithm.
+	int iPitchShiftType;
+
 	// Micro-tuning options.
 	bool    bTuningEnabled;
 	float   fTuningRefPitch;

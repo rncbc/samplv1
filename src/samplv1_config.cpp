@@ -314,6 +314,7 @@ void samplv1_config::load (void)
 	iKnobEditMode = QSettings::value("/KnobEditMode", 0).toInt();
 	iFrameTimeFormat = QSettings::value("/FrameTimeFormat", 0).toInt();
 	fRandomizePercent = QSettings::value("/RandomizePercent", 20.0f).toFloat();
+	iPitchShiftType  = QSettings::value("/PitchShiftType", 0).toInt();
 	bControlsEnabled = QSettings::value("/ControlsEnabled", false).toBool();
 	bProgramsEnabled = QSettings::value("/ProgramsEnabled", false).toBool();
 	QSettings::endGroup();
@@ -357,6 +358,7 @@ void samplv1_config::save (void)
 	QSettings::setValue("/KnobEditMode", iKnobEditMode);
 	QSettings::setValue("/FrameTimeFormat", iFrameTimeFormat);
 	QSettings::setValue("/RandomizePercent", fRandomizePercent);
+	QSettings::setValue("/PitchShiftType", iPitchShiftType);
 	QSettings::setValue("/ControlsEnabled", bControlsEnabled);
 	QSettings::setValue("/ProgramsEnabled", bProgramsEnabled);
 	QSettings::endGroup();

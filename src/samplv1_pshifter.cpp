@@ -59,13 +59,14 @@ samplv1_pshifter::Type samplv1_pshifter::defaultType (void)
 samplv1_pshifter *samplv1_pshifter::create (
 	uint16_t nchannels, float srate, uint16_t nsize, uint16_t nover )
 {
+	if (g_type == RubberBand) {
 #ifdef CONFIG_LIBRUBBERBAND
-	if (g_type == Default || g_type == RubberBand)
 		return new samplv1_rubberband_pshifter(nchannels, srate);
 #else
-	if (g_type == RubberBand)
 		return nullptr;
 #endif
+	}
+
 	return new samplv1_smbernsee_pshifter(nchannels, srate, nsize, nover);
 }
 

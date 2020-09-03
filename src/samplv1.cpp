@@ -34,6 +34,8 @@
 #include "samplv1_fx.h"
 #include "samplv1_reverb.h"
 
+#include "samplv1_pshifter.h"
+
 #include "samplv1_config.h"
 #include "samplv1_controls.h"
 #include "samplv1_programs.h"
@@ -1282,6 +1284,10 @@ samplv1_impl::samplv1_impl (
 
 	// compressors none yet
 	m_comp = nullptr;
+
+	// Pitch-shifting support...
+	samplv1_pshifter::setDefaultType(
+		samplv1_pshifter::Type(m_config.iPitchShiftType));
 
 	// Micro-tuning support, if any...
 	resetTuning();

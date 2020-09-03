@@ -26,6 +26,8 @@
 
 #include "samplv1_ui.h"
 
+#include "samplv1_pshifter.h"
+
 #include "samplv1_controls.h"
 #include "samplv1_programs.h"
 
@@ -60,6 +62,13 @@ samplv1widget_config::samplv1widget_config (
 	// Setup UI struct...
 	m_ui.setupUi(this);
 
+	// Pitch-shift types.
+	m_ui.PitchShiftTypeComboBox->addItem(tr("(default)"));
+	m_ui.PitchShiftTypeComboBox->addItem(tr("S.M.Bernsee"));
+#ifdef CONFIG_LIBRUBBERBAND
+	m_ui.PitchShiftTypeComboBox->addItem(tr("RubberBand"));
+#endif
+
 	// Note names.
 	QStringList notes;
 	for (int note = 0; note < 128; ++note)
@@ -86,6 +95,7 @@ samplv1widget_config::samplv1widget_config (
 		m_ui.KnobEditModeComboBox->setCurrentIndex(pConfig->iKnobEditMode);
 		m_ui.FrameTimeFormatComboBox->setCurrentIndex(pConfig->iFrameTimeFormat);
 		m_ui.RandomizePercentSpinBox->setValue(pConfig->fRandomizePercent);
+		m_ui.PitchShiftTypeComboBox->setCurrentIndex(pConfig->iPitchShiftType);
 		// Custom display options (only for no-plugin forms)...
 		resetCustomColorThemes(pConfig->sCustomColorTheme);
 		resetCustomStyleThemes(pConfig->sCustomStyleTheme);
@@ -229,6 +239,9 @@ samplv1widget_config::samplv1widget_config (
 		SLOT(optionsChanged()));
 	QObject::connect(m_ui.RandomizePercentSpinBox,
 		SIGNAL(valueChanged(double)),
+		SLOT(optionsChanged()));
+	QObject::connect(m_ui.PitchShiftTypeComboBox,
+		SIGNAL(activated(int)),
 		SLOT(optionsChanged()));
 
 	// Dialog commands...
@@ -753,8 +766,10 @@ void samplv1widget_config::accept (void)
 		else
 			pConfig->sCustomStyleTheme.clear();
 		const int iOldFrameTimeFormat = pConfig->iFrameTimeFormat;
-		pConfig->iFrameTimeFormat = m_ui.FrameTimeFormatComboBox->currentIndex();
+		const int iOldPitchShiftType  = pConfig->iPitchShiftType;
+		pConfig->iFrameTimeFormat  = m_ui.FrameTimeFormatComboBox->currentIndex();
 		pConfig->fRandomizePercent = float(m_ui.RandomizePercentSpinBox->value());
+		pConfig->iPitchShiftType   = m_ui.PitchShiftTypeComboBox->currentIndex();
 		int iNeedRestart = 0;
 		if (pConfig->sCustomStyleTheme != sOldCustomStyleTheme) {
 			if (pConfig->sCustomStyleTheme.isEmpty()) {
@@ -776,6 +791,11 @@ void samplv1widget_config::accept (void)
 		}
 		if (pConfig->iFrameTimeFormat != iOldFrameTimeFormat)
 			++iNeedRestart;
+		if (pConfig->iPitchShiftType != iOldPitchShiftType) {
+			++iNeedRestart;
+			samplv1_pshifter::setDefaultType(
+				samplv1_pshifter::Type(pConfig->iPitchShiftType));
+		}
 		// Show restart message if needed...
  		if (iNeedRestart > 0) {
 			QMessageBox::information(this,
