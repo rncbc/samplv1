@@ -47,9 +47,13 @@ public:
 	// Available pitch-shifting algorithms.
 	enum Type { Default = 0, SMBernsee = 1, RubberBand = 2 };
 
+	// Default pitch-shifting algorithm accessor.
+	static void setDefaultType(Type type);
+	static Type defaultType();
+
 	// Factory methods.
-	static samplv1_pshifter *create(Type type = Default,
-		uint16_t nchannels = 2, float srate = 44100.0f, 
+	static samplv1_pshifter *create(
+		uint16_t nchannels, float srate,
 		uint16_t nsize = 4096, uint16_t nover = 8);
 
 	static void destroy(samplv1_pshifter *pshifter);
@@ -59,6 +63,9 @@ protected:
 	// member variables
 	uint16_t m_nchannels;
 	float    m_srate;
+
+	// default pitch-shifting algorithm.
+	static Type g_type;
 };
 
 

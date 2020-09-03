@@ -115,11 +115,8 @@ bool samplv1_sample::open ( const char *filename, float freq0, uint16_t otabs )
 	m_pframes = new float ** [ntabs];
 
 	samplv1_pshifter *pshifter = nullptr;
-	if (m_ntabs > 0) {
-		pshifter = samplv1_pshifter::create(
-			samplv1_pshifter::Default, 
-			m_nchannels, m_srate);
-	}
+	if (m_ntabs > 0)
+		pshifter = samplv1_pshifter::create(m_nchannels, m_srate);
 
 	for (uint16_t itab = 0; itab < ntabs; ++itab) {
 		float **pframes = new float * [m_nchannels];
