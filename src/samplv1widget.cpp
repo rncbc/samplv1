@@ -97,12 +97,13 @@ samplv1widget::samplv1widget ( QWidget *pParent )
 
 	// Offset/Loop range font.
 	const QFont& font = m_ui.Gen1ReverseKnob->font();
-	m_ui.Gen1OctavesTextLabel->setFont(font);
+	const QFont font2(font.family(), font.pointSize() - 1);
+	m_ui.Gen1OctavesTextLabel->setFont(font2);
 	m_ui.Gen1OctavesComboBox->setFont(font);
-	m_ui.Gen1OffsetRangeLabel->setFont(font);
+	m_ui.Gen1OffsetRangeLabel->setFont(font2);
 	m_ui.Gen1OffsetStartSpinBox->setFont(font);
 	m_ui.Gen1OffsetEndSpinBox->setFont(font);
-	m_ui.Gen1LoopRangeLabel->setFont(font);
+	m_ui.Gen1LoopRangeLabel->setFont(font2);
 	m_ui.Gen1LoopStartSpinBox->setFont(font);
 	m_ui.Gen1LoopEndSpinBox->setFont(font);
 	m_ui.Gen1LoopFadeCheckBox->setFont(font);
