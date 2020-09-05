@@ -27,7 +27,7 @@
 	] ;
 	doap:license <http://usefulinc.com/doap/licenses/gpl> ;
 	lv2:minorVersion 0 ;
-	lv2:microVersion 1 ;
+	lv2:microVersion 2 ;
 	lv2:requiredFeature lv2urid:map, lv2worker:schedule ;
 	lv2:optionalFeature lv2:hardRTCapable ;
 	lv2:extensionData lv2state:interface, lv2worker:interface ;
@@ -910,7 +910,7 @@ samplv1_lv2:P107_LOOP_ZERO
 
 samplv1_lv2:P108_SAMPLE_OTABS
 	a lv2:Parameter ;
-	rdfs:label "P108 Sample Octaves" ;
+	rdfs:label "P108 Pitch-shift Octaves" ;
 	rdfs:range lv2atom:Int ;
 	lv2:default 0 ;
 	lv2:minimum 0 ;
