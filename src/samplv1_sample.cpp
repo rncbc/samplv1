@@ -36,9 +36,9 @@ samplv1_sample::samplv1_sample ( float srate )
 		m_nchannels(0), m_rate0(0.0f), m_freq0(1.0f), m_ratio(0.0f),
 		m_nframes(0), m_pframes(nullptr), m_reverse(false),
 		m_offset(false), m_offset_start(0), m_offset_end(0),
-		m_offset_phase0(0.0f), m_offset_end2(0),
+		m_offset_phase0(nullptr), m_offset_end2(0),
 		m_loop(false), m_loop_start(0), m_loop_end(0),
-		m_loop_phase1(0.0f), m_loop_phase2(0.0f),
+		m_loop_phase1(nullptr), m_loop_phase2(nullptr),
 		m_loop_xfade(0), m_loop_xzero(true)
 {
 }
@@ -114,6 +114,10 @@ bool samplv1_sample::open ( const char *filename, float freq0, uint16_t otabs )
 	const uint32_t nsize = (m_nframes + 4);
 	m_pframes = new float ** [ntabs];
 
+	m_offset_phase0 = new float [ntabs];
+	m_loop_phase1 = new float [ntabs];
+	m_loop_phase2 = new float [ntabs];
+
 	samplv1_pshifter *pshifter = nullptr;
 	if (m_ntabs > 0)
 		pshifter = samplv1_pshifter::create(m_nchannels, m_srate);
@@ -135,6 +139,9 @@ bool samplv1_sample::open ( const char *filename, float freq0, uint16_t otabs )
 			pshifter->process(pframes, m_nframes, pshift);
 		}
 		m_pframes[itab] = pframes;
+		m_offset_phase0[itab] = 0.0f;
+		m_loop_phase1[itab] = 0.0f;
+		m_loop_phase2[itab] = 0.0f;
 	}
 
 	if (pshifter)
@@ -156,6 +163,21 @@ bool samplv1_sample::open ( const char *filename, float freq0, uint16_t otabs )
 
 void samplv1_sample::close (void)
 {
+	if (m_loop_phase2) {
+		delete [] m_loop_phase2;
+		m_loop_phase2 = nullptr;
+	}
+
+	if (m_loop_phase1) {
+		delete [] m_loop_phase1;
+		m_loop_phase1 = nullptr;
+	}
+
+	if (m_offset_phase0) {
+		delete [] m_offset_phase0;
+		m_offset_phase0 = nullptr;
+	}
+
 	if (m_pframes) {
 		const uint16_t ntabs = m_ntabs + 1;
 		for (uint16_t itab = 0; itab < ntabs; ++itab) {
@@ -225,13 +247,19 @@ void samplv1_sample::setOffsetRange ( uint32_t start, uint32_t end )
 		m_offset_end = m_nframes;
 	}
 
-	if (m_offset && m_offset_start < m_offset_end) {
-		m_offset_phase0 = float(zero_crossing(m_offset_start, nullptr));
-		m_offset_end2 = zero_crossing(m_offset_end, nullptr);
-	} else {
-		m_offset_phase0 = 0.0f;
-		m_offset_end2 = m_nframes;
+	if (m_offset_phase0) {
+		const uint16_t ntabs = m_ntabs + 1;
+		if (m_offset && m_offset_start < m_offset_end) {
+			for (uint16_t itab = 0; itab < ntabs; ++itab)
+				m_offset_phase0[itab] = float(zero_crossing(itab, m_offset_start));
+			m_offset_end2 = zero_crossing((ntabs >> 1), m_offset_end);
+		} else {
+			for (uint16_t itab = 0; itab < ntabs; ++itab)
+				m_offset_phase0[itab] = 0.0f;
+			m_offset_end2 = m_nframes;
+		}
 	}
+	else m_offset_end2 = m_nframes;
 
 	// offset/loop range stabilizer...
 	int loop_update = 0;
@@ -288,22 +316,28 @@ void samplv1_sample::setLoopRange ( uint32_t start, uint32_t end )
 		m_loop_end = m_nframes;
 	}
 
-	if (m_loop && m_loop_start < m_loop_end) {
-		uint32_t start = m_loop_start;
-		uint32_t end = m_loop_end;
-		if (m_loop_xzero) {
-			int slope = 0;
-			end = zero_crossing(m_loop_end, &slope);
-			start = zero_crossing(m_loop_start, &slope);
-			if (start >= end) {
-				start = m_loop_start;
-				end = m_loop_end;
+	if (m_loop_phase1 && m_loop_phase2) {
+		const uint16_t ntabs = m_ntabs + 1;
+		for (uint16_t itab = 0; itab < ntabs; ++itab) {
+			if (m_loop && m_loop_start < m_loop_end) {
+				uint32_t start = m_loop_start;
+				uint32_t end = m_loop_end;
+				if (m_loop_xzero) {
+					int slope = 0;
+					end = zero_crossing(itab, m_loop_end, &slope);
+					start = zero_crossing(itab, m_loop_start, &slope);
+					if (start >= end) {
+						start = m_loop_start;
+						end = m_loop_end;
+					}
+				}
+				m_loop_phase1[itab] = float(end - start);
+				m_loop_phase2[itab] = float(end);
+			} else {
+				m_loop_phase1[itab] = 0.0f;
+				m_loop_phase2[itab] = 0.0f;
 			}
 		}
-		m_loop_phase1 = float(end - start);
-		m_loop_phase2 = float(end);
-	} else {
-		m_loop_phase1 = m_loop_phase2 = 0.0f;
 	}
 }
 
@@ -316,14 +350,14 @@ void samplv1_sample::updateLoop (void)
 
 
 // zero-crossing aliasing (all channels).
-uint32_t samplv1_sample::zero_crossing ( uint32_t i, int *slope ) const
+uint32_t samplv1_sample::zero_crossing ( uint16_t itab, uint32_t i, int *slope ) const
 {
 	const int s0 = (slope ? *slope : 0);
 
 	if (i > 0) --i;
-	float v0 = zero_crossing_k(i);
+	float v0 = zero_crossing_k(itab, i);
 	for (++i; i < m_nframes; ++i) {
-		const float v1 = zero_crossing_k(i);
+		const float v1 = zero_crossing_k(itab, i);
 		if ((0 >= s0 && v0 >= 0.0f && 0.0f >= v1) ||
 			(s0 >= 0 && v1 >= 0.0f && 0.0f >= v0)) {
 			if (slope && s0 == 0) *slope = (v1 < v0 ? -1 : +1);
@@ -337,12 +371,11 @@ uint32_t samplv1_sample::zero_crossing ( uint32_t i, int *slope ) const
 
 
 // zero-crossing aliasing (median).
-float samplv1_sample::zero_crossing_k ( uint32_t i ) const
+float samplv1_sample::zero_crossing_k ( uint16_t itab, uint32_t i ) const
 {
 	float ret = 0.0f;
 	if (m_pframes && m_nchannels > 0) {
-		const uint16_t itab0 = (m_ntabs >> 1);
-		float **pframes = m_pframes[itab0];
+		float **pframes = m_pframes[itab];
 		for (uint16_t k = 0; k < m_nchannels; ++k)
 			ret += pframes[k][i];
 		ret /= float(m_nchannels);

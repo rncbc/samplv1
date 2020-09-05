@@ -6,15 +6,19 @@ ChangeLog
 
 GIT HEAD
 
+- Arbitrary number of pitch-shifted octave sample tables
+  is now an instance parameter; pitch-shifting algorithm
+  is also selectable as a global user preference option
+  cf. Help > Configure... > Options > Pitch-shift type:
+  S.M.Bernsee classic algorithm (default) or RubberBand
+  library. (EXPERIMENTAL)
+
 - Early fixing to build for Qt >= 6.0.0 and comply with
   the c++17 standard.
 
 - Added -n, --client-name to the JACK stand-alone client
   application command line option arguments (from PR#31,
   by Paul Asmuth, thanks).
-
-- Arbitrary octave pitch-shifted sample wave-tables is
-  now an option (via librubberband) (EXPERIMENTAL)
 
 - Fixed unitialized number of voices variable; early-bird
   adaptations to Qt6 (PREVIEW).

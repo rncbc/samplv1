@@ -86,8 +86,8 @@ public:
 	uint32_t offsetEnd() const
 		{ return m_offset_end; }
 
-	float offsetPhase0() const
-		{ return (m_offset ? m_offset_phase0 : 0.0f); }
+	float offsetPhase0(uint16_t itab) const
+		{ return (m_offset && m_offset_phase0 ? m_offset_phase0[itab] : 0.0f); }
 
 	// loop mode.
 	void setLoop(bool loop)
@@ -108,10 +108,10 @@ public:
 	uint32_t loopEnd() const
 		{ return m_loop_end; }
 
-	float loopPhase1() const
-		{ return m_loop_phase1; }
-	float loopPhase2() const
-		{ return m_loop_phase2; }
+	float loopPhase1(uint16_t itab) const
+		{ return (m_loop_phase1 ? m_loop_phase1[itab] : 0.0f); }
+	float loopPhase2(uint16_t itab) const
+		{ return (m_loop_phase2 ? m_loop_phase2[itab] : 0.0f); }
 
 	// loop cross-fade (in number of frames)
 	void setLoopCrossFade(uint32_t xfade)
@@ -199,8 +199,8 @@ protected:
 	void reverse_sync();
 
 	// zero-crossing aliasing .
-	uint32_t zero_crossing(uint32_t i, int *slope) const;
-	float zero_crossing_k(uint32_t i) const;
+	uint32_t zero_crossing(uint16_t itab, uint32_t i, int *slope = nullptr) const;
+	float zero_crossing_k(uint16_t itab, uint32_t i) const;
 
 	// offset/loop update.
 	void updateOffset();
@@ -236,14 +236,14 @@ private:
 	bool     m_offset;
 	uint32_t m_offset_start;
 	uint32_t m_offset_end;
-	float    m_offset_phase0;
+	float   *m_offset_phase0;
 	uint32_t m_offset_end2;
 
 	bool     m_loop;
 	uint32_t m_loop_start;
 	uint32_t m_loop_end;
-	float    m_loop_phase1;
-	float    m_loop_phase2;
+	float   *m_loop_phase1;
+	float   *m_loop_phase2;
 	uint32_t m_loop_xfade;
 	bool     m_loop_xzero;
 };
@@ -277,8 +277,8 @@ public:
 		m_loop = loop;
 
 		if (m_loop && m_sample) {
-			m_loop_phase1 = m_sample->loopPhase1();
-			m_loop_phase2 = m_sample->loopPhase2();
+			m_loop_phase1 = m_sample->loopPhase1(m_itab);
+			m_loop_phase2 = m_sample->loopPhase2(m_itab);
 		} else {
 			m_loop_phase1 = 0.0f;
 			m_loop_phase2 = 0.0f;
@@ -291,7 +291,7 @@ public:
 		m_itab   = (m_sample ? m_sample->itab(freq) : 0);
 		m_ftab   = (m_sample ? m_sample->ftab(m_itab) : 1.0f);
 
-		m_phase0 = (m_sample ? m_sample->offsetPhase0() : 0.0f);
+		m_phase0 = (m_sample ? m_sample->offsetPhase0(m_itab) : 0.0f);
 		m_phase  = m_phase0;
 		m_index  = 0;
 		m_alpha  = 0.0f;
