@@ -107,7 +107,7 @@ samplv1widget::samplv1widget ( QWidget *pParent )
 	m_ui.Gen1LoopStartSpinBox->setFont(font);
 	m_ui.Gen1LoopEndSpinBox->setFont(font);
 	m_ui.Gen1LoopFadeCheckBox->setFont(font);
-	m_ui.Gen1LoopFadeSpinBox->setFont(font);
+	m_ui.Gen1LoopFadeSpinBox->setFont(font2);
 
 	const QFontMetrics fm(font);
 	m_ui.Gen1OctavesComboBox->setMaximumWidth(76);

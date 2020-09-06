@@ -318,7 +318,7 @@
             </item>
             <item row="1" column="4">
              <widget class="QSpinBox" name="Gen1LoopFadeSpinBox">
-              <property name="minimumSize">
+              <property name="maximumSize">
                <size>
                 <width>50</width>
                 <height>16</height>

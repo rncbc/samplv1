@@ -922,9 +922,16 @@ void samplv1widget_sample::updateToolTip (void)
 	const char *pszSampleFile = (m_pSample ? m_pSample->filename() : 0);
 	if (pszSampleFile) {
 		if (!sToolTip.isEmpty()) sToolTip += '\n';
-		sToolTip += tr("%1\n%2 frames, %3 channels, %4 Hz")
+		QString suffix;
+		samplv1widget_spinbox::Format format = samplv1widget_spinbox::Frames;
+		samplv1_config *pConfig = samplv1_config::getInstance();
+		if (pConfig)
+			format = samplv1widget_spinbox::Format(pConfig->iFrameTimeFormat);
+		if (format == samplv1widget_spinbox::Frames)
+			suffix = tr(" frames");
+		sToolTip += tr("%1\n%2%3, %4 channels, %5 Hz")
 			.arg(QFileInfo(pszSampleFile).completeBaseName())
-			.arg(m_pSample->length())
+			.arg(textFromValue(m_pSample->length())).arg(suffix)
 			.arg(m_pSample->channels())
 			.arg(m_pSample->rate());
 	}
