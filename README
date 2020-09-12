@@ -44,7 +44,7 @@ Requirements:
     cross-platform application and UI development
     https://qt.io/
 
-  - libsndfile [9], C library for reading and writing
+  - libsndfile [8], C library for reading and writing
     files containing sampled sound
     http://www.mega-nerd.com/libsndfile/
 
@@ -59,7 +59,15 @@ Requirements:
   - LV2 [4], Audio Plugin Standard, the extensible successor of LADSPA
     https://lv2plug.in/
 
-  - liblo [8], Lightweight OSC implementation
+  - FFTW3 [9], a C library for computing the discrete
+    Fourier transform (DFT) in one or more dimensions
+    http://www.fftw.org/
+
+  - librubberband [10], Rubber Band Audio Time Stretcher,
+    an audio time-stretching and pitch-shifting library
+    https://breakfastquay.com/rubberband/
+
+  - liblo [11], Lightweight OSC implementation
     (needed for NSM support [3])
     http://liblo.sourceforge.net/
 
@@ -84,36 +92,45 @@ Acknowledgements:
 
 References:
 
- [1] JACK Audio Connection Kit
-     https://jackaudio.org/
+  [1] JACK Audio Connection Kit
+      https://jackaudio.org/
 
- [2] ALSA, Advanced Linux Sound Architecture
-     https://www.alsa-project.org/
+  [2] ALSA, Advanced Linux Sound Architecture
+      https://www.alsa-project.org/
 
- [3] Non/New Session Management (NSM)
-     https://linuxaudio.github.io/new-session-manager/
-    (formerly http://non.tuxfamily.org/nsm/)
+  [3] Non/New Session Management (NSM)
+      https://linuxaudio.github.io/new-session-manager/
+     (formerly http://non.tuxfamily.org/nsm/)
 
- [4] LV2, Audio Plugin Standard, the extensible successor of LADSPA
-     http://lv2plug.in/
+  [4] LV2, Audio Plugin Standard, the extensible successor of LADSPA
+      http://lv2plug.in/
 
- [5] Linux Audio consortium of libre software for audio-related work
-     https://linuxaudio.org
+  [5] Linux Audio consortium of libre software for audio-related work
+      https://linuxaudio.org
 
- [6] GNU General Public License
-     https://www.gnu.org/copyleft/gpl.html
+  [6] GNU General Public License
+      https://www.gnu.org/copyleft/gpl.html
 
- [7] Qt framework, C++ class library and tools for
-     cross-platform application and UI development
-     https://qt.io/
+  [7] Qt framework, C++ class library and tools for
+      cross-platform application and UI development
+      https://qt.io/
 
- [8] liblo [8], Lightweight OSC implementation
-     (needed for NSM support)
-     http://liblo.sourceforge.net/
+  [8] libsndfile, C library for reading and writing
+      files containing sampled sound
+      http://www.mega-nerd.com/libsndfile/
 
- [9] libsndfile, C library for reading and writing
-     files containing sampled sound
-     http://www.mega-nerd.com/libsndfile/
+  [9] FFTW3, a C library for computing the discrete
+      Fourier transform (DFT) in one or more dimensions
+      http://www.fftw.org/
+
+ [10] librubberband, Rubber Band Audio Time Stretcher,
+      an audio time-stretching and pitch-shifting library
+      https://breakfastquay.com/rubberband/
+
+ [11] liblo, Lightweight OSC implementation
+      (needed for NSM support [3])
+      http://liblo.sourceforge.net/
+
 
 
 Cheers && Enjoy.
