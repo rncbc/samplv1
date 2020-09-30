@@ -208,9 +208,9 @@ protected:
 	// fast log10(x)/log10(2) approximation.
 	static inline int fast_ilog2f ( float x )
 	{
-		const int i = *(int *) &x;
-		return (((i & 0x7f800000) >> 23) - 0x7f)
-			+ (i & 0x007fffff) / float(0x800000);
+		union { float f; int32_t i; } u; u.f = x;
+		return (((u.i & 0x7f800000) >> 23) - 0x7f)
+			+ (u.i & 0x007fffff) / float(0x800000);
 	}
 
 private:
