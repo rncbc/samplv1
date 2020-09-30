@@ -29,7 +29,6 @@
 
 #include <math.h>
 
-
 // forward decls.
 class samplv1;
 
@@ -206,16 +205,13 @@ protected:
 	void updateOffset();
 	void updateLoop();
 
-	// fast log2f approximation.
-	static inline float fast_log2f ( float x )
-	{
-		union { float f; uint32_t i; } u;
-		u.f = x;
-		return (u.i * 1.192092896e-7f) - 126.943612f;
-	}
-
+	// fast log10(x)/log10(2) approximation.
 	static inline int fast_ilog2f ( float x )
-		{ return ::lrintf(0.5f * fast_log2f(x)); }
+	{
+		const int i = *(int *) &x;
+		return (((i & 0x7f800000) >> 23) - 0x7f)
+			+ (i & 0x007fffff) / float(0x800000);
+	}
 
 private:
 
