@@ -6,6 +6,8 @@ ChangeLog
 
 GIT HEAD
 
+- Fixed note-off effectiveness when DCA is disabled (idle).
+
 - White keys on the virtual piano keyboard are now fully
   highlighted. (EXPERIMENTAL)
 

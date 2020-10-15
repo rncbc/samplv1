@@ -288,7 +288,7 @@ struct samplv1_env
 {
 	// envelope stages
 
-	enum Stage { Idle = 0, Attack, Decay, Sustain, Release };
+	enum Stage { Idle = 0, Attack, Decay, Sustain, Release, End };
 
 	// per voice
 
@@ -357,7 +357,7 @@ struct samplv1_env
 		}
 		else if (p->stage == Release) {
 			p->running = false;
-			p->stage = Idle;
+			p->stage = End;
 			p->frames = 0;
 			p->phase = 0.0f;
 			p->delta = 0.0f;
@@ -420,7 +420,7 @@ struct samplv1_env
 		p->frames = 0;
 		p->phase = 0.0f;
 		p->delta = 0.0f;
-		p->value = 0.0f;
+		p->value = 1.0f;
 		p->c1 = 0.0f;
 		p->c0 = 0.0f;
 	}
@@ -2209,7 +2209,6 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 		? m_ctl1.modwheel + PITCH_SCALE * *m_lfo1.pitch : 0.0f);
 
 	const bool dcf1_enabled = (*m_dcf1.enabled > 0.0f);
-	const bool dca1_enabled = (*m_dca1.enabled > 0.0f);
 
 	const float fxsend1 = *m_out1.fxsend * *m_out1.fxsend;
 
@@ -2320,7 +2319,7 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 				const float mid1 = 0.5f * (gen1 + gen2);
 				const float sid1 = 0.5f * (gen1 - gen2);
 				const float vol1 = vel1 * m_vol1.value(j)
-					* (dca1_enabled ? pv->dca1_env.tick() : 1.0f)
+					* pv->dca1_env.tick()
 					* pv->out1_vol.value(j);
 
 				// outputs
@@ -2359,7 +2358,7 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 				m_dca1.env.next(&pv->dca1_env);
 
 			if (pv->gen1.isOver() ||
-				(dca1_enabled && pv->dca1_env.stage == samplv1_env::Idle)) {
+				pv->dca1_env.stage == samplv1_env::End) {
 				if (pv->note < 0)
 					free_voice(pv);
 				nblock = 0;
