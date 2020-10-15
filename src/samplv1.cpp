@@ -1482,6 +1482,8 @@ void samplv1_impl::setSampleFile ( const char *pszSampleFile, uint16_t otabs )
 	} else {
 		gen1_sample.close();
 	}
+
+	updateEnvTimes();
 }
 
 
