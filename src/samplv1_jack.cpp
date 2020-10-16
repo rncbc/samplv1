@@ -288,6 +288,11 @@ int samplv1_jack::process ( jack_nframes_t nframes )
 }
 
 
+#ifdef CONFIG_JACK_SESSION
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 void samplv1_jack::open ( const char *client_name )
 {
 	// init param ports
@@ -357,10 +362,10 @@ void samplv1_jack::open ( const char *client_name )
 	// setup any local, initial buffers...
 	samplv1::setBufferSize(::jack_get_buffer_size(m_client));
 
-	jack_set_buffer_size_callback(m_client,
+	::jack_set_buffer_size_callback(m_client,
 		samplv1_jack_buffer_size, this);
 
-	jack_on_shutdown(m_client,
+	::jack_on_shutdown(m_client,
 		samplv1_jack_on_shutdown, this);
 
 	// set process callbacks...
@@ -369,12 +374,14 @@ void samplv1_jack::open ( const char *client_name )
 
 #ifdef CONFIG_JACK_SESSION
 	// JACK session event callback...
-	if (::jack_set_session_callback) {
-		::jack_set_session_callback(m_client,
-			samplv1_jack_session_event, this);
-	}
+	::jack_set_session_callback(m_client,
+		samplv1_jack_session_event, this);
 #endif
 }
+
+#ifdef CONFIG_JACK_SESSION
+#pragma GCC diagnostic pop
+#endif
 
 
 void samplv1_jack::activate (void)
@@ -566,6 +573,9 @@ void samplv1_jack::alsa_capture ( snd_seq_event_t *ev )
 
 #ifdef CONFIG_JACK_SESSION
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 // JACK session event handler.
 void samplv1_jack::sessionEvent ( void *pvSessionArg )
 {
@@ -598,8 +608,8 @@ void samplv1_jack::sessionEvent ( void *pvSessionArg )
 	const QByteArray aCmdLine = args.join(" ").toUtf8();
 	pJackSessionEvent->command_line = ::strdup(aCmdLine.constData());
 
-	jack_session_reply(m_client, pJackSessionEvent);
-	jack_session_event_free(pJackSessionEvent);
+	::jack_session_reply(m_client, pJackSessionEvent);
+	::jack_session_event_free(pJackSessionEvent);
 
 	if (bQuit)
 	#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
@@ -608,6 +618,8 @@ void samplv1_jack::sessionEvent ( void *pvSessionArg )
 		QCoreApplication::quit();
 	#endif
 }
+
+#pragma GCC diagnostic pop
 
 #endif	// CONFIG_JACK_SESSION
 
