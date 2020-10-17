@@ -18,7 +18,7 @@
  </description>
  <launchable type="desktop-id">samplv1.desktop</launchable>
  <provides>
-​  <binary>samplv1_jack</binary>
+  <binary>samplv1_jack</binary>
  </provides>
  <screenshots>
   <screenshot type="default">
