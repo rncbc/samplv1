@@ -8,10 +8,10 @@ Build-Depends: debhelper (>= 9), automake, pkg-config,
   libsndfile-dev, fftw3-dev, librubberband-dev, liblo-dev
 Standards-Version: 3.9.7
 
-Package: samplv1
+Package: samplv1-jack
 Architecture: any
 Depends: libjack0 | libjack-jackd2-0, ${misc:Depends}, ${shlibs:Depends}
-Replaces: samplv1-common (<= ${source:Version})
+Replaces: samplv1-common (<= ${source:Version}), samplv1 (<= ${source:Version})
 Description: An old-school polyphonic sampler - JACK standalone
   An old-school all-digital polyphonic sampler synthesizer with stereo fx.
   .

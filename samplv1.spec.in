@@ -25,7 +25,7 @@
 %define debug_package %{nil}
 %endif
 
-#Summary:	An old-school polyphonic sampler
+Summary:	An old-school polyphonic sampler
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -33,7 +33,7 @@ License:	GPL-2.0+
 Group:		Productivity/Multimedia/Sound/Midi
 Source0:	%{name}-%{version}.tar.gz
 URL:		http://samplv1.sourceforge.net
-#Packager:	rncbc.org
+Packager:	rncbc.org
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
@@ -59,12 +59,12 @@ BuildRequires:	lv2-devel
 
 BuildRequires:	pkgconfig(egl)
 
-#package -n %{name}
+%package -n %{name}-jack
 Summary:	An old-school polyphonic sampler - JACK standalone
 Provides:	%{name}_jack
-Obsoletes:	%{name}-common <= %{version}
+Obsoletes:	%{name}-common <= %{version}, %{name} <= %{version}
 
-%description -n %{name}
+%description -n %{name}-jack
   An old-school all-digital polyphonic sampler synthesizer with stereo fx.
   .
   This package provides the standalone JACK client application (samplv1_jack)
@@ -97,7 +97,7 @@ source /opt/qtbase5-static/*/bin/qtbase5-static-env.sh
 [ -d "%{buildroot}" -a "%{buildroot}" != "/" ] && %__rm -rf "%{buildroot}"
 
 
-%files -n %{name}
+%files -n %{name}-jack
 %defattr(-,root,root)
 %doc AUTHORS COPYING ChangeLog README TODO
 #dir %{_datadir}/applications
