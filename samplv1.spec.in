@@ -59,6 +59,10 @@ BuildRequires:	lv2-devel
 
 BuildRequires:	pkgconfig(egl)
 
+%description
+  An old-school all-digital polyphonic sampler synthesizer with stereo fx.
+
+  
 %package -n %{name}-jack
 Summary:	An old-school polyphonic sampler - JACK standalone
 Provides:	%{name}_jack
