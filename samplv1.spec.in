@@ -50,7 +50,10 @@ BuildRequires:	libqt5-linguist
 BuildRequires:	alsa-devel
 BuildRequires:	librubberband-devel
 %endif
-BuildRequires:	qtbase5-static >= 5.13
+BuildRequires:	qtbase5-static
+BuildRequires:	qttools5-static
+BuildRequires:	qttranslations5-static
+BuildRequires:	qtwayland5-static
 BuildRequires:	libjack-devel
 BuildRequires:	libsndfile-devel
 BuildRequires:	fftw3-devel
