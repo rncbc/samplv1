@@ -200,7 +200,7 @@ samplv1widget_config::samplv1widget_config (
 		SIGNAL(clicked()),
 		SLOT(tuningRefNoteClicked()));
 	QObject::connect(m_ui.TuningScaleFileComboBox,
-		SIGNAL(activated(const QString&)),
+		SIGNAL(activated(int)),
 		SLOT(tuningChanged()));
 	QObject::connect(m_ui.TuningScaleFileToolButton,
 		SIGNAL(clicked()),
@@ -209,7 +209,7 @@ samplv1widget_config::samplv1widget_config (
 		SIGNAL(clicked()),
 		SLOT(tuningKeyMapFileClicked()));
 	QObject::connect(m_ui.TuningKeyMapFileComboBox,
-		SIGNAL(activated(const QString&)),
+		SIGNAL(activated(int)),
 		SLOT(tuningChanged()));
 
 	// Options slots...
