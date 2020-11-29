@@ -115,8 +115,12 @@ protected slots:
 
 protected:
 
-	// Sanitizer helper;
+	// Sanitizer helper.
 	int safeX(int x) const;
+
+	// Sanitized converters.
+	int pixelFromFrames(uint32_t n) const;
+	uint32_t framesFromPixel(int x) const;
 
 	// Widget resize handler.
 	void resizeEvent(QResizeEvent *);

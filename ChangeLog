@@ -6,6 +6,8 @@ ChangeLog
 
 GIT HEAD
 
+- Better handling of the offset and loop ranges when in
+  presence of very long sample files. (EXPERIMENTAL)
 - Reduced formant filters coefficient slew rate, aiming
   for a tenfold DSP performance gain. (EXPERIMENTAL)
 - Get a chance on bringing Wayland into the picture when
