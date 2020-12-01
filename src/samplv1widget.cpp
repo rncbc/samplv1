@@ -1741,6 +1741,12 @@ void samplv1widget::helpAbout (void)
 		sText += "</font></small><br />\n";
 	}
 	sText += "<br />\n";
+	sText += tr("Using: Qt %1").arg(qVersion());
+#if defined(QT_STATIC)
+	sText += "-static";
+#endif
+	sText += "<br />\n";
+	sText += "<br />\n";
 	sText += tr("Website") + ": <a href=\"" SAMPLV1_WEBSITE "\">" SAMPLV1_WEBSITE "</a><br />\n";
 	sText += "<br />\n";
 	sText += "<small>";
