@@ -435,6 +435,12 @@ void samplv1widget_sample::mouseMoveEvent ( QMouseEvent *pMouseEvent )
 			const QRect& rect = QRect(m_posDrag, pMouseEvent->pos()).normalized();
 			m_iDragOffsetStartX = safeX(rect.left());
 			m_iDragOffsetEndX   = safeX(rect.right());
+			if (m_bLoop) {
+				if (m_iDragOffsetStartX > m_iDragLoopStartX)
+					m_iDragOffsetStartX = m_iDragLoopStartX;
+				if (m_iDragOffsetEndX < m_iDragLoopEndX)
+					m_iDragOffsetEndX = m_iDragLoopEndX;
+			}
 			update();
 			const uint32_t iOffsetStart
 				= framesFromPixel(m_iDragOffsetStartX);
@@ -485,6 +491,14 @@ void samplv1widget_sample::mouseMoveEvent ( QMouseEvent *pMouseEvent )
 			const QRect& rect = QRect(m_posDrag, pMouseEvent->pos()).normalized();
 			m_iDragLoopStartX = safeX(rect.left());
 			m_iDragLoopEndX   = safeX(rect.right());
+			if (m_bOffset) {
+				if (m_iDragLoopStartX < m_iDragOffsetStartX)
+					m_iDragLoopStartX = m_iDragOffsetStartX;
+				if (m_iDragLoopEndX > m_iDragOffsetEndX)
+					m_iDragLoopEndX = m_iDragOffsetEndX;
+				if (m_iDragLoopStartX > m_iDragLoopEndX)
+					m_iDragLoopStartX = m_iDragLoopEndX;
+			}
 			update();
 			const uint32_t iLoopStart
 				= framesFromPixel(m_iDragLoopStartX);
@@ -543,62 +557,44 @@ void samplv1widget_sample::mouseReleaseEvent ( QMouseEvent *pMouseEvent )
 	QFrame::mouseReleaseEvent(pMouseEvent);
 
 	switch (m_dragState) {
-	case DragOffsetStart: {
-		if (m_pSample) {
+	case DragOffsetStart:
+		if (m_pSample && m_iDragOffsetStartX < m_iDragOffsetEndX) {
 			m_iOffsetStart = framesFromPixel(m_iDragOffsetStartX);
 			emit offsetRangeChanged();
-			updateToolTip();
-			update();
 		}
 		break;
-	}
-	case DragOffsetEnd: {
-		if (m_pSample) {
+	case DragOffsetEnd:
+		if (m_pSample && m_iDragOffsetStartX < m_iDragOffsetEndX) {
 			m_iOffsetEnd = framesFromPixel(m_iDragOffsetEndX);
 			emit offsetRangeChanged();
-			updateToolTip();
-			update();
 		}
 		break;
-	}
-	case DragOffsetRange: {
-		if (m_pSample) {
+	case DragOffsetRange:
+		if (m_pSample && m_iDragOffsetStartX < m_iDragOffsetEndX) {
 			m_iOffsetStart = framesFromPixel(m_iDragOffsetStartX);
 			m_iOffsetEnd   = framesFromPixel(m_iDragOffsetEndX);
 			emit offsetRangeChanged();
-			updateToolTip();
-			update();
 		}
 		break;
-	}
-	case DragLoopStart: {
-		if (m_pSample) {
+	case DragLoopStart:
+		if (m_pSample && m_iDragLoopStartX < m_iDragLoopEndX) {
 			m_iLoopStart = framesFromPixel(m_iDragLoopStartX);
 			emit loopRangeChanged();
-			updateToolTip();
-			update();
 		}
 		break;
-	}
-	case DragLoopEnd: {
-		if (m_pSample) {
+	case DragLoopEnd:
+		if (m_pSample && m_iDragLoopStartX < m_iDragLoopEndX) {
 			m_iLoopEnd = framesFromPixel(m_iDragLoopEndX);
 			emit loopRangeChanged();
-			updateToolTip();
-			update();
 		}
 		break;
-	}
-	case DragLoopRange: {
-		if (m_pSample) {
+	case DragLoopRange:
+		if (m_pSample && m_iDragLoopStartX < m_iDragLoopEndX) {
 			m_iLoopStart = framesFromPixel(m_iDragLoopStartX);
 			m_iLoopEnd   = framesFromPixel(m_iDragLoopEndX);
 			emit loopRangeChanged();
-			updateToolTip();
-			update();
 		}
-		break;
-	}
+		// Fall thru...
 	default:
 		break;
 	}
@@ -607,6 +603,9 @@ void samplv1widget_sample::mouseReleaseEvent ( QMouseEvent *pMouseEvent )
 
 	m_pDragSample = nullptr;
 	resetDragState();
+
+	updateToolTip();
+	update();
 }
 
 
