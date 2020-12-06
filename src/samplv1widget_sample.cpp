@@ -349,7 +349,7 @@ void samplv1widget_sample::mouseMoveEvent ( QMouseEvent *pMouseEvent )
 			const int dx = QApplication::startDragDistance();
 			if (m_bLoop) {
 				int x0 = pixelFromFrames(m_iLoopEnd);
-				if (abs(x0 - x) < dx) {
+				if (qAbs(x0 - x) < dx) {
 					m_dragCursor = DragLoopEnd;
 					QFrame::setCursor(QCursor(Qt::SizeHorCursor));
 					QToolTip::showText(
@@ -359,7 +359,7 @@ void samplv1widget_sample::mouseMoveEvent ( QMouseEvent *pMouseEvent )
 					break;
 				}
 				x0 = pixelFromFrames(m_iLoopStart);
-				if (abs(x0 - x) < dx) {
+				if (qAbs(x0 - x) < dx) {
 					m_dragCursor = DragLoopStart;
 					QFrame::setCursor(QCursor(Qt::SizeHorCursor));
 					QToolTip::showText(
@@ -371,7 +371,7 @@ void samplv1widget_sample::mouseMoveEvent ( QMouseEvent *pMouseEvent )
 			}
 			if (m_bOffset) {
 				int x0 = pixelFromFrames(m_iOffsetEnd);
-				if (abs(x0 - x) < dx) {
+				if (qAbs(x0 - x) < dx) {
 					m_dragCursor = DragOffsetEnd;
 					QFrame::setCursor(QCursor(Qt::SizeHorCursor));
 					QToolTip::showText(
@@ -381,7 +381,7 @@ void samplv1widget_sample::mouseMoveEvent ( QMouseEvent *pMouseEvent )
 					break;
 				}
 				x0 = pixelFromFrames(m_iOffsetStart);
-				if (abs(x0 - x) < dx) {
+				if (qAbs(x0 - x) < dx) {
 					m_dragCursor = DragOffsetStart;
 					QFrame::setCursor(QCursor(Qt::SizeHorCursor));
 					QToolTip::showText(
