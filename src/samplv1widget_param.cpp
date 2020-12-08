@@ -438,8 +438,8 @@ QString samplv1widget_knob::text (void) const
 void samplv1widget_knob::setValue ( float fValue )
 {
 	const bool bDialBlock = m_pDial->blockSignals(true);
-	samplv1widget_param::setValue(fValue);
 	m_pDial->setValue(scaleFromValue(fValue));
+	samplv1widget_param::setValue(fValue);
 	m_pDial->blockSignals(bDialBlock);
 }
 
@@ -583,8 +583,8 @@ samplv1widget_spin::samplv1widget_spin ( QWidget *pParent )
 void samplv1widget_spin::setValue ( float fValue )
 {
 	const bool bSpinBlock = m_pSpinBox->blockSignals(true);
-	samplv1widget_knob::setValue(fValue);
 	m_pSpinBox->setValue(scaleFromValue(fValue));
+	samplv1widget_knob::setValue(fValue);
 	m_pSpinBox->blockSignals(bSpinBlock);
 }
 
@@ -679,8 +679,8 @@ samplv1widget_combo::samplv1widget_combo ( QWidget *pParent )
 void samplv1widget_combo::setValue ( float fValue )
 {
 	const bool bComboBlock = m_pComboBox->blockSignals(true);
-	samplv1widget_knob::setValue(fValue);
 	m_pComboBox->setCurrentIndex(iroundf(fValue));
+	samplv1widget_knob::setValue(fValue);
 	m_pComboBox->blockSignals(bComboBlock);
 }
 
