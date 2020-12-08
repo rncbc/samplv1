@@ -1,4 +1,4 @@
-project(SAMPLV1)
+project(samplv1)
 
 cmake_minimum_required(VERSION 3.1)
 
