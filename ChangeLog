@@ -4,6 +4,11 @@ samplv1 - an old-school polyphonic sampler
 ChangeLog
 
 
+GIT HEAD
+
+- Early preparations for the New Year develop(ment) cycle.
+
+
 0.9.19  20220-12-19  A Winter'20 Release.
 
 - Better handling of the offset and loop ranges when in
