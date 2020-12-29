@@ -6,7 +6,7 @@ ChangeLog
 
 GIT HEAD
 
-- Early preparations for the New Year develop(ment) cycle.
+- Fixed sample loop when the DCA EG is off or disabled.
 
 
 0.9.19  20220-12-19  A Winter'20 Release.

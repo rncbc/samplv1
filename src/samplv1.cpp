@@ -1773,8 +1773,8 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 					m_dca1.env.start(&pv->dca1_env);
 				else
 					m_dca1.env.idle(&pv->dca1_env);
-				if (gen1_sample.isLoop())
-					pv->gen1.setLoop(*m_dca1.enabled > 0.0f);
+				// something about the loop
+				pv->gen1.setLoop(gen1_sample.isLoop());
 				// lfos
 				const float lfo1_pshift
 					= (m_lfo1.psync ? m_lfo1.psync->lfo1.pshift() : 0.0f);
