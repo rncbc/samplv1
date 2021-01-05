@@ -1,7 +1,7 @@
 // samplv1_sample.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2020, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2021, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -22,12 +22,13 @@
 #ifndef __samplv1_sample_h
 #define __samplv1_sample_h
 
-#include <stdint.h>
+#include <cstdint>
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 
-#include <math.h>
+#include <cmath>
+
 
 // forward decls.
 class samplv1;

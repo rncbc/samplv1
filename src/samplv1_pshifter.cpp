@@ -1,7 +1,7 @@
 // samplv1_pshifter.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2020, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2021, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -148,10 +148,10 @@ void samplv1_rubberband_pshifter::process (
 	ANY KIND. See http://www.dspguru.com/wol.htm for more information.
 */ 
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 
-#include <math.h>
+#include <cmath>
 
 #ifdef CONFIG_FFTW3
 // nothing here.

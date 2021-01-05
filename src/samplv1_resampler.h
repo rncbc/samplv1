@@ -1,7 +1,7 @@
 // samplv1_resampler.h
 //
 /****************************************************************************
-   Copyright (C) 2017-2019, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2017-2021, rncbc aka Rui Nuno Capela. All rights reserved.
    Copyright (C) 2006-2012 Fons Adriaensen <fons@linuxaudio.org>
 
    This program is free software; you can redistribute it and/or

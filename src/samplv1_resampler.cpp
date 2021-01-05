@@ -1,7 +1,7 @@
 // samplv1_resampler.cpp
 //
 /****************************************************************************
-   Copyright (C) 2017-2019, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2017-2021, rncbc aka Rui Nuno Capela. All rights reserved.
    Copyright (C) 2006-2012 Fons Adriaensen <fons@linuxaudio.org>
 
    This program is free software; you can redistribute it and/or
@@ -22,10 +22,10 @@
 
 #include "samplv1_resampler.h"
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 
-#include <math.h>
+#include <cmath>
 
 
 // ----------------------------------------------------------------------------
