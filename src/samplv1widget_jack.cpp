@@ -1,7 +1,7 @@
 // samplv1widget_jack.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2020, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2021, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -152,10 +152,12 @@ void samplv1widget_jack::updateDirtyPreset ( bool bDirtyPreset )
 void samplv1widget_jack::closeEvent ( QCloseEvent *pCloseEvent )
 {
 #ifdef CONFIG_NSM
-	if (m_pNsmClient && m_pNsmClient->is_active())
-		samplv1widget::updateDirtyPreset(false);
+	if (m_pNsmClient && m_pNsmClient->is_active()) {
+		pCloseEvent->ignore();
+		samplv1widget::hide();
+	}
+	else
 #endif
-
 	// Let's be sure about that...
 	if (queryClose()) {
 		pCloseEvent->accept();

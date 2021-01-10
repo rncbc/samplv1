@@ -6,6 +6,9 @@ ChangeLog
 
 GIT HEAD
 
+- When under under the NSM auspices, fix SIGTERM handler
+  on exit and just hide the main-window on close (applies
+  to the JACK stand-alone only). (EXPERIMENTAL)
 - Fixed sample loop when the DCA EG is off or disabled.
 
 
