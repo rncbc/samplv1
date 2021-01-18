@@ -18,3 +18,4 @@ qrc_*.cpp
 .ui_*
 samplv1_ui.ttl
 samplv1_jack
+build/
