@@ -4,11 +4,11 @@ samplv1 - an old-school polyphonic sampler
 ChangeLog
 
 
-GIT HEAD
+0.9.20  2021-02-10  A Winter'21 Release.
 
 - When under under the NSM auspices, fix SIGTERM handler
   on exit and just hide the main-window on close (applies
-  to the JACK stand-alone only). (EXPERIMENTAL)
+  to the JACK stand-alone only).
 - Fixed sample loop when the DCA EG is off or disabled.
 
 
