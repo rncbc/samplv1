@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(drumkv1
+project(samplv1
   VERSION 0.9.20
   DESCRIPTION "an old-school polyphonic sampler"
   LANGUAGES C CXX)
