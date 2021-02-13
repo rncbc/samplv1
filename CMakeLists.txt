@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 project(samplv1
-  VERSION 0.9.20
+  VERSION 0.9.21
   DESCRIPTION "an old-school polyphonic sampler"
   LANGUAGES C CXX)
 
