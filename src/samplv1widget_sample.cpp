@@ -684,7 +684,7 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 	const bool bDark = (pal.window().color().value() < 0x7f);
 	const QColor& rgbLite = (isEnabled()
 		? (bDark ? Qt::darkYellow : Qt::yellow) : pal.mid().color());
-    const QColor& rgbDark = pal.window().color().darker(180);
+    const QColor& rgbDark = pal.window().color().darker(220);
 
     painter.fillRect(rect, rgbDark);
 
@@ -705,6 +705,7 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 				x2 = pixelFromFrames(m_iLoopEnd);
 			}
 			QLinearGradient grad1(0, 0, w2, h);
+		//	painter.setPen(bDark ? Qt::gray : Qt::darkGray);
 			painter.setPen(rgbLite);
 			grad1.setColorAt(0.0f, rgbLite.darker());
 			grad1.setColorAt(0.5f, pal.dark().color());
@@ -724,7 +725,8 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 		}
 		// Sample waveform...
 		QLinearGradient grad(0, 0, w2, h);
-		painter.setPen(bDark ? Qt::gray : Qt::darkGray);
+	//	painter.setPen(bDark ? Qt::gray : Qt::darkGray);
+		painter.setPen(rgbLite);
 		grad.setColorAt(0.0f, rgbLite);
 		grad.setColorAt(1.0f, Qt::black);
 		painter.setBrush(grad);
@@ -742,7 +744,7 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 				x1 = pixelFromFrames(m_iOffsetStart);
 				x2 = pixelFromFrames(m_iOffsetEnd);
 			}
-			QColor rgbOver = rgbDark.darker();
+			QColor rgbOver = rgbDark.darker(220);
 			rgbOver.setAlpha(120);
 			painter.setPen(rgbLite.darker(160));
 			painter.setBrush(rgbDark.lighter(160));
