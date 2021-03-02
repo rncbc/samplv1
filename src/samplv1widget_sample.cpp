@@ -681,12 +681,11 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 	const int w = rect.width();
 
 	const QPalette& pal = palette();
-	const bool bDark = (pal.window().color().value() < 0x7f);
-	const QColor& rgbLite = (isEnabled()
-		? (bDark ? Qt::darkYellow : Qt::yellow) : pal.mid().color());
-    const QColor& rgbDark = pal.window().color().darker(220);
+//	const bool bDark = (pal.window().color().value() < 0x7f);
+	const QColor& rgbLite = (isEnabled() ? Qt::darkYellow : pal.mid().color());
+	const QColor& rgbDark = pal.window().color().darker(220);
 
-    painter.fillRect(rect, rgbDark);
+	painter.fillRect(rect, rgbDark);
 
 	if (m_pSample && m_ppPolyg) {
 		const bool bEnabled = isEnabled();
