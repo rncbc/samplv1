@@ -298,7 +298,7 @@ void samplv1_sample::updateOffset (void)
 // loop range.
 void samplv1_sample::setLoopRange ( uint32_t start, uint32_t end )
 {
-	if (m_offset_start < m_offset_end) {
+	if (m_offset && m_offset_start < m_offset_end) {
 		if (start < m_offset_start)
 			start = m_offset_start;
 		if (start > m_offset_end)
