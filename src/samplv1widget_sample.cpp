@@ -681,15 +681,18 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 	const int w = rect.width();
 
 	const QPalette& pal = palette();
-	const bool bDark = (pal.window().color().value() < 0x7f);
-	const QColor& rgbLite = (isEnabled()
-		? (bDark ? Qt::darkYellow : Qt::yellow) : pal.mid().color());
-    const QColor& rgbDark = pal.window().color().darker(220);
+//	const bool bDark = (pal.window().color().value() < 0x7f);
+	const QColor& rgbLite = (isEnabled() ? Qt::yellow : pal.mid().color());
+	const QColor& rgbDark = pal.window().color().darker();
 
-    painter.fillRect(rect, rgbDark);
+	painter.fillRect(rect, rgbDark);
 
 	if (m_pSample && m_ppPolyg) {
 		const bool bEnabled = isEnabled();
+		QColor rgbLite1(rgbLite);
+		QColor rgbDrop1(Qt::black);
+		rgbLite1.setAlpha(120);
+		rgbDrop1.setAlpha(80);
 		const int w2 = (w << 1);
 		painter.setRenderHint(QPainter::Antialiasing, true);
 		// Loop point lines...
@@ -706,13 +709,13 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 			}
 			QLinearGradient grad1(0, 0, w2, h);
 		//	painter.setPen(bDark ? Qt::gray : Qt::darkGray);
-			painter.setPen(rgbLite);
-			grad1.setColorAt(0.0f, rgbLite.darker());
-			grad1.setColorAt(0.5f, pal.dark().color());
+			painter.setPen(rgbLite1.lighter());
+			grad1.setColorAt(0.0f, rgbLite1.darker());
+			grad1.setColorAt(0.5f, rgbDrop1);
 			painter.fillRect(x1, 0, x2 - x1, h, grad1);
-			painter.drawLine(x1, 0, x1, h);
-			painter.drawLine(x2, 0, x2, h);
-			painter.setBrush(rgbLite);
+			painter.drawLine(x1, 8, x1, h);
+			painter.drawLine(x2, 0, x2, h - 8);
+			painter.setBrush(rgbLite1.darker(160));
 			QPolygon polyg(3);
 			polyg.putPoints(0, 3, x1 + 8, 0, x1, 8, x1, 0);
 			painter.drawPolygon(polyg);
@@ -726,9 +729,9 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 		// Sample waveform...
 		QLinearGradient grad(0, 0, w2, h);
 	//	painter.setPen(bDark ? Qt::gray : Qt::darkGray);
-		painter.setPen(rgbLite);
-		grad.setColorAt(0.0f, rgbLite);
-		grad.setColorAt(1.0f, Qt::black);
+		painter.setPen(rgbLite1);
+		grad.setColorAt(0.0f, rgbLite1);
+		grad.setColorAt(1.0f, rgbDrop1);
 		painter.setBrush(grad);
 		for (unsigned short k = 0; k < m_iChannels; ++k)
 			painter.drawPolygon(*m_ppPolyg[k]);
@@ -744,23 +747,23 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 				x1 = pixelFromFrames(m_iOffsetStart);
 				x2 = pixelFromFrames(m_iOffsetEnd);
 			}
-			QColor rgbOver = rgbDark.darker(220);
+			QColor rgbOver(rgbDark.darker(220));
 			rgbOver.setAlpha(120);
-			painter.setPen(rgbLite.darker(160));
-			painter.setBrush(rgbDark.lighter(160));
+			painter.setPen(rgbLite1.darker());
+			painter.setBrush(rgbLite1.darker(220));
 			QPolygon polyg(3);
 		//	polyg.putPoints(0, 3, x1 + 8, 0, x1, 8, x1, 0);
 		//	painter.drawPolygon(polyg);
 			polyg.putPoints(0, 3, x1 + 8, h, x1, h - 8, x1, h);
 			painter.drawPolygon(polyg);
 			painter.fillRect(0, 0, x1, h, rgbOver);
-			painter.drawLine(x1, 0, x1, h);
+			painter.drawLine(x1, 0, x1, h - 8);
+			painter.drawLine(x2, 8, x2, h);
 			polyg.putPoints(0, 3, x2 - 8, 0, x2, 8, x2, 0);
 			painter.drawPolygon(polyg);
 		//	polyg.putPoints(0, 3, x2 - 8, h, x2, h - 8, x2, h);
 		//	painter.drawPolygon(polyg);
 			painter.fillRect(x2, 0, w, h, rgbOver);
-			painter.drawLine(x2, 0, x2, h);
 		}
 		painter.setRenderHint(QPainter::Antialiasing, false);
 	} else {
