@@ -710,9 +710,8 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 				x2 = pixelFromFrames(m_iLoopEnd);
 			}
 			QLinearGradient grad1(0, 0, w2, h);
-		//	painter.setPen(bDark ? Qt::gray : Qt::darkGray);
 			painter.setPen(rgbLite1.lighter());
-			grad1.setColorAt(0.0f, rgbLite1.darker());
+			grad1.setColorAt(0.0f, rgbLite1.darker(160));
 			grad1.setColorAt(0.5f, rgbDrop1);
 			painter.fillRect(x1, 0, x2 - x1, h, grad1);
 			painter.drawLine(x1, 8, x1, h);
@@ -730,8 +729,7 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 		}
 		// Sample waveform...
 		QLinearGradient grad(0, 0, w2, h);
-	//	painter.setPen(bDark ? Qt::gray : Qt::darkGray);
-		painter.setPen(rgbLite1);
+		painter.setPen(rgbLite1.darker(120));
 		grad.setColorAt(0.0f, rgbLite1);
 		grad.setColorAt(1.0f, rgbDrop1);
 		painter.setBrush(grad);
