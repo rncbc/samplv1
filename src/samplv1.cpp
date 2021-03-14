@@ -1789,7 +1789,7 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 				pv->out1_panning = 0.0f;
 				pv->out1_pan.reset(&pv->out1_panning);
 				// volume
-				pv->out1_volume = 0.0f;
+				pv->out1_volume = 1.0f;
 				pv->out1_vol.reset(&pv->out1_volume);
 				// sustain
 				pv->sustain = false;
