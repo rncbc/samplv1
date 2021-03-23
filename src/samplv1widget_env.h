@@ -23,6 +23,7 @@
 #define __samplv1widget_env_h
 
 #include <QFrame>
+#include <QPolygon>
 
 
 //----------------------------------------------------------------------------
