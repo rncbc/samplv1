@@ -48,7 +48,7 @@ BuildRequires:	cmake
 BuildRequires:	alsa-lib-devel
 BuildRequires:	rubberband-devel
 %else
-#BuildRequires:	libqt5-qtbase-devel >= 5.1, libqt5-linguist
+#BuildRequires:	libqt5-qtbase-devel >= 5.1, libqt5-linguist-devel
 #BuildRequires:	libqt5-qtsvg-devel, libqt5-qtwayland-devel
 BuildRequires:	alsa-devel
 BuildRequires:	librubberband-devel
