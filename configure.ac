@@ -819,7 +819,7 @@ echo "  LV2 plug-in Port-event support (EXPERIMENTAL)  . .: $ac_lv2_port_event"
 echo "  Pitch-shifting support (librubberband) . . . . . .: $ac_librubberband"
 echo "  Pitch-shifting support (fftw3) . . . . . . . . . .: $ac_fftw3"
 echo "  OSC service support (liblo)  . . . . . . . . . . .: $ac_liblo"
-echo "  Non/New Session Management (NSM) support . . . . .: $ac_nsm"
+echo "  Non Session Management (NSM) support . . . . . . .: $ac_nsm"
 echo
 echo "  Install prefix . . . . . . . . . . . . . . . . . .: $ac_prefix"
 echo
