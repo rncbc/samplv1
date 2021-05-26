@@ -762,6 +762,7 @@ samplv1_jack_application::samplv1_jack_application ( int& argc, char **argv )
 	}
 
 	if (m_bGui) {
+		::setenv("QT_QPA_PLATFORM", "xcb", 0);
 	#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
 	#if QT_VERSION <  QT_VERSION_CHECK(6, 0, 0)
 		QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
