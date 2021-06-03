@@ -361,7 +361,7 @@ void samplv1_jack::open ( const char *client_name )
 #endif	// CONFIG_ALSA_MIDI
 
 	// setup any local, initial buffers...
-	samplv1::setBufferSize(::jack_get_buffer_size(m_client));
+	samplv1::setBufferSize(::jack_get_buffer_size(m_client) << 2);
 
 	::jack_set_buffer_size_callback(m_client,
 		samplv1_jack_buffer_size, this);
