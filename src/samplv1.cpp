@@ -1804,28 +1804,29 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 				continue;
 			samplv1_voice *pv = m_notes[key];
 			if (pv && pv->note >= 0) {
-				if (m_ctl1.sustain)
+				if (m_ctl1.sustain) {
 					pv->sustain = true;
-				else
-				if (pv->dca1_env.stage != samplv1_env::Release) {
-					m_dca1.env.note_off(&pv->dca1_env);
-					m_dcf1.env.note_off(&pv->dcf1_env);
-					m_lfo1.env.note_off(&pv->lfo1_env);
-				//	pv->gen1.setLoop(false);
-				}
-				m_notes[pv->note] = nullptr;
-				pv->note = -1;
-				// mono legato?
-				if (*m_def.mono > 0.0f) {
-					do pv = pv->prev();	while (pv && pv->note < 0);
-					if (pv && pv->note >= 0) {
-						const bool legato = (*m_def.mono > 1.0f);
-						m_dcf1.env.restart(&pv->dcf1_env, legato);
-						m_lfo1.env.restart(&pv->lfo1_env, legato);
-						m_dca1.env.restart(&pv->dca1_env, legato);
-						pv->gen1.setLoop(*m_gen1.loop > 0.0f);
-						if (!legato) pv->gen1.start(pv->gen1_freq);
-						m_notes[pv->note] = pv;
+				} else {
+					if (pv->dca1_env.stage != samplv1_env::Release) {
+						m_dca1.env.note_off(&pv->dca1_env);
+						m_dcf1.env.note_off(&pv->dcf1_env);
+						m_lfo1.env.note_off(&pv->lfo1_env);
+					//	pv->gen1.setLoop(false);
+					}
+					m_notes[pv->note] = nullptr;
+					pv->note = -1;
+					// mono legato?
+					if (*m_def.mono > 0.0f) {
+						do pv = pv->prev();	while (pv && pv->note < 0);
+						if (pv && pv->note >= 0) {
+							const bool legato = (*m_def.mono > 1.0f);
+							m_dcf1.env.restart(&pv->dcf1_env, legato);
+							m_lfo1.env.restart(&pv->lfo1_env, legato);
+							m_dca1.env.restart(&pv->dca1_env, legato);
+							pv->gen1.setLoop(*m_gen1.loop > 0.0f);
+							if (!legato) pv->gen1.start(pv->gen1_freq);
+							m_notes[pv->note] = pv;
+						}
 					}
 				}
 			}
