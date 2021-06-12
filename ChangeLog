@@ -6,6 +6,8 @@ ChangeLog
 
 GIT HEAD
 
+- Sustenuto pedal controller (MIDI CC#66) is now implemented.
+  (EXPERIMENTAL)
 - Fixed old Sustain/Damper/Hold pedal controller (MIDI CC#64)
   note-off processing. (EXPERIMENTAL)
 - Have some tolerance for buffer-size changes. (EXPERIMENTAL)
