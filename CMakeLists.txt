@@ -164,7 +164,7 @@ endif ()
 
 
 # Find package modules
-find_package (PkgConfig REQUIRED)
+include (FindPkgConfig)
 
 # Check for SNDFILE libraries.
 pkg_check_modules (SNDFILE REQUIRED IMPORTED_TARGET sndfile)
