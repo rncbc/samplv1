@@ -6,7 +6,11 @@ ChangeLog
 
 GIT HEAD
 
-- Add support for LV2 UI Windows (by AnClark). (EXPERIMENTAL)
+- Fixed some ages old Glide/portamento potential crash bug
+  (reported by AnClark, while on synthv1 GH#17, thanks).
+  (EXPERIMENTAL)
+- Add support for LV2 UI Windows platform (by AnClark, while
+  on synthv1 GH#14). (EXPERIMENTAL)
 - Sustenuto pedal controller (MIDI CC#66) is now implemented.
   (EXPERIMENTAL)
 - Fixed old Sustain/Damper/Hold pedal controller (MIDI CC#64)
