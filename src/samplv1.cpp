@@ -815,18 +815,21 @@ struct samplv1_key
 
 struct samplv1_glide
 {
-	samplv1_glide(float& freq) : m_freq(freq) { reset(); }
+	samplv1_glide(float& last) : m_last(last) { reset(); }
 
 	void reset( uint32_t frames = 0, float freq = 0.0f )
 	{
 		m_frames = frames;
 
 		if (m_frames > 0) {
-			m_step = (m_freq - freq) / float(m_frames);
+			m_freq = m_last;
+			m_step = (m_last - freq) / float(m_frames);
 		} else {
 			m_freq = freq;
 			m_step = 0.0f;
 		}
+
+		m_last = freq;
 	}
 
 	float tick()
@@ -835,6 +838,7 @@ struct samplv1_glide
 			m_freq -= m_step;
 			--m_frames;
 		}
+
 		return m_freq;
 	}
 
@@ -842,9 +846,10 @@ private:
 
 	uint32_t m_frames;
 
-	float m_step;
+	float  m_step;
+	float  m_freq;
 
-	float& m_freq;
+	float& m_last;
 };
 
 
