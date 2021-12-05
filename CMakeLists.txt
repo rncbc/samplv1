@@ -375,5 +375,4 @@ show_option ("  Pitch-shifting support (librubberband) . . . . . ." CONFIG_LIBRU
 show_option ("  Pitch-shifting support (fftw3) . . . . . . . . . ." CONFIG_FFTW3)
 show_option ("  OSC service support (liblo)  . . . . . . . . . . ." CONFIG_LIBLO)
 show_option ("  Non Session Management (NSM) support . . . . . . ." CONFIG_NSM)
-message   ("\n  Install prefix . . . . . . . . . . . . . . . . . .: ${CONFIG_PREFIX}")
-message   ("\nNow type 'make', followed by 'make install' as root.\n")
+message   ("\n  Install prefix . . . . . . . . . . . . . . . . . .: ${CONFIG_PREFIX}\n")
