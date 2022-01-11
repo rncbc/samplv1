@@ -1,5 +1,5 @@
 debian/tmp/usr/bin/samplv1_jack
-debian/tmp/usr/share/metainfo/org.rncbc.samplv1.xml
+debian/tmp/usr/share/metainfo/org.rncbc.samplv1.metainfo.xml
 debian/tmp/usr/share/applications/org.rncbc.samplv1.desktop
 debian/tmp/usr/share/mime/packages/samplv1.xml
 debian/tmp/usr/share/icons/hicolor/32x32/apps/samplv1.png
