@@ -1,7 +1,7 @@
 // samplv1_nsm.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2020, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2022, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -151,7 +151,8 @@ samplv1_nsm::samplv1_nsm (
 		m_thread(nullptr),
 		m_server(nullptr),
 	#endif
-		m_active(false)
+		m_active(false),
+		m_dirty(false)
 {
 #ifdef CONFIG_LIBLO
 	m_address = lo_address_new_from_url(nsm_url.toUtf8().constData());
@@ -256,6 +257,12 @@ const QString& samplv1_nsm::client_name (void) const
 // Session client methods.
 void samplv1_nsm::dirty ( bool is_dirty )
 {
+	if ((!is_dirty && !m_dirty) ||
+		( is_dirty &&  m_dirty))
+		return;
+
+	m_dirty = is_dirty;
+
 #ifdef CONFIG_LIBLO
 	if (m_address && m_server && m_active) {
 		const char *path = is_dirty
