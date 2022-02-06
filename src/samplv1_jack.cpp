@@ -1,7 +1,7 @@
 // samplv1_jack.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2021, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2022, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -715,6 +715,14 @@ void samplv1_jack::shutdown_close (void)
 #include <QApplication>
 #include <QTextStream>
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
+#include <QCommandLineParser>
+#include <QCommandLineOption>
+#if defined(Q_OS_WINDOWS)
+#include <QMessageBox>
+#endif
+#endif
+
 #ifdef CONFIG_NSM
 #include "samplv1_nsm.h"
 #endif
@@ -774,6 +782,13 @@ samplv1_jack_application::samplv1_jack_application ( int& argc, char **argv )
 	#if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
 		pApp->setApplicationDisplayName(SAMPLV1_TITLE);
 		//	SAMPLV1_TITLE " - " + QObject::tr(SAMPLV1_SUBTITLE));
+		QString sVersion(CONFIG_BUILD_VERSION);
+		sVersion += '\n';
+		sVersion += QString("Qt: %1").arg(qVersion());
+	#if defined(QT_STATIC)
+		sVersion += "-static";
+	#endif
+		QApplication::setApplicationVersion(sVersion);
 	#endif
 		m_pApp = pApp;
 	} else {
@@ -839,11 +854,64 @@ samplv1_jack_application::~samplv1_jack_application (void)
 }
 
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
+
+void samplv1_jack_application::show_error( const QString& msg )
+{
+#if defined(Q_OS_WINDOWS)
+	QMessageBox::information(nullptr, QApplication::applicationName(), msg);
+#else
+	const QByteArray tmp = msg.toUtf8() + '\n';
+	::fputs(tmp.constData(), stderr);
+#endif
+}
+
+#endif
+
+
 // Argument parser method.
 bool samplv1_jack_application::parse_args (void)
 {
-	QTextStream out(stderr);
 	const QStringList& args = m_pApp->arguments();
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
+
+	QCommandLineParser parser;
+	parser.setApplicationDescription(
+		SAMPLV1_TITLE " - " + QObject::tr(SAMPLV1_SUBTITLE));
+
+	parser.addOption({{"g", "no-gui"},
+		QObject::tr("Disable the graphical user interface (GUI)")});
+	parser.addOption({{"n", "client-name"},
+		QObject::tr("Set the JACK client name (default: %1)")
+			.arg(SAMPLV1_TITLE), "label"});
+	parser.addHelpOption();
+	parser.addVersionOption();
+	parser.addPositionalArgument("preset-file",
+		QObject::tr("Load preset file (.%1)").arg(SAMPLV1_TITLE),
+		QObject::tr("[preset-file]"));
+	parser.process(args);
+
+	if (parser.isSet("no-gui")) {
+		// Ignored: parsed on startup...
+	}
+
+	if (parser.isSet("client-name")) {
+		const QString& sVal = parser.value("client-name");
+		if (sVal.isEmpty()) {
+			show_error(QObject::tr("Option -n requires an argument (label)."));
+			return false;
+		}
+		m_sClientName = sVal;
+	}
+
+	foreach(const QString& sArg, parser.positionalArguments()) {
+		m_presets.append(sArg);
+	}
+
+#else
+
+	QTextStream out(stderr);
 	const int argc = args.count();
 
 	for (int i = 1; i < argc; ++i) {
@@ -864,7 +932,7 @@ bool samplv1_jack_application::parse_args (void)
 
 		if (sArg == "-n" || sArg == "--client-name") {
 			if (sVal.isNull()) {
-				out << QObject::tr("Option -n requires an argument (client-name).\n\n");
+				out << QObject::tr("Option -n requires an argument (label).\n\n");
 				return false;
 			}
 			m_sClientName = sVal;
@@ -873,15 +941,19 @@ bool samplv1_jack_application::parse_args (void)
 		}
 		else
 		if (sArg == "-h" || sArg == "--help") {
-			out << QObject::tr(
-				"Usage: %1 [options] [preset-file]\n\n"
-				SAMPLV1_TITLE " - " SAMPLV1_SUBTITLE "\n\n"
-				"Options:\n\n"
-				"  -g, --no-gui\n\tDisable the graphical user interface (GUI)\n\n"
-				"  -n, --client-name=[label]\n\tSet the JACK client name (default: samplv1)\n\n"
-				"  -h, --help\n\tShow help about command line options\n\n"
-				"  -v, --version\n\tShow version information\n\n")
-				.arg(args.at(0));
+			const QString sEot = "\n\t";
+			const QString sEol = "\n\n";
+			out << QObject::tr("Usage: %1 [options]").arg(args.at(0)) + sEol;
+			out << SAMPLV1_TITLE " - " << QObject::tr(SAMPLV1_SUBTITLE) + sEol;
+			out << QObject::tr("Options:") + sEol;
+			out << "  -g, --no-gui" + sEot +
+				QObject::tr("Disable the graphical user interface (GUI)") + sEol;
+			out << "  -n, --client-name=[label]" + sEot +
+				QObject::tr("Set the JACK client name (default: %1)").arg(SAMPLV1_TITLE) + sEol;
+			out << "  -h, --help" + sEot +
+				QObject::tr("Show help about command line options.") + sEol;
+			out << "  -v, --version" + sEot +
+				QObject::tr("Show version information.") + sEol;
 			return false;
 		}
 		else
@@ -902,6 +974,8 @@ bool samplv1_jack_application::parse_args (void)
 			m_presets.append(sArg);
 		}
 	}
+
+#endif
 
 	return true;
 }
