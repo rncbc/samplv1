@@ -1,7 +1,7 @@
 ﻿// samplv1.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2021, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2022, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -1045,7 +1045,7 @@ class samplv1_impl
 {
 public:
 
-	samplv1_impl(samplv1 *pSampl, uint16_t nchannels, float srate);
+	samplv1_impl(samplv1 *pSampl, uint16_t nchannels, float srate, uint32_t nsize);
 
 	~samplv1_impl();
 
@@ -1248,7 +1248,7 @@ samplv1_voice::samplv1_voice ( samplv1_impl *pImpl ) :
 // engine constructor
 
 samplv1_impl::samplv1_impl (
-	samplv1 *pSampl, uint16_t nchannels, float srate )
+	samplv1 *pSampl, uint16_t nchannels, float srate, uint32_t nsize )
 		: gen1_sample(srate), m_controls(pSampl), m_programs(pSampl),
 			m_midi_in(pSampl), m_bpm(180.0f), m_gen1(pSampl),
 			m_nvoices(0), m_running(false)
@@ -1305,6 +1305,9 @@ samplv1_impl::samplv1_impl (
 
 	// set default sample rate
 	setSampleRate(srate);
+
+	// set default buffer size
+	setBufferSize(nsize);
 
 	// reset all voices
 	allControllersOff();
@@ -2572,9 +2575,9 @@ bool samplv1_impl::running ( bool on )
 // samplv1 - decl.
 //
 
-samplv1::samplv1 ( uint16_t nchannels, float srate )
+samplv1::samplv1 ( uint16_t nchannels, float srate, uint32_t nsize )
 {
-	m_pImpl = new samplv1_impl(this, nchannels, srate);
+	m_pImpl = new samplv1_impl(this, nchannels, srate, nsize);
 }
 
 
