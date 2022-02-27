@@ -7,6 +7,7 @@ Comment[fr]=samplv1 est un échantillonneur polyphonique à l'ancienne
 Exec=samplv1_jack
 Icon=samplv1
 Categories=Audio;AudioVideo;Midi;X-Alsa;X-Jack;Qt;
+MimeType=application/x-samplv1-preset;
 Keywords=Audio;MIDI;ALSA;JACK;Synthesizer;Sampler;LV2;Qt;
 Terminal=false
 Type=Application
