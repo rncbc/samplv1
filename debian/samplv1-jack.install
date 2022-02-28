@@ -1,9 +1,9 @@
 debian/tmp/usr/bin/samplv1_jack
 debian/tmp/usr/share/metainfo/org.rncbc.samplv1.metainfo.xml
 debian/tmp/usr/share/applications/org.rncbc.samplv1.desktop
-debian/tmp/usr/share/mime/packages/samplv1.xml
+debian/tmp/usr/share/mime/packages/org.rncbc.samplv1.xml
 debian/tmp/usr/share/icons/hicolor/32x32/apps/org.rncbc.samplv1.png
-debian/tmp/usr/share/icons/hicolor/32x32/mimetypes/application-x-samplv1*.png
+debian/tmp/usr/share/icons/hicolor/32x32/mimetypes/org.rncbc.samplv1.application-x-samplv1*.png
 debian/tmp/usr/share/icons/hicolor/scalable/apps/org.rncbc.samplv1.svg
-debian/tmp/usr/share/icons/hicolor/scalable/mimetypes/application-x-samplv1*.svg
+debian/tmp/usr/share/icons/hicolor/scalable/mimetypes/org.rncbc.samplv1.application-x-samplv1*.svg
 debian/tmp/usr/share/man/man1/samplv1*.*
