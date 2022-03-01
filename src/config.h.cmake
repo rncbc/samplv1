@@ -101,4 +101,7 @@
 #cmakedefine CONFIG_NSM @CONFIG_NSM@
 
 
+/* Define if Wayland is supported */
+#cmakedefine CONFIG_WAYLAND @CONFIG_WAYLAND@
+
 #endif /* CONFIG_H */
