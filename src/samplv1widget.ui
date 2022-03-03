@@ -3,7 +3,7 @@
  <author>rncbc aka Rui Nuno Capela</author>
  <comment>samplv1 - an old-school polyphonic sampler
 
-  Copyright (C) 2012-2021, rncbc aka Rui Nuno Capela. All rights reserved.
+  Copyright (C) 2012-2022, rncbc aka Rui Nuno Capela. All rights reserved.
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License
@@ -23,7 +23,7 @@
  <class>samplv1widget</class>
  <widget class="QWidget" name="samplv1widget">
   <property name="windowIcon" >
-   <iconset resource="samplv1.qrc" >:/images/samplv1.png</iconset>
+   <iconset resource="samplv1.qrc" >:/images/samplv1.svg</iconset>
   </property>
   <layout class="QVBoxLayout" >
    <property name="margin" >

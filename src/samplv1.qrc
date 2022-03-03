@@ -1,5 +1,7 @@
 <RCC version="1.0">
 	<qresource>
+		<file>images/samplv1.png</file>
+		<file>images/samplv1.svg</file>
 		<file>images/ledOn.png</file>
 		<file>images/ledOff.png</file>
 		<file>images/playSample.png</file>
@@ -12,7 +14,6 @@
 		<file>images/presetEdit.png</file>
 		<file>images/itemReset.png</file>
 		<file>images/fileOpen.png</file>
-		<file>images/samplv1.png</file>
 		<file>images/samplv1_preset.png</file>
 		<file>images/samplv1_control.png</file>
 	</qresource>
