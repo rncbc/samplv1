@@ -174,7 +174,7 @@ if (CONFIG_DEBUG AND UNIX AND NOT APPLE)
 endif ()
 
 target_link_libraries (${PROJECT_NAME}    PUBLIC Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Xml)
-target_link_libraries (${PROJECT_NAME}_ui PUBLIC Qt${QT_VERSION_MAJOR}::Widgets ${PROJECT_NAME})
+target_link_libraries (${PROJECT_NAME}_ui PUBLIC Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Svg ${PROJECT_NAME})
 
 if (CONFIG_SNDFILE)
   target_link_libraries (${PROJECT_NAME} PRIVATE PkgConfig::SNDFILE)
