@@ -61,6 +61,9 @@ samplv1widget_config::samplv1widget_config (
 {
 	// Setup UI struct...
 	m_ui.setupUi(this);
+#if QT_VERSION < QT_VERSION_CHECK(6, 1, 0)
+	QDialog::setWindowIcon(QIcon(":/images/samplv1.png"));
+#endif
 
 	// Pitch-shift types.
 	m_ui.PitchShiftTypeComboBox->addItem(tr("(default)"));
