@@ -1238,8 +1238,8 @@ samplv1_voice::samplv1_voice ( samplv1_impl *pImpl ) :
 	dcf17(&pImpl->dcf1_formant),
 	dcf18(&pImpl->dcf1_formant),
 	gen1_glide(pImpl->gen1_last),
-	out1_volume(1.0f),
 	out1_panning(0.0f),
+	out1_volume(1.0f),
 	sustain(false)
 {
 }
