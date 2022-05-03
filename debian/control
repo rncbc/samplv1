@@ -13,9 +13,7 @@ Standards-Version: 3.9.7
 
 Package: samplv1-jack
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends},
-  qt6-qpa-plugins | libqt5opengl5,
-  libjack0 | libjack-jackd2-0
+Depends: ${shlibs:Depends}, ${misc:Depends}, libjack0 | libjack-jackd2-0
 Replaces: samplv1-common (<= ${source:Version}), samplv1 (<= ${source:Version})
 Description: An old-school polyphonic sampler - JACK standalone
   An old-school all-digital polyphonic sampler synthesizer with stereo fx.
@@ -24,8 +22,7 @@ Description: An old-school polyphonic sampler - JACK standalone
 
 Package: samplv1-lv2
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends},
-  qt6-qpa-plugins | libqt5opengl5
+Depends: ${shlibs:Depends}, ${misc:Depends}
 Replaces: samplv1-common (<= ${source:Version})
 Description: An old-school polyphonic sampler - LV2 plugin
   An old-school all-digital polyphonic sampler synthesizer with stereo fx.
