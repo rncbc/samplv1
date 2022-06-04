@@ -823,9 +823,9 @@ struct samplv1_glide
 
 		if (m_frames > 0) {
 			m_freq = m_last;
-			m_step = (m_last - freq) / float(m_frames);
+			m_step = (m_freq - freq) / float(m_frames);
 		} else {
-			m_freq = freq;
+			m_freq = 0.0f;
 			m_step = 0.0f;
 		}
 
