@@ -24,6 +24,8 @@
 
 #include "samplv1widget_palette.h"
 
+#include "samplv1widget.h"
+
 #include "samplv1_ui.h"
 
 #include "samplv1_pshifter.h"
@@ -774,22 +776,25 @@ void samplv1widget_config::accept (void)
 		pConfig->fRandomizePercent = float(m_ui.RandomizePercentSpinBox->value());
 		pConfig->iPitchShiftType   = m_ui.PitchShiftTypeComboBox->currentIndex();
 		int iNeedRestart = 0;
-		if (pConfig->sCustomStyleTheme != sOldCustomStyleTheme) {
-			if (pConfig->sCustomStyleTheme.isEmpty()) {
-				++iNeedRestart;
-			} else {
-				QApplication::setStyle(
-					QStyleFactory::create(pConfig->sCustomStyleTheme));
+		QWidget *pParentWidget = parentWidget();
+		if (pParentWidget) {
+			if (pConfig->sCustomStyleTheme != sOldCustomStyleTheme) {
+				if (pConfig->sCustomStyleTheme.isEmpty()) {
+					++iNeedRestart;
+				} else {
+					pParentWidget->setStyle(
+						QStyleFactory::create(pConfig->sCustomStyleTheme));
+				}
 			}
- 		}
- 		if (pConfig->sCustomColorTheme != sOldCustomColorTheme) {
-			if (pConfig->sCustomColorTheme.isEmpty()) {
-				++iNeedRestart;
-			} else {
-				QPalette pal;
-				if (samplv1widget_palette::namedPalette(
-						pConfig, pConfig->sCustomColorTheme, pal))
-					QApplication::setPalette(pal);
+			if (pConfig->sCustomColorTheme != sOldCustomColorTheme) {
+				if (pConfig->sCustomColorTheme.isEmpty()) {
+					++iNeedRestart;
+				} else {
+					QPalette pal;
+					if (samplv1widget_palette::namedPalette(
+							pConfig, pConfig->sCustomColorTheme, pal))
+						pParentWidget->setPalette(pal);
+				}
 			}
 		}
 		if (pConfig->iFrameTimeFormat != iOldFrameTimeFormat)
@@ -800,7 +805,7 @@ void samplv1widget_config::accept (void)
 				samplv1_pshifter::Type(pConfig->iPitchShiftType));
 		}
 		// Show restart message if needed...
- 		if (iNeedRestart > 0) {
+		if (iNeedRestart > 0) {
 			QMessageBox::information(this,
 				tr("Information"),
 				tr("Some settings may be only effective\n"
