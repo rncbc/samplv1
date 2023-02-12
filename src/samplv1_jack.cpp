@@ -1096,19 +1096,23 @@ void samplv1_jack_application::openSession (void)
 	if (!dir.exists())
 		dir.mkpath(path_name);
 
+	bool bOpen = false;
+
 	QFileInfo fi(path_name, "session." SAMPLV1_TITLE);
 	if (!fi.exists())
 		fi.setFile(path_name, display_name + '.' + SAMPLV1_TITLE);
 	if (fi.exists()) {
 		const QString& sFilename = fi.absoluteFilePath();
 		if (m_pWidget) {
-			m_pWidget->loadPreset(sFilename);
+			bOpen = m_pWidget->loadPreset(sFilename);
 		} else {
-			samplv1_param::loadPreset(m_pSampl, sFilename);
+			bOpen = samplv1_param::loadPreset(m_pSampl, sFilename);
 		}
 	}
 
-	m_pNsmClient->open_reply();
+	m_pNsmClient->open_reply(bOpen
+		? samplv1_nsm::ERR_OK
+		: samplv1_nsm::ERR_GENERAL);
 	m_pNsmClient->dirty(false);
 
 	if (m_pWidget)
@@ -1136,9 +1140,12 @@ void samplv1_jack_application::saveSession (void)
 //	const QFileInfo fi(path_name, display_name + '.' + SAMPLV1_TITLE);
 	const QFileInfo fi(path_name, "session." SAMPLV1_TITLE);
 
-	samplv1_param::savePreset(m_pSampl, fi.absoluteFilePath(), true);
+	const bool bSave
+		= samplv1_param::savePreset(m_pSampl, fi.absoluteFilePath(), true);
 
-	m_pNsmClient->save_reply();
+	m_pNsmClient->save_reply(bSave
+		? samplv1_nsm::ERR_OK
+		: samplv1_nsm::ERR_GENERAL);
 	m_pNsmClient->dirty(false);
 }
 
