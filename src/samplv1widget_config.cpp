@@ -57,7 +57,7 @@ static const char *g_pszDefName = QT_TRANSLATE_NOOP("samplv1widget_config", "(de
 
 // ctor.
 samplv1widget_config::samplv1widget_config (
-	samplv1_ui *pSamplUi, QWidget *pParent )
+	samplv1widget *pParent, samplv1_ui *pSamplUi )
 	: QDialog(pParent), p_ui(new Ui::samplv1widget_config), m_ui(*p_ui),
 		m_pSamplUi(pSamplUi)
 {
@@ -467,10 +467,17 @@ void samplv1widget_config::programsChanged (void)
 
 void samplv1widget_config::programsActivated (void)
 {
-	if (m_pSamplUi) {
-		samplv1_programs *pPrograms = m_pSamplUi->programs();
-		if (m_ui.ProgramsPreviewCheckBox->isChecked() && pPrograms)
-			m_ui.ProgramsTreeWidget->selectProgram(pPrograms);
+	samplv1_config *pConfig = samplv1_config::getInstance();
+	if (pConfig == nullptr)
+		return;
+
+	if (m_ui.ProgramsPreviewCheckBox->isChecked()) {
+		const QString& sPresetFile
+			= pConfig->presetFile(m_ui.ProgramsTreeWidget->currentProgramName());
+		samplv1widget *pParentWidget
+			= qobject_cast<samplv1widget *> (parentWidget());
+		if (pParentWidget && !sPresetFile.isEmpty())
+			pParentWidget->loadPreset(sPresetFile);
 	}
 
 	stabilize();

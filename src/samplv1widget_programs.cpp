@@ -39,7 +39,7 @@ class samplv1widget_programs::ItemDelegate : public QItemDelegate
 public:
 
 	// ctor.
-	ItemDelegate(QObject *pParent = 0);
+	ItemDelegate(QObject *pParent = nullptr);
 
 	// QItemDelegate interface...
 	QSize sizeHint(
@@ -329,19 +329,18 @@ void samplv1widget_programs::savePrograms ( samplv1_programs *pPrograms )
 }
 
 
-void samplv1widget_programs::selectProgram ( samplv1_programs *pPrograms )
+QString samplv1widget_programs::currentProgramName (void) const
 {
+	QString sProgramName;
+
 	const QList<QTreeWidgetItem *>& selectedItems
 		= QTreeWidget::selectedItems();
 	if (!selectedItems.isEmpty()) {
 		QTreeWidgetItem *pProgItem = selectedItems.first();
-		QTreeWidgetItem *pBankItem = pProgItem->parent();
-		if (pBankItem) {
-			const uint16_t bank_id = pBankItem->data(0, Qt::UserRole).toInt();
-			const uint16_t prog_id = pProgItem->data(0, Qt::UserRole).toInt();
-			pPrograms->select_program(bank_id, prog_id);
-		}
+		sProgramName = pProgItem->text(1).simplified();
 	}
+
+	return sProgramName;
 }
 
 

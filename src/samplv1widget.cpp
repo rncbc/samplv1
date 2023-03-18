@@ -1719,10 +1719,8 @@ void samplv1widget::midiInLedTimeout (void)
 void samplv1widget::helpConfigure (void)
 {
 	samplv1_ui *pSamplUi = ui_instance();
-	if (pSamplUi == nullptr)
-		return;
-
-	samplv1widget_config(pSamplUi, this).exec();
+	if (pSamplUi)
+		samplv1widget_config(this, pSamplUi).exec();
 }
 
 

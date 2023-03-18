@@ -39,7 +39,7 @@ class samplv1widget_programs : public QTreeWidget
 public:
 
 	// ctor.
-	samplv1widget_programs(QWidget *pParent = 0);
+	samplv1widget_programs(QWidget *pParent = nullptr);
 	// dtor.
 	~samplv1widget_programs();
 
@@ -47,7 +47,7 @@ public:
 	void loadPrograms(samplv1_programs *pPrograms);
 	void savePrograms(samplv1_programs *pPrograms);
 
-	void selectProgram(samplv1_programs *pPrograms);
+	QString currentProgramName() const;
 
 public slots:
 
