@@ -7,7 +7,7 @@ Build-Depends: debhelper (>= 11), cmake, pkg-config,
   qtsvg6-static (>= 6.1), qtwayland6-static (>= 6.1),
   qttranslations6-static (>= 6.1),
   libjack-dev | libjack-jackd2-dev, libasound2-dev,
-  lv2-dev, liblo-dev, libsndfile-dev, fftw3-dev,
+  lv2-dev, liblo-dev, libsndfile-dev, libfftw3-dev,
   librubberband-dev, libsamplerate-dev
 Standards-Version: 3.9.7
 
