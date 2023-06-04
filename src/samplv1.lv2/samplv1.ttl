@@ -894,6 +894,11 @@ samplv1_lv2:P105_LOOP_END
 	lv2:minimum 0 ;
 	lv2:maximum 2147483647 .
 
+samplv1_lv2:P105_LOOP_END_RELEASE
+	a lv2:Parameter ;
+	rdfs:label "P105 Loop End Release" ;
+	rdfs:range lv2atom:Bool .
+
 samplv1_lv2:P106_LOOP_FADE
 	a lv2:Parameter ;
 	rdfs:label "P106 Loop Crossfade" ;
@@ -914,7 +919,6 @@ samplv1_lv2:P108_SAMPLE_OTABS
 	lv2:default 0 ;
 	lv2:minimum 0 ;
 	lv2:maximum 4 .
-
 
 samplv1_lv2:P201_TUNING_ENABLED
 	a lv2:Parameter ;

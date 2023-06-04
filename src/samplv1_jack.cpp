@@ -679,6 +679,12 @@ void samplv1_jack::updateLoopZero (void)
 }
 
 
+void samplv1_jack::updateLoopRelease (void)
+{
+	// nothing to do here...
+}
+
+
 void samplv1_jack::updateTuning (void)
 {
 	samplv1::resetTuning();

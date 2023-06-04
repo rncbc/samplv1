@@ -6,6 +6,9 @@ ChangeLog
 
 GIT HEAD
 
+- Added Loop End Release mode switch: whether to play over the
+  sample loop-end point when entering note-off EG release stage.
+  (GH issue #39) (EXPERIMENTAL)
 - Make sure the XCB interface is in use when instantiating the
   LV2 plugin on non-Qt hosts, allowing LV2 X11 UI embedding to
   work and show up properly. (EXPERIMENTAL)

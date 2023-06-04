@@ -1,7 +1,7 @@
 ﻿// samplv1.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2022, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2023, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -1819,7 +1819,8 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 						m_dca1.env.note_off(&pv->dca1_env);
 						m_dcf1.env.note_off(&pv->dcf1_env);
 						m_lfo1.env.note_off(&pv->lfo1_env);
-					//	pv->gen1.setLoop(false);
+						if (gen1_sample.isLoopEndRelease())
+							pv->gen1.setLoop(false);
 					}
 					m_notes[pv->note] = nullptr;
 					pv->note = -1;
@@ -1977,7 +1978,8 @@ void samplv1_impl::allSustainOff (void)
 				m_dca1.env.note_off(&pv->dca1_env);
 				m_dcf1.env.note_off(&pv->dcf1_env);
 				m_lfo1.env.note_off(&pv->lfo1_env);
-				pv->gen1.setLoop(false);
+				if (gen1_sample.isLoopEndRelease())
+					pv->gen1.setLoop(false);
 				m_notes[pv->note] = nullptr;
 				pv->note = -1;
 			}
@@ -2741,6 +2743,19 @@ void samplv1::setLoopZero ( bool bLoopZero, bool bSync )
 bool samplv1::isLoopZero (void) const
 {
 	return m_pImpl->gen1_sample.isLoopZeroCrossing();
+}
+
+
+void samplv1::setLoopRelease ( bool bLoopRelease, bool bSync )
+{
+	m_pImpl->gen1_sample.setLoopEndRelease(bLoopRelease);
+
+	if (bSync) updateLoopRelease();
+}
+
+bool samplv1::isLoopRelease (void) const
+{
+	return m_pImpl->gen1_sample.isLoopEndRelease();
 }
 
 

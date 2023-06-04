@@ -1,7 +1,7 @@
 // samplv1_ui.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2020, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2023, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -151,6 +151,17 @@ void samplv1_ui::setLoopZero ( bool bLoopZero )
 bool samplv1_ui::isLoopZero (void) const
 {
 	return m_pSampl->isLoopZero();
+}
+
+
+void samplv1_ui::setLoopRelease ( bool bLoopRelease )
+{
+	m_pSampl->setLoopRelease(bLoopRelease, true);
+}
+
+bool samplv1_ui::isLoopRelease (void) const
+{
+	return m_pSampl->isLoopRelease();
 }
 
 

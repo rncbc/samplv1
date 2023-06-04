@@ -1,7 +1,7 @@
 // samplv1_sample.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2021, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2023, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -39,7 +39,8 @@ samplv1_sample::samplv1_sample ( float srate )
 		m_offset_phase0(nullptr), m_offset_end2(0),
 		m_loop(false), m_loop_start(0), m_loop_end(0),
 		m_loop_phase1(nullptr), m_loop_phase2(nullptr),
-		m_loop_xfade(0), m_loop_xzero(true)
+		m_loop_xfade(0), m_loop_xzero(true),
+		m_loop_end_release(false)
 {
 }
 

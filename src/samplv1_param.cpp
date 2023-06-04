@@ -1,7 +1,7 @@
 // samplv1_param.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2021, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2023, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -396,6 +396,7 @@ void samplv1_param::loadSamples (
 			uint32_t iLoopEnd = 0;
 			uint32_t iLoopFade = 0;
 			bool bLoopZero = true;
+			bool bLoopRelease = false;
 			for (QDomNode nChild = eSample.firstChild();
 					!nChild.isNull();
 						nChild = nChild.nextSibling()) {
@@ -433,6 +434,10 @@ void samplv1_param::loadSamples (
 				if (eChild.tagName() == "loop-zero") {
 					bLoopZero = (eChild.text().toInt() > 0);
 				}
+				else
+				if (eChild.tagName() == "loop-end-release") {
+					bLoopRelease = (eChild.text().toInt() > 0);
+				}
 			}
 			// Legacy loader...
 			if (sSampleFile.isEmpty())
@@ -443,6 +448,7 @@ void samplv1_param::loadSamples (
 					samplv1_param::loadFilename(sSampleFile)).toUtf8();
 			pSampl->setSampleFile(aSampleFile.constData(), iOctaves);
 			// Set actual sample loop points...
+			pSampl->setLoopRelease(bLoopRelease);
 			pSampl->setLoopZero(bLoopZero);
 			pSampl->setLoopFade(iLoopFade);
 			pSampl->setLoopRange(iLoopStart, iLoopEnd);
@@ -501,6 +507,7 @@ void samplv1_param::saveSamples (
 	const uint32_t iLoopEnd   = pSampl->loopEnd();
 	const uint32_t iLoopFade  = pSampl->loopFade();
 	const bool     bLoopZero  = pSampl->isLoopZero();
+	const bool     bLoopRelease = pSampl->isLoopRelease();
 	if (iLoopStart < iLoopEnd) {
 		QDomElement eLoopStart = doc.createElement("loop-start");
 		eLoopStart.appendChild(doc.createTextNode(
@@ -510,6 +517,10 @@ void samplv1_param::saveSamples (
 		eLoopEnd.appendChild(doc.createTextNode(
 			QString::number(iLoopEnd)));
 		eSample.appendChild(eLoopEnd);
+		QDomElement eLoopRelease = doc.createElement("loop-end-release");
+		eLoopRelease.appendChild(doc.createTextNode(
+			QString::number(int(bLoopRelease))));
+		eSample.appendChild(eLoopRelease);
 		QDomElement eLoopFade = doc.createElement("loop-fade");
 		eLoopFade.appendChild(doc.createTextNode(
 			QString::number(iLoopFade)));

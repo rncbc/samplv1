@@ -571,6 +571,9 @@ samplv1widget::samplv1widget ( QWidget *pParent )
 	QObject::connect(m_ui.Gen1LoopZeroCheckBox,
 		SIGNAL(valueChanged(float)),
 		SLOT(loopZeroChanged()));
+	QObject::connect(m_ui.Gen1LoopReleaseCheckBox,
+		SIGNAL(valueChanged(float)),
+		SLOT(loopReleaseChanged()));
 
 	QObject::connect(m_ui.Gen1OffsetStartSpinBox,
 		SIGNAL(customContextMenuRequested(const QPoint&)),
@@ -1394,6 +1397,25 @@ void samplv1widget::loopZeroChanged (void)
 }
 
 
+// Loop end-release change.
+void samplv1widget::loopReleaseChanged (void)
+{
+	if (m_iUpdate > 0)
+		return;
+
+	++m_iUpdate;
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi) {
+		const bool bLoopRelease = (m_ui.Gen1LoopReleaseCheckBox->value() > 0.5f);
+		pSamplUi->setLoopRelease(bLoopRelease);
+		m_ui.StatusBar->showMessage(tr("Loop end-release: %1")
+			.arg(bLoopRelease ? tr("On") : tr("Off")), 5000);
+		updateDirtyPreset(true);
+	}
+	--m_iUpdate;
+}
+
+
 // Offset points changed (from UI).
 void samplv1widget::offsetRangeChanged (void)
 {
@@ -1442,6 +1464,7 @@ void samplv1widget::updateOffsetLoop ( samplv1_sample *pSample, bool bDirty )
 		const uint32_t iLoopEnd   = pSample->loopEnd();
 		const uint32_t iLoopFade  = pSample->loopCrossFade();
 		const bool     bLoopZero  = pSample->isLoopZeroCrossing();
+		const bool     bLoopRelease = pSample->isLoopEndRelease();
 		const uint32_t nframes    = pSample->length();
 		const float    srate      = pSample->sampleRate();
 		m_ui.Gen1OctavesComboBox->setCurrentIndex(iOctaves);
@@ -1477,6 +1500,8 @@ void samplv1widget::updateOffsetLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1LoopFadeSpinBox->setValue(m_iLoopFade);
 		m_ui.Gen1LoopZeroCheckBox->setValue(bLoopZero ? 1.0f : 0.0f);
 		m_ui.Gen1LoopZeroCheckBox->setEnabled(bLoop);
+		m_ui.Gen1LoopReleaseCheckBox->setValue(bLoopRelease ? 1.0f : 0.0f);
+		m_ui.Gen1LoopReleaseCheckBox->setEnabled(bLoop);
 		m_ui.Gen1Sample->setOffsetStart(iOffsetStart);
 		m_ui.Gen1Sample->setOffsetEnd(iOffsetEnd);
 		m_ui.Gen1Sample->setOffset(bOffset);
@@ -1532,6 +1557,7 @@ void samplv1widget::updateOffsetLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1LoopFadeSpinBox->setMaximum(0);
 		m_ui.Gen1LoopFadeSpinBox->setValue(0);
 		m_ui.Gen1LoopZeroCheckBox->setEnabled(false);
+		m_ui.Gen1LoopReleaseCheckBox->setEnabled(false);
 		m_ui.Gen1Sample->setOffsetStart(0);
 		m_ui.Gen1Sample->setOffsetEnd(0);
 		m_ui.Gen1Sample->setOffset(false);

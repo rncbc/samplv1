@@ -1,7 +1,7 @@
 // samplv1_sample.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2021, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2023, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -125,6 +125,12 @@ public:
 	bool isLoopZeroCrossing() const
 		{ return m_loop_xzero; }
 
+	// loop end-release mode.
+	void setLoopEndRelease(bool release)
+		{ m_loop_end_release = release; }
+	bool isLoopEndRelease() const
+		{ return m_loop_end_release; }
+
 	// init.
 	bool open(const char *filename, float freq0 = 1.0f, uint16_t otabs = 0);
 	void close();
@@ -243,6 +249,7 @@ private:
 	float   *m_loop_phase2;
 	uint32_t m_loop_xfade;
 	bool     m_loop_xzero;
+	bool     m_loop_end_release;
 };
 
 

@@ -100,6 +100,7 @@ protected:
 	void updateLoopRange();
 	void updateLoopFade();
 	void updateLoopZero();
+	void updateLoopRelease();
 
 	void updateTuning();
 
@@ -135,6 +136,7 @@ private:
 		LV2_URID p103_offset_end;
 		LV2_URID p104_loop_start;
 		LV2_URID p105_loop_end;
+		LV2_URID p105_loop_end_release;
 		LV2_URID p106_loop_fade;
 		LV2_URID p107_loop_zero;
 		LV2_URID p108_sample_otabs;

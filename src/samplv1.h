@@ -1,7 +1,7 @@
 // samplv1.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2022, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2023, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -81,6 +81,9 @@ public:
 
 	void setLoopZero(bool bLoopZero, bool bSync = false);
 	bool isLoopZero() const;
+
+	void setLoopRelease(bool bLoopRelease, bool bSync = false);
+	bool isLoopRelease() const;
 
 	void setBufferSize(uint32_t nsize);
 	uint32_t bufferSize() const;
@@ -207,6 +210,7 @@ public:
 	virtual void updateLoopRange() = 0;
 	virtual void updateLoopFade() = 0;
 	virtual void updateLoopZero() = 0;
+	virtual void updateLoopRelease() = 0;
 
 	void midiInEnabled(bool on);
 	uint32_t midiInCount();

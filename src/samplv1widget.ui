@@ -304,6 +304,19 @@
              </widget>
             </item>
             <item row="0" column="4">
+             <widget class="samplv1widget_check" name="Gen1LoopReleaseCheckBox">
+              <property name="text">
+               <string>Release</string>
+              </property>
+              <property name="toolTip">
+               <string>GEN Loop End Release</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignLeft|Qt::AlignBottom</set>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="4">
              <widget class="samplv1widget_check" name="Gen1LoopFadeCheckBox">
               <property name="text">
                <string>Fade</string>
@@ -312,11 +325,11 @@
                <string>GEN Loop Crossfade</string>
               </property>
               <property name="alignment">
-               <set>Qt::AlignCenter|Qt::AlignBottom</set>
+               <set>Qt::AlignLeft|Qt::AlignBottom</set>
               </property>
              </widget>
             </item>
-            <item row="1" column="4">
+            <item row="2" column="4">
              <widget class="QSpinBox" name="Gen1LoopFadeSpinBox">
               <property name="maximumSize">
                <size>
@@ -324,21 +337,24 @@
                 <height>16</height>
                </size>
               </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignVCenter</set>
-              </property>
               <property name="toolTip">
                <string>GEN Loop Crossfade</string>
               </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignVCenter</set>
+              </property>
              </widget>
             </item>
-            <item row="2" column="4">
+            <item row="3" column="4">
              <widget class="samplv1widget_check" name="Gen1LoopZeroCheckBox">
               <property name="text">
                <string>Zero</string>
               </property>
               <property name="toolTip">
                <string>GEN Loop Zero-crossing</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignLeft|Qt::AlignTop</set>
               </property>
              </widget>
             </item>

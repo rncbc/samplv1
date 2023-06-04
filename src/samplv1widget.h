@@ -131,6 +131,7 @@ protected slots:
 	void loopEndChanged();
 	void loopFadeChanged();
 	void loopZeroChanged();
+	void loopReleaseChanged();
 
 	// Offset/loop points changed (from UI).
 	void offsetRangeChanged();

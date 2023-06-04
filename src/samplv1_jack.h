@@ -82,6 +82,7 @@ protected:
 	void updateLoopRange();
 	void updateLoopFade();
 	void updateLoopZero();
+	void updateLoopRelease();
 
 	void updateTuning();
 

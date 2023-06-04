@@ -128,6 +128,8 @@ samplv1_lv2::samplv1_lv2 (
 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "P104_LOOP_START");
 				m_urids.p105_loop_end = m_urid_map->map(
 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "P105_LOOP_END");
+				m_urids.p105_loop_end_release = m_urid_map->map(
+					m_urid_map->handle, SAMPLV1_LV2_PREFIX "P105_LOOP_END_RELEASE");
 				m_urids.p106_loop_fade = m_urid_map->map(
 					m_urid_map->handle, SAMPLV1_LV2_PREFIX "P106_LOOP_FADE");
 				m_urids.p107_loop_zero = m_urid_map->map(
@@ -413,6 +415,13 @@ void samplv1_lv2::run ( uint32_t nframes )
 							}
 						}
 						else
+						if (key == m_urids.p105_loop_end_release
+							&& type == m_urids.atom_Bool) {
+							const uint32_t loop_release
+								= *(int32_t *) LV2_ATOM_BODY_CONST(value);
+							setLoopRelease(loop_release > 0, true);
+						}
+						else
 						if ((key == m_urids.p106_loop_fade
 						#if 1//SAMPLV1_LV2_LEGACY
 							|| key == m_urids.gen1_loop_fade
@@ -672,6 +681,7 @@ static LV2_State_Status samplv1_lv2_state_save ( LV2_Handle instance,
 			if (key)
 				(*store)(handle, key, value, size, type, flags);
 		}
+		// Loop cross-fade...
 		uint32_t loop_fade = pPlugin->loopFade();
 		value = (const char *) &loop_fade;
 		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P106_LOOP_FADE");
@@ -681,9 +691,16 @@ static LV2_State_Status samplv1_lv2_state_save ( LV2_Handle instance,
 
 	type = pPlugin->urid_map(LV2_ATOM__Bool);
 	if (type) {
+		// Loop zero-crossing...
 		uint32_t loop_zero = pPlugin->isLoopZero() ? 1 : 0;
 		value = (const char *) &loop_zero;
 		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P107_LOOP_ZERO");
+		if (key)
+			(*store)(handle, key, value, size, type, flags);
+		// Loop end-release...
+		uint32_t loop_release = pPlugin->isLoopRelease() ? 1 : 0;
+		value = (const char *) &loop_release;
+		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P105_LOOP_END_RELEASE");
 		if (key)
 			(*store)(handle, key, value, size, type, flags);
 	}
@@ -816,6 +833,7 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 	uint32_t loop_end   = 0;
 	uint32_t loop_fade  = 0;
 	uint32_t loop_zero  = 1; // default: true.
+	uint32_t loop_release = 0;
 
 	if (int_type) {
 		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P102_OFFSET_START");
@@ -931,10 +949,19 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 				&& (type == int_type || type == bool_type))
 				loop_zero = *(uint32_t *) value;
 		}
+		key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P105_LOOP_END_RELEASE");
+		if (key) {
+			size = 0;
+			type = 0;
+			value = (const char *) (*retrieve)(handle, key, &size, &type, &flags);
+			if (value && size == sizeof(uint32_t) && type == bool_type)
+				loop_release = *(uint32_t *) value;
+		}
 	}
 
 	pPlugin->setLoopZero(loop_zero > 0);
 	pPlugin->setLoopFade(loop_fade);
+	pPlugin->setLoopRelease(loop_release > 0);
 
 	if (loop_start < loop_end)
 		pPlugin->setLoopRange(loop_start, loop_end);
@@ -1140,6 +1167,18 @@ void samplv1_lv2::updateLoopZero (void)
 }
 
 
+void samplv1_lv2::updateLoopRelease (void)
+{
+	if (m_schedule) {
+		samplv1_lv2_worker_message mesg;
+		mesg.atom.type = m_urids.p105_loop_end_release;
+		mesg.atom.size = 0; // nothing else matters.
+		m_schedule->schedule_work(
+			m_schedule->handle, sizeof(mesg), &mesg);
+	}
+}
+
+
 void samplv1_lv2::updateTuning (void)
 {
 	if (m_schedule) {
@@ -1261,6 +1300,9 @@ bool samplv1_lv2::patch_set ( LV2_URID key )
 	if (key == m_urids.p107_loop_zero)
 		lv2_atom_forge_bool(&m_forge, pSample->isLoopZeroCrossing());
 	else
+	if (key == m_urids.p105_loop_end_release)
+		lv2_atom_forge_bool(&m_forge, pSample->isLoopEndRelease());
+	else
 	if (key == m_urids.p108_sample_otabs)
 		lv2_atom_forge_int(&m_forge, pSample->otabs());
 	else
@@ -1300,6 +1342,7 @@ bool samplv1_lv2::patch_get ( LV2_URID key )
 		patch_set(m_urids.p103_offset_end);
 		patch_set(m_urids.p104_loop_start);
 		patch_set(m_urids.p105_loop_end);
+		patch_set(m_urids.p105_loop_end_release);
 		patch_set(m_urids.p106_loop_fade);
 		patch_set(m_urids.p107_loop_zero);
 		patch_set(m_urids.p108_sample_otabs);
