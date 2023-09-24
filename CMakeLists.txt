@@ -365,5 +365,5 @@ show_option ("  LV2 plug-in Port-event support . . . . . . . . . ." CONFIG_LV2_P
 show_option ("  Pitch-shifting support (librubberband) . . . . . ." CONFIG_LIBRUBBERBAND)
 show_option ("  Pitch-shifting support (fftw3) . . . . . . . . . ." CONFIG_FFTW3)
 show_option ("  OSC service support (liblo)  . . . . . . . . . . ." CONFIG_LIBLO)
-show_option ("  Non Session Management (NSM) support . . . . . . ." CONFIG_NSM)
+show_option ("  Non/New Session Management (NSM) support . . . . ." CONFIG_NSM)
 message   ("\n  Install prefix . . . . . . . . . . . . . . . . . .: ${CONFIG_PREFIX}\n")
