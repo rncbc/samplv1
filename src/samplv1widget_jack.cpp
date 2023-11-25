@@ -37,6 +37,10 @@
 
 #include <QStyleFactory>
 
+#ifndef CONFIG_BINDIR
+#define CONFIG_BINDIR	CONFIG_PREFIX "/bin"
+#endif
+
 #ifndef CONFIG_LIBDIR
 #if defined(__x86_64__)
 #define CONFIG_LIBDIR CONFIG_PREFIX "/lib64"
@@ -66,8 +70,11 @@ samplv1widget_jack::samplv1widget_jack ( samplv1_jack *pSampl )
 	#endif
 {
 	// Special style paths...
-	if (QDir(CONFIG_PLUGINSDIR).exists())
-		QApplication::addLibraryPath(CONFIG_PLUGINSDIR);
+	QString sPluginsPath = QApplication::applicationDirPath();
+	sPluginsPath.remove(CONFIG_BINDIR);
+	sPluginsPath.append(CONFIG_PLUGINSDIR);
+	if (QDir(sPluginsPath).exists())
+		QApplication::addLibraryPath(sPluginsPath);
 
 	// Custom color/style themes...
 	samplv1_config *pConfig = samplv1_config::getInstance();
