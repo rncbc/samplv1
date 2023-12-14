@@ -607,14 +607,17 @@ static LV2_State_Status samplv1_lv2_state_save ( LV2_Handle instance,
 		return LV2_STATE_ERR_UNKNOWN;
 
 	LV2_State_Map_Path *map_path = nullptr;
+#ifdef CONFIG_LV2_STATE_FREE_PATH
 	LV2_State_Free_Path *free_path = nullptr;
+#endif
 	for (int i = 0; features && features[i]; ++i) {
 		if (::strcmp(features[i]->URI, LV2_STATE__mapPath) == 0)
 			map_path = (LV2_State_Map_Path *) features[i]->data;
+#ifdef CONFIG_LV2_STATE_FREE_PATH
 		else
 		if (::strcmp(features[i]->URI, LV2_STATE__freePath) == 0)
 			free_path = (LV2_State_Free_Path *) features[i]->data;
-		
+#endif
 	}
 
 	uint32_t key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P101_SAMPLE_FILE");
@@ -643,9 +646,11 @@ static LV2_State_Status samplv1_lv2_state_save ( LV2_Handle instance,
 
 	(*store)(handle, key, value, size, type, flags);
 
+#ifdef CONFIG_LV2_STATE_FREE_PATH
 	if (free_path)
 		free_path->free_path(free_path->handle, (char *) value);
 	else
+#endif
 	if (map_path)
 		::free((void *) value);
 
@@ -758,14 +763,17 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 		return LV2_STATE_ERR_UNKNOWN;
 
 	LV2_State_Map_Path *map_path = nullptr;
+#ifdef CONFIG_LV2_STATE_FREE_PATH
 	LV2_State_Free_Path *free_path = nullptr;
+#endif
 	for (int i = 0; features && features[i]; ++i) {
 		if (::strcmp(features[i]->URI, LV2_STATE__mapPath) == 0)
 			map_path = (LV2_State_Map_Path *) features[i]->data;
+#ifdef CONFIG_LV2_STATE_FREE_PATH
 		else
 		if (::strcmp(features[i]->URI, LV2_STATE__freePath) == 0)
 			free_path = (LV2_State_Free_Path *) features[i]->data;
-		
+#endif
 	}
 
 	uint32_t key = pPlugin->urid_map(SAMPLV1_LV2_PREFIX "P101_SAMPLE_FILE");
@@ -816,9 +824,11 @@ static LV2_State_Status samplv1_lv2_state_restore ( LV2_Handle instance,
 	const QString sSampleFile
 		= QFileInfo(QString::fromUtf8(value)).canonicalFilePath();
 
+#ifdef CONFIG_LV2_STATE_FREE_PATH
 	if (free_path)
 		free_path->free_path(free_path->handle, (char *) value);
 	else
+#endif
 	if (map_path)
 		::free((void *) value);
 

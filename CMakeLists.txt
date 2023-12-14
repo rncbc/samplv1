@@ -95,6 +95,9 @@ option (CONFIG_LV2_PATCH "Enable LV2 plug-in Patch support (default=yes)" 1)
 
 option (CONFIG_LV2_PORT_EVENT "Enable LV2 plug-in Port-event support (default=yes)" 1)
 
+option (CONFIG_LV2_STATE_FREE_PATH "Enable LV2 plug-in State Free Path support (default=yes)" 1)
+
+
 # Enable librubberband availability.
 option (CONFIG_LIBRUBBERBAND "Enable librubberband interface (default=yes)" 1)
 
@@ -306,6 +309,7 @@ else ()
   set (CONFIG_LV2_PROGRAMS 0)
   set (CONFIG_LV2_PATCH 0)
   set (CONFIG_LV2_PORT_EVENT 0)
+  set (CONFIG_LV2_STATE_FREE_PATH 0)
 endif ()
 
 if (CONFIG_LV2_UI_EXTERNAL)
@@ -326,6 +330,15 @@ if (CONFIG_LV2_PATCH)
   check_include_file (lv2/lv2plug.in/ns/ext/patch/patch.h HAVE_LV2_PATCH_H)
   if (NOT HAVE_LV2_PATCH_H)
     set (CONFIG_LV2_PATCH 0)
+  endif ()
+endif ()
+
+if (CONFIG_LV2_STATE_FREE_PATH)
+  include(CheckTypeSize)
+  set (CMAKE_EXTRA_INCLUDE_FILES "lv2/lv2plug.in/ns/ext/state/state.h")
+  check_type_size (LV2_State_Free_Path LV2_STATE_FREE_PATH)
+  if (NOT HAVE_LV2_STATE_FREE_PATH)
+    set (CONFIG_LV2_STATE_FREE_PATH 0)
   endif ()
 endif ()
 
@@ -362,6 +375,7 @@ show_option ("  LV2 plug-in UI Resize interface support  . . . . ." CONFIG_LV2_U
 show_option ("  LV2 plug-in Programs support . . . . . . . . . . ." CONFIG_LV2_PROGRAMS)
 show_option ("  LV2 plug-in Patch support  . . . . . . . . . . . ." CONFIG_LV2_PATCH)
 show_option ("  LV2 plug-in Port-event support . . . . . . . . . ." CONFIG_LV2_PORT_EVENT)
+show_option ("  LV2 plug-in State Free Path support  . . . . . . ." CONFIG_LV2_STATE_FREE_PATH)
 show_option ("  Pitch-shifting support (librubberband) . . . . . ." CONFIG_LIBRUBBERBAND)
 show_option ("  Pitch-shifting support (fftw3) . . . . . . . . . ." CONFIG_FFTW3)
 show_option ("  OSC service support (liblo)  . . . . . . . . . . ." CONFIG_LIBLO)

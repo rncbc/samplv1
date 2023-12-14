@@ -97,6 +97,9 @@
 /* Define if LV2 Port-event is supported. */
 #cmakedefine CONFIG_LV2_PORT_EVENT @CONFIG_LV2_PORT_EVENT@
 
+/* Define if LV2 State Free Path is supported. */
+#cmakedefine CONFIG_LV2_STATE_FREE_PATH @CONFIG_LV2_STATE_FREE_PATH@
+
 /* Define if NSM support is available. */
 #cmakedefine CONFIG_NSM @CONFIG_NSM@
 
