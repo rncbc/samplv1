@@ -611,11 +611,13 @@ static LV2_State_Status samplv1_lv2_state_save ( LV2_Handle instance,
 	LV2_State_Free_Path *free_path = nullptr;
 #endif
 	for (int i = 0; features && features[i]; ++i) {
-		if (::strcmp(features[i]->URI, LV2_STATE__mapPath) == 0)
+		if (map_path == nullptr
+			&& ::strcmp(features[i]->URI, LV2_STATE__mapPath) == 0)
 			map_path = (LV2_State_Map_Path *) features[i]->data;
 #ifdef CONFIG_LV2_STATE_FREE_PATH
 		else
-		if (::strcmp(features[i]->URI, LV2_STATE__freePath) == 0)
+		if (free_path == nullptr
+			&& ::strcmp(features[i]->URI, LV2_STATE__freePath) == 0)
 			free_path = (LV2_State_Free_Path *) features[i]->data;
 #endif
 	}

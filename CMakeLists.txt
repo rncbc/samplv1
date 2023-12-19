@@ -152,6 +152,7 @@ include (CheckIncludeFiles)
 include (CheckIncludeFileCXX)
 include (CheckFunctionExists)
 include (CheckLibraryExists)
+include (CheckTypeSize)
 
 # Make sure we get some subtle optimizations out there...
 add_compile_options (-ffast-math)
@@ -334,7 +335,6 @@ if (CONFIG_LV2_PATCH)
 endif ()
 
 if (CONFIG_LV2_STATE_FREE_PATH)
-  include(CheckTypeSize)
   set (CMAKE_EXTRA_INCLUDE_FILES "lv2/lv2plug.in/ns/ext/state/state.h")
   check_type_size (LV2_State_Free_Path LV2_STATE_FREE_PATH)
   if (NOT HAVE_LV2_STATE_FREE_PATH)
