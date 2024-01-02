@@ -4,6 +4,11 @@ samplv1 - an old-school polyphonic sampler
 ChangeLog
 
 
+GIT HEAD
+
+- Updated copyright headers into the New Year (2024).
+
+
 0.9.33  2023-12-20  An End-of-Autumn'23 Release.
 
 - Mitigate LV2 State path mapping features duplication.
