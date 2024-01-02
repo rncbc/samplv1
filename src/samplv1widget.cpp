@@ -1,7 +1,7 @@
 // samplv1widget.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2023, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2024, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -1773,10 +1773,10 @@ void samplv1widget::helpAbout (void)
 	list << tr("LV2 plug-in build disabled.");
 #endif
 
-	QString sText = "<h1>" SAMPLV1_TITLE "</h1>\n";
-	sText += "<p>" + tr(SAMPLV1_SUBTITLE) + "<br />\n";
+	QString sText = "<h1>" PROJECT_NAME "</h1>\n";
+	sText += "<p>" + tr(PROJECT_DESCRIPTION) + "<br />\n";
 	sText += "<br />\n";
-	sText += tr("Version") + ": <b>" CONFIG_BUILD_VERSION "</b><br />\n";
+	sText += tr("Version") + ": <b>" PROJECT_VERSION "</b><br />\n";
 //	sText += "<small>" + tr("Build") + ": " CONFIG_BUILD_DATE "</small><br />\n";
 	if (!list.isEmpty()) {
 		sText += "<small><font color=\"red\">";
@@ -1790,10 +1790,10 @@ void samplv1widget::helpAbout (void)
 #endif
 	sText += "<br />\n";
 	sText += "<br />\n";
-	sText += tr("Website") + ": <a href=\"" SAMPLV1_WEBSITE "\">" SAMPLV1_WEBSITE "</a><br />\n";
+	sText += tr("Website") + ": <a href=\"" PROJECT_HOMEPAGE_URL "\">" PROJECT_HOMEPAGE_URL "</a><br />\n";
 	sText += "<br />\n";
 	sText += "<small>";
-	sText += SAMPLV1_COPYRIGHT "<br />\n";
+	sText += PROJECT_COPYRIGHT "<br />\n";
 	sText += "<br />\n";
 	sText += tr("This program is free software; you can redistribute it and/or modify it") + "<br />\n";
 	sText += tr("under the terms of the GNU General Public License version 2 or later.");

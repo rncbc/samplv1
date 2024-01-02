@@ -24,13 +24,13 @@
 
 #include "config.h"
 
-#define SAMPLV1_TITLE       PROJECT_NAME
+#ifndef PROJECT_COPYRIGHT
+#define PROJECT_COPYRIGHT   "Copyright (C) 2012-2024, rncbc aka Rui Nuno Capela. All rights reserved."
+#endif
 
-#define SAMPLV1_SUBTITLE    PROJECT_DESCRIPTION
-#define SAMPLV1_WEBSITE     PROJECT_HOMEPAGE_URL
-
-#define SAMPLV1_COPYRIGHT   "Copyright (C) 2012-2024, rncbc aka Rui Nuno Capela. All rights reserved."
-#define SAMPLV1_DOMAIN      "rncbc.org"
+#ifndef PROJECT_DOMAIN
+#define PROJECT_DOMAIN      "rncbc.org"
+#endif
 
 
 //-------------------------------------------------------------------------

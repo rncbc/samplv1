@@ -42,7 +42,7 @@ samplv1_config *samplv1_config::getInstance (void)
 
 // Constructor.
 samplv1_config::samplv1_config (void)
-	: QSettings(SAMPLV1_DOMAIN, SAMPLV1_TITLE)
+	: QSettings(PROJECT_DOMAIN, PROJECT_NAME)
 {
 	g_pSettings = this;
 
