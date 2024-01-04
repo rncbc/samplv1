@@ -98,6 +98,9 @@
 /* Define if LV2 State Free Path is supported. */
 #cmakedefine CONFIG_LV2_STATE_FREE_PATH @CONFIG_LV2_STATE_FREE_PATH@
 
+/* Define if LV2 Port-change request is supported. */
+#cmakedefine CONFIG_LV2_PORT_CHANGE_REQUEST @CONFIG_LV2_PORT_CHANGE_REQUEST@
+
 /* Define if NSM support is available. */
 #cmakedefine CONFIG_NSM @CONFIG_NSM@
 
