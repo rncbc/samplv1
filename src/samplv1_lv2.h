@@ -28,13 +28,14 @@
 #include "lv2/lv2plug.in/ns/ext/urid/urid.h"
 #include "lv2/lv2plug.in/ns/ext/atom/atom.h"
 #include "lv2/lv2plug.in/ns/ext/atom/forge.h"
+#include "lv2/lv2plug.in/ns/ext/worker/worker.h"
 #else
 #include "lv2/urid/urid.h"
 #include "lv2/atom/atom.h"
 #include "lv2/atom/forge.h"
+#include "lv2/worker/worker.h"
 #endif
 
-#include "lv2/lv2plug.in/ns/ext/worker/worker.h"
 
 #define SAMPLV1_LV2_URI "http://samplv1.sourceforge.net/lv2"
 #define SAMPLV1_LV2_PREFIX SAMPLV1_LV2_URI "#"
