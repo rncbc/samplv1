@@ -1466,7 +1466,7 @@ bool samplv1_lv2::port_events (void)
 #endif	// CONFIG_LV2_PORT_EVENT
 
 
-#ifdef CONFIG_LV2_PORT_EVENT
+#ifdef CONFIG_LV2_PORT_CHANGE_REQUEST
 
 bool samplv1_lv2::port_change_request ( samplv1::ParamIndex index )
 {
@@ -1505,7 +1505,7 @@ bool samplv1_lv2::port_change_requests (void)
 	return true;
 }
 
-#endif	// CONFIG_LV2_PORT_CHANGE_REQUESTS
+#endif	// CONFIG_LV2_PORT_CHANGE_REQUEST
 
 
 //-------------------------------------------------------------------------
