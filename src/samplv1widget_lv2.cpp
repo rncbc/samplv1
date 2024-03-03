@@ -1,7 +1,7 @@
 // samplv1widget_lv2.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2022, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2024, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -75,6 +75,28 @@ samplv1widget_lv2::samplv1widget_lv2 ( samplv1_lv2 *pSampl,
 	// Custom color/style themes...
 	samplv1_config *pConfig = samplv1_config::getInstance();
 	if (pConfig) {
+		const QChar sep = QDir::separator();
+		QString sPalettePath = QApplication::applicationDirPath();
+		sPalettePath.remove(CONFIG_BINDIR);
+		sPalettePath.append(CONFIG_DATADIR);
+		sPalettePath.append(sep);
+		sPalettePath.append(PROJECT_NAME);
+		sPalettePath.append(sep);
+		sPalettePath.append("palette");
+		if (QDir(sPalettePath).exists()) {
+			QStringList names;
+			names.append("KXStudio");
+			names.append("Wonton Soup");
+			QStringListIterator name_iter(names);
+			while (name_iter.hasNext()) {
+				const QString& name = name_iter.next();
+				const QFileInfo fi(sPalettePath, name + ".conf");
+				if (fi.isReadable()) {
+					samplv1widget_palette::addNamedPaletteConf(
+						pConfig, name, fi.absoluteFilePath());
+				}
+			}
+		}
 		if (!pConfig->sCustomColorTheme.isEmpty()) {
 			QPalette pal;
 			if (samplv1widget_palette::namedPalette(
