@@ -16,8 +16,8 @@
 #
 
 %define name    samplv1
-%define version 0.9.34
-%define release 75.1
+%define version 0.9.90
+%define release 1.1
 
 %define _prefix	/usr
 
@@ -179,6 +179,8 @@ cmake --install build
 
 
 %changelog
+* Thu Apr 11 2024 Rui Nuno Capela <rncbc@rncbc.org> 0.9.90
+- A Spring'24 Release Candidate.
 * Fri Jan 26 2024 Rui Nuno Capela <rncbc@rncbc.org> 0.9.34
 - A Winter'24 Release.
 * Wed Dec 20 2023 Rui Nuno Capela <rncbc@rncbc.org> 0.9.33
