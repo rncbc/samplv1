@@ -11,37 +11,25 @@
 # case the license is the MIT License). An "Open Source License" is a
 # license that conforms to the Open Source Definition (Version 1.9)
 # published by the Open Source Initiative.
-#
+
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
 
-%define name    samplv1
-%define version 0.9.90
-%define release 1.1
-
-%define _prefix	/usr
-
-%if %{defined fedora}
-%define debug_package %{nil}
-%endif
+Summary:	An old-school polyphonic sampler
+Name:		samplv1
+Version:	0.9.90
+Release:	1.1
+License:	GPL-2.0-or-later
+Group:		Productivity/Multimedia/Sound/Midi
+Source: 	%{name}-%{version}.tar.gz
+URL:		http://samplv1.sourceforge.net
+#Packager:	rncbc.org
 
 %if 0%{?fedora_version} >= 34 || 0%{?suse_version} > 1500 || ( 0%{?sle_version} >= 150200 && 0%{?is_opensuse} )
 %define qt_major_version  6
 %else
 %define qt_major_version  5
 %endif
-
-Summary:	An old-school polyphonic sampler
-Name:		%{name}
-Version:	%{version}
-Release:	%{release}
-License:	GPL-2.0+
-Group:		Productivity/Multimedia/Sound/Midi
-Source0:	%{name}-%{version}.tar.gz
-URL:		http://samplv1.sourceforge.net
-Packager:	rncbc.org
-
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 BuildRequires:	coreutils
 BuildRequires:	pkgconfig
@@ -101,7 +89,7 @@ Obsoletes:	%{name}-common <= %{version}, %{name} <= %{version}
 
 %description -n %{name}-jack
   An old-school all-digital polyphonic sampler synthesizer with stereo fx.
-  .
+
   This package provides the standalone JACK client application (samplv1_jack)
 
 
@@ -112,7 +100,7 @@ Obsoletes:	%{name}-common <= %{version}
 
 %description -n %{name}-lv2
   An old-school all-digital polyphonic sampler synthesizer with stereo fx.
-  .
+
   This package provides the LV2 plugin (http://samplv1.sourceforge.net/lv2)
 
 
@@ -131,12 +119,8 @@ cmake --build build %{?_smp_mflags}
 DESTDIR="%{buildroot}" \
 cmake --install build
 
-%clean
-[ -d "%{buildroot}" -a "%{buildroot}" != "/" ] && %__rm -rf "%{buildroot}"
-
 
 %files -n %{name}-jack
-%defattr(-,root,root)
 %license LICENSE
 %doc README ChangeLog
 #dir %{_datadir}/applications
@@ -169,7 +153,6 @@ cmake --install build
 %{_datadir}/%{name}/palette/*.conf
 
 %files -n %{name}-lv2
-%defattr(-,root,root)
 %dir %{_libdir}/lv2
 %dir %{_libdir}/lv2/%{name}.lv2
 %{_libdir}/lv2/%{name}.lv2/manifest.ttl
