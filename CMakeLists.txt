@@ -411,7 +411,7 @@ show_option ("  LV2 plug-in UI Resize interface support  . . . . ." CONFIG_LV2_U
 show_option ("  LV2 plug-in Programs support . . . . . . . . . . ." CONFIG_LV2_PROGRAMS)
 show_option ("  LV2 plug-in Patch support  . . . . . . . . . . . ." CONFIG_LV2_PATCH)
 show_option ("  LV2 plug-in Port-event support . . . . . . . . . ." CONFIG_LV2_PORT_EVENT)
-show_option ("  LV2 plug-in Port-change request (EXPERIMENTAL) . ." CONFIG_LV2_PORT_CHANGE_REQUEST)
+show_option ("  LV2 plug-in Port-change request  . . . . . . . . ." CONFIG_LV2_PORT_CHANGE_REQUEST)
 show_option ("  LV2 plug-in State Free Path support  . . . . . . ." CONFIG_LV2_STATE_FREE_PATH)
 show_option ("  Pitch-shifting support (librubberband) . . . . . ." CONFIG_LIBRUBBERBAND)
 show_option ("  Pitch-shifting support (fftw3) . . . . . . . . . ." CONFIG_FFTW3)
