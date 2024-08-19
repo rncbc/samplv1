@@ -813,8 +813,10 @@ struct samplv1_key
 
 // glide (portamento)
 
-struct samplv1_glide
+class samplv1_glide
 {
+public:
+
 	samplv1_glide(float& last) : m_last(last) { reset(); }
 
 	void reset( uint32_t frames = 0, float freq = 0.0f )
