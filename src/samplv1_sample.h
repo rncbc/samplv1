@@ -1,7 +1,7 @@
 // samplv1_sample.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2023, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2024, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -419,6 +419,78 @@ private:
 	uint32_t m_index1;
 	float    m_alpha1;
 	float    m_xgain1;
+};
+
+
+//-------------------------------------------------------------------------
+// samplv1_sample_ref - PADsynth wave table (sample reference lists).
+//
+#include "samplv1_list.h"
+
+class samplv1_sample_ref
+{
+public:
+
+	// dtor.
+	~samplv1_sample_ref()
+		{ clear_refs(true); }
+
+	// methods.
+	void append(samplv1_sample *sample)
+		{ m_play.append(new sample_ref(sample)); }
+
+	samplv1_sample *next() const
+		{ return m_play.next()->refp; }
+	samplv1_sample *prev() const
+		{ return m_play.prev()->refp; }
+
+	void acquire()
+		{ ++(m_play.next()->refc); }
+	void release()
+		{ --(m_play.next()->refc); free_refs(); }
+
+	void free_refs()
+	{
+		sample_ref *ref = m_play.next();
+		while (ref && ref->refc == 0 && ref != m_play.prev()) {
+			m_play.remove(ref);
+			m_free.append(ref);
+			ref = m_play.next();
+		}
+	}
+
+	void clear_refs(bool force = false)
+	{
+		sample_ref *ref;
+		if (force) {
+			ref = m_play.next();
+			while (ref) {
+				m_play.remove(ref);
+				m_free.append(ref);
+				ref = m_play.next();
+			}
+		}
+		ref = m_free.next();
+		while (ref) {
+			m_free.remove(ref);
+			delete ref->refp;
+			delete ref;
+			ref = m_free.next();
+		}
+	}
+
+private:
+
+	struct sample_ref : public samplv1_list<sample_ref>
+	{
+		sample_ref(samplv1_sample *sample) : refp(sample), refc(0) {}
+
+		samplv1_sample *refp;
+		uint32_t        refc;
+	};
+
+	samplv1_list<sample_ref> m_play;
+	samplv1_list<sample_ref> m_free;
 };
 
 

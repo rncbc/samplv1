@@ -1119,7 +1119,8 @@ public:
 
 	bool running(bool on);
 
-	samplv1_sample  gen1_sample;
+	samplv1_sample_ref gen1_sample;
+
 	samplv1_wave_lf lfo1_wave;
 
 	float gen1_last;
@@ -1142,6 +1143,8 @@ protected:
 		samplv1_voice *pv = m_free_list.next();
 		if (pv) {
 			m_free_list.remove(pv);
+			gen1_sample.acquire();
+			pv->gen1.reset(gen1_sample.next());
 			m_play_list.append(pv);
 			++m_nvoices;
 		}
@@ -1150,6 +1153,8 @@ protected:
 
 	void free_voice ( samplv1_voice *pv )
 	{
+		gen1_sample.release();
+
 		if (m_lfo1.psync == pv)
 			m_lfo1.psync = nullptr;
 
@@ -1233,7 +1238,7 @@ samplv1_voice::samplv1_voice ( samplv1_impl *pImpl ) :
 	note(-1),
 	vel(0.0f),
 	pre(0.0f),
-	gen1(&pImpl->gen1_sample),
+	gen1(nullptr),
 	lfo1(&pImpl->lfo1_wave),
 	gen1_freq(0.0f),
 	lfo1_sample(0.0f),
@@ -1251,10 +1256,13 @@ samplv1_voice::samplv1_voice ( samplv1_impl *pImpl ) :
 
 samplv1_impl::samplv1_impl (
 	samplv1 *pSampl, uint16_t nchannels, float srate, uint32_t nsize )
-		: gen1_sample(srate), m_controls(pSampl), m_programs(pSampl),
+		: m_controls(pSampl), m_programs(pSampl),
 			m_midi_in(pSampl), m_bpm(180.0f), m_gen1(pSampl),
 			m_nvoices(0), m_running(false)
 {
+	// initialize sample list.
+	gen1_sample.append(new samplv1_sample(srate));
+
 	// null sample.
 	m_gen1.sample0 = 0.0f;
 
@@ -1330,7 +1338,8 @@ samplv1_impl::~samplv1_impl (void)
 #endif
 
 	// deallocate sample filenames
-	setSampleFile(nullptr, 0);
+	//setSampleFile(nullptr, 0);
+	gen1_sample.clear_refs(true);
 
 	// deallocate voice pool.
 	for (int i = 0; i < MAX_VOICES; ++i)
@@ -1388,7 +1397,7 @@ void samplv1_impl::setSampleRate ( float srate )
 	m_srate = srate;
 
 	// update waves sample rate
-	gen1_sample.setSampleRate(m_srate);
+	gen1_sample.next()->setSampleRate(m_srate);
 	lfo1_wave.setSampleRate(m_srate);
 
 	updateEnvTimes();
@@ -1456,8 +1465,9 @@ void samplv1_impl::updateEnvTimes (void)
 
 	float envtime_msecs = 10000.0f * m_gen1.envtime0;
 	if (envtime_msecs < MIN_ENV_MSECS) {
+		samplv1_sample *sample = gen1_sample.next();
 		const uint32_t envtime_frames
-			= (gen1_sample.offsetEnd() - gen1_sample.offsetStart()) >> 1;
+			= (sample->offsetEnd() - sample->offsetStart()) >> 1;
 		envtime_msecs = envtime_frames / srate_ms;
 	}
 	if (envtime_msecs < MIN_ENV_MSECS)
@@ -1485,12 +1495,15 @@ void samplv1_impl::setSampleFile ( const char *pszSampleFile, uint16_t otabs )
 {
 	reset();
 
+	samplv1_sample *prev = gen1_sample.prev();
+	samplv1_sample *next = new samplv1_sample(prev->sampleRate());
 	if (pszSampleFile) {
 		m_gen1.sample0 = *m_gen1.sample;
-		gen1_sample.open(pszSampleFile, samplv1_freq(m_gen1.sample0), otabs);
-	} else {
-		gen1_sample.close();
+		next->open(pszSampleFile, samplv1_freq(m_gen1.sample0), otabs);
 	}
+	gen1_sample.append(next);
+	gen1_sample.free_refs();
+	gen1_sample.clear_refs();
 
 	updateEnvTimes();
 }
@@ -1498,13 +1511,13 @@ void samplv1_impl::setSampleFile ( const char *pszSampleFile, uint16_t otabs )
 
 const char *samplv1_impl::sampleFile (void) const
 {
-	return gen1_sample.filename();
+	return gen1_sample.prev()->filename();
 }
 
 
 uint16_t samplv1_impl::octaves (void) const
 {
-	return gen1_sample.otabs();
+	return gen1_sample.prev()->otabs();
 }
 
 
@@ -1783,7 +1796,7 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 				else
 					m_dca1.env.idle(&pv->dca1_env);
 				// something about the loop
-				pv->gen1.setLoop(gen1_sample.isLoop());
+				pv->gen1.setLoop(gen1_sample.next()->isLoop());
 				// lfos
 				const float lfo1_pshift
 					= (m_lfo1.psync ? m_lfo1.psync->lfo1.pshift() : 0.0f);
@@ -1821,7 +1834,7 @@ void samplv1_impl::process_midi ( uint8_t *data, uint32_t size )
 						m_dca1.env.note_off(&pv->dca1_env);
 						m_dcf1.env.note_off(&pv->dcf1_env);
 						m_lfo1.env.note_off(&pv->lfo1_env);
-						if (gen1_sample.isLoopEndRelease())
+						if (gen1_sample.next()->isLoopEndRelease())
 							pv->gen1.setLoop(false);
 					}
 					m_notes[pv->note] = nullptr;
@@ -1980,7 +1993,7 @@ void samplv1_impl::allSustainOff (void)
 				m_dca1.env.note_off(&pv->dca1_env);
 				m_dcf1.env.note_off(&pv->dcf1_env);
 				m_lfo1.env.note_off(&pv->lfo1_env);
-				if (gen1_sample.isLoopEndRelease())
+				if (gen1_sample.next()->isLoopEndRelease())
 					pv->gen1.setLoop(false);
 				m_notes[pv->note] = nullptr;
 				pv->note = -1;
@@ -2231,7 +2244,7 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 	// channel indexes
 
 	const uint16_t k11 = 0;
-	const uint16_t k12 = (gen1_sample.channels() > 1 ? 1 : 0);
+	const uint16_t k12 = (gen1_sample.next()->channels() > 1 ? 1 : 0);
 
 	// controls
 
@@ -2249,7 +2262,7 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 
 	if (m_gen1.sample0 != *m_gen1.sample) {
 		m_gen1.sample0  = *m_gen1.sample;
-		gen1_sample.reset(samplv1_freq(m_gen1.sample0));
+		gen1_sample.next()->reset(samplv1_freq(m_gen1.sample0));
 	}
 
 	if (m_gen1.envtime0 != *m_gen1.envtime) {
@@ -2480,7 +2493,7 @@ void samplv1_impl::sampleReverseTest (void)
 void samplv1_impl::sampleReverseSync (void)
 {
 	const bool bReverse
-		= gen1_sample.isReverse();
+		= gen1_sample.prev()->isReverse();
 
 	m_gen1.reverse.set_value_sync(bReverse ? 1.0f : 0.0f);
 }
@@ -2499,7 +2512,7 @@ void samplv1_impl::sampleOffsetTest (void)
 void samplv1_impl::sampleOffsetSync (void)
 {
 	const bool bOffset
-		= gen1_sample.isOffset();
+		= gen1_sample.prev()->isOffset();
 
 	m_gen1.offset.set_value_sync(bOffset ? 1.0f : 0.0f);
 }
@@ -2508,11 +2521,11 @@ void samplv1_impl::sampleOffsetSync (void)
 void samplv1_impl::sampleOffsetRangeSync (void)
 {
 	const uint32_t iSampleLength
-		= gen1_sample.length();
+		= gen1_sample.prev()->length();
 	const uint32_t iOffsetStart
-		= gen1_sample.offsetStart();
+		= gen1_sample.prev()->offsetStart();
 	const uint32_t iOffsetEnd
-		= gen1_sample.offsetEnd();
+		= gen1_sample.prev()->offsetEnd();
 
 	const float offset_1 = (iSampleLength > 0
 		? float(iOffsetStart) / float(iSampleLength)
@@ -2539,7 +2552,7 @@ void samplv1_impl::sampleLoopTest (void)
 void samplv1_impl::sampleLoopSync (void)
 {
 	const bool bLoop
-		= gen1_sample.isLoop();
+		= gen1_sample.prev()->isLoop();
 
 	m_gen1.loop.set_value_sync(bLoop ? 1.0f : 0.0f);
 }
@@ -2548,11 +2561,11 @@ void samplv1_impl::sampleLoopSync (void)
 void samplv1_impl::sampleLoopRangeSync (void)
 {
 	const uint32_t iSampleLength
-		= gen1_sample.length();
+		= gen1_sample.prev()->length();
 	const uint32_t iLoopStart
-		= gen1_sample.loopStart();
+		= gen1_sample.prev()->loopStart();
 	const uint32_t iLoopEnd
-		= gen1_sample.loopEnd();
+		= gen1_sample.prev()->loopEnd();
 
 	const float loop_1 = (iSampleLength > 0
 		? float(iLoopStart) / float(iSampleLength)
@@ -2637,13 +2650,13 @@ uint16_t samplv1::octaves (void) const
 
 samplv1_sample *samplv1::sample (void) const
 {
-	return &(m_pImpl->gen1_sample);
+	return m_pImpl->gen1_sample.prev();
 }
 
 
 void samplv1::setReverse ( bool bReverse, bool bSync )
 {
-	m_pImpl->gen1_sample.setReverse(bReverse);
+	m_pImpl->gen1_sample.prev()->setReverse(bReverse);
 	m_pImpl->sampleReverseSync();
 
 	if (bSync) updateSample();
@@ -2651,13 +2664,13 @@ void samplv1::setReverse ( bool bReverse, bool bSync )
 
 bool samplv1::isReverse (void) const
 {
-	return m_pImpl->gen1_sample.isReverse();
+	return m_pImpl->gen1_sample.prev()->isReverse();
 }
 
 
 void samplv1::setOffset ( bool bOffset, bool bSync )
 {
-	m_pImpl->gen1_sample.setOffset(bOffset);
+	m_pImpl->gen1_sample.prev()->setOffset(bOffset);
 	m_pImpl->sampleOffsetSync();
 
 	if (bSync) updateOffsetRange();
@@ -2665,13 +2678,13 @@ void samplv1::setOffset ( bool bOffset, bool bSync )
 
 bool samplv1::isOffset (void) const
 {
-	return m_pImpl->gen1_sample.isOffset();
+	return m_pImpl->gen1_sample.prev()->isOffset();
 }
 
 
 void samplv1::setOffsetRange ( uint32_t iOffsetStart, uint32_t iOffsetEnd, bool bSync )
 {
-	m_pImpl->gen1_sample.setOffsetRange(iOffsetStart, iOffsetEnd);
+	m_pImpl->gen1_sample.prev()->setOffsetRange(iOffsetStart, iOffsetEnd);
 	m_pImpl->sampleOffsetRangeSync();
 	m_pImpl->updateEnvTimes();
 
@@ -2680,18 +2693,18 @@ void samplv1::setOffsetRange ( uint32_t iOffsetStart, uint32_t iOffsetEnd, bool 
 
 uint32_t samplv1::offsetStart (void) const
 {
-	return m_pImpl->gen1_sample.offsetStart();
+	return m_pImpl->gen1_sample.prev()->offsetStart();
 }
 
 uint32_t samplv1::offsetEnd (void) const
 {
-	return m_pImpl->gen1_sample.offsetEnd();
+	return m_pImpl->gen1_sample.prev()->offsetEnd();
 }
 
 
 void samplv1::setLoop ( bool bLoop, bool bSync )
 {
-	m_pImpl->gen1_sample.setLoop(bLoop);
+	m_pImpl->gen1_sample.prev()->setLoop(bLoop);
 	m_pImpl->sampleLoopSync();
 
 	if (bSync) updateLoopRange();
@@ -2699,13 +2712,13 @@ void samplv1::setLoop ( bool bLoop, bool bSync )
 
 bool samplv1::isLoop (void) const
 {
-	return m_pImpl->gen1_sample.isLoop();
+	return m_pImpl->gen1_sample.prev()->isLoop();
 }
 
 
 void samplv1::setLoopRange ( uint32_t iLoopStart, uint32_t iLoopEnd, bool bSync )
 {
-	m_pImpl->gen1_sample.setLoopRange(iLoopStart, iLoopEnd);
+	m_pImpl->gen1_sample.prev()->setLoopRange(iLoopStart, iLoopEnd);
 	m_pImpl->sampleLoopRangeSync();
 
 	if (bSync) updateLoopRange();
@@ -2713,51 +2726,51 @@ void samplv1::setLoopRange ( uint32_t iLoopStart, uint32_t iLoopEnd, bool bSync 
 
 uint32_t samplv1::loopStart (void) const
 {
-	return m_pImpl->gen1_sample.loopStart();
+	return m_pImpl->gen1_sample.prev()->loopStart();
 }
 
 uint32_t samplv1::loopEnd (void) const
 {
-	return m_pImpl->gen1_sample.loopEnd();
+	return m_pImpl->gen1_sample.prev()->loopEnd();
 }
 
 
 void samplv1::setLoopFade ( uint32_t iLoopFade, bool bSync )
 {
-	m_pImpl->gen1_sample.setLoopCrossFade(iLoopFade);
+	m_pImpl->gen1_sample.prev()->setLoopCrossFade(iLoopFade);
 
 	if (bSync) updateLoopFade();
 }
 
 uint32_t samplv1::loopFade (void) const
 {
-	return uint32_t(m_pImpl->gen1_sample.loopCrossFade());
+	return uint32_t(m_pImpl->gen1_sample.prev()->loopCrossFade());
 }
 
 
 void samplv1::setLoopZero ( bool bLoopZero, bool bSync )
 {
-	m_pImpl->gen1_sample.setLoopZeroCrossing(bLoopZero);
+	m_pImpl->gen1_sample.prev()->setLoopZeroCrossing(bLoopZero);
 
 	if (bSync) updateLoopZero();
 }
 
 bool samplv1::isLoopZero (void) const
 {
-	return m_pImpl->gen1_sample.isLoopZeroCrossing();
+	return m_pImpl->gen1_sample.prev()->isLoopZeroCrossing();
 }
 
 
 void samplv1::setLoopRelease ( bool bLoopRelease, bool bSync )
 {
-	m_pImpl->gen1_sample.setLoopEndRelease(bLoopRelease);
+	m_pImpl->gen1_sample.prev()->setLoopEndRelease(bLoopRelease);
 
 	if (bSync) updateLoopRelease();
 }
 
 bool samplv1::isLoopRelease (void) const
 {
-	return m_pImpl->gen1_sample.isLoopEndRelease();
+	return m_pImpl->gen1_sample.prev()->isLoopEndRelease();
 }
 
 

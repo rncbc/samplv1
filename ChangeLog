@@ -6,6 +6,8 @@ ChangeLog
 
 GIT HEAD
 
+- Smooth and seamless voice/note deferred switching, whenever the
+  sample file and wavetable is reset or changed. (EXPERIMENTAL)
 - LV2 Plug-in Control Input Port-Change Request extension is not
   tagged experimental anymore.
 
