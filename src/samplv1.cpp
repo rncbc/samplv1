@@ -1496,7 +1496,7 @@ void samplv1_impl::setSampleFile ( const char *pszSampleFile, uint16_t otabs )
 //	reset();
 
 	samplv1_sample *prev = gen1_sample.prev();
-	samplv1_sample *next = new samplv1_sample(prev->sampleRate());
+	samplv1_sample *next = new samplv1_sample(*prev);
 	if (pszSampleFile) {
 		m_gen1.sample0 = *m_gen1.sample;
 		next->open(pszSampleFile, samplv1_freq(m_gen1.sample0), otabs);

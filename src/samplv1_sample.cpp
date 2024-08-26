@@ -45,6 +45,21 @@ samplv1_sample::samplv1_sample ( float srate )
 }
 
 
+// copy-ctor.
+samplv1_sample::samplv1_sample ( const samplv1_sample& sample )
+	: samplv1_sample(sample.m_srate)
+{
+	m_loop    = sample.m_loop;
+	m_offset  = sample.m_offset;
+	m_reverse = sample.m_reverse;
+
+	m_loop_xfade = sample.m_loop_xfade;
+	m_loop_xzero = sample.m_loop_xzero;
+
+	m_loop_end_release = sample.m_loop_end_release;
+}
+
+
 // dtor.
 samplv1_sample::~samplv1_sample (void)
 {

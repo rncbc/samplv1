@@ -45,6 +45,9 @@ public:
 	// ctor.
 	samplv1_sample(float srate = 44100.0f);
 
+	// copy-ctor.
+	samplv1_sample(const samplv1_sample& sample);
+
 	// dtor.
 	~samplv1_sample();
 
