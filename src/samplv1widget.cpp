@@ -1465,9 +1465,11 @@ void samplv1widget::updateOffsetLoop ( samplv1_sample *pSample, bool bDirty )
 		const uint32_t iLoopFade  = pSample->loopCrossFade();
 		const bool     bLoopZero  = pSample->isLoopZeroCrossing();
 		const bool     bLoopRelease = pSample->isLoopEndRelease();
+		const bool     bReverse   = pSample->isReverse();
 		const uint32_t nframes    = pSample->length();
 		const float    srate      = pSample->sampleRate();
 		m_ui.Gen1OctavesComboBox->setCurrentIndex(iOctaves);
+		m_ui.Gen1OffsetKnob->setValue(bOffset ? 1.0f : 0.0f);
 		m_ui.Gen1OffsetRangeLabel->setEnabled(bOffset);
 		m_ui.Gen1OffsetStartSpinBox->setSampleRate(srate);
 		m_ui.Gen1OffsetStartSpinBox->setEnabled(bOffset);
@@ -1479,6 +1481,7 @@ void samplv1widget::updateOffsetLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1OffsetEndSpinBox->setMinimum(bLoop ? iLoopEnd : iOffsetStart);
 		m_ui.Gen1OffsetEndSpinBox->setMaximum(nframes);
 		m_ui.Gen1OffsetEndSpinBox->setValue(iOffsetEnd);
+		m_ui.Gen1LoopKnob->setValue(bLoop ? 1.0f : 0.0f);
 		m_ui.Gen1LoopRangeLabel->setEnabled(bLoop);
 		m_ui.Gen1LoopStartSpinBox->setSampleRate(srate);
 		m_ui.Gen1LoopStartSpinBox->setEnabled(bLoop);
@@ -1496,6 +1499,7 @@ void samplv1widget::updateOffsetLoop ( samplv1_sample *pSample, bool bDirty )
 		m_ui.Gen1LoopFadeSpinBox->setMinimum(0);
 		m_ui.Gen1LoopFadeSpinBox->setMaximum(
 			qMin(iLoopStart, (iLoopEnd - iLoopStart) >> 1));
+		m_ui.Gen1ReverseKnob->setValue(bReverse ? 1.0f : 0.0f);
 		if (iLoopFade > 0) m_iLoopFade = iLoopFade;
 		m_ui.Gen1LoopFadeSpinBox->setValue(m_iLoopFade);
 		m_ui.Gen1LoopZeroCheckBox->setValue(bLoopZero ? 1.0f : 0.0f);

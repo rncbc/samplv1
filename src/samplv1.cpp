@@ -1493,7 +1493,7 @@ void samplv1_impl::updateEnvTimes (void)
 
 void samplv1_impl::setSampleFile ( const char *pszSampleFile, uint16_t otabs )
 {
-	reset();
+//	reset();
 
 	samplv1_sample *prev = gen1_sample.prev();
 	samplv1_sample *next = new samplv1_sample(prev->sampleRate());
