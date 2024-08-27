@@ -71,20 +71,20 @@ static LV2UI_Handle samplv1_lv2ui_instantiate (
 	LV2UI_Controller controller, LV2UI_Widget *widget,
 	const LV2_Feature *const *features )
 {
-	samplv1_lv2 *pSynth = nullptr;
+	samplv1_lv2 *pSampl = nullptr;
 
 	for (int i = 0; features && features[i]; ++i) {
 		if (::strcmp(features[i]->URI, LV2_INSTANCE_ACCESS_URI) == 0) {
-			pSynth = static_cast<samplv1_lv2 *> (features[i]->data);
+			pSampl = static_cast<samplv1_lv2 *> (features[i]->data);
 			break;
 		}
 	}
 
-	if (pSynth == nullptr)
+	if (pSampl == nullptr)
 		return nullptr;
 
 	samplv1widget_lv2 *pWidget
-		= new samplv1widget_lv2(pSynth, controller, write_function);
+		= new samplv1widget_lv2(pSampl, controller, write_function);
 	*widget = pWidget;
 	return pWidget;
 }

@@ -1,7 +1,7 @@
 // samplv1_controls.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2021, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2024, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -37,7 +37,7 @@ class samplv1_controls
 public:
 
 	// ctor.
-	samplv1_controls(samplv1 *pSynth);
+	samplv1_controls(samplv1 *pSampl);
 
 	// dtor.
 	~samplv1_controls();

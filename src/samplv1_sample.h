@@ -458,6 +458,7 @@ public:
 		while (ref && ref->refc == 0 && ref != m_play.prev()) {
 			m_play.remove(ref);
 			m_free.append(ref);
+			(ref->refp)->close();
 			ref = m_play.next();
 		}
 	}
