@@ -7,3 +7,4 @@ debian/tmp/usr/share/icons/hicolor/32x32/mimetypes/org.rncbc.samplv1.application
 debian/tmp/usr/share/icons/hicolor/scalable/apps/org.rncbc.samplv1.svg
 debian/tmp/usr/share/icons/hicolor/scalable/mimetypes/org.rncbc.samplv1.application-x-samplv1*.svg
 debian/tmp/usr/share/man/man1/samplv1*.*
+debian/tmp/usr/share/samplv1/palette/*.conf
