@@ -58,6 +58,7 @@ public:
 	uint16_t octaves() const;
 
 	samplv1_sample *sample() const;
+	uint32_t length() const;
 
 	void setReverse(bool bReverse, bool bSync = false);
 	bool isReverse() const;

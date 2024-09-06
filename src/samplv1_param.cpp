@@ -288,6 +288,11 @@ bool samplv1_param::loadPreset (
 									continue;
 								index = s_hash.value(sName);
 							}
+							if (index == samplv1::GEN1_OFFSET_1 ||
+								index == samplv1::GEN1_OFFSET_2 ||
+								index == samplv1::GEN1_LOOP_1   ||
+								index == samplv1::GEN1_LOOP_2)
+								continue;
 							const float fValue = eParam.text().toFloat();
 							pSampl->setParamValue(index,
 								samplv1_param::paramSafeValue(index, fValue));
@@ -303,6 +308,33 @@ bool samplv1_param::loadPreset (
 					samplv1_param::loadTuning(pSampl, eChild);
 				}
 			}
+			// Load/correct functional dependent parametrics...
+			const uint32_t iSampleLength
+				= pSampl->length();
+			const uint32_t iOffsetStart
+				= pSampl->offsetStart();
+			const uint32_t iOffsetEnd
+				= pSampl->offsetEnd();
+			const bool bOffset
+				= (iOffsetStart < iOffsetEnd); // pSampl->isOffset();
+			const float fOffset_1 = (bOffset && iSampleLength > 0
+				? float(iOffsetStart) / float(iSampleLength) : 0.0f);
+			const float fOffset_2 = (bOffset && iSampleLength > 0
+				? float(iOffsetEnd) / float(iSampleLength) : 1.0f);
+			pSampl->setParamValue(samplv1::GEN1_OFFSET_1, fOffset_1);
+			pSampl->setParamValue(samplv1::GEN1_OFFSET_2, fOffset_2);
+			const uint32_t iLoopStart
+				= pSampl->loopStart();
+			const uint32_t iLoopEnd
+				= pSampl->loopEnd();
+			const bool bLoop
+				= (iLoopStart < iLoopEnd); // pSampl->isLoop();
+			const float fLoop_1 = (bLoop && iSampleLength > 0
+				? float(iLoopStart) / float(iSampleLength) : 0.0f);
+			const float fLoop_2 = (bLoop && iSampleLength > 0
+				? float(iLoopEnd) / float(iSampleLength) : 1.0f);
+			pSampl->setParamValue(samplv1::GEN1_LOOP_1, fLoop_1);
+			pSampl->setParamValue(samplv1::GEN1_LOOP_2, fLoop_2);
 		}
 	}
 
@@ -341,8 +373,13 @@ bool samplv1_param::savePreset (
 
 	QDomElement eParams = doc.createElement("params");
 	for (uint32_t i = 0; i < samplv1::NUM_PARAMS; ++i) {
-		QDomElement eParam = doc.createElement("param");
 		const samplv1::ParamIndex index = samplv1::ParamIndex(i);
+		if (index == samplv1::GEN1_OFFSET_1 ||
+			index == samplv1::GEN1_OFFSET_2 ||
+			index == samplv1::GEN1_LOOP_1   ||
+			index == samplv1::GEN1_LOOP_2)
+			continue;
+		QDomElement eParam = doc.createElement("param");
 		eParam.setAttribute("index", QString::number(i));
 		eParam.setAttribute("name", samplv1_param::paramName(index));
 		const float fValue = pSampl->paramValue(index);
@@ -490,45 +527,49 @@ void samplv1_param::saveSamples (
 		eSample.appendChild(eOctaves);
 	}
 
-	const uint32_t iOffsetStart = pSampl->offsetStart();
-	const uint32_t iOffsetEnd   = pSampl->offsetEnd();
-	if (iOffsetStart < iOffsetEnd) {
-		QDomElement eOffsetStart = doc.createElement("offset-start");
-		eOffsetStart.appendChild(doc.createTextNode(
-			QString::number(iOffsetStart)));
-		eSample.appendChild(eOffsetStart);
-		QDomElement eOffsetEnd = doc.createElement("offset-end");
-		eOffsetEnd.appendChild(doc.createTextNode(
-			QString::number(iOffsetEnd)));
-		eSample.appendChild(eOffsetEnd);
+	if (pSampl->isOffset()) {
+		const uint32_t iOffsetStart = pSampl->offsetStart();
+		const uint32_t iOffsetEnd   = pSampl->offsetEnd();
+		if (iOffsetStart < iOffsetEnd) {
+			QDomElement eOffsetStart = doc.createElement("offset-start");
+			eOffsetStart.appendChild(doc.createTextNode(
+				QString::number(iOffsetStart)));
+			eSample.appendChild(eOffsetStart);
+			QDomElement eOffsetEnd = doc.createElement("offset-end");
+			eOffsetEnd.appendChild(doc.createTextNode(
+				QString::number(iOffsetEnd)));
+			eSample.appendChild(eOffsetEnd);
+		}
 	}
 
-	const uint32_t iLoopStart = pSampl->loopStart();
-	const uint32_t iLoopEnd   = pSampl->loopEnd();
-	const uint32_t iLoopFade  = pSampl->loopFade();
-	const bool     bLoopZero  = pSampl->isLoopZero();
-	const bool     bLoopRelease = pSampl->isLoopRelease();
-	if (iLoopStart < iLoopEnd) {
-		QDomElement eLoopStart = doc.createElement("loop-start");
-		eLoopStart.appendChild(doc.createTextNode(
-			QString::number(iLoopStart)));
-		eSample.appendChild(eLoopStart);
-		QDomElement eLoopEnd = doc.createElement("loop-end");
-		eLoopEnd.appendChild(doc.createTextNode(
-			QString::number(iLoopEnd)));
-		eSample.appendChild(eLoopEnd);
-		QDomElement eLoopRelease = doc.createElement("loop-end-release");
-		eLoopRelease.appendChild(doc.createTextNode(
-			QString::number(int(bLoopRelease))));
-		eSample.appendChild(eLoopRelease);
-		QDomElement eLoopFade = doc.createElement("loop-fade");
-		eLoopFade.appendChild(doc.createTextNode(
-			QString::number(iLoopFade)));
-		eSample.appendChild(eLoopFade);
-		QDomElement eLoopZero = doc.createElement("loop-zero");
-		eLoopZero.appendChild(doc.createTextNode(
-			QString::number(int(bLoopZero))));
-		eSample.appendChild(eLoopZero);
+	if (pSampl->isLoop()) {
+		const uint32_t iLoopStart = pSampl->loopStart();
+		const uint32_t iLoopEnd   = pSampl->loopEnd();
+		const uint32_t iLoopFade  = pSampl->loopFade();
+		const bool     bLoopZero  = pSampl->isLoopZero();
+		const bool     bLoopRelease = pSampl->isLoopRelease();
+		if (iLoopStart < iLoopEnd) {
+			QDomElement eLoopStart = doc.createElement("loop-start");
+			eLoopStart.appendChild(doc.createTextNode(
+				QString::number(iLoopStart)));
+			eSample.appendChild(eLoopStart);
+			QDomElement eLoopEnd = doc.createElement("loop-end");
+			eLoopEnd.appendChild(doc.createTextNode(
+				QString::number(iLoopEnd)));
+			eSample.appendChild(eLoopEnd);
+			QDomElement eLoopRelease = doc.createElement("loop-end-release");
+			eLoopRelease.appendChild(doc.createTextNode(
+				QString::number(int(bLoopRelease))));
+			eSample.appendChild(eLoopRelease);
+			QDomElement eLoopFade = doc.createElement("loop-fade");
+			eLoopFade.appendChild(doc.createTextNode(
+				QString::number(iLoopFade)));
+			eSample.appendChild(eLoopFade);
+			QDomElement eLoopZero = doc.createElement("loop-zero");
+			eLoopZero.appendChild(doc.createTextNode(
+				QString::number(int(bLoopZero))));
+			eSample.appendChild(eLoopZero);
+		}
 	}
 
 	eSamples.appendChild(eSample);
