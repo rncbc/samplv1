@@ -22,6 +22,8 @@
 #include "samplv1_param.h"
 #include "samplv1_config.h"
 
+#include "samplv1_sched.h"
+
 #include <QHash>
 
 #include <QDomDocument>
@@ -220,6 +222,27 @@ bool samplv1_param::paramFloat ( samplv1::ParamIndex index )
 }
 
 
+// Preset initialization method.
+bool samplv1_param::newPreset ( samplv1 *pSampl )
+{
+	if (pSampl == nullptr)
+		return false;
+
+	const bool running = pSampl->running(false);
+
+	samplv1_sched::sync_reset();
+
+	pSampl->stabilize();
+	pSampl->reset();
+
+	samplv1_sched::sync_pending();
+
+	pSampl->running(running);
+
+	return true;
+}
+
+
 // Preset serialization methods.
 bool samplv1_param::loadPreset (
 	samplv1 *pSampl, const QString& sFilename )
@@ -246,6 +269,8 @@ bool samplv1_param::loadPreset (
 		return false;
 
 	const bool running = pSampl->running(false);
+
+	samplv1_sched::sync_reset();
 
 	pSampl->setTuningEnabled(false);
 	pSampl->reset();
@@ -342,6 +367,9 @@ bool samplv1_param::loadPreset (
 
 	pSampl->stabilize();
 	pSampl->reset();
+
+	samplv1_sched::sync_pending();
+
 	pSampl->running(running);
 
 	QDir::setCurrent(currentDir.absolutePath());

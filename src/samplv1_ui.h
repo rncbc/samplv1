@@ -1,7 +1,7 @@
 // samplv1_ui.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2023, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2024, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -72,6 +72,8 @@ public:
 
 	void setLoopRelease(bool bLoopRelease);
 	bool isLoopRelease() const;
+
+	bool newPreset();
 
 	bool loadPreset(const QString& sFilename);
 	bool savePreset(const QString& sFilename);

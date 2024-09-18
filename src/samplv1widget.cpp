@@ -1103,6 +1103,10 @@ void samplv1widget::newPreset (void)
 	resetParamKnobs();
 	resetParamValues();
 
+	samplv1_ui *pSamplUi = ui_instance();
+	if (pSamplUi)
+		pSamplUi->newPreset();
+
 	m_ui.StatusBar->showMessage(tr("New preset"), 5000);
 	updateDirtyPreset(false);
 

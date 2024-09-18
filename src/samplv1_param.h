@@ -46,6 +46,9 @@ namespace samplv1_param
 		virtual QString abstractPath(const QString& sAbsolutePath) const;
 	};
 
+	// Preset initialization method.
+	bool newPreset(samplv1 *pSampl);
+
 	// Preset serialization methods.
 	bool loadPreset(samplv1 *pSampl,
 		const QString& sFilename);
