@@ -4,7 +4,7 @@ samplv1 - an old-school polyphonic sampler
 ChangeLog
 
 
-GIT HEAD
+1.1.1  2024-09-20  An End-ofSummer'24 Release.
 
 - Fixed sample loop/offset-start/end state save and restore.
 - NSM: prevent loading any preset(s) given on command line.
