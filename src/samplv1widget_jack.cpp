@@ -108,7 +108,7 @@ samplv1widget_jack::samplv1widget_jack ( samplv1_jack *pSampl )
 				samplv1widget::setPalette(pal);
 		}
 		if (!pConfig->sCustomStyleTheme.isEmpty()) {
-			samplv1widget::setStyle(
+			QApplication::setStyle(
 				QStyleFactory::create(pConfig->sCustomStyleTheme));
 		}
 	}

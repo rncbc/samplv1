@@ -1,7 +1,7 @@
 // samplv1widget_config.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2023, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2024, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -107,6 +107,8 @@ samplv1widget_config::samplv1widget_config (
 		m_ui.RandomizePercentSpinBox->setValue(pConfig->fRandomizePercent);
 		m_ui.PitchShiftTypeComboBox->setCurrentIndex(pConfig->iPitchShiftType);
 		// Custom display options (only for no-plugin forms)...
+		m_ui.CustomStyleThemeTextLabel->setEnabled(!bPlugin);
+		m_ui.CustomStyleThemeComboBox->setEnabled(!bPlugin);
 		resetCustomColorThemes(pConfig->sCustomColorTheme);
 		resetCustomStyleThemes(pConfig->sCustomStyleTheme);
 		// Load controllers database...
@@ -753,7 +755,7 @@ void samplv1widget_config::accept (void)
 		}
 	}
 
-	if (m_iDirtyOptions > 0 && pConfig) {
+	if (m_iDirtyOptions > 0 && pConfig && m_pSamplUi) {
 		// Save options...
 		pConfig->bProgramsPreview = m_ui.ProgramsPreviewCheckBox->isChecked();
 		pConfig->bUseNativeDialogs = m_ui.UseNativeDialogsCheckBox->isChecked();
@@ -764,32 +766,34 @@ void samplv1widget_config::accept (void)
 		pConfig->iKnobEditMode = m_ui.KnobEditModeComboBox->currentIndex();
 		samplv1widget_edit::setEditMode(
 			samplv1widget_edit::EditMode(pConfig->iKnobEditMode));
-		const QString sOldCustomColorTheme = pConfig->sCustomColorTheme;
-		if (m_ui.CustomColorThemeComboBox->currentIndex() > 0)
-			pConfig->sCustomColorTheme = m_ui.CustomColorThemeComboBox->currentText();
-		else
-			pConfig->sCustomColorTheme.clear();
-		const QString sOldCustomStyleTheme = pConfig->sCustomStyleTheme;
-		if (m_ui.CustomStyleThemeComboBox->currentIndex() > 0)
-			pConfig->sCustomStyleTheme = m_ui.CustomStyleThemeComboBox->currentText();
-		else
-			pConfig->sCustomStyleTheme.clear();
 		const int iOldFrameTimeFormat = pConfig->iFrameTimeFormat;
 		const int iOldPitchShiftType  = pConfig->iPitchShiftType;
 		pConfig->iFrameTimeFormat  = m_ui.FrameTimeFormatComboBox->currentIndex();
 		pConfig->fRandomizePercent = float(m_ui.RandomizePercentSpinBox->value());
 		pConfig->iPitchShiftType   = m_ui.PitchShiftTypeComboBox->currentIndex();
 		int iNeedRestart = 0;
-		QWidget *pParentWidget = parentWidget();
-		if (pParentWidget) {
+		if (!m_pSamplUi->isPlugin()) {
+			const QString sOldCustomStyleTheme = pConfig->sCustomStyleTheme;
+			if (m_ui.CustomStyleThemeComboBox->currentIndex() > 0)
+				pConfig->sCustomStyleTheme = m_ui.CustomStyleThemeComboBox->currentText();
+			else
+				pConfig->sCustomStyleTheme.clear();
 			if (pConfig->sCustomStyleTheme != sOldCustomStyleTheme) {
 				if (pConfig->sCustomStyleTheme.isEmpty()) {
 					++iNeedRestart;
 				} else {
-					pParentWidget->setStyle(
+					QApplication::setStyle(
 						QStyleFactory::create(pConfig->sCustomStyleTheme));
 				}
 			}
+		}
+		QWidget *pParentWidget = parentWidget();
+		if (pParentWidget) {
+			const QString sOldCustomColorTheme = pConfig->sCustomColorTheme;
+			if (m_ui.CustomColorThemeComboBox->currentIndex() > 0)
+				pConfig->sCustomColorTheme = m_ui.CustomColorThemeComboBox->currentText();
+			else
+				pConfig->sCustomColorTheme.clear();
 			if (pConfig->sCustomColorTheme != sOldCustomColorTheme) {
 				if (pConfig->sCustomColorTheme.isEmpty()) {
 					++iNeedRestart;
@@ -926,7 +930,8 @@ void samplv1widget_config::resetCustomStyleThemes (
 		QStyleFactory::keys());
 
 	int iCustomStyleTheme = 0;
-	if (!sCustomStyleTheme.isEmpty()) {
+	if (!sCustomStyleTheme.isEmpty()
+		&& m_pSamplUi && !m_pSamplUi->isPlugin()) {
 		iCustomStyleTheme = m_ui.CustomStyleThemeComboBox->findText(
 			sCustomStyleTheme);
 		if (iCustomStyleTheme < 0)

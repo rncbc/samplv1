@@ -103,10 +103,12 @@ samplv1widget_lv2::samplv1widget_lv2 ( samplv1_lv2 *pSampl,
 					pConfig, pConfig->sCustomColorTheme, pal))
 				samplv1widget::setPalette(pal);
 		}
+	#if 0//--Not applicable to plugin forms...
 		if (!pConfig->sCustomStyleTheme.isEmpty()) {
-			samplv1widget::setStyle(
+			QApplication::setStyle(
 				QStyleFactory::create(pConfig->sCustomStyleTheme));
 		}
+	#endif
 	}
 
 	// Initialize (user) interface stuff...
