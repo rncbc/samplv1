@@ -630,19 +630,7 @@ samplv1widget::samplv1widget ( QWidget *pParent )
 		SLOT(helpAboutQt()));
 
 	// General knob/dial behavior init...
-	samplv1_config *pConfig = samplv1_config::getInstance();
-	if (pConfig) {
-		samplv1widget_dial::setDialMode(
-			samplv1widget_dial::DialMode(pConfig->iKnobDialMode));
-		samplv1widget_edit::setEditMode(
-			samplv1widget_edit::EditMode(pConfig->iKnobEditMode));
-		const samplv1widget_spinbox::Format format
-			= samplv1widget_spinbox::Format(pConfig->iFrameTimeFormat);
-		m_ui.Gen1OffsetStartSpinBox->setFormat(format);
-		m_ui.Gen1OffsetEndSpinBox->setFormat(format);
-		m_ui.Gen1LoopStartSpinBox->setFormat(format);
-		m_ui.Gen1LoopEndSpinBox->setFormat(format);
-	}
+	updateConfig();
 
 	// Epilog.
 	// QWidget::adjustSize();
@@ -1280,6 +1268,25 @@ void samplv1widget::playSample (void)
 bool samplv1widget::queryClose (void)
 {
 	return m_ui.Preset->queryPreset();
+}
+
+
+// Update visual configuration.
+void samplv1widget::updateConfig (void)
+{
+	samplv1_config *pConfig = samplv1_config::getInstance();
+	if (pConfig) {
+		samplv1widget_dial::setDialMode(
+			samplv1widget_dial::DialMode(pConfig->iKnobDialMode));
+		samplv1widget_edit::setEditMode(
+			samplv1widget_edit::EditMode(pConfig->iKnobEditMode));
+		const samplv1widget_spinbox::Format format
+			= samplv1widget_spinbox::Format(pConfig->iFrameTimeFormat);
+		m_ui.Gen1OffsetStartSpinBox->setFormat(format);
+		m_ui.Gen1OffsetEndSpinBox->setFormat(format);
+		m_ui.Gen1LoopStartSpinBox->setFormat(format);
+		m_ui.Gen1LoopEndSpinBox->setFormat(format);
+	}
 }
 
 

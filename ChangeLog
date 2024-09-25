@@ -6,6 +6,9 @@ ChangeLog
 
 GIT HEAD
 
+- Configure: apply Frame/Time display format option immediately
+  on acceptance, no need to restart the application to take
+  effect anymore.
 - Configure: disable widget style option on LV2 plug-ins only,
   for which it wasn't working on the JACK stand-alones either.
 

@@ -760,17 +760,15 @@ void samplv1widget_config::accept (void)
 		pConfig->bProgramsPreview = m_ui.ProgramsPreviewCheckBox->isChecked();
 		pConfig->bUseNativeDialogs = m_ui.UseNativeDialogsCheckBox->isChecked();
 		pConfig->bDontUseNativeDialogs = !pConfig->bUseNativeDialogs;
-		pConfig->iKnobDialMode = m_ui.KnobDialModeComboBox->currentIndex();
-		samplv1widget_dial::setDialMode(
-			samplv1widget_dial::DialMode(pConfig->iKnobDialMode));
-		pConfig->iKnobEditMode = m_ui.KnobEditModeComboBox->currentIndex();
-		samplv1widget_edit::setEditMode(
-			samplv1widget_edit::EditMode(pConfig->iKnobEditMode));
-		const int iOldFrameTimeFormat = pConfig->iFrameTimeFormat;
-		const int iOldPitchShiftType  = pConfig->iPitchShiftType;
-		pConfig->iFrameTimeFormat  = m_ui.FrameTimeFormatComboBox->currentIndex();
 		pConfig->fRandomizePercent = float(m_ui.RandomizePercentSpinBox->value());
-		pConfig->iPitchShiftType   = m_ui.PitchShiftTypeComboBox->currentIndex();
+		const int iOldKnobDialMode = pConfig->iKnobDialMode;
+		const int iOldKnobEditMode = pConfig->iKnobEditMode;
+		const int iOldFrameTimeFormat = pConfig->iFrameTimeFormat;
+		const int iOldPitchShiftType = pConfig->iPitchShiftType;
+		pConfig->iKnobDialMode = m_ui.KnobDialModeComboBox->currentIndex();
+		pConfig->iKnobEditMode = m_ui.KnobEditModeComboBox->currentIndex();
+		pConfig->iFrameTimeFormat = m_ui.FrameTimeFormatComboBox->currentIndex();
+		pConfig->iPitchShiftType = m_ui.PitchShiftTypeComboBox->currentIndex();
 		int iNeedRestart = 0;
 		if (!m_pSamplUi->isPlugin()) {
 			const QString sOldCustomStyleTheme = pConfig->sCustomStyleTheme;
@@ -787,7 +785,8 @@ void samplv1widget_config::accept (void)
 				}
 			}
 		}
-		QWidget *pParentWidget = parentWidget();
+		samplv1widget *pParentWidget
+			= qobject_cast<samplv1widget *> (parentWidget());
 		if (pParentWidget) {
 			const QString sOldCustomColorTheme = pConfig->sCustomColorTheme;
 			if (m_ui.CustomColorThemeComboBox->currentIndex() > 0)
@@ -804,9 +803,12 @@ void samplv1widget_config::accept (void)
 						pParentWidget->setPalette(pal);
 				}
 			}
+			if (pConfig->iKnobDialMode != iOldKnobDialMode ||
+				pConfig->iKnobEditMode != iOldKnobEditMode ||
+				pConfig->iFrameTimeFormat != iOldFrameTimeFormat) {
+				pParentWidget->updateConfig();
+			}
 		}
-		if (pConfig->iFrameTimeFormat != iOldFrameTimeFormat)
-			++iNeedRestart;
 		if (pConfig->iPitchShiftType != iOldPitchShiftType) {
 			++iNeedRestart;
 			samplv1_pshifter::setDefaultType(
