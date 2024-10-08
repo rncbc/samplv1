@@ -4,6 +4,11 @@ samplv1 - an old-school polyphonic sampler
 ChangeLog
 
 
+GIT HEAD
+
+- Prepping up next development cycle (Qt >= 6.8)
+
+
 1.1.2  2024-10-02  An Early-Fall'24 Release.
 
 - Configure: apply Frame/Time display format option immediately
