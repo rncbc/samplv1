@@ -1007,7 +1007,7 @@ bool samplv1widget_config::setComboBoxCurrentItem (
 		pComboBox->setToolTip(sData);
 	} else {
 		pComboBox->setCurrentIndex(pComboBox->count() - 1);
-		pComboBox->setToolTip(pComboBox->currentText());
+	//	pComboBox->setToolTip(pComboBox->currentText());
 	}
 	pComboBox->blockSignals(bBlockSignals);
 
