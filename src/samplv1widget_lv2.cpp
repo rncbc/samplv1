@@ -209,6 +209,15 @@ void samplv1widget_lv2::port_event ( uint32_t port_index,
 void samplv1widget_lv2::updateParam (
 	samplv1::ParamIndex index, float fValue ) const
 {
+	if (index == samplv1::GEN1_OFFSET_1 ||
+		index == samplv1::GEN1_OFFSET_2 ||
+		index == samplv1::GEN1_LOOP_1   ||
+		index == samplv1::GEN1_LOOP_2) {
+		m_pSamplUi->setParamValue(index, fValue);
+		m_pSamplUi->updateParam(index);
+		return;
+	}
+
 	m_pSamplUi->write_function(index, fValue);
 }
 

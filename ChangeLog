@@ -4,6 +4,12 @@ samplv1 - an old-school polyphonic sampler
 ChangeLog
 
 
+GIT HEAD
+
+- LV2 Plug-in: avoid making offset and loop range changes as regular
+  parameter updates, which marked the host's state dirty (modified).
+
+
 1.2.0  2024-12-15  An End-of-Year'24 Release.
 
 - Configure/Tuning: fixed initial scale and keyboard map tooltips.
