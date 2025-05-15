@@ -829,6 +829,13 @@ void samplv1widget_sample::openSample (void)
 				sExts += ' ' + sExt;
 				exts.append(sExt);
 			}
+			if (sExtension == "oga") {
+				sExt = sExtMask.arg("ogg");
+				if (!exts.contains(sExt)) {
+					sExts += ' ' + sExt;
+					exts.append(sExt);
+				}
+			}
 			s_filters.append(sFilterMask.arg(sFilterName).arg(sExts));
 		}
 		s_filters.prepend(sFilterMask.arg(tr("Audio files")).arg(exts.join(" ")));

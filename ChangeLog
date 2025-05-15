@@ -6,6 +6,8 @@ ChangeLog
 
 GIT HEAD
 
+- Added generic Ogg Vorbis container type filter (*.ogg) to sample
+  file requester dialog.
 - Stepping up next development cycle (Qt >= 6.9)
 
 
