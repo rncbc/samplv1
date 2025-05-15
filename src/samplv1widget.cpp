@@ -508,6 +508,7 @@ samplv1widget::samplv1widget ( QWidget *pParent )
 	setParamKnob(samplv1::DYN1_LIMITER,  m_ui.Dyn1LimiterKnob);
 
 	// Make status-bar keyboard range active.
+	m_ui.StatusBar->keybd()->setAllNotesEnabled(true);
 	m_ui.StatusBar->keybd()->setNoteRange(true);
 
 	// Sample management...
