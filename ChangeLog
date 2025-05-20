@@ -4,7 +4,7 @@ samplv1 - an old-school polyphonic sampler
 ChangeLog
 
 
-GIT HEAD
+1.3.2  2025-05-20  A Mid-Spring'25 Release.
 
 - Added generic Ogg Vorbis container type filter (*.ogg) to sample
   file requester dialog.
