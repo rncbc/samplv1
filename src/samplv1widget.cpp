@@ -1800,6 +1800,12 @@ void samplv1widget::helpAbout (void)
 #if defined(QT_STATIC)
 	sText += "-static";
 #endif
+#if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
+	sText += ' ';
+	sText += '(';
+	sText += QApplication::platformName();
+	sText += ')';
+#endif
 	sText += "<br />\n";
 	sText += "<br />\n";
 	sText += tr("Website") + ": <a href=\"" PROJECT_HOMEPAGE_URL "\">" PROJECT_HOMEPAGE_URL "</a><br />\n";
