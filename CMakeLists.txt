@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 3.15)
 project (samplv1
   VERSION 1.3.2
   DESCRIPTION "an old-school polyphonic sampler"
-  HOMEPAGE_URL "https://qsamplv1.sourceforge.io"
+  HOMEPAGE_URL "https://samplv1.sourceforge.io"
   LANGUAGES C CXX)
 
 set (PROJECT_COPYRIGHT "Copyright (C) 2012-2025, rncbc aka Rui Nuno Capela. All rights reserved.")
