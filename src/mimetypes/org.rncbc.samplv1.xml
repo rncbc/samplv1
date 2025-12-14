@@ -4,5 +4,6 @@
     <sub-class-of type="text/xml"/>
     <comment>samplv1 preset</comment>
     <glob pattern="*.samplv1"/>
+    <icon name="org.rncbc.samplv1.application-x-samplv1-preset"/>
   </mime-type>
 </mime-info>
