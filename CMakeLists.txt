@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.15)
 
 project (samplv1
-  VERSION 1.3.2
+  VERSION 1.4.0
   DESCRIPTION "an old-school polyphonic sampler"
   HOMEPAGE_URL "https://samplv1.sourceforge.io"
   LANGUAGES C CXX)
