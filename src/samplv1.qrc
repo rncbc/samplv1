@@ -16,6 +16,6 @@
 		<file>images/fileOpen.png</file>
 		<file>images/samplv1_preset.png</file>
 		<file>images/samplv1_control.png</file>
-		<file>fonts/DejaVuSans.ttf</file>
+		<file>fonts/DejaVuSansCondensed.ttf</file>
 	</qresource>
 </RCC>
