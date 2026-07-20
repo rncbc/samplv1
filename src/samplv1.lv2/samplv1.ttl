@@ -15,6 +15,8 @@
 @prefix lv2resize: <http://lv2plug.in/ns/ext/resize-port#> .
 @prefix lv2pg:   <http://lv2plug.in/ns/ext/port-groups#> .
 
+@prefix mod:   <http://moddevices.com/ns/mod#>.
+
 @prefix samplv1_lv2: <http://samplv1.sourceforge.net/lv2#> .
 
 <http://samplv1.sourceforge.net/lv2>
@@ -860,7 +862,8 @@
 samplv1_lv2:P101_SAMPLE_FILE
 	a lv2:Parameter ;
 	rdfs:label "P101 Sample File" ;
-	rdfs:range lv2atom:Path .
+	rdfs:range lv2atom:Path ;
+	mod:fileTypes "wav,ogg,flac,aiff,au" .
 
 samplv1_lv2:P102_OFFSET_START
 	a lv2:Parameter ;
@@ -944,12 +947,14 @@ samplv1_lv2:P203_TUNING_REF_NOTE
 samplv1_lv2:P204_TUNING_SCALE_FILE
 	a lv2:Parameter ;
 	rdfs:label "P204 Tuning Scale File" ;
-	rdfs:range lv2atom:Path .
+	rdfs:range lv2atom:Path ;
+	mod:fileTypes "scl" .
 
 samplv1_lv2:P205_TUNING_KEYMAP_FILE
 	a lv2:Parameter ;
 	rdfs:label "P205 Tuning Key Map File" ;
-	rdfs:range lv2atom:Path .
+	rdfs:range lv2atom:Path ;
+	mod:fileTypes "kbm" .
 
 
 samplv1_lv2:G101_GEN1
