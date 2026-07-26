@@ -643,7 +643,7 @@ void samplv1_param::loadTuning (
 				= eChild.text();
 			const QByteArray aKeyMapFile
 				= samplv1_param::loadFilename(sKeyMapFile).toUtf8();
-			pSampl->setTuningScaleFile(aKeyMapFile.constData());
+			pSampl->setTuningKeyMapFile(aKeyMapFile.constData());
 		}
 	}
 
