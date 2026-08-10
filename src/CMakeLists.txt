@@ -29,6 +29,7 @@ set (HEADERS
   samplv1_tuning.h
   samplv1_programs.h
   samplv1_controls.h
+  samplv1_presets.h
 )
 
 set (SOURCES
@@ -44,6 +45,7 @@ set (SOURCES
   samplv1_tuning.cpp
   samplv1_programs.cpp
   samplv1_controls.cpp
+  samplv1_presets.cpp
 )
 
 
@@ -56,8 +58,9 @@ set (HEADERS_UI
   samplv1widget_wave.h
   samplv1widget_param.h
   samplv1widget_keybd.h
-  samplv1widget_preset.h
   samplv1widget_status.h
+  samplv1widget_preset.h
+  samplv1widget_presets.h
   samplv1widget_spinbox.h
   samplv1widget_programs.h
   samplv1widget_controls.h
@@ -75,8 +78,9 @@ set (SOURCES_UI
   samplv1widget_wave.cpp
   samplv1widget_param.cpp
   samplv1widget_keybd.cpp
-  samplv1widget_preset.cpp
   samplv1widget_status.cpp
+  samplv1widget_preset.cpp
+  samplv1widget_presets.cpp
   samplv1widget_spinbox.cpp
   samplv1widget_programs.cpp
   samplv1widget_controls.cpp

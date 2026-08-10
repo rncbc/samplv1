@@ -1,7 +1,7 @@
 // samplv1_config.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2024, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2026, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -23,6 +23,8 @@
 #define __samplv1_config_h
 
 #include "config.h"
+
+#include "samplv1_presets.h"
 
 
 //-------------------------------------------------------------------------
@@ -66,6 +68,7 @@ public:
 	bool bControlsEnabled;
 	bool bProgramsEnabled;
 	bool bProgramsPreview;
+	bool bPresetsPreview;
 	bool bUseNativeDialogs;
 	// Run-time special non-persistent options.
 	bool bDontUseNativeDialogs;
@@ -86,6 +89,9 @@ public:
 	QString sTuningKeyMapDir;
 	QString sTuningKeyMapFile;
 
+	// Presets database.
+	samplv1_presets presets;
+
 	// Singleton instance accessor.
 	static samplv1_config *getInstance();
 
@@ -93,7 +99,6 @@ public:
 	QString presetFile(const QString& sPreset);
 	void setPresetFile(const QString& sPreset, const QString& sPresetFile);
 	void removePreset(const QString& sPreset);
-	const QStringList& presetList();
 
 	// Programs utility methods.
 	void loadPrograms(samplv1_programs *pPrograms);
@@ -106,7 +111,13 @@ public:
 protected:
 
 	// Preset group path.
-	QString presetGroup() const;
+	QString presetsGroup() const;
+
+	// Banks/presets group path.
+	QString presetsBanksGroup() const;
+	QString presetsBankListKey() const;
+	QString presetsCurrentGroup() const;
+
 
 	// Banks programs group path.
 	QString programsGroup() const;
@@ -125,9 +136,6 @@ protected:
 	void save();
 
 private:
-
-	// The presets list cache.
-	QStringList m_presetList;
 
 	// The singleton instance.
 	static samplv1_config *g_pSettings;

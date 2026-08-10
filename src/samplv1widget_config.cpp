@@ -1,7 +1,7 @@
 // samplv1widget_config.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2024, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2026, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -88,6 +88,7 @@ samplv1widget_config::samplv1widget_config (
 	m_iDirtyTuning   = 0;
 	m_iDirtyControls = 0;
 	m_iDirtyPrograms = 0;
+	m_iDirtyPresets  = 0;
 	m_iDirtyOptions  = 0;
 
 	// Whether presets exist...
@@ -99,6 +100,7 @@ samplv1widget_config::samplv1widget_config (
 	samplv1_config *pConfig = samplv1_config::getInstance();
 	if (pConfig && m_pSamplUi) {
 		const bool bPlugin = m_pSamplUi->isPlugin();
+		m_ui.PresetsPreviewCheckBox->setChecked(pConfig->bPresetsPreview);
 		m_ui.ProgramsPreviewCheckBox->setChecked(pConfig->bProgramsPreview);
 		m_ui.UseNativeDialogsCheckBox->setChecked(pConfig->bUseNativeDialogs);
 		m_ui.KnobDialModeComboBox->setCurrentIndex(pConfig->iKnobDialMode);
@@ -111,6 +113,11 @@ samplv1widget_config::samplv1widget_config (
 		m_ui.CustomStyleThemeComboBox->setEnabled(!bPlugin);
 		resetCustomColorThemes(pConfig->sCustomColorTheme);
 		resetCustomStyleThemes(pConfig->sCustomStyleTheme);
+		// Load presets database...
+		samplv1_presets *pPresets = &(pConfig->presets);
+		m_bPresets = !pPresets->isEmpty();
+		m_ui.PresetsTreeWidget->loadPresets(pPresets);
+		m_ui.PresetsPreviewCheckBox->setEnabled(!bPlugin && m_bPresets);
 		// Load controllers database...
 		samplv1_controls *pControls = m_pSamplUi->controls();
 		if (pControls) {
@@ -121,7 +128,6 @@ samplv1widget_config::samplv1widget_config (
 		// Load programs database...
 		samplv1_programs *pPrograms = m_pSamplUi->programs();
 		if (pPrograms) {
-			m_bPresets = !pConfig->presetList().isEmpty();
 			m_ui.ProgramsTreeWidget->loadPrograms(pPrograms);
 			m_ui.ProgramsEnabledCheckBox->setEnabled(bPlugin && m_bPresets);
 			m_ui.ProgramsPreviewCheckBox->setEnabled(!bPlugin && m_bPresets);
@@ -185,9 +191,33 @@ samplv1widget_config::samplv1widget_config (
 		SIGNAL(toggled(bool)),
 		SLOT(programsEnabled(bool)));
 
+	QObject::connect(m_ui.PresetsAddBankToolButton,
+		SIGNAL(clicked()),
+		SLOT(presetsAddBankItem()));
+	QObject::connect(m_ui.PresetsAddItemToolButton,
+		SIGNAL(clicked()),
+		SLOT(presetsAddItem()));
+	QObject::connect(m_ui.PresetsRenameToolButton,
+		SIGNAL(clicked()),
+		SLOT(presetsRenameItem()));
+	QObject::connect(m_ui.PresetsRemoveToolButton,
+		SIGNAL(clicked()),
+		SLOT(presetsRemoveItem()));
+
+	QObject::connect(m_ui.PresetsTreeWidget,
+		SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
+		SLOT(presetsCurrentChanged()));
+	QObject::connect(m_ui.PresetsTreeWidget,
+		SIGNAL(itemChanged(QTreeWidgetItem *, int)),
+		SLOT(presetsChanged()));
+	QObject::connect(m_ui.PresetsTreeWidget,
+		SIGNAL(itemActivated(QTreeWidgetItem *, int)),
+		SLOT(presetsActivated()));
+
 	// Custom context menu...
 	m_ui.ControlsTreeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
 	m_ui.ProgramsTreeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+	m_ui.PresetsTreeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	QObject::connect(m_ui.ControlsTreeWidget,
 		SIGNAL(customContextMenuRequested(const QPoint&)),
@@ -195,6 +225,9 @@ samplv1widget_config::samplv1widget_config (
 	QObject::connect(m_ui.ProgramsTreeWidget,
 		SIGNAL(customContextMenuRequested(const QPoint&)),
 		SLOT(programsContextMenuRequested(const QPoint&)));
+	QObject::connect(m_ui.PresetsTreeWidget,
+		SIGNAL(customContextMenuRequested(const QPoint&)),
+		SLOT(presetsContextMenuRequested(const QPoint&)));
 
 	// Tuning slots...
 	QObject::connect(m_ui.TuningTabBar,
@@ -226,6 +259,9 @@ samplv1widget_config::samplv1widget_config (
 		SLOT(tuningChanged()));
 
 	// Options slots...
+	QObject::connect(m_ui.PresetsPreviewCheckBox,
+		SIGNAL(toggled(bool)),
+		SLOT(optionsChanged()));
 	QObject::connect(m_ui.ProgramsPreviewCheckBox,
 		SIGNAL(toggled(bool)),
 		SLOT(optionsChanged()));
@@ -407,6 +443,51 @@ void samplv1widget_config::programsDeleteItem (void)
 }
 
 
+// presets command slots.
+void samplv1widget_config::presetsAddBankItem (void)
+{
+	m_ui.PresetsTreeWidget->addBankItem();
+
+	presetsChanged();
+}
+
+
+void samplv1widget_config::presetsAddItem (void)
+{
+	samplv1_config *pConfig = samplv1_config::getInstance();
+	if (pConfig) {
+		m_ui.PresetsTreeWidget->setPresetDir(pConfig->sPresetDir);
+		m_ui.PresetsTreeWidget->setPresetExt(PROJECT_NAME);
+		m_ui.PresetsTreeWidget->setDontUseNativeDialogs(
+			pConfig->bDontUseNativeDialogs);
+	}
+
+	m_ui.PresetsTreeWidget->addPresetItem();
+
+	presetsChanged();
+}
+
+
+void samplv1widget_config::presetsRenameItem (void)
+{
+	QTreeWidgetItem *pItem = m_ui.PresetsTreeWidget->currentItem();
+	if (pItem)
+		m_ui.PresetsTreeWidget->editItem(pItem, 1);
+
+	presetsChanged();
+}
+
+
+void samplv1widget_config::presetsRemoveItem (void)
+{
+	QTreeWidgetItem *pItem = m_ui.PresetsTreeWidget->currentItem();
+	if (pItem)
+		delete pItem;
+
+	presetsChanged();
+}
+
+
 // programs janitor slots.
 void samplv1widget_config::programsCurrentChanged (void)
 {
@@ -473,6 +554,61 @@ void samplv1widget_config::programsActivated (void)
 {
 	if (m_ui.ProgramsPreviewCheckBox->isChecked())
 		loadPreset(m_ui.ProgramsTreeWidget->currentProgramName());
+
+	stabilize();
+}
+
+
+// programs janitor slots.
+void samplv1widget_config::presetsCurrentChanged (void)
+{
+	stabilize();
+}
+
+
+void samplv1widget_config::presetsContextMenuRequested ( const QPoint& pos )
+{
+	QTreeWidgetItem *pCurrentItem = m_ui.PresetsTreeWidget->currentItem();
+
+	QMenu menu(this);
+	QAction *action;
+
+	action = menu.addAction(QIcon(":/images/presetBank.png"),
+		tr("Add &Bank"), this, SLOT(presetsAddBankItem()));
+	action->setEnabled(true);
+
+	action = menu.addAction(QIcon(":/images/samplv1_preset.png"),
+		tr("Add &Preset"), this, SLOT(presetsAddItem()));
+	action->setEnabled(true);
+
+	menu.addSeparator();
+
+	action = menu.addAction(QIcon(":/images/presetEdit.png"),
+		tr("&Rename"), this, SLOT(presetsRenameItem()));
+	action->setEnabled(pCurrentItem != nullptr);
+
+	menu.addSeparator();
+
+	action = menu.addAction(QIcon(":/images/presetDelete.png"),
+		tr("Re&move"), this, SLOT(presetsRemoveItem()));
+	action->setEnabled(pCurrentItem != nullptr);
+
+	menu.exec(m_ui.PresetsTreeWidget->mapToGlobal(pos));
+}
+
+
+void samplv1widget_config::presetsChanged (void)
+{
+	++m_iDirtyPresets;
+
+	stabilize();
+}
+
+
+void samplv1widget_config::presetsActivated (void)
+{
+	if (m_ui.PresetsPreviewCheckBox->isChecked())
+		loadPreset(m_ui.PresetsTreeWidget->currentPreset());
 
 	stabilize();
 }
@@ -674,6 +810,15 @@ void samplv1widget_config::stabilize (void)
 	m_ui.ProgramsEditToolButton->setEnabled(bEnabled);
 	m_ui.ProgramsDeleteToolButton->setEnabled(bEnabled);
 
+	pItem = m_ui.PresetsTreeWidget->currentItem();
+	bEnabled = m_bPresets;
+	m_ui.PresetsPreviewCheckBox->setEnabled(bEnabled);
+	m_ui.PresetsAddBankToolButton->setEnabled(bEnabled);
+	m_ui.PresetsAddItemToolButton->setEnabled(bEnabled);
+	bEnabled = bEnabled && (pItem != nullptr);
+	m_ui.PresetsRenameToolButton->setEnabled(bEnabled);
+	m_ui.PresetsRemoveToolButton->setEnabled(bEnabled);
+
 	bEnabled = m_ui.TuningEnabledCheckBox->isChecked();
 	const bool bTuningRefEnabled = bEnabled
 		&& comboBoxCurrentItem(m_ui.TuningKeyMapFileComboBox).isEmpty();
@@ -692,6 +837,7 @@ void samplv1widget_config::stabilize (void)
 		= (m_iDirtyTuning   > 0
 		|| m_iDirtyControls > 0
 		|| m_iDirtyPrograms > 0
+		|| m_iDirtyPresets  > 0
 		|| m_iDirtyOptions  > 0
 		|| m_iLoadPreset    > 0);
 	m_ui.DialogButtonBox->button(QDialogButtonBox::Ok)->setEnabled(bValid);
@@ -752,6 +898,16 @@ void samplv1widget_config::accept (void)
 			pConfig->savePrograms(pPrograms);
 			// Reset dirty flag.
 			m_iDirtyPrograms = 0;
+		}
+	}
+
+	if (m_iDirtyPresets > 0 && pConfig) {
+		// Save presets...
+		samplv1_presets *pPresets = &(pConfig->presets);
+		if (pPresets) {
+			m_ui.PresetsTreeWidget->savePresets(pPresets);
+			// Reset dirty flag.
+			m_iDirtyPresets = 0;
 		}
 	}
 
@@ -838,6 +994,7 @@ void samplv1widget_config::reject (void)
 	if (m_iDirtyTuning   > 0 ||
 		m_iDirtyControls > 0 ||
 		m_iDirtyPrograms > 0 ||
+		m_iDirtyPresets  > 0 ||
 		m_iDirtyOptions  > 0 ||
 		m_iLoadPreset    > 0) {
 		QMessageBox::StandardButtons buttons
