@@ -656,6 +656,8 @@ samplv1widget::samplv1widget ( QWidget *pParent )
 // Destructor.
 samplv1widget::~samplv1widget (void)
 {
+	savePresets();
+
 	if (m_sched_notifier)
 		delete m_sched_notifier;
 
@@ -1649,6 +1651,18 @@ void samplv1widget::contextMenuRequest ( const QPoint& pos )
 }
 
 
+// Update/reload presets.
+void samplv1widget::loadPresets (void)
+{
+	m_ui.Preset->loadPresets();
+}
+
+void samplv1widget::savePresets (void)
+{
+	m_ui.Preset->savePresets();
+}
+
+
 // Preset status updater.
 void samplv1widget::updateLoadPreset ( const QString& sPreset )
 {
@@ -1767,6 +1781,8 @@ void samplv1widget::midiInLedTimeout (void)
 // Menu actions.
 void samplv1widget::helpConfigure (void)
 {
+	savePresets();
+
 	samplv1_ui *pSamplUi = ui_instance();
 	if (pSamplUi)
 		samplv1widget_config(this, pSamplUi).exec();
