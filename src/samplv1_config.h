@@ -116,7 +116,6 @@ protected:
 	// Banks/presets group path.
 	QString presetsBanksGroup() const;
 	QString presetsBankListKey() const;
-	QString presetsCurrentGroup() const;
 
 
 	// Banks programs group path.

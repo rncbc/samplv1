@@ -106,11 +106,6 @@ QString samplv1_config::presetsBankListKey (void) const
 	return "/BankList";
 }
 
-QString samplv1_config::presetsCurrentGroup (void) const
-{
-	return "/Current";
-}
-
 
 // Programs utility methods.
 QString samplv1_config::programsGroup (void) const
@@ -380,11 +375,6 @@ void samplv1_config::load (void)
 			pPreset->set_file(sPresetFile);
 	}
 	QSettings::endGroup();
-
-	QSettings::beginGroup(presetsCurrentGroup());
-	presets.set_current_bank(QSettings::value("/Bank").toString());
-	presets.set_current_preset(QSettings::value("/Preset").toString());
-	QSettings::endGroup();
 }
 
 
@@ -474,13 +464,6 @@ void samplv1_config::save (void)
 			QSettings::setValue(sPreset, sPresetFile);
 		}
 	}
-	QSettings::endGroup();
-
-	QSettings::beginGroup(presetsCurrentGroup());
-	samplv1_presets::Bank *pBank = presets.current_bank();
-	samplv1_presets::Preset *pPreset = presets.current_preset();
-	QSettings::setValue("/Bank", (pBank ? pBank->name() : QString()));
-	QSettings::setValue("/Preset", (pPreset ? pPreset->name() : QString()));
 	QSettings::endGroup();
 
 	QSettings::sync();

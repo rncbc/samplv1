@@ -52,9 +52,6 @@ public:
 	void loadPresets(samplv1_presets *pPresets);
 	void savePresets(samplv1_presets *pPresets);
 
-	void loadPresetsCurrent(samplv1_presets *pPresets);
-	void savePresetsCurrent(samplv1_presets *pPresets);
-
 	QString currentPreset() const;
 
 	void setPresetItem(const QString& sPreset);

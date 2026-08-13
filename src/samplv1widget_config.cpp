@@ -117,6 +117,7 @@ samplv1widget_config::samplv1widget_config (
 		samplv1_presets *pPresets = &(pConfig->presets);
 		m_bPresets = !pPresets->isEmpty();
 		m_ui.PresetsTreeWidget->loadPresets(pPresets);
+		m_ui.PresetsTreeWidget->setPresetItem(pConfig->sPreset);
 		m_ui.PresetsPreviewCheckBox->setEnabled(!bPlugin && m_bPresets);
 		// Load controllers database...
 		samplv1_controls *pControls = m_pSamplUi->controls();
@@ -927,6 +928,7 @@ void samplv1widget_config::accept (void)
 
 	if (m_iDirtyOptions > 0) {
 		// Save options...
+		pConfig->bPresetsPreview = m_ui.PresetsPreviewCheckBox->isChecked();
 		pConfig->bProgramsPreview = m_ui.ProgramsPreviewCheckBox->isChecked();
 		pConfig->bUseNativeDialogs = m_ui.UseNativeDialogsCheckBox->isChecked();
 		pConfig->bDontUseNativeDialogs = !pConfig->bUseNativeDialogs;
