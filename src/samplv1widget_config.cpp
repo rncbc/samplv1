@@ -473,7 +473,7 @@ void samplv1widget_config::presetsRenameItem (void)
 {
 	QTreeWidgetItem *pItem = m_ui.PresetsTreeWidget->currentItem();
 	if (pItem)
-		m_ui.PresetsTreeWidget->editItem(pItem, 1);
+		m_ui.PresetsTreeWidget->editItem(pItem, 0);
 
 	presetsChanged();
 }
