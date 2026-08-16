@@ -112,6 +112,7 @@ protected:
 
 	// Preset group path.
 	QString presetsGroup() const;
+	QString presetsListKey() const;
 
 	// Banks/presets group path.
 	QString presetsBanksGroup() const;
