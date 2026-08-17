@@ -999,6 +999,8 @@ void samplv1widget_presets::dropItem (
 	QTreeWidget::setCurrentItem(pDragItem);
 
 	setDirtyPresets(true);
+
+	emit QTreeWidget::itemChanged(pDragItem, 0);
 }
 
 
