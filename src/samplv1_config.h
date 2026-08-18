@@ -100,6 +100,10 @@ public:
 	void setPresetFile(const QString& sPreset, const QString& sPresetFile);
 	void removePreset(const QString& sPreset);
 
+	// Presets utility methods.
+	void loadPresets();
+	void savePresets();
+
 	// Programs utility methods.
 	void loadPrograms(samplv1_programs *pPrograms);
 	void savePrograms(samplv1_programs *pPrograms);

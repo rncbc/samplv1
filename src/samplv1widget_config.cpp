@@ -919,6 +919,8 @@ void samplv1widget_config::accept (void)
 			m_ui.PresetsTreeWidget->setDirtyPresets(false);
 			// Update main preset selector.
 			pParentWidget->loadPresets();
+			// Sync to disk.
+			pConfig->savePresets();
 			// Reset dirty flag.
 			m_iDirtyPresets = 0;
 		}
