@@ -208,7 +208,7 @@ void samplv1widget_preset::loadPreset ( const QString& sPreset )
 
 	samplv1_config *pConfig = samplv1_config::getInstance();
 	if (pConfig) {
-		emit loadPresetFile(pConfig->presetFile(sPreset));
+		emit loadPresetFile(sPreset, pConfig->presetFile(sPreset));
 		++m_iInitPreset;
 		pConfig->sPreset = sPreset;
 		setPreset(sPreset);
@@ -268,7 +268,7 @@ void samplv1widget_preset::openPreset (void)
 			pPreset->set_file(sPresetFile);
 			if (++iPreset == 1) {
 				++m_iInitPreset;
-				emit loadPresetFile(sPresetFile);
+				emit loadPresetFile(sPreset, sPresetFile);
 				pConfig->sPreset = sPreset;
 				pConfig->sPresetDir = fi.absolutePath();
 			}
@@ -304,7 +304,7 @@ void samplv1widget_preset::savePreset ( const QString& sPreset )
 
 	int iPreset = 0;
 	if (!sPresetFile.isEmpty()) {
-		emit savePresetFile(sPresetFile);
+		emit savePresetFile(sPreset, sPresetFile);
 		pConfig->setPresetFile(sPreset, sPresetFile);
 		samplv1_presets::Preset *pPreset
 			= pConfig->presets.add_preset(sPreset);

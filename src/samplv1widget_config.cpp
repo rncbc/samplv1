@@ -1214,7 +1214,7 @@ void samplv1widget_config::loadPreset ( const QString& sPreset )
 
 	samplv1widget *pParentWidget
 		= qobject_cast<samplv1widget *> (parentWidget());
-	if (pParentWidget && pParentWidget->loadPreset(sPresetFile)) {
+	if (pParentWidget && pParentWidget->loadPreset(sPreset, sPresetFile)) {
 		if (++m_iLoadPreset == 1)
 			m_sSavePreset = pConfig->sPreset;
 		pConfig->sPreset = sPreset;
