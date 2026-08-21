@@ -104,6 +104,13 @@ public:
 	void loadPresets();
 	void savePresets();
 
+	static void importPresets(
+		const QString& sFilename,
+		samplv1_presets *pPresets);
+	static void exportPresets(
+		const QString& sFilename,
+		samplv1_presets *pPresets);
+
 	// Programs utility methods.
 	void loadPrograms(samplv1_programs *pPrograms);
 	void savePrograms(samplv1_programs *pPrograms);
@@ -115,23 +122,29 @@ public:
 protected:
 
 	// Preset group path.
-	QString presetsGroup() const;
-	QString presetsListKey() const;
+	static QString presetsGroup();
+	static QString presetsListKey();
 
 	// Banks/presets group path.
-	QString presetsBanksGroup() const;
-	QString presetsBankListKey() const;
+	static QString presetsBanksGroup();
+	static QString presetsBankListKey();
 
+	static void loadPresets(
+		QSettings *pSettings,
+		samplv1_presets *pPresets);
+	static void savePresets(
+		QSettings *pSettings,
+		samplv1_presets *pPresets);
 
 	// Banks programs group path.
-	QString programsGroup() const;
-	QString bankPrefix() const;
+	static QString programsGroup();
+	static QString bankPrefix();
 
 	void clearPrograms();
 
 	// Controllers group path.
-	QString controlsGroup() const;
-	QString controlPrefix() const;
+	static QString controlsGroup();
+	static QString controlPrefix();
 
 	void clearControls();
 
