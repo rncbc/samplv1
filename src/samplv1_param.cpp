@@ -228,16 +228,15 @@ bool samplv1_param::newPreset ( samplv1 *pSampl )
 	if (pSampl == nullptr)
 		return false;
 
-	const bool running = pSampl->running(false);
-
+	const bool bRunning
+		= pSampl->running(false);
 	samplv1_sched::sync_reset();
 
 	pSampl->stabilize();
 	pSampl->reset();
 
 	samplv1_sched::sync_pending();
-
-	pSampl->running(running);
+	pSampl->running(bRunning);
 
 	return true;
 }
@@ -245,32 +244,31 @@ bool samplv1_param::newPreset ( samplv1 *pSampl )
 
 // Preset serialization methods.
 bool samplv1_param::loadPreset (
-	samplv1 *pSampl, const QString& sFilename )
+	samplv1 *pSampl, const QString& sPresetFile )
+{
+	const bool bRunning
+		= pSampl->running(false);
+	samplv1_sched::sync_reset();
+
+	const bool bLoaded
+		= loadPresetEx(pSampl, sPresetFile);
+
+	samplv1_sched::sync_pending();
+	pSampl->running(bRunning);
+
+	return bLoaded;
+}
+
+
+bool samplv1_param::loadPresetEx (
+	samplv1 *pSampl, const QString& sPresetFile )
 {
 	if (pSampl == nullptr)
 		return false;
 
-	QFileInfo fi(sFilename);
-	if (!fi.exists()) {
-		samplv1_config *pConfig = samplv1_config::getInstance();
-		if (pConfig) {
-			const QString& sPresetFile
-				= pConfig->presetFile(sFilename);
-			if (sPresetFile.isEmpty())
-				return false;
-			fi.setFile(sPresetFile);
-			if (!fi.exists())
-				return false;
-		}
-	}
-
-	QFile file(fi.filePath());
+	QFile file(sPresetFile);
 	if (!file.open(QIODevice::ReadOnly))
 		return false;
-
-	const bool running = pSampl->running(false);
-
-	samplv1_sched::sync_reset();
 
 	pSampl->setTuningEnabled(false);
 	pSampl->reset();
@@ -283,6 +281,7 @@ bool samplv1_param::loadPreset (
 		}
 	}
 
+	const QFileInfo fi(sPresetFile);
 	const QDir currentDir(QDir::current());
 	QDir::setCurrent(fi.absolutePath());
 
@@ -368,25 +367,51 @@ bool samplv1_param::loadPreset (
 	pSampl->stabilize();
 	pSampl->reset();
 
-	samplv1_sched::sync_pending();
-
-	pSampl->running(running);
-
 	QDir::setCurrent(currentDir.absolutePath());
 
 	return true;
 }
 
 
+bool samplv1_param::loadPresetName (
+	samplv1 *pSampl, const QString& sPreset )
+{
+	if (pSampl == nullptr)
+		return false;
+
+	if (sPreset.isEmpty())
+		return false;
+
+	samplv1_config *pConfig = samplv1_config::getInstance();
+	if (pConfig == nullptr)
+		return false;
+
+	const QString& sPresetFile
+		= pConfig->presetFile(sPreset);
+	if (sPresetFile.isEmpty())
+		return false;
+	if (!QFileInfo::exists(sPresetFile))
+		return false;
+
+	const bool bRunning
+		= pSampl->running(false);
+	const bool bLoaded
+		= loadPresetEx(pSampl, sPresetFile);
+	pSampl->running(bRunning);
+
+	return bLoaded;
+}
+
+
 bool samplv1_param::savePreset (
-	samplv1 *pSampl, const QString& sFilename, bool bSymLink )
+	samplv1 *pSampl, const QString& sPresetFile, bool bSymLink )
 {
 	if (pSampl == nullptr)
 		return false;
 
 	pSampl->stabilize();
 
-	const QFileInfo fi(sFilename);
+	const QFileInfo fi(sPresetFile);
 	const QDir currentDir(QDir::current());
 	QDir::setCurrent(fi.absolutePath());
 

@@ -51,9 +51,13 @@ namespace samplv1_param
 
 	// Preset serialization methods.
 	bool loadPreset(samplv1 *pSampl,
-		const QString& sFilename);
-	bool savePreset(samplv1 *pSampl,
-		const QString& sFilename,
+		const QString& sPresetFile);
+	bool loadPresetEx(samplv1 *pSampl,
+		const QString& sPresetFile);
+	bool loadPresetName(samplv1 *pSampl,
+		const QString& sPreset);
+ 	bool savePreset(samplv1 *pSampl,
+		const QString& sPresetFile,
 		bool bSymLink = false);
 
 	// Sample serialization methods.

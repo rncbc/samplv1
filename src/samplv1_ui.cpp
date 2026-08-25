@@ -1,7 +1,7 @@
 // samplv1_ui.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2025, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2026, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -171,14 +171,14 @@ bool samplv1_ui::newPreset (void)
 }
 
 
-bool samplv1_ui::loadPreset ( const QString& sFilename )
+bool samplv1_ui::loadPreset ( const QString& sPresetFile )
 {
-	return samplv1_param::loadPreset(m_pSampl, sFilename);
+	return samplv1_param::loadPreset(m_pSampl, sPresetFile);
 }
 
-bool samplv1_ui::savePreset ( const QString& sFilename )
+bool samplv1_ui::savePreset ( const QString& sPresetFile )
 {
-	return samplv1_param::savePreset(m_pSampl, sFilename);
+	return samplv1_param::savePreset(m_pSampl, sPresetFile);
 }
 
 
