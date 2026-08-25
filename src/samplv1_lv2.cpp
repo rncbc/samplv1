@@ -1,7 +1,7 @@
 // samplv1_lv2.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2025, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2026, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -21,11 +21,10 @@
 
 #include "samplv1_lv2.h"
 #include "samplv1_config.h"
-#include "samplv1_sched.h"
-#include "samplv1_sample.h"
 
-#include "samplv1_programs.h"
-#include "samplv1_controls.h"
+#include "samplv1_sched.h"
+#include "samplv1_param.h"
+#include "samplv1_sample.h"
 
 #ifdef CONFIG_LV2_OLD_HEADERS
 #include "lv2/lv2plug.in/ns/ext/midi/midi.h"
@@ -1067,6 +1066,9 @@ static const LV2_State_Interface samplv1_lv2_state_interface =
 const LV2_Program_Descriptor *samplv1_lv2::get_program ( uint32_t index )
 {
 	samplv1_programs *pPrograms = samplv1::programs();
+	if (!pPrograms->enabled())
+		return nullptr;
+
 	const samplv1_programs::Banks& banks = pPrograms->banks();
 	samplv1_programs::Banks::ConstIterator bank_iter = banks.constBegin();
 	const samplv1_programs::Banks::ConstIterator& bank_end = banks.constEnd();
