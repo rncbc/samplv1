@@ -446,14 +446,18 @@ void samplv1widget_programs::addPresetItems ( samplv1_presets *pPresets )
 		}
 		if (pBankItem == nullptr)
 			pBankItem = pBank0Item;
-		// Add program...
+		// Add program, filling in the gaps...
+		int iProg = 0;
 		int iProgData = 0;
 		const int iProgCount = pBankItem->childCount();
-		for (int iProg = 0; iProg < iProgCount; ++iProg) {
+		for ( ; iProg < iProgCount; ++iProg) {
 			QTreeWidgetItem *pProgItem = pBankItem->child(iProg);
 			const int iData = pProgItem->data(0, Qt::UserRole).toInt();
-			if (iProgData < iData)
-				iProgData = iData;
+			if (iData != iProg) {
+				iProgData = iProg - 1;
+				break;
+			}
+			iProgData = iData;
 		}
 		if (iProgCount > 0)
 			++iProgData;
@@ -465,7 +469,7 @@ void samplv1widget_programs::addPresetItems ( samplv1_presets *pPresets )
 		pProgItem->setData(0, Qt::TextAlignmentRole, int(Qt::AlignRight | Qt::AlignVCenter));
 		pProgItem->setData(0, Qt::UserRole, iProgData);
 		pProgItem->setIcon(1, QIcon(":/images/samplv1_preset.png"));
-		pBankItem->addChild(pProgItem);
+		pBankItem->insertChild(iProg, pProgItem);
 		pBankItem->setExpanded(true);
 	}
 }
