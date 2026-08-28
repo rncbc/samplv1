@@ -129,6 +129,10 @@ protected:
 	static QString presetsBanksGroup();
 	static QString presetsBankListKey();
 
+	// Preset conf.factory group path.
+	static QString presetsConfGroup();
+	static QString presetsConfListKey();
+
 	// Absolute/relative path functors.
 	struct MapPath
 	{
