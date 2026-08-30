@@ -26,11 +26,6 @@
 
 #include "samplv1_presets.h"
 
-
-//-------------------------------------------------------------------------
-// samplv1_config - Prototype settings class (singleton).
-//
-
 #include <QSettings>
 #include <QStringList>
 
@@ -38,6 +33,12 @@
 class samplv1_programs;
 class samplv1_controls;
 
+class QDir;
+
+
+//-------------------------------------------------------------------------
+// samplv1_config - Prototype settings class (singleton).
+//
 
 class samplv1_config : public QSettings
 {
@@ -136,6 +137,13 @@ protected:
 		QSettings *pSettings,
 		samplv1_presets *pPresets,
 		const MapPath& mapPath = MapPath());
+
+	static int loadPresetsConf(
+		QSettings *pSettings,
+		samplv1_presets *pPresets);
+	static int loadPresetsConfDir(
+		samplv1_presets *pPresets,
+		const QDir& dir, QStringList& confs);
 
 	void clearPrograms();
 	void clearControls();
