@@ -613,7 +613,7 @@ void samplv1widget_sample::mouseReleaseEvent ( QMouseEvent *pMouseEvent )
 
 void samplv1widget_sample::mouseDoubleClickEvent ( QMouseEvent */*pMouseEvent*/ )
 {
-	emit openSampleFile();
+	openSample();
 }
 
 

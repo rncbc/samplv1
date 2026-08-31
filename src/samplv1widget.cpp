@@ -524,9 +524,6 @@ samplv1widget::samplv1widget ( QWidget *pParent )
 
 	// Sample management...
 	QObject::connect(m_ui.Gen1Sample,
-		SIGNAL(openSampleFile()),
-		SLOT(openSample()));
-	QObject::connect(m_ui.Gen1Sample,
 		SIGNAL(loadSampleFile(const QString&)),
 		SLOT(loadSample(const QString&)));
 	QObject::connect(m_ui.Gen1OctavesComboBox,
