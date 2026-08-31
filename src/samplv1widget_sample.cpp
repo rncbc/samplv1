@@ -1,7 +1,7 @@
 // samplv1widget_sample.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2021, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2026, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -613,7 +613,7 @@ void samplv1widget_sample::mouseReleaseEvent ( QMouseEvent *pMouseEvent )
 
 void samplv1widget_sample::mouseDoubleClickEvent ( QMouseEvent */*pMouseEvent*/ )
 {
-	openSample();
+	emit openSampleFile();
 }
 
 
@@ -806,6 +806,15 @@ void samplv1widget_sample::openSample (void)
 		sFilename = QString::fromUtf8(m_pSample->filename());
 
 	// Cache supported file-types stuff from libsndfile...
+	static QStringList s_extensions;
+	if (s_extensions.isEmpty()) {
+		s_extensions.append("aiff");
+		s_extensions.append("flac");
+		s_extensions.append("oga");
+		s_extensions.append("ogg");
+		s_extensions.append("wav");
+	}
+
 	static QStringList s_filters;
 	if (s_filters.isEmpty()) {
 		const QString sExtMask("*.%1");
@@ -823,11 +832,17 @@ void samplv1widget_sample::openSample (void)
 			const QString sExtension(sffinfo.extension);
 			QString sExt = sExtMask.arg(sExtension);
 			QString sExts = sExt;
-			exts.append(sExt);
+			if (!exts.contains(sExt)
+				&& s_extensions.contains(sExtension)) {
+				exts.append(sExt);
+			}
 			if (sExtension.length() > 3) {
 				sExt = sExtMask.arg(sExtension.left(3));
 				sExts += ' ' + sExt;
-				exts.append(sExt);
+				if (!exts.contains(sExt)
+					&& s_extensions.contains(sExtension)) {
+					exts.append(sExt);
+				}
 			}
 			if (sExtension == "oga") {
 				sExt = sExtMask.arg("ogg");

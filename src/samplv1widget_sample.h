@@ -1,7 +1,7 @@
 // samplv1widget_sample.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2021, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2026, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -84,6 +84,9 @@ public:
 	QString textFromValue (uint32_t value) const;
 
 signals:
+
+	// Open new sample file.
+	void openSampleFile();
 
 	// Load new sample file.
 	void loadSampleFile(const QString&);
