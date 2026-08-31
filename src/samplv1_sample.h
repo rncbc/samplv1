@@ -1,7 +1,7 @@
 // samplv1_sample.h
 //
 /****************************************************************************
-   Copyright (C) 2012-2024, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2026, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -426,7 +426,7 @@ private:
 
 
 //-------------------------------------------------------------------------
-// samplv1_sample_ref - PADsynth wave table (sample reference lists).
+// samplv1_sample_ref - wave table sample reference lists.
 //
 #include "samplv1_list.h"
 
