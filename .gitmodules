@@ -1,0 +1,3 @@
+[submodule "src/preset"]
+	path = src/preset
+	url = https://github.com/rncbc/samplv1-preset
