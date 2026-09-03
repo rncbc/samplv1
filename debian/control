@@ -28,3 +28,14 @@ Description: An old-school polyphonic sampler - LV2 plugin
   An old-school all-digital polyphonic sampler synthesizer with stereo fx.
   .
   This package provides the LV2 plugin (http://samplv1.sourceforge.net/lv2)
+
+Package: samplv1-preset
+Architecture: all
+Depends: samplv1-jack | samplv1-lv2
+Description: An old-school polyphonic subtractive synthesizer - LV2 plugin
+  An old-school all-digital 4-oscillator subtractive polyphonic synthesizer
+  with stereo fx.
+  .
+  This package provides the factory/community presets from
+    https://github.com//rncbc/samplv1-preset
+  
