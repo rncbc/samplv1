@@ -1,7 +1,7 @@
 ﻿// samplv1.cpp
 //
 /****************************************************************************
-   Copyright (C) 2012-2024, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2012-2026, rncbc aka Rui Nuno Capela. All rights reserved.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -1206,7 +1206,7 @@ private:
 
 	samplv1_ramp1 m_wid1;
 	samplv1_bal2  m_pan1;
-	samplv1_ramp3 m_vol1;
+	samplv1_ramp2 m_vol1;
 
 	float  **m_sfxs;
 	uint32_t m_nsize;
@@ -1542,7 +1542,6 @@ void samplv1_impl::setParamPort ( samplv1::ParamIndex index, float *pfParam )
 	case samplv1::DCA1_VOLUME:
 		m_vol1.reset(
 			m_out1.volume.value_ptr(),
-			m_dca1.volume.value_ptr(),
 			&m_ctl1.volume);
 		break;
 	case samplv1::OUT1_WIDTH:
@@ -2165,7 +2164,6 @@ void samplv1_impl::reset (void)
 {
 	m_vol1.reset(
 		m_out1.volume.value_ptr(),
-		m_dca1.volume.value_ptr(),
 		&m_ctl1.volume);
 	m_pan1.reset(
 		m_out1.panning.value_ptr(),
@@ -2249,7 +2247,7 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 	// controls
 
 	const bool lfo1_enabled = (*m_lfo1.enabled > 0.0f);
-	
+
 	const float lfo1_freq = (lfo1_enabled
 		? get_bpm(*m_lfo1.bpm) / (60.01f - *m_lfo1.rate * 60.0f) : 0.0f);
 
@@ -2257,6 +2255,7 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 		? m_ctl1.modwheel + PITCH_SCALE * *m_lfo1.pitch : 0.0f);
 
 	const bool dcf1_enabled = (*m_dcf1.enabled > 0.0f);
+	const bool dca1_enabled = (*m_dca1.enabled > 0.0f);
 
 	const float fxsend1 = *m_out1.fxsend * *m_out1.fxsend;
 
@@ -2363,12 +2362,15 @@ void samplv1_impl::process ( float **ins, float **outs, uint32_t nframes )
 
 				// volumes
 
+				const float dca1 = (dca1_enabled
+					? m_dca1.volume.value() * pv->dca1_env.tick()
+					: 1.0f);
+
 				const float wid1 = m_wid1.value(j);
 				const float mid1 = 0.5f * (gen1 + gen2);
 				const float sid1 = 0.5f * (gen1 - gen2);
 				const float vol1 = vel1 * m_vol1.value(j)
-					* pv->dca1_env.tick()
-					* pv->out1_vol.value(j);
+					* dca1 * pv->out1_vol.value(j);
 
 				// outputs
 
