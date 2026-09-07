@@ -470,12 +470,20 @@ void samplv1_param::loadSamples (
 	if (pSampl == nullptr)
 		return;
 
+	float ratio = 1.0f;
+
 	for (QDomNode nSample = eSamples.firstChild();
 			!nSample.isNull();
 				nSample = nSample.nextSibling()) {
 		QDomElement eSample = nSample.toElement();
 		if (eSample.isNull())
 			continue;
+		if (eSample.tagName() == "sample-rate") {
+			const float srate = eSample.text().toFloat();
+			if (srate > 0.1f)
+				ratio = pSampl->sampleRate() / srate;
+		}
+		else
 		if (eSample.tagName() == "sample") {
 		//	int index = eSample.attribute("index").toInt();
 			QString sSampleFile;
@@ -540,9 +548,14 @@ void samplv1_param::loadSamples (
 			// Set actual sample loop points...
 			pSampl->setLoopRelease(bLoopRelease);
 			pSampl->setLoopZero(bLoopZero);
-			pSampl->setLoopFade(iLoopFade);
-			pSampl->setLoopRange(iLoopStart, iLoopEnd);
-			pSampl->setOffsetRange(iOffsetStart, iOffsetEnd);
+			pSampl->setLoopFade(
+				::lrintf(ratio * float(iLoopFade)));
+			pSampl->setLoopRange(
+				::lrintf(ratio * float(iLoopStart)),
+				::lrintf(ratio * float(iLoopEnd)));
+			pSampl->setOffsetRange(
+				::lrintf(ratio * float(iOffsetStart)),
+				::lrintf(ratio * float(iOffsetEnd)));
 		}
 	}
 
@@ -557,6 +570,13 @@ void samplv1_param::saveSamples (
 {
 	if (pSampl == nullptr)
 		return;
+
+	const float srate = pSampl->sampleRate();
+	if (srate > 0.0f) {
+		QDomElement eSampleRate = doc.createElement("sample-rate");
+		eSampleRate.appendChild(doc.createTextNode(QString::number(srate)));
+		eSamples.appendChild(eSampleRate);
+	}
 
 	const char *pszSampleFile = pSampl->sampleFile();
 	if (pszSampleFile == nullptr)
