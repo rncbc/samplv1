@@ -142,8 +142,8 @@
          <property name="title">
           <string>GEN</string>
          </property>
-         <layout class="QHBoxLayout">
-          <item>
+         <layout class="QGridLayout">
+          <item row="0" column="0" rowspan="2">
            <widget class="samplv1widget_sample" name="Gen1Sample">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -156,7 +156,7 @@
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="1">
            <widget class="samplv1widget_combo" name="Gen1SampleKnob">
             <property name="toolTip">
              <string>GEN Sample</string>
@@ -166,7 +166,7 @@
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="2">
            <layout class="QGridLayout">
             <property name="margin">
              <number>4</number>
@@ -353,7 +353,7 @@
             </item>
            </layout>
           </item>
-          <item>
+          <item row="0" column="3">
            <spacer>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -369,7 +369,7 @@
             </property>
            </spacer>
           </item>
-          <item>
+          <item row="0" column="4">
            <widget class="samplv1widget_spin" name="Gen1OctaveKnob">
             <property name="toolTip">
              <string>GEN Octave</string>
@@ -379,7 +379,7 @@
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="5">
            <widget class="samplv1widget_spin" name="Gen1TuningKnob">
             <property name="toolTip">
              <string>GEN Tuning</string>
@@ -389,7 +389,7 @@
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="6">
            <spacer>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -405,7 +405,7 @@
             </property>
            </spacer>
           </item>
-          <item>
+          <item row="0" column="7">
            <widget class="samplv1widget_spin" name="Gen1GlideKnob">
             <property name="toolTip">
              <string>GEN Glide</string>
@@ -415,7 +415,7 @@
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="8">
            <spacer>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -431,7 +431,7 @@
             </property>
            </spacer>
           </item>
-          <item>
+          <item row="0" column="9">
            <widget class="samplv1widget_spin" name="Gen1EnvTimeKnob">
             <property name="toolTip">
              <string>GEN Env.Time</string>
@@ -440,6 +440,22 @@
              <string>Env.Time</string>
             </property>
            </widget>
+          </item>
+          <item row="1" column="0" colspan="9">
+           <spacer>
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::MinimumExpanding</enum>
+            </property>
+            <property name="sizeHint">
+             <size>
+              <width>20</width>
+              <height>0</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </widget>
