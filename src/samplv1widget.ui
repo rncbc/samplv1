@@ -733,9 +733,6 @@
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Fixed</enum>
-              </property>
               <property name="sizeHint">
                <size>
                 <width>8</width>
@@ -769,9 +766,6 @@
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Fixed</enum>
-              </property>
               <property name="sizeHint">
                <size>
                 <width>8</width>
@@ -804,9 +798,6 @@
              <spacer>
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Fixed</enum>
               </property>
               <property name="sizeHint">
                <size>
@@ -1013,9 +1004,6 @@
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Fixed</enum>
-            </property>
             <property name="sizeHint">
              <size>
               <width>8</width>
@@ -1038,9 +1026,6 @@
            <spacer>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Fixed</enum>
             </property>
             <property name="sizeHint">
              <size>
@@ -1104,10 +1089,13 @@
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
             <property name="sizeHint">
              <size>
-              <width>20</width>
-              <height>20</height>
+              <width>8</width>
+              <height>8</height>
              </size>
             </property>
            </spacer>
