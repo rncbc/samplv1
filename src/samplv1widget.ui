@@ -84,7 +84,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QTabBar" name="TabBar"/>
+      <widget class="QTabBar" name="TabBar">
+       <property name="shape">
+        <enum>QTabBar::RoundedNorth</enum>
+       </property>
+      </widget>
      </item>
      <item>
       <spacer>
@@ -182,6 +186,9 @@
               <property name="text">
                <string>Offset</string>
               </property>
+              <property name="alignment">
+               <set>Qt::AlignLeft|Qt::AlignBottom</set>
+              </property>
              </widget>
             </item>
             <item row="0" column="1">
@@ -190,7 +197,7 @@
                <string>Start / End </string>
               </property>
               <property name="alignment">
-               <set>Qt::AlignBottom|Qt::AlignRight|Qt::AlignTrailing</set>
+               <set>Qt::AlignRight|Qt::AlignBottom</set>
               </property>
              </widget>
             </item>
@@ -202,11 +209,11 @@
                 <height>16</height>
                </size>
               </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignVCenter</set>
+              </property>
               <property name="toolTip">
                <string>GEN Offset Start</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
@@ -218,11 +225,11 @@
                 <height>16</height>
                </size>
               </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignVCenter</set>
+              </property>
               <property name="toolTip">
                <string>GEN Offset End</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
@@ -242,7 +249,7 @@
                <string>Pitch-shift:</string>
               </property>
               <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               <set>Qt::AlignRight|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
@@ -261,6 +268,9 @@
               <property name="text">
                <string>Loop</string>
               </property>
+              <property name="alignment">
+               <set>Qt::AlignLeft|Qt::AlignBottom</set>
+              </property>
              </widget>
             </item>
             <item row="0" column="3">
@@ -269,7 +279,7 @@
                <string>Start / End </string>
               </property>
               <property name="alignment">
-               <set>Qt::AlignBottom|Qt::AlignRight|Qt::AlignTrailing</set>
+               <set>Qt::AlignRight|Qt::AlignBottom</set>
               </property>
              </widget>
             </item>
@@ -281,11 +291,11 @@
                 <height>16</height>
                </size>
               </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignVCenter</set>
+              </property>
               <property name="toolTip">
                <string>GEN Loop Start</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
@@ -297,31 +307,37 @@
                 <height>16</height>
                </size>
               </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignVCenter</set>
+              </property>
               <property name="toolTip">
                <string>GEN Loop End</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
             <item row="0" column="4">
              <widget class="samplv1widget_check" name="Gen1LoopReleaseCheckBox">
+              <property name="text">
+               <string>Release</string>
+              </property>
               <property name="toolTip">
                <string>GEN Loop End Release</string>
               </property>
-              <property name="text">
-               <string>Release</string>
+              <property name="alignment">
+               <set>Qt::AlignLeft|Qt::AlignBottom</set>
               </property>
              </widget>
             </item>
             <item row="1" column="4">
              <widget class="samplv1widget_check" name="Gen1LoopFadeCheckBox">
+              <property name="text">
+               <string>Fade</string>
+              </property>
               <property name="toolTip">
                <string>GEN Loop Crossfade</string>
               </property>
-              <property name="text">
-               <string>Fade</string>
+              <property name="alignment">
+               <set>Qt::AlignLeft|Qt::AlignBottom</set>
               </property>
              </widget>
             </item>
@@ -337,23 +353,26 @@
                <string>GEN Loop Crossfade</string>
               </property>
               <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               <set>Qt::AlignRight|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
             <item row="3" column="4">
              <widget class="samplv1widget_check" name="Gen1LoopZeroCheckBox">
+              <property name="text">
+               <string>Zero</string>
+              </property>
               <property name="toolTip">
                <string>GEN Loop Zero-crossing</string>
               </property>
-              <property name="text">
-               <string>Zero</string>
+              <property name="alignment">
+               <set>Qt::AlignLeft|Qt::AlignTop</set>
               </property>
              </widget>
             </item>
            </layout>
           </item>
-          <item row="0" column="3">
+          <item>
            <spacer>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -714,6 +733,9 @@
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Fixed</enum>
+              </property>
               <property name="sizeHint">
                <size>
                 <width>8</width>
@@ -747,6 +769,9 @@
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Fixed</enum>
+              </property>
               <property name="sizeHint">
                <size>
                 <width>8</width>
@@ -779,6 +804,9 @@
              <spacer>
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Fixed</enum>
               </property>
               <property name="sizeHint">
                <size>
@@ -985,6 +1013,9 @@
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
             <property name="sizeHint">
              <size>
               <width>8</width>
@@ -1007,6 +1038,9 @@
            <spacer>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
             </property>
             <property name="sizeHint">
              <size>
@@ -1142,10 +1176,13 @@
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
             <property name="sizeHint">
              <size>
-              <width>20</width>
-              <height>20</height>
+              <width>8</width>
+              <height>8</height>
              </size>
             </property>
            </spacer>
@@ -1204,10 +1241,13 @@
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
             <property name="sizeHint">
              <size>
-              <width>20</width>
-              <height>20</height>
+              <width>8</width>
+              <height>8</height>
              </size>
             </property>
            </spacer>
@@ -1276,10 +1316,13 @@
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
             <property name="sizeHint">
              <size>
-              <width>20</width>
-              <height>20</height>
+              <width>8</width>
+              <height>8</height>
              </size>
             </property>
            </spacer>
@@ -1351,10 +1394,13 @@
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
             <property name="sizeHint">
              <size>
-              <width>20</width>
-              <height>20</height>
+              <width>8</width>
+              <height>8</height>
              </size>
             </property>
            </spacer>
