@@ -7,6 +7,8 @@ ChangeLog
 GIT HEAD
 
 - Introduce the factory/community preset install package.
+- Color theme (with palette editor) and (widget) Style theme
+  options moved to Help/Configure.../Custom tab (with preview).
 - Detached DCA Volume from main output processing.
 
 
