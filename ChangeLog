@@ -6,6 +6,8 @@ ChangeLog
 
 GIT HEAD
 
+- Visual guides for the DCA1 EG times through gradients (Attack,
+  Decay and Sustain level) (by G3N-es while on drumkv1, thanks).
 - Cosmetic fix to parameter dial/knob modified value colors.
 - Avoid recalling not-user-writable preset directories.
 - Replace the Random(ize) warning dialog with a percentage

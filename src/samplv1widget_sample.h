@@ -83,6 +83,12 @@ public:
 	uint32_t valueFromText (const QString& text) const;
 	QString textFromValue (uint32_t value) const;
 
+	// Sets the normalized GEN1 envelope time (0.0 = Auto).
+	void setEnvTime(float fEnvTime);
+
+	void setDca1Envelope(
+		float fAttack, float fDecay, float fSustain, float fRelease);
+
 signals:
 
 	// Load new sample file.
@@ -151,6 +157,9 @@ protected:
 	// Default size hint.
 	QSize sizeHint() const;
 
+	void drawDca1Envelope(QPainter& painter,
+		const QRect& rect, const QColor& rgbDca1);
+
 private:
 
 	// Instance state.
@@ -190,6 +199,13 @@ private:
 	bool     m_bLoop;
 	uint32_t m_iLoopStart;
 	uint32_t m_iLoopEnd;
+
+	// Normalized GEN1 envelope time (0.0 = Auto).
+	float m_fEnvTime;
+	float m_fDca1Attack;
+	float m_fDca1Decay;
+	float m_fDca1Sustain;
+	float m_fDca1Release;
 };
 
 #endif	// __samplv1widget_sample_h

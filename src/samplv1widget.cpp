@@ -311,6 +311,9 @@ samplv1widget::samplv1widget ( QWidget *pParent )
 	setParamKnob(samplv1::GEN1_GLIDE,   m_ui.Gen1GlideKnob);
 	setParamKnob(samplv1::GEN1_ENVTIME, m_ui.Gen1EnvTimeKnob);
 
+	m_ui.Gen1Sample->setEnvTime(m_ui.Gen1EnvTimeKnob->value());
+
+
 	// DCF1
 	setParamKnob(samplv1::DCF1_ENABLED,  m_ui.Dcf1GroupBox->param());
 	setParamKnob(samplv1::DCF1_CUTOFF,   m_ui.Dcf1CutoffKnob);
@@ -438,6 +441,12 @@ samplv1widget::samplv1widget ( QWidget *pParent )
 	setParamKnob(samplv1::DCA1_DECAY,   m_ui.Dca1DecayKnob);
 	setParamKnob(samplv1::DCA1_SUSTAIN, m_ui.Dca1SustainKnob);
 	setParamKnob(samplv1::DCA1_RELEASE, m_ui.Dca1ReleaseKnob);
+
+	m_ui.Gen1Sample->setDca1Envelope(
+		m_ui.Dca1AttackKnob->value(),
+		m_ui.Dca1DecayKnob->value(),
+		m_ui.Dca1SustainKnob->value(),
+		m_ui.Dca1ReleaseKnob->value());
 
 	QObject::connect(
 		m_ui.Dca1Env, SIGNAL(attackChanged(float)),
@@ -851,6 +860,19 @@ void samplv1widget::updateParamEx (
 		m_ui.StatusBar->keybd()->setVelocity(vel);
 		break;
 	}
+	case samplv1::GEN1_ENVTIME:
+		m_ui.Gen1Sample->setEnvTime(fValue);
+		break;
+	case samplv1::DCA1_ATTACK:
+	case samplv1::DCA1_DECAY:
+	case samplv1::DCA1_SUSTAIN:
+	case samplv1::DCA1_RELEASE:
+		m_ui.Gen1Sample->setDca1Envelope(
+			m_ui.Dca1AttackKnob->value(),
+			m_ui.Dca1DecayKnob->value(),
+			m_ui.Dca1SustainKnob->value(),
+			m_ui.Dca1ReleaseKnob->value());
+		break;
 	default:
 		break;
 	}
