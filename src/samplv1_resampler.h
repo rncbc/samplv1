@@ -1,7 +1,7 @@
 // samplv1_resampler.h
 //
 /****************************************************************************
-   Copyright (C) 2017-2021, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2017-2026, rncbc aka Rui Nuno Capela. All rights reserved.
    Copyright (C) 2006-2012 Fons Adriaensen <fons@linuxaudio.org>
 
    This program is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@
 #ifndef __samplv1_resampler_h
 #define __samplv1_resampler_h
 
-#include <pthread.h>
+#include <QMutex>
 
 
 // ----------------------------------------------------------------------------
@@ -54,21 +54,6 @@ public:
 	float       *inp_data;
 	float       *out_data;
 
-	class Mutex
-	{
-	public:
-
-		Mutex() { pthread_mutex_init(&m_mutex, 0); }
-		~Mutex() { pthread_mutex_destroy(&m_mutex); }
-
-		void lock() { pthread_mutex_lock(&m_mutex); }
-		void unlock() { pthread_mutex_unlock(&m_mutex); }
-
-	private:
-
-		pthread_mutex_t m_mutex;
-	};
-
 	class Table
 	{
 	public:
@@ -89,7 +74,7 @@ public:
 	private:
 
 		static Table *g_list;
-		static Mutex  g_mutex;
+		static QMutex g_mutex;
 	};
 
 private:

@@ -1,7 +1,7 @@
 // samplv1_resampler.cpp
 //
 /****************************************************************************
-   Copyright (C) 2017-2021, rncbc aka Rui Nuno Capela. All rights reserved.
+   Copyright (C) 2017-2026, rncbc aka Rui Nuno Capela. All rights reserved.
    Copyright (C) 2006-2012 Fons Adriaensen <fons@linuxaudio.org>
 
    This program is free software; you can redistribute it and/or
@@ -52,7 +52,8 @@ static float wind ( float x )
 
 
 samplv1_resampler::Table *samplv1_resampler::Table::g_list = nullptr;
-samplv1_resampler::Mutex  samplv1_resampler::Table::g_mutex;
+
+QMutex samplv1_resampler::Table::g_mutex;
 
 
 samplv1_resampler::Table::Table (
@@ -85,9 +86,9 @@ samplv1_resampler::Table::~Table (void)
 samplv1_resampler::Table *samplv1_resampler::Table::create (
 	float fr0, unsigned int hl0, unsigned int np0 )
 {
-	Table *p;
+	QMutexLocker locker(&g_mutex);
 
-	g_mutex.lock();
+	Table *p;
 
 	p = g_list;
 
@@ -96,7 +97,6 @@ samplv1_resampler::Table *samplv1_resampler::Table::create (
 			(fr0 <= p->fr * 1.001f) &&
 			(hl0 == p->hl) && (np0 == p->np)) {
 			p->refc++;
-			g_mutex.unlock();
 			return p;
 		}
 		p = p->next;
@@ -107,17 +107,15 @@ samplv1_resampler::Table *samplv1_resampler::Table::create (
 	p->next = g_list;
 	g_list  = p;
 
-	g_mutex.unlock();
-
 	return p;
 }
 
 
 void samplv1_resampler::Table::destroy ( samplv1_resampler::Table *table )
 {
-	Table *p, *q;
+	QMutexLocker locker(&g_mutex);
 
-	g_mutex.lock();
+	Table *p, *q;
 
 	if (table) {
 		table->refc--;
@@ -138,8 +136,6 @@ void samplv1_resampler::Table::destroy ( samplv1_resampler::Table *table )
 			delete table;
 		}
 	}
-
-	g_mutex.unlock();
 }
 
 
