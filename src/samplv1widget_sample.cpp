@@ -74,6 +74,9 @@ samplv1widget_sample::samplv1widget_sample ( QWidget *pParent )
 	m_bLoop = false;
 	m_iLoopStart = m_iLoopEnd = 0;
 
+	// Crop: Initialize the visual sample range.
+	m_iViewStart = m_iViewEnd = 0;
+
 	m_dragCursor  = DragNone;
 	m_pDragSample = nullptr;
 
@@ -111,67 +114,84 @@ samplv1_ui *samplv1widget_sample::instance (void) const
 
 
 // Parameter accessors.
-void samplv1widget_sample::setSample ( samplv1_sample *pSample )
+void samplv1widget_sample::updateView (void)
 {
-	if (m_pSample && m_ppPolyg) {
+	if (m_ppPolyg) {
 		for (unsigned short k = 0; k < m_iChannels; ++k)
 			delete m_ppPolyg[k];
 		delete [] m_ppPolyg;
-		m_ppPolyg = 0;
-		m_iChannels = 0;
+		m_ppPolyg = nullptr;
 	}
+ 
+	m_iChannels = (m_pSample ? m_pSample->channels() : 0);
+	if (m_iChannels == 0)
+		return;
 
-	m_pSample = pSample;
+	const int h = height();
+	const int w = width() & 0x7ffe; // Force even.
+	const int w2 = (w >> 1);
+	const int h0 = h / m_iChannels;
+	const int h1 = (h0 >> 1);
+	const uint32_t nframes = m_pSample->length();
+ 
+	uint32_t iViewStart = m_iViewStart;
+	uint32_t iViewEnd = m_iViewEnd;
+ 
+	if (iViewStart > nframes)
+		iViewStart = nframes;
+	if (iViewEnd > nframes)
+		iViewEnd = nframes;
+	if (iViewEnd < iViewStart)
+		iViewEnd = iViewStart;
 
-//	m_bOffset = 0;
-//	m_iOffsetStart = m_iOffsetEnd = 0;
+	m_ppPolyg = new QPolygon *[m_iChannels];
 
-//	m_bLoop = false;
-//	m_iLoopStart = m_iLoopEnd = 0;
+	int y0 = h1;
+	for (unsigned short k = 0; k < m_iChannels; ++k) {
+		m_ppPolyg[k] = new QPolygon(w);
+		for (int bin = 0; bin < w2; ++bin) {
+			const uint32_t iFrameStart = iViewStart
+				+ (uint64_t(bin) * uint64_t(iViewEnd - iViewStart))
+					/ uint64_t(w2);
+			const uint32_t iFrameEnd = iViewStart
+				+ (uint64_t(bin + 1) * uint64_t(iViewEnd - iViewStart))
+					/ uint64_t(w2);
+ 			float vmax = 0.0f;
+ 			float vmin = 0.0f;
+			bool bFirst = true;
+			const float *pframes = m_pSample->frames(k);
+			for (uint32_t i = iFrameStart; i < iFrameEnd; ++i) {
+				const float v = pframes[i];
+				if (bFirst || vmax < v)
+					vmax = v;
+				if (bFirst || vmin > v)
+					vmin = v;
+				bFirst = false;
+			}
+			const int x = 1 + (bin << 1);
+			const int yMax = y0 - int(vmax * h1);
+			const int yMin = y0 - int(vmin * h1);
+			m_ppPolyg[k]->setPoint(bin, x, yMax);
+			m_ppPolyg[k]->setPoint(w - bin - 1, x, yMin);
+		}
+		y0 += h0;
+	}
+}
+// }
 
+void samplv1widget_sample::setSample ( samplv1_sample *pSample )
+{
+	// Crop {
+	if (m_pSample != pSample) {
+		m_pSample = pSample;
+		m_iViewStart = 0;
+		m_iViewEnd = (m_pSample ? m_pSample->length() : 0);
+	}
+ 
 	m_pDragSample = nullptr;
 
-	if (m_pSample)
-		m_iChannels = m_pSample->channels();
-	if (m_iChannels > 0 && m_ppPolyg == 0) {
-		const int h = height();
-		const int w = width() & 0x7ffe; // force even.
-		const int w2 = (w >> 1);
-		const uint32_t nframes = m_pSample->length();
-		const uint32_t nperiod = nframes / w2;
-		const int h0 = h / m_iChannels;
-		const int h1 = (h0 >> 1);
-		int y0 = h1;
-		m_ppPolyg = new QPolygon* [m_iChannels];
-		for (uint16_t k = 0; k < m_iChannels; ++k) {
-			m_ppPolyg[k] = new QPolygon(w);
-			const float *pframes = m_pSample->frames(k);
-			float vmax = 0.0f;
-			float vmin = 0.0f;
-			int n = 0;
-			int x = 1;
-			uint32_t j = 0;
-			for (uint32_t i = 0; i < nframes; ++i) {
-				const float v = *pframes++;
-				if (vmax < v || j == 0)
-					vmax = v;
-				if (vmin > v || j == 0)
-					vmin = v;
-				if (++j > nperiod) {
-					m_ppPolyg[k]->setPoint(n, x, y0 - int(vmax * h1));
-					m_ppPolyg[k]->setPoint(w - n - 1, x, y0 - int(vmin * h1));
-					vmax = vmin = 0.0f;
-					++n; x += 2; j = 0;
-				}
-			}
-			while (n < w2) {
-				m_ppPolyg[k]->setPoint(n, x, y0);
-				m_ppPolyg[k]->setPoint(w - n - 1, x, y0);
-				++n; x += 2;
-			}
-			y0 += h0;
-		}
-	}
+	updateView();
+	// }
 
 	updateToolTip();
 	update();
@@ -283,36 +303,125 @@ uint32_t samplv1widget_sample::loopEnd (void) const
 }
 
 
+// Crop {
+void samplv1widget_sample::cropView (void)
+{
+	if (m_pSample == nullptr)
+		return;
+
+	setViewRange(m_iOffsetStart, m_iOffsetEnd);
+}
+
+
+void samplv1widget_sample::uncropView (void)
+{
+	if (m_pSample == nullptr)
+		return;
+
+	setViewRange(0, m_pSample->length());
+}
+
+
+void samplv1widget_sample::setViewRange (
+	uint32_t iViewStart, uint32_t iViewEnd )
+{
+	if (m_pSample == nullptr)
+		return;
+
+	const uint32_t nframes = m_pSample->length();
+
+	if (iViewStart > nframes)
+		iViewStart = nframes;
+	if (iViewEnd > nframes)
+		iViewEnd = nframes;
+
+	if (iViewStart >= iViewEnd && nframes > 0)
+		return;
+
+	m_iViewStart = iViewStart;
+	m_iViewEnd = iViewEnd;
+
+	updateView();
+	update();
+}
+// }
+
 // Sanitizer helper.
 int samplv1widget_sample::safeX ( int x ) const
 {
 	const int w = QFrame::width();
-	return (x < w ? x : w);
+	// Crop {
+	if (x < 0)
+		return 0;
+	if (x > w)
+		return w;
+	return x;
+	// }
+
 }
 
 
 // Sanitized converters.
 int samplv1widget_sample::pixelFromFrames ( uint32_t n ) const
 {
-	const uint32_t nframes = m_pSample->length();
-	if (nframes == 0)
+	// Crop {
+	if (m_pSample == nullptr)
 		return 0;
 
 	const int w = QFrame::width();
-	const int x = (uint64_t(w) * uint64_t(n)) / uint64_t(nframes);
-	return (x < w ? x : w);
+	if (w < 1)
+		return 0;
+
+	const uint32_t nframes = m_pSample->length();
+	uint32_t iViewStart = m_iViewStart;
+	uint32_t iViewEnd = m_iViewEnd;
+
+	if (iViewStart > nframes)
+		iViewStart = nframes;
+	if (iViewEnd > nframes)
+		iViewEnd = nframes;
+	if (iViewStart >= iViewEnd)
+		return 0;
+
+	if (iViewStart >= n)
+		return 0;
+	if (n >= iViewEnd)
+		return w;
+
+	const uint32_t nview = iViewEnd - iViewStart;
+	const uint32_t npos = n - iViewStart;
+
+	return int((uint64_t(w) * uint64_t(npos)) / uint64_t(nview));
+	// }
 }
 
 
 uint32_t samplv1widget_sample::framesFromPixel ( int x ) const
 {
-	const int w = QFrame::width();
-	if (w == 0)
+	// Crop {
+	if (m_pSample == nullptr)
 		return 0;
 
+	const int w = QFrame::width();
+	if (w <= 0)
+		return m_iViewStart;
+
+	x = safeX(x);
+
 	const uint32_t nframes = m_pSample->length();
-	const uint32_t n = (uint64_t(x) * uint64_t(nframes)) / uint64_t(w);
-	return (n < nframes ? n : nframes);
+	uint32_t iViewStart = m_iViewStart;
+	uint32_t iViewEnd = m_iViewEnd;
+
+	if (iViewStart > nframes)
+		iViewStart = nframes;
+	if (iViewEnd > nframes)
+		iViewEnd = nframes;
+	if (iViewEnd <= iViewStart)
+		return iViewStart;
+
+	const uint32_t nview = iViewEnd - iViewStart;
+	return iViewStart + uint32_t((uint64_t(x) * uint64_t(nview)) / uint64_t(w));
+	// }
 }
 
 
@@ -844,6 +953,19 @@ void samplv1widget_sample::paintEvent ( QPaintEvent *pPaintEvent )
 		painter.setRenderHint(QPainter::Antialiasing, true);
 		// DCA1 EG...
 		drawDca1Envelope(painter, rect, rgbDca1);
+		// Crop { zeroLine
+		painter.save();
+		QPen zeroLine(rgbDark.darker(105));
+		// zeroPen.setStyle(Qt::SolidLine);
+		painter.setPen(zeroLine);
+		// painter.setBrush(Qt::NoBrush);
+		const int h0 = h / m_iChannels;
+		for (unsigned short k = 0; k < m_iChannels; ++k) {
+			const int yZero = rect.top() + (h0 >> 1) + k * h0;
+			painter.drawLine(rect.left(), yZero, rect.right(), yZero);
+		}
+		painter.restore();
+		// }
 		// Loop point lines...
 		if (m_bLoop && bEnabled) {
 			int x1 = 0, x2 = 0;

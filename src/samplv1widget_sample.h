@@ -114,6 +114,11 @@ public slots:
 	void setLoopStart(uint32_t iLoopStart);
 	void setLoopEnd(uint32_t iLoopEnd);
 
+	// Crop {
+	void cropView();
+	void uncropView();
+	// }
+
 protected slots:
 
 	// Direct note-off/timeout methods.
@@ -150,6 +155,11 @@ protected:
 
 	// Reset drag/select state.
 	void resetDragState();
+
+	// Crop {
+	void setViewRange(uint32_t iViewStart, uint32_t iViewEnd);
+	void updateView();
+	// }
 
 	// Update tool-tip.
 	void updateToolTip();
@@ -199,6 +209,10 @@ private:
 	bool     m_bLoop;
 	uint32_t m_iLoopStart;
 	uint32_t m_iLoopEnd;
+
+	// Crop: Visual sample range, independent of playback offsets.
+	uint32_t m_iViewStart;
+	uint32_t m_iViewEnd;
 
 	// Normalized GEN1 envelope time (0.0 = Auto).
 	float m_fEnvTime;

@@ -6,6 +6,8 @@ ChangeLog
 
 GIT HEAD
 
+- Introducing Crop / Uncrop View feature (by G3N-es, while on
+  drumkv1, thanks again).
 - Visual guides for the DCA1 EG times through gradients (Attack,
   Decay and Sustain level) (by G3N-es while on drumkv1, thanks).
 - Cosmetic fix to parameter dial/knob modified value colors.

@@ -107,6 +107,11 @@ samplv1widget::samplv1widget ( QWidget *pParent )
 	// Start clean.
 	m_iUpdate = 0;
 
+	// Crop {
+	m_bCropped = false;
+	m_bEffectiveOffset = false;
+	// }
+
 	// Replicate the stacked/pages
 	for (int iTab = 0; iTab < m_ui.StackedWidget->count(); ++iTab)
 		m_ui.TabBar->addTab(m_ui.StackedWidget->widget(iTab)->windowTitle());
@@ -1545,6 +1550,10 @@ void samplv1widget::updateOffsetLoop ( samplv1_sample *pSample, bool bDirty )
 		const bool     bLoopRelease = pSample->isLoopEndRelease();
 		const uint32_t nframes    = pSample->length();
 		const float    srate      = pSample->sampleRate();
+		// Crop {
+		m_bEffectiveOffset = bOffset
+			&& (iOffsetStart > 0 || iOffsetEnd < nframes);
+		// }
 		m_ui.Gen1OctavesComboBox->setCurrentIndex(iOctaves);
 		m_ui.Gen1OffsetRangeLabel->setEnabled(bOffset);
 		m_ui.Gen1OffsetStartSpinBox->setSampleRate(srate);
@@ -1673,12 +1682,22 @@ void samplv1widget::activateParamKnobsGroupBox (
 		while (iter.hasNext())
 			iter.next()->setEnabled(bEnabled);
 	}
+	// Crop {
+	if (m_bCropped && !m_bEffectiveOffset) {
+		m_ui.Gen1Sample->uncropView();
+		m_bCropped = false;
+	}
+	// }
 }
 
 
 // Sample context menu.
 void samplv1widget::contextMenuRequest ( const QPoint& pos )
 {
+	QWidget *pSender = static_cast<QWidget *> (sender());
+	if (pSender == nullptr)
+		return;
+
 	QMenu menu(this);
 	QAction *pAction;
 
@@ -1695,6 +1714,38 @@ void samplv1widget::contextMenuRequest ( const QPoint& pos )
 		QIcon(":/images/playSample.png"),
 		tr("Play"), this, SLOT(playSample()));
 	pAction->setEnabled(pSamplUi != nullptr);
+
+	// Crop {
+	if (pSender == m_ui.Gen1Sample) {
+
+		menu.addSeparator();
+
+		const bool bEffectiveOffset =
+			m_ui.Gen1Sample->isOffset()
+			&& (m_ui.Gen1OffsetStartSpinBox->value() > 0
+				|| m_ui.Gen1OffsetEndSpinBox->value()
+					< m_ui.Gen1OffsetEndSpinBox->maximum());
+
+		pAction = menu.addAction(
+			QIcon(":/images/cropView.png"),
+			tr("Crop View"),
+			m_ui.Gen1Sample,
+			SLOT(cropView()));
+		pAction->setEnabled(bEffectiveOffset);
+		QObject::connect(pAction, &QAction::triggered, this,
+			[this]() { m_bCropped = true; });
+
+		pAction = menu.addAction(
+			QIcon(":/images/uncropView.png"),
+			tr("Uncrop View"),
+			m_ui.Gen1Sample,
+			SLOT(uncropView()));
+		pAction->setEnabled(m_bCropped);
+		QObject::connect(pAction, &QAction::triggered, this,
+			[this]() { m_bCropped = false; });
+	}
+	// }
+
 	menu.addSeparator();
 	pAction = menu.addAction(
 		tr("Reset"), this, SLOT(clearSample()));

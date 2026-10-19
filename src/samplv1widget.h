@@ -221,6 +221,11 @@ private:
 	Ui::samplv1widget *p_ui;
 	Ui::samplv1widget& m_ui;
 
+	// Crop {
+	bool m_bCropped;
+	bool m_bEffectiveOffset;
+	// }
+
 	samplv1widget_sched *m_sched_notifier;
 
 	QHash<samplv1::ParamIndex, samplv1widget_param *> m_paramKnobs;
