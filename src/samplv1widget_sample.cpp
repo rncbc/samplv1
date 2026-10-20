@@ -122,7 +122,7 @@ void samplv1widget_sample::updateView (void)
 		delete [] m_ppPolyg;
 		m_ppPolyg = nullptr;
 	}
- 
+
 	m_iChannels = (m_pSample ? m_pSample->channels() : 0);
 	if (m_iChannels == 0)
 		return;
@@ -133,10 +133,10 @@ void samplv1widget_sample::updateView (void)
 	const int h0 = h / m_iChannels;
 	const int h1 = (h0 >> 1);
 	const uint32_t nframes = m_pSample->length();
- 
+
 	uint32_t iViewStart = m_iViewStart;
 	uint32_t iViewEnd = m_iViewEnd;
- 
+
 	if (iViewStart > nframes)
 		iViewStart = nframes;
 	if (iViewEnd > nframes)
@@ -187,7 +187,7 @@ void samplv1widget_sample::setSample ( samplv1_sample *pSample )
 		m_iViewStart = 0;
 		m_iViewEnd = (m_pSample ? m_pSample->length() : 0);
 	}
- 
+
 	m_pDragSample = nullptr;
 
 	updateView();
@@ -860,22 +860,24 @@ void samplv1widget_sample::drawDca1Envelope (
 		);
 	};
 
-	const bool bDca1IsVeryLow = m_fDca1Sustain < 0.01f;
+	const bool bSustainOn = m_fDca1Sustain > 0.001f;
+	const bool bReleaseOn = m_fDca1Release > 0.001f;
 
 	const QColor rgbAttackStart = lighten_rgb(rgbDca1, 0);
 	const QColor rgbAttackEnd   = lighten_rgb(rgbDca1, 25);
 
 	const QColor rgbDecayStart = lighten_rgb(rgbDca1, 30);
-	const QColor rgbDecayEnd   = bDca1IsVeryLow
-		? rgbAttackStart
-		: lighten_rgb(rgbDca1, int(30.0f * m_fDca1Sustain));
+	const QColor rgbDecayEnd   = bSustainOn
+		? lighten_rgb(rgbDca1, int(30.0f * m_fDca1Sustain))
+		: rgbAttackStart;
 
-	const QColor rgbSustain = bDca1IsVeryLow
-		? lighten_rgb(rgbDca1, 10)
-		: lighten_rgb(
+	const QColor rgbSustain = bSustainOn
+		? lighten_rgb(
 			rgbDca1,
 			// A - 15% of rgbDelayEnd
-			int(30.0f * m_fDca1Sustain * (1.0f - 15.0f / 100.0f)));
+			int(30.0f * m_fDca1Sustain * (1.0f - 15.0f / 100.0f))
+			)
+		: lighten_rgb(rgbDca1, 10);
 
 	painter.save();
 
@@ -912,14 +914,31 @@ void samplv1widget_sample::drawDca1Envelope (
 			Qt::AlignLeft | Qt::AlignBottom, tr("Decay"));
 	}
 
-	// Sustain  phase
+	// Sustain & Release phase
 	if (x_end > x_decay) {
 		const QRect rect(x_decay, 0, x_end - x_decay, h);
 		painter.fillRect(rect, rgbSustain);
+		// None: Silence Zone
+		if (!bSustainOn && !bReleaseOn)
+			painter.fillRect(rect, QBrush(rgbDecayStart, Qt::BDiagPattern));
 		painter.setPen(rgbText);
 	// painter.drawLine(rect.left(), 0, rect.left(), h);
-		painter.drawText(rect.adjusted(+2, 0, 0, -2),
-			Qt::AlignLeft | Qt::AlignBottom, tr("Sustain"));
+		// Only Sustain
+		if (bSustainOn && !bReleaseOn)
+			painter.drawText(rect.adjusted(+2, 0, 0, -2),
+				Qt::AlignLeft | Qt::AlignBottom, tr("Sustain"));
+		// Only Release
+		if (!bSustainOn && bReleaseOn)
+			painter.drawText(rect.adjusted(+2, 0, 0, -2),
+				Qt::AlignLeft | Qt::AlignBottom, tr("Release"));
+		// Sustain & Release
+		if (bSustainOn && bReleaseOn)
+			painter.drawText(rect.adjusted(+2, 0, 0, -2),
+				Qt::AlignLeft | Qt::AlignBottom, tr("Sustain & Release"));
+		// None: Silence Zone
+		if (!bSustainOn && !bReleaseOn)
+			painter.drawText(rect.adjusted(+2, 0, 0, -2),
+				Qt::AlignLeft | Qt::AlignBottom, tr("Silence Zone"));
 	}
 
 	painter.restore();
