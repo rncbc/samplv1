@@ -812,8 +812,7 @@ void samplv1widget_sample::setDca1Envelope(
 void samplv1widget_sample::drawDca1Envelope (
 	QPainter& painter, const QRect& rect, const QColor& rgbDca1 )
 {
-	// Background: GEN envelope time + DCA
-	// Draw an visual guide for the GEN1 envelope time.
+	// Background visual guide: GEN envelope time + DCA
 	// This is visual only and does not affect audio processing.
 
 	// ENV time range...
@@ -840,15 +839,20 @@ void samplv1widget_sample::drawDca1Envelope (
 		= ::lrintf(fMaxFrames * m_fDca1Attack * m_fDca1Attack);
 	const uint32_t iDecayLength
 		= ::lrintf(fMaxFrames * m_fDca1Decay * m_fDca1Decay);
+	const uint32_t iReleaseLength
+		= ::lrintf(fMaxFrames * m_fDca1Release * m_fDca1Release);
 
 	const uint32_t iAttackFrameEnd
 		= qMin(iFrameEnd, iFrameStart + iAttackLength);
 	const uint32_t iDecayFrameEnd
 		= qMin(iFrameEnd, iAttackFrameEnd + iDecayLength);
+	const uint32_t iReleaseFrameEnd
+		= qMin(iFrameEnd, iFrameStart + iReleaseLength);
 
 	const int x_start   = pixelFromFrames(iFrameStart);
 	const int x_attack  = pixelFromFrames(iAttackFrameEnd);
 	const int x_decay   = pixelFromFrames(iDecayFrameEnd);
+	const int x_release = pixelFromFrames(iReleaseFrameEnd);
 	const int x_end     = pixelFromFrames(iFrameEnd);
 
 	auto lighten_rgb = [](const QColor& rgb, int amount) {
@@ -879,6 +883,12 @@ void samplv1widget_sample::drawDca1Envelope (
 			)
 		: lighten_rgb(rgbDca1, 10);
 
+	const QColor rgbReleaseStart = QColor(255, 255, 255, 0);
+	const QColor rgbReleaseEnd   = rgbDca1;
+	const QColor rgbReleaseGuide = QColor(255, 255, 255, 50);
+
+	const QColor rgbSilenceZone = lighten_rgb(rgbDca1, 20);
+
 	painter.save();
 
 	QFont font = painter.font();
@@ -888,6 +898,7 @@ void samplv1widget_sample::drawDca1Envelope (
 	const QColor& rgbText
 		= lighten_rgb(rgbDca1, 100);
 
+	int labelFrame = 0;
 	// Attack phase
 	if (x_attack > x_start) {
 		const QRect rect(x_start, 0, x_attack - x_start - 1, h);
@@ -896,9 +907,15 @@ void samplv1widget_sample::drawDca1Envelope (
 		grad.setColorAt(1.0, rgbAttackEnd);
 		painter.fillRect(rect, grad);
 		painter.setPen(rgbText);
-	//	painter.drawLine(rect.left(), 0, rect.left(), h);
 		painter.drawText(rect.adjusted(+2, 0, 0, -2),
 			Qt::AlignLeft | Qt::AlignBottom, tr("Attack"));
+		if (x_attack > 100) {
+			labelFrame = iFrameStart + iAttackLength;
+			if (labelFrame > iFrameEnd && iSampleLength > iFrameEnd)
+				labelFrame = iFrameEnd;
+			painter.drawText(rect.adjusted(0, 0, -2, -2),
+				Qt::AlignRight | Qt::AlignBottom, QString::number(labelFrame));
+		}
 	}
 
 	// Decay phase
@@ -909,36 +926,55 @@ void samplv1widget_sample::drawDca1Envelope (
 		grad.setColorAt(1.0, rgbDecayEnd);
 		painter.fillRect(rect, grad);
 		painter.setPen(rgbText);
-	//	painter.drawLine(rect.left(), 0, rect.left(), h);
 		painter.drawText(rect.adjusted(+2, 0, 0, -2),
 			Qt::AlignLeft | Qt::AlignBottom, tr("Decay"));
+		if (x_decay - x_attack > 100){
+			labelFrame = iFrameStart + iDecayLength + iAttackLength;
+			if (labelFrame > iFrameEnd && iSampleLength > iFrameEnd)
+				labelFrame = iFrameEnd;
+			painter.drawText(rect.adjusted(0, 0, -2, -2),
+				Qt::AlignRight | Qt::AlignBottom, QString::number(labelFrame));
+		}
 	}
 
-	// Sustain & Release phase
-	if (x_end > x_decay) {
+	// Decay Silence
+	if (x_end > x_decay && !bSustainOn) {
+		const QRect rect(x_decay, 0, x_end - x_decay, h);
+		painter.fillRect(rect, rgbDca1);
+		painter.fillRect(rect, QBrush(rgbSilenceZone, Qt::BDiagPattern));
+	}
+
+	// Sustain phase
+	if (x_end > x_decay && bSustainOn) {
 		const QRect rect(x_decay, 0, x_end - x_decay, h);
 		painter.fillRect(rect, rgbSustain);
-		// None: Silence Zone
-		if (!bSustainOn && !bReleaseOn)
-			painter.fillRect(rect, QBrush(rgbDecayStart, Qt::BDiagPattern));
 		painter.setPen(rgbText);
-	// painter.drawLine(rect.left(), 0, rect.left(), h);
-		// Only Sustain
-		if (bSustainOn && !bReleaseOn)
-			painter.drawText(rect.adjusted(+2, 0, 0, -2),
-				Qt::AlignLeft | Qt::AlignBottom, tr("Sustain"));
-		// Only Release
-		if (!bSustainOn && bReleaseOn)
-			painter.drawText(rect.adjusted(+2, 0, 0, -2),
-				Qt::AlignLeft | Qt::AlignBottom, tr("Release"));
-		// Sustain & Release
-		if (bSustainOn && bReleaseOn)
-			painter.drawText(rect.adjusted(+2, 0, 0, -2),
-				Qt::AlignLeft | Qt::AlignBottom, tr("Sustain & Release"));
-		// None: Silence Zone
-		if (!bSustainOn && !bReleaseOn)
-			painter.drawText(rect.adjusted(+2, 0, 0, -2),
-				Qt::AlignLeft | Qt::AlignBottom, tr("Silence Zone"));
+		painter.drawText(rect.adjusted(+2, 0, 0, -2),
+			Qt::AlignLeft | Qt::AlignBottom, tr("Sustain"));
+	}
+
+	// Release
+	if (x_release > x_start) {
+		const QRect rect(x_start, h - 25, x_release - x_start -1, 12);
+		QLinearGradient grad(rect.left(), 0, rect.right(), 0);
+		grad.setColorAt(0.0, rgbReleaseStart);
+		grad.setColorAt(1.0, rgbReleaseEnd);
+		painter.fillRect(rect, grad);
+
+		painter.setPen(rgbReleaseGuide);
+		painter.drawLine(rect.right(), h / (m_iChannels * 2), rect.right(), rect.bottom() -14);
+		painter.drawLine(rect.left(), rect.bottom(), rect.right(), rect.bottom());
+
+		painter.setPen(rgbText);
+		painter.drawText(rect.adjusted(+2, 0, 0, -2),
+			Qt::AlignLeft | Qt::AlignBottom, tr("Release"));
+		if (x_release > 100) {
+			labelFrame = iFrameStart + iReleaseLength;
+			if ( labelFrame > iFrameEnd && iSampleLength > iFrameEnd)
+				labelFrame = iFrameEnd;
+			painter.drawText(rect.adjusted(0, 0, -2, 0),
+				Qt::AlignRight | Qt::AlignVCenter, QString::number(labelFrame));
+		}
 	}
 
 	painter.restore();
