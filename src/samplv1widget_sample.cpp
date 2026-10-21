@@ -963,7 +963,7 @@ void samplv1widget_sample::drawDca1Envelope (
 
 		painter.setPen(rgbReleaseGuide);
 		painter.drawLine(rect.right(), h / (m_iChannels * 2), rect.right(), rect.bottom() -14);
-		painter.drawLine(rect.left(), rect.bottom(), rect.right(), rect.bottom());
+	//	painter.drawLine(rect.left(), rect.bottom(), rect.right(), rect.bottom());
 
 		painter.setPen(rgbText);
 		painter.drawText(rect.adjusted(+2, 0, 0, -2),
