@@ -964,13 +964,13 @@ void samplv1widget_sample::drawDca1Envelope (
 		painter.drawLine(
 			rect.right(), h / (m_iChannels * 2),
 			rect.right(), rect.bottom() - 14);
-		iLabelFrame= iFrameStart + iReleaseLength;
+		iLabelFrame = iFrameStart + iReleaseLength;
 		painter.setPen(rgbText);
 		if (iLabelFrame > iFrameEnd && iSampleLength > iFrameEnd)
 			iLabelFrame = iFrameEnd;
 		painter.drawText(rect.adjusted(0, 0, -2, 0),
 			Qt::AlignRight | Qt::AlignVCenter,
-			tr("Release") + " " + QString::number(iLabelFrame));
+			tr("Release") + ' ' + QString::number(iLabelFrame));
 	}
 
 	painter.restore();
