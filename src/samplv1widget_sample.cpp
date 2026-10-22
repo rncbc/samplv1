@@ -898,7 +898,7 @@ void samplv1widget_sample::drawDca1Envelope (
 	const QColor& rgbText
 		= lighten_rgb(rgbDca1, 100);
 
-	int labelFrame = 0;
+	int iLabelFrame = 0;
 	// Attack phase
 	if (x_attack > x_start) {
 		const QRect rect(x_start, 0, x_attack - x_start - 1, h);
@@ -910,11 +910,11 @@ void samplv1widget_sample::drawDca1Envelope (
 		painter.drawText(rect.adjusted(+2, 0, 0, -2),
 			Qt::AlignLeft | Qt::AlignBottom, tr("Attack"));
 		if (x_attack > 100) {
-			labelFrame = iFrameStart + iAttackLength;
-			if (labelFrame > iFrameEnd && iSampleLength > iFrameEnd)
-				labelFrame = iFrameEnd;
+			iLabelFrame = iFrameStart + iAttackLength;
+			if (iLabelFrame > iFrameEnd && iSampleLength > iFrameEnd)
+				iLabelFrame = iFrameEnd;
 			painter.drawText(rect.adjusted(0, 0, -2, -2),
-				Qt::AlignRight | Qt::AlignBottom, QString::number(labelFrame));
+				Qt::AlignRight | Qt::AlignBottom, QString::number(iLabelFrame));
 		}
 	}
 
@@ -929,11 +929,11 @@ void samplv1widget_sample::drawDca1Envelope (
 		painter.drawText(rect.adjusted(+2, 0, 0, -2),
 			Qt::AlignLeft | Qt::AlignBottom, tr("Decay"));
 		if (x_decay - x_attack > 100){
-			labelFrame = iFrameStart + iDecayLength + iAttackLength;
-			if (labelFrame > iFrameEnd && iSampleLength > iFrameEnd)
-				labelFrame = iFrameEnd;
+			iLabelFrame = iFrameStart + iDecayLength + iAttackLength;
+			if (iLabelFrame > iFrameEnd && iSampleLength > iFrameEnd)
+				iLabelFrame = iFrameEnd;
 			painter.drawText(rect.adjusted(0, 0, -2, -2),
-				Qt::AlignRight | Qt::AlignBottom, QString::number(labelFrame));
+				Qt::AlignRight | Qt::AlignBottom, QString::number(iLabelFrame));
 		}
 	}
 
@@ -960,20 +960,21 @@ void samplv1widget_sample::drawDca1Envelope (
 		grad.setColorAt(0.0, rgbReleaseStart);
 		grad.setColorAt(1.0, rgbReleaseEnd);
 		painter.fillRect(rect, grad);
-
 		painter.setPen(rgbReleaseGuide);
-		painter.drawLine(rect.right(), h / (m_iChannels * 2), rect.right(), rect.bottom() -14);
+		painter.drawLine(
+			rect.right(), h / (m_iChannels * 2),
+			rect.right(), rect.bottom() - 14);
 	//	painter.drawLine(rect.left(), rect.bottom(), rect.right(), rect.bottom());
 
 		painter.setPen(rgbText);
 		painter.drawText(rect.adjusted(+2, 0, 0, -2),
 			Qt::AlignLeft | Qt::AlignBottom, tr("Release"));
 		if (x_release > 100) {
-			labelFrame = iFrameStart + iReleaseLength;
-			if ( labelFrame > iFrameEnd && iSampleLength > iFrameEnd)
-				labelFrame = iFrameEnd;
+			iLabelFrame = iFrameStart + iReleaseLength;
+			if (iLabelFrame > iFrameEnd && iSampleLength > iFrameEnd)
+				iLabelFrame = iFrameEnd;
 			painter.drawText(rect.adjusted(0, 0, -2, 0),
-				Qt::AlignRight | Qt::AlignVCenter, QString::number(labelFrame));
+				Qt::AlignRight | Qt::AlignVCenter, QString::number(iLabelFrame));
 		}
 	}
 
