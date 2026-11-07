@@ -2602,6 +2602,9 @@ samplv1::samplv1 ( uint16_t nchannels, float srate, uint32_t nsize )
 
 samplv1::~samplv1 (void)
 {
+	// no scheduled run may reach a half-destroyed instance.
+	samplv1_sched::sync_cancel(this);
+
 	delete m_pImpl;
 }
 
