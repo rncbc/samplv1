@@ -58,8 +58,8 @@ public:
 	// scheduled processor.
 	void sync_process();
 
-	// (pure) virtual processor.
-	virtual void process(int sid) = 0;
+	// virtual processor.
+	virtual void process(int /*sid*/) {}
 
 	// signal broadcast (static).
 	static void sync_notify(samplv1 *pSampl, Type stype, int sid);
@@ -88,6 +88,9 @@ public:
 	// process/clear pending schedules, immediately. (static)
 	static void sync_pending();
 	static void sync_reset();
+
+	// cancel pending schedules of an instance, immediately. (static)
+	static void sync_cancel(samplv1 *pSampl);
 
 private:
 

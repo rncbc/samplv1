@@ -51,6 +51,10 @@ public:
 	// clear all pending runs immediately.
 	void sync_reset();
 
+	// cancel pending runs of an instance or a schedule, immediately.
+	void sync_cancel(samplv1 *pSampl);
+	void sync_cancel(samplv1_sched *sched);
+
 protected:
 
 	// main thread executive.
@@ -111,8 +115,8 @@ samplv1_sched_thread::samplv1_sched_thread ( uint32_t nsize ) : QThread()
 // dtor.
 samplv1_sched_thread::~samplv1_sched_thread (void)
 {
-	// fake sync and wait
-	if (m_running && isRunning()) do {
+	// fake sync and wait (even if not yet running)
+	if (isRunning()) do {
 		if (m_mutex.tryLock()) {
 			m_running = false;
 			m_cond.wakeAll();
@@ -157,6 +161,32 @@ void samplv1_sched_thread::sync_reset (void)
 	QMutexLocker locker(&m_mutex);
 
 	clear();
+}
+
+
+// cancel pending runs of an instance, immediately;
+// waits for the one in progress, as run_process() holds the lock.
+void samplv1_sched_thread::sync_cancel ( samplv1 *pSampl )
+{
+	QMutexLocker locker(&m_mutex);
+
+	for (uint32_t i = 0; i < m_nsize; ++i) {
+		samplv1_sched *sched = m_items[i];
+		if (sched && sched->instance() == pSampl)
+			m_items[i] = nullptr;
+	}
+}
+
+
+// cancel pending runs of a schedule, immediately.
+void samplv1_sched_thread::sync_cancel ( samplv1_sched *sched )
+{
+	QMutexLocker locker(&m_mutex);
+
+	for (uint32_t i = 0; i < m_nsize; ++i) {
+		if (m_items[i] == sched)
+			m_items[i] = nullptr;
+	}
 }
 
 
@@ -231,6 +261,9 @@ samplv1_sched::samplv1_sched ( samplv1 *pSampl, Type stype, uint32_t nsize )
 // dtor (virtual).
 samplv1_sched::~samplv1_sched (void)
 {
+	if (g_sched_thread)
+		g_sched_thread->sync_cancel(this);
+
 	delete [] m_items;
 
 	if (--g_sched_refcount == 0) {
@@ -311,6 +344,14 @@ void samplv1_sched::sync_pending (void)
 {
 	if (g_sched_thread)
 		g_sched_thread->sync_pending();
+}
+
+
+// cancel pending schedules of an instance, immediately. (static)
+void samplv1_sched::sync_cancel ( samplv1 *pSampl )
+{
+	if (g_sched_thread)
+		g_sched_thread->sync_cancel(pSampl);
 }
 
 
