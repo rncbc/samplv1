@@ -4,6 +4,12 @@ samplv1 - an old-school polyphonic sampler
 ChangeLog
 
 
+GIT HEAD
+
+- LV2 Plug-in: let Qt dispatch host events in modal dialogs.
+  (GH PR #51)
+
+
 1.5.2  2026-11-13  A Mid-Fall'26 Release.
 
 - Fixed a crash on plug-in instance cleanup, racing the shared
