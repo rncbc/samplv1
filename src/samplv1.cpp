@@ -2115,7 +2115,6 @@ void samplv1_impl::resetTuning (void)
 		samplv1_tuning tuning(
 			m_tun.refPitch,
 			m_tun.refNote);
-		if (m_tun.keyMapFile.isEmpty())
 		if (!m_tun.keyMapFile.isEmpty())
 			tuning.loadKeyMapFile(m_tun.keyMapFile);
 		if (!m_tun.scaleFile.isEmpty())
